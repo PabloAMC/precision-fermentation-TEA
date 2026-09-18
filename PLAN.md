@@ -53,7 +53,8 @@ Honesty protocol — these are binding for every phase.
    pass with only the papers' own process inputs changed. Record failures in
    docs/VALIDATION.md before fixing them.
 4. **Quotes, not numbers.** Every titers.csv row carries a verbatim quote and
-   locator; nothing enters the base case without `verified_by_pablo: yes`.
+   locator; nothing enters the base case until the quote is checked against the full
+   text on disk (`verified: yes`). Pablo audits by exception, not row by row.
 5. **Public data only.** No private disclosures, no citing the model's own outputs.
 
 Model additions queued for Phase 2.

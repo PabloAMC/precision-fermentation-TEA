@@ -1,4 +1,4 @@
-product,host,titer_g_per_L,yield_g_per_g,purity,scale_L,mode,source_key,year,quote,locator,source_seen,evidence_grade,verified_by_pablo,note
+product,host,titer_g_per_L,yield_g_per_g,purity,scale_L,mode,source_key,year,quote,locator,source_seen,evidence_grade,verified,note
 blg,T. reesei,1,,,,bioreactor,Aro2023,2023,"The production level of TrBLG and TrOVA were 1 g/L and 2 g/L, respectively.",abstract,abstract,A,no,VTT/Onego lineage; bovine BLG
 blg,K. phaffii,1,,,,fed-batch,Kim1997,1997,"After 72 h of methanol induction, the secreted BLG reached levels of > 1 g/l.",abstract,abstract,A,no,methanol induction; 24 h glycerol + 72 h methanol
 blg,K. phaffii,5.14,,,,fed-batch,Li2026,2026,"the ESPRIT system produced 5.14 g/L beta-lactoglobulin and 1.95 g/L brazzein on glucose",abstract,abstract,A,no,methanol-free glucose process; highest verifiable academic BLG titer

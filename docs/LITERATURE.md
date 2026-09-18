@@ -61,7 +61,9 @@ fermentation Vivici cross-references), any Onego Bio filing under that assignee.
 - Any casein titer in g/L.
 - Batch time and cell density for BLG/OVA at production scale (patent envelopes only).
 
-## 7. Still to fetch (open access but bot-walled; a browser session gets them)
+## 7. Still to fetch
+See references/TO_FETCH.md (full list with DOIs, priorities and filenames).
+Old list:
 Aro2023 (full text), Eastham2024, Nielsen2024, Nielsen2025, David2026, David2026lca,
 CortesPena2020, Jarvio2021 accepted manuscript, the three Intelligen white papers,
 Yao2026 (needs institutional access), DSM WO2022269549.
