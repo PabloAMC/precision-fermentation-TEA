@@ -1,0 +1,11 @@
+__pycache__/
+*.egg-info/
+.ipynb_checkpoints/
+.pytest_cache/
+.venv/
+references/papers/*.pdf
+references/patents/*.pdf
+references/reports/*.pdf
+references/**/*.xlsx
+references/text/
+.DS_Store
