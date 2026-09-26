@@ -1,17 +1,16 @@
 # 'industry': adds grade C evidence (company claims, GFI private-sector survey averages).
-description: "Private-sector benchmark performance (GFI 2025 survey averages), 10 kt/yr, food-grade plant"
+# GFI 2025's 42 g/L is Hawkwood's average over private-company models of unspecified secreted
+# proteins and hosts (audit R7-M7), not a measured BLG or OVA titer. Everything else is the base
+# case (yield and cells derived from Intelligen's design).
+description: "Private-sector benchmark titer (GFI 2025 survey average), 10 kt/yr, food-grade plant"
 blg:
   strain.titer_g_L: 42            # gfi2025costs Table 2: private-sector average 42 g/L (grade C)
-  strain.X_prod_g_L: 100          # patents target 100-200 g DCW/L (Every2024-HY, grade B)
-  strain.Y_ps_g_g: 0.30
 ova:
   strain.titer_g_L: 42
-  strain.X_prod_g_L: 100
-  strain.Y_ps_g_g: 0.30
 mc_paths: [strain.titer_g_L, strain.t_prod_h, strain.Y_ps_g_g, strain.X_prod_g_L, strain.mu_prod_per_h,
-  hosts.kphaffii.maint_factor, fermenter.otr_cap_mol_m3_h, fermenter.turnaround_h, dsp.recovery_cell_removal,
-  dsp.uf_flux_LMH, dsp.membrane_price_usd_m2, dsp.membrane_skid_usd_m2, dsp.dryer_MJ_per_kg_water,
-  utilities.glucose_usd_kg, capital.cost_index_2018_to_2025, dsp.concentrate_target_frac_dry]
+  hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_g_g_h, fermenter.otr_cap_mol_m3_h, fermenter.turnaround_h,
+  dsp.paste_extracellular_frac, dsp.mf_flux_LMH, dsp.uf_flux_LMH, dsp.df_flux_LMH, dsp.membrane_price_usd_m2,
+  dsp.membrane_skid_usd_m2, dsp.dryer_MJ_per_kg_water, dsp.spray_dryer_cost_2018usd, utilities.glucose_usd_kg,
+  utilities.biomass_disposal_usd_t_dry, capital.cost_index_2018_to_2025, dsp.concentrate_target_frac_dry]
 mc_ranges:
   strain.titer_g_L: {low: 24, high: 60}   # public-model average to upper private claims (gfi2025costs)
-  strain.X_prod_g_L: {low: 60, high: 150}

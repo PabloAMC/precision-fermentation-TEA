@@ -19,24 +19,25 @@ overrides:
   strain.host: kphaffii
   strain.titer_g_L: 30                     # p.5
   strain.t_prod_h: 72                      # p.6 expression phase
-  strain.X_prod_g_L: 83.4                  # 92 g/L at harvest minus cells made during expression
-  strain.mu_prod_per_h: 0.0013             # 917 kg cells made in 72 h on ~8,900 kg (Eq. 2)
-  strain.Y_ps_g_g: 0.28                    # Eq. (2)
+  strain.X_prod_g_L: 107                   # 8,927 kg cells at the start of expression in ~83 m3 (base.yaml derivation)
+  strain.mu_prod_per_h: 0.00136            # 917 kg cells made in 72 h on 8,927 kg (Eq. 2)
+  # strain.Y_ps_g_g and the production-phase maintenance are the base values, which are derived
+  # from this anchor's Eq. (2): its expression-phase glucose matches by construction.
   strain.X0_g_L: 2.0                       # 5% inoculum (p.6)
-  hosts.kphaffii.maint_factor: 0.2         # Eq. (2) lumps maintenance into 0.28 g/g: lowest measured m_s
   fermenter.volume_m3: 136                 # p.5
   fermenter.fill_max: 0.787                # 107 m3 of 136 m3 at harvest (p.7)
   fermenter.turnaround_h: 12               # 5 fermenters, 24 h cycle, 108 h culture
   fermenter.seed_time_h: 15                # p.6
-  dsp.uf_end_g_L: 50                       # p.8
+  dsp.isolate_uf_end_g_L: 50               # p.8
   dsp.diafiltration_volumes: 0             # no DF step in the Intelligen train (precipitation instead)
   dsp.isolate_target_frac_dry: 0.99        # p.9
-  media.salts_kg_per_m3: 38.0              # Table 1
+  media.salts_kg_per_m3: 22.3              # Table 3: 816,341 kg/yr over 342 x 107 m3
   media.salts_price_usd_kg: 0.20           # Table 3
   media.methanol_kg_per_kg_product: 0.30   # Table 3: 280 t per 940 t OVA
   utilities.glucose_usd_kg: 0.36           # Table 3
   utilities.electricity_usd_kWh: 0.090     # Table 4
   utilities.ammonia_usd_kg: 0.507          # Table 3: NH3 (30%) $0.152/kg
+  fermenter.nh3_feed_wt: 0.30              # p.6
   utilities.steam_usd_t: 20.0              # Table 4
   utilities.water_usd_m3: 3.0              # Table 3 'Water' $3/t
   capital.cost_index_2018_to_2025: 1.33    # our base index (Intelligen reports 2025 prices)

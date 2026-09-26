@@ -5,13 +5,19 @@ physical-limit. Each is base.yaml plus the overrides in data/pf/scenarios/<name>
 ('common' plus the product block).
 
 Analyses:
-  cost_map       MSP over titer x production time, with O2/heat feasibility per cell (Fig. 1)
+  cost_map       MSP over titer x production time, with feasibility per cell (Fig. 1)
   bridge         step-by-step walk from NREL's crude enzyme to a food-grade isolate (Fig. 2)
   required       titer needed for a target $/kg, per production time (Fig. 3)
-  physical_limit grid search over cell density, production time and titer (Fig. 4)
-  tornado        one-at-a-time low/high swings coloured by evidence grade (Fig. 5)
+  physical_limit search over cell density and production time, titer at its feasibility
+                 ceiling (cost falls with titer until a limit binds) (Fig. 4)
+  tornado        one-at-a-time low/high swings coloured by evidence grade; an end that breaks a
+                 physical limit is moved to the feasibility boundary (Fig. 5)
   monte_carlo    triangular sampling of the scenario's uncertain parameters
   scale_curve    MSP vs annual output, US vs EU, both capital conventions (Fig. 6)
+
+Feasibility: a design is infeasible if it breaks O2 transfer, heat removal, titer reachability,
+the vessel volume or the minimum initial fill, product solubility, the energetic ceiling on the
+yield, or the specific-productivity ceiling (HARD_LIMITS, matched against the plant's flags).
 """
 from __future__ import annotations
 
@@ -21,12 +27,14 @@ import numpy as np
 import yaml
 
 from . import params, plant
+from . import product as pr
 from .params import v
 
 ROOT = Path(__file__).resolve().parents[2]
 SCEN = ROOT / "data/pf/scenarios"
-LIGHT = {"capital.basis": "nrel"}          # the published-TEA ('light') capital convention
-HARD_LIMITS = ("OUR", "heat", "reachable", "volume")   # flags that make a design physically infeasible
+LIGHT = {"capital.basis": "nrel"}          # the design-report ('light', NREL-style) capital convention
+HARD_LIMITS = ("OUR", "heat", "reachable", "volume", "initial fill", "solubility", "energetic ceiling",
+               "specific productivity", "did not reach")   # flags that make a design physically infeasible
 
 
 def is_feasible(r: plant.Result, extra: tuple = ()) -> bool:
@@ -38,14 +46,26 @@ def load(name: str) -> dict:
     return yaml.safe_load((SCEN / f"{name}.yaml").read_text())
 
 
-def scenario_params(name: str, product: str, extra: dict | None = None) -> dict:
+def scenario_params(name: str, product: str, extra: dict | None = None, variant: str | None = None) -> dict:
+    """base.yaml + the scenario's 'common' block + its product block (or a named variant block)."""
     s = load(name)
-    ch = {"plant.product": product, **s.get("common", {}), **s.get(product, {}), **(extra or {})}
+    ch = {"plant.product": product, **s.get("common", {}), **s.get(variant or product, {}), **(extra or {})}
     return params.override(params.load(), ch)
 
 
-def run(name: str, product: str, extra: dict | None = None) -> plant.Result:
-    return plant.evaluate(scenario_params(name, product, extra))
+def run(name: str, product: str, extra: dict | None = None, variant: str | None = None) -> plant.Result:
+    return plant.evaluate(scenario_params(name, product, extra, variant))
+
+
+def mc_config(name: str, product: str) -> tuple[list[str], dict]:
+    """Uncertain parameters and scenario ranges for one product (host-specific; audit R4-4)."""
+    s = load(name)
+    paths, ranges = s.get("mc_paths", []), s.get("mc_ranges", {})
+    if isinstance(paths, dict):
+        paths = paths.get("common", []) + paths.get(product, [])
+    if ranges and any(k in ranges for k in ("common", "blg", "ova")):
+        ranges = {**ranges.get("common", {}), **ranges.get(product, {})}
+    return paths, ranges
 
 
 def cost_map(p: dict, titers, t_prods) -> dict:
@@ -125,63 +145,146 @@ def min_feasible_t_prod(p: dict, titer: float, lo: float = 12.0, hi: float = 480
     return None
 
 
-def physical_limit(product: str, extra: dict | None = None) -> dict:
+def binding(r: plant.Result, p: dict, tol: float = 0.02) -> list[str]:
+    """Constraints within `tol` of their limit in a design (for the physical-limit optimum)."""
+    d, out = r.design, []
+    if d["our_peak"] >= d["otr_max"] * (1 - tol):
+        out.append("O2 transfer")
+    cap = v(p, "fermenter.heat_removal_max_kW_m3")
+    if cap and d["heat_peak_kW_m3"] >= cap * (1 - tol):
+        out.append("heat removal")
+    qmax = plant._opt(p, "strain.q_p_max_mg_g_h")
+    if qmax and d["q_p_mg_g_h"] >= qmax * (1 - tol):
+        out.append("specific productivity")
+    mf = plant._opt(p, "fermenter.min_initial_fill")
+    if mf and d["W0_m3"] <= mf * v(p, "fermenter.volume_m3") * (1 + tol):
+        out.append("minimum initial fill")
+    if d["X_end"] >= v(p, "strain.X_max_g_L") * (1 - tol):
+        out.append("maximum cell density")
+    return out
+
+
+def _best_titer(p: dict, X: float, tp: float, hi: float) -> dict | None:
+    """Cheapest design at cell density X and production time tp: the titer at its feasibility ceiling."""
+    q = params.override(p, {"strain.X_prod_g_L": float(X), "strain.t_prod_h": float(tp)})
+    T = max_feasible_titer(q, tp, lo=1.0, hi=hi)
+    if T is None:
+        return None
+    q = params.override(q, {"strain.titer_g_L": T})
+    r = plant.evaluate(q)
+    return dict(result=r, X_prod=float(X), t_prod=float(tp), titer=T, params=q) if is_feasible(r) else None
+
+
+def physical_limit(product: str, extra: dict | None = None, fast: bool = False) -> dict | None:
+    """Minimise MSP_CCF over cell density and production time; the titer sits at its ceiling.
+
+    A coarse grid over (X_prod, t_prod) is followed by two rounds of coordinate refinement
+    (audit R4-1/R7-C2: the v1 grid left optima on its edges).
+    """
     s = load("physical_limit")
     p = scenario_params("physical_limit", product, extra)
-    qmax = s["q_p_max_mg_g_h"] / 1000
+    sols = [plant._opt(p, "plant.solubility_override_g_L"),
+            (pr.load(product).get("solubility_practical_g_L") or {}).get("value")]
+    t_hi = min([400.0] + [x for x in sols if x])
+    X_max = v(p, "strain.X_max_g_L")
+    Xs = [x for x in s["search"]["X_prod_g_L"] if x <= X_max] + [X_max]
+    ts = s["search"]["t_prod_h"]
+    if fast:
+        Xs, ts = Xs[::2] + [X_max], ts[::2]
     best = None
-    for X in s["search"]["X_prod_g_L"]:
-        for tp in s["search"]["t_prod_h"]:
-            for T in s["search"]["titer_g_L"]:
-                q = params.override(p, {"strain.X_prod_g_L": X, "strain.t_prod_h": tp, "strain.titer_g_L": T})
-                r = plant.evaluate(q)
-                if r.design["q_p_mg_g_h"] / 1000 > qmax * 1.001:
-                    continue
-                if not is_feasible(r, extra=("solubility",)):
-                    continue
-                if best is None or r.msp_ccf < best["result"].msp_ccf:
-                    best = dict(result=r, X_prod=X, t_prod=tp, titer=T, params=q)
+    for X in sorted(set(Xs)):
+        for tp in ts:
+            c = _best_titer(p, X, tp, t_hi)
+            if c and (best is None or c["result"].msp_ccf < best["result"].msp_ccf):
+                best = c
+    if best is None:
+        return None
+    dX, dt = 0.25 * best["X_prod"], 0.25 * best["t_prod"]
+    for _ in range(1 if fast else 2):
+        for key, step, lo_b, hi_b in (("X_prod", dX, 10.0, X_max), ("t_prod", dt, 6.0, 400.0)):
+            for x in (best[key] - step, best[key] - step / 2, best[key] + step / 2, best[key] + step):
+                x = min(max(x, lo_b), hi_b)
+                X, tp = (x, best["t_prod"]) if key == "X_prod" else (best["X_prod"], x)
+                c = _best_titer(p, X, tp, t_hi)
+                if c and c["result"].msp_ccf < best["result"].msp_ccf:
+                    best = c
+        dX, dt = dX / 3, dt / 3
+    best["binding"] = binding(best["result"], best["params"])
     return best
 
 
-def tornado(p: dict, paths: list[str]) -> list[dict]:
-    base = plant.evaluate(p).msp_ccf
+def _boundary(p: dict, path: str, x0: float, x1: float, n: int = 8) -> float:
+    """Last feasible value on the way from a feasible x0 towards an infeasible x1 (bisection)."""
+    a, b_ = x0, x1
+    for _ in range(n):
+        mid = 0.5 * (a + b_)
+        try:
+            ok = is_feasible(plant.evaluate(params.override(p, {path: mid})))
+        except ValueError:
+            ok = False
+        a, b_ = (mid, b_) if ok else (a, mid)
+    return a
+
+
+def tornado(p: dict, paths: list[str], capital_bar: bool = True) -> list[dict]:
+    """One-at-a-time swings. An end that breaks a physical limit is replaced by the feasibility
+    boundary (flagged `truncated_*`), so no bar quotes the cost of an impossible plant
+    (audit R7-M1). The capital convention is added as a structural bar."""
+    r0 = plant.evaluate(p)
+    base = r0.msp_ccf
     out = []
     for path in paths:
-        node = params._leaf(p, path)
-        lo, hi = node.get("low"), node.get("high")
-        if lo is None or hi is None:
+        b = params.bounds(p, path)
+        if b is None:
             continue
-        r_lo = plant.evaluate(params.override(p, {path: lo}))
-        r_hi = plant.evaluate(params.override(p, {path: hi}))
-        out.append(dict(path=path, low=lo, high=hi, msp_low=r_lo.msp_ccf, msp_high=r_hi.msp_ccf, base=base,
-                        feasible_low=is_feasible(r_lo), feasible_high=is_feasible(r_hi),
-                        grade=node.get("grade", ""), swing=abs(r_hi.msp_ccf - r_lo.msp_ccf)))
+        x0 = float(v(p, path))
+        row = dict(path=path, base=base, grade=params.grade(p, path))
+        for side, x in (("low", b[0]), ("high", b[1])):
+            try:
+                r = plant.evaluate(params.override(p, {path: x}))
+                ok = is_feasible(r)
+            except ValueError:
+                r, ok = None, False
+            trunc = False
+            if not ok and x != x0:
+                x = _boundary(p, path, x0, x)
+                r, trunc = plant.evaluate(params.override(p, {path: x})), True
+            row.update({side: x, f"msp_{side}": r.msp_ccf if r else base, f"truncated_{side}": trunc,
+                        f"feasible_{side}": True})
+        row["swing"] = abs(row["msp_high"] - row["msp_low"])
+        out.append(row)
+    if capital_bar:
+        light = plant.evaluate(params.override(p, LIGHT)).msp_ccf
+        out.append(dict(path="capital.basis", base=base, grade="structural", low="design-report (NREL-style)",
+                        high="price-anchored (Humbird)", msp_low=light, msp_high=base, truncated_low=False,
+                        truncated_high=False, feasible_low=True, feasible_high=True, swing=abs(base - light)))
     return sorted(out, key=lambda d: -d["swing"])
 
 
 def monte_carlo(p: dict, paths: list[str], n: int = 500, seed: int = 0, ranges: dict | None = None) -> dict:
     """Triangular sampling of `paths`. `ranges` overrides low/high per path for the scenario.
 
-    Draws that break a physical limit (O2 transfer, heat, reachable titer, volume) are kept
-    in the record but excluded from the percentiles, which describe feasible plants only.
-    The feasible fraction is reported alongside.
+    Draws that break a physical limit, or for which the model cannot build a plant (ValueError),
+    count as infeasible (audit R4-10); percentiles describe feasible plants only, and the
+    feasible fraction is reported alongside.
     """
     if ranges:
         p = params.override(p, {k: dict(val) for k, val in ranges.items()})
     rng = np.random.default_rng(seed)
     msp, feas = [], []
     for _ in range(n):
+        q = params.sample(p, rng, paths)
         try:
-            r = plant.evaluate(params.sample(p, rng, paths))
+            r = plant.evaluate(q)
+            msp.append(r.msp_ccf)
+            feas.append(is_feasible(r))
         except ValueError:
-            continue
-        msp.append(r.msp_ccf)
-        feas.append(is_feasible(r))
+            msp.append(np.nan)
+            feas.append(False)
     msp, feas = np.array(msp), np.array(feas)
-    ok = msp[feas] if feas.any() else msp
-    return dict(msp=msp, feasible=feas, p10=float(np.percentile(ok, 10)), p50=float(np.percentile(ok, 50)),
-                p90=float(np.percentile(ok, 90)))
+    ok = msp[feas]
+    pct = (lambda q_: float(np.percentile(ok, q_))) if ok.size else (lambda q_: float("nan"))
+    return dict(msp=msp, feasible=feas, p10=pct(10), p50=pct(50), p90=pct(90))
 
 
 def scale_curve(p: dict, outputs_t) -> dict:
@@ -218,12 +321,14 @@ def bridge_steps() -> list[tuple[str, dict]]:
         ("food-grade indoor sanitary plant", reset("capital.facility_class")),
         ("host: K. phaffii stoichiometry and broth (no maintenance)", {"strain.host": "kphaffii",
                                                                      "hosts.kphaffii.maint_factor": 0.0,
+                                                                     "hosts.kphaffii.m_s_prod_g_g_h": 0.0,
                                                                      "hosts.treesei.maint_factor": BASE}),
-        ("high-density yeast process: 80 g/L cells, yeast media (no maintenance)",
+        ("high-density yeast process: 107 g/L cells, yeast media (no maintenance)",
          reset("strain.X_prod_g_L", "strain.X0_g_L", "strain.mu_prod_per_h", "strain.Y_ps_g_g",
                "media.salts_kg_per_m3", "media.salts_price_usd_kg", "media.antifoam_kg_per_m3",
                "media.antifoam_price_usd_kg")),
-        ("maintenance energy at 80 g/L cells (Tijhuis)", reset("hosts.kphaffii.maint_factor")),
+        ("maintenance energy (Tijhuis in growth, measured m_s in production)",
+         reset("hosts.kphaffii.maint_factor", "hosts.kphaffii.m_s_prod_g_g_h")),
         ("schedule and vessel: 72 h production, 12 h turnaround, 200 m3",
          reset("strain.t_prod_h", "fermenter.turnaround_h", "fermenter.seed_time_h", "fermenter.volume_m3",
                "plant.operating_days")),

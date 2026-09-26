@@ -190,3 +190,99 @@ production-phase integration.
 | R2-Q1 | No minimum working volume: batches start at 4–30% fill | Fix: sourced minimum-fill feasibility limit (sourcing requested) | ceilings at long times fall sharply |
 | R2-Q2 | Intelligen's 0.28 g/g (Eq. 2) is a lumped production-phase yield with no maintenance term and 8% biomass; the model uses 0.28 for the product reaction alone and adds Tijhuis maintenance and growth. Production O₂ is 186 mol/kg vs Intelligen's 60 | Decide with the maintenance evidence: state the definition, derive the product-reaction yield consistently, use measured producing-strain maintenance | first-order for the O₂ wall |
 | R2-Q3 | No product during growth, although the base (methanol-free) promoter is constitutive | Document as a simplification | — |
+
+## R6 — process evidence, titers, parameters against evidence
+
+Verified: 118/118 local quotes found (77 contiguous, 41 across two-column interleaving, each read by
+hand); 14/14 Humbird workbook cells; 97 online entries re-fetched, 93 verbatim, 3 non-verbatim with
+correct numbers, 1 misread (R6-M3); the engineering quotes gathered with a paraphrasing fetch tool
+held up (33/34 verbatim). All 46 verified titer rows match their full texts. All 62 parameters in
+strain, hosts, fermenter, media and dsp checked against their sources; page citations resolve.
+
+| ID | Finding | Decision | Effect |
+|---|---|---|---|
+| R6-C1 | Yao 2026 (13.88 g/L BLG, K. phaffii, peer-reviewed) is the best public titer, 2.7× the Li 2026 value used | Fix: academic BLG uses Yao (ethanol-induced production costed as glucose-equivalent, flagged; per electron the two feeds cost about the same); Li 2026 (on glucose) shown alongside | academic BLG ~$188 → ~$71–81/kg |
+| R6-C2 | Production-phase stoichiometry adds growth (0.01/h) and Tijhuis maintenance on top of Intelligen's lumped 0.28 g/g; the effective production-phase yield is 0.11 g/g (same as R2-Q2) | Decide with the producing-strain maintenance evidence: product-reaction yield derived from Intelligen Eq. 2, Intelligen's growth rate, measured maintenance; report the effective yield | up to −10% MSP; 72 h ceiling 54 → up to 72 g/L |
+| R6-C3 | Diafiltration at the concentration flux (same as R3-F2) | Fix | +3–8% |
+| R6-C4 | Academic OVA (T. reesei) grows cells at 0.01/h for 120 h, harvesting 77 g/L against the cited 20–50 g/L and ≥120 h total | Fix: no production-phase growth for that case; total batch ~133 h (Aro's sampling) | −9 to −20% |
+| R6-M1 | MF flux 10 L/m²/h is a final bioburden filtration (EVERY Table 9), not primary clarification | Fix: 20 L/m²/h grade D, range 10–50 | −3 to −4% |
+| R6-M2 | Glucose feed 0.5 w/w cited as a 500 g/L solution (0.42 w/w) | Document: the model tracks volume at 1 kg/L, so 0.5 gives the right feed volume for a 500 g/L solution (as R2 found); only feed mass is off, negligibly | none |
+| R6-M3 | Nielsen's "carbon yield above 70%" is a relative improvement (+73% vs centre point) | Fix the evidence entry (value null) and every text citing it | none on costs |
+| R6-m1 | Salts on final broth (38 kg/m³); Intelligen Table 3 implies 22.3 kg/m³ of final broth | Fix | −0.3 to −0.6% |
+| R6-m2–m13 | Isolate purity 0.97 vs Intelligen's 99%; "lowest measured maintenance" is 0.0023 not 0.0035; physical_limit.yaml cites the model's own 118 mg/g/h as NREL's (honesty rule 5); NREL P/V per liquid is 2,500 W/m³; us_max has no evidence entry; several unsourced range ends; harvest densities cited for a start-of-production parameter; X0 rationale; one wrong DOI and wrong authors in hosts.yaml; 4 non-verbatim quotes; NREL page slips and an unsourced salts price; MF recovery double count | Fix each | small |
+
+## Research pass on the placeholders (P-1 to P-13; `data/evidence/placeholders.yaml`)
+
+A sourcing pass (57 entries, every quote read from raw text) covered the v1 grade-E
+placeholders and the audit's open sourcing requests.
+
+| ID | Parameter | Decision | Effect (base BLG unless noted) |
+|---|---|---|---|
+| P-1 | Membrane skid | $1,200/m² (E) → $263/m² (B: Mercier-Bouchard 2017, spiral-wound dairy MF), range 85–526. Membranes $150 → $45/m² (dairy spiral-wound elements), high 272 | the v1 values would add +16.6% now that diafiltration is costed at 5 L/m²/h |
+| P-2 | Downstream building area | No source; stays E (0.5). Check: the model's buildings are 0.34 × equipment cost, against Petrides' 0.45 for enzyme plants (range 0.1–3.0) | none |
+| P-3 | Laboratory area | 400 m², E → D (Humbird's 6.8 kt/yr cultured-meat plant has 441 m²) | none |
+| P-4 | Antifoam | 0.5 (E) → 0.2 kg/m³ (B: Behm 2022; patent practice 0.02–0.2) | <0.1% |
+| P-5 | Spent-cell disposal | $0 (E) → US $343/t dry (landfill tipping fee at 20% solids), EU $158/t (anaerobic digestion gate fee), grade C; low 0 (feed or fertiliser outlet) | +$1.20/kg (+4.1%) |
+| P-6 | Construction location factor | New: EU 1.09 × US Midwest (B: IEAGHG 2018, same plants costed in NL and the US Midwest), on TCI | EU +$1.80/kg |
+| P-7 | Heat removal ceiling | Stays 25 kW/m³ (D), now bracketed by sources (8–30 kW/m³ in 200–300 m³ SCP fermenters; 17 kW/m³ with coils alone; 42 claimed at pilot scale) | none |
+| P-8 | OVA solubility | Intelligen's "50 g/L practical solubility" is unsourced and matches vendor QC concentrations (Sigma 40, Interchim 50 mg/mL); OVA dissolves at 200 g/L (Wang 2025), egg white is ultrafiltered to ~110 g/L OVA (Tsai 1977). No longer a hard limit; 50 g/L is kept as a sensitivity. Caveat: no data at pH 5 (the fermentation pH, near the pI) | OVA concentrate −6% (dryer feed); the OVA ceiling and physical limit are no longer capped at 50 g/L |
+| P-9 | Spray dryer | $2.5M at 2 t/h, exponent 0.6 (unsourced) → $924k at 790 kg/h, exponent 0.62 (B: Yver 2012, supplier-based); range from BioSTEAM (low) and Watson Dairy Consulting (high) | −0.6% |
+| P-10/11 | Evaporator and dryer feed solids | Dairy practice concentrates >60%-protein streams by membranes, not evaporators. Dryer feed: BLG 0.30 (WPC80/WPI 27–37% DM), OVA 0.23 (egg white UF), both C; the final concentration is costed at the DF flux | −0.9% BLG, −6% OVA |
+| P-12 | Minimum initial fill | New feasibility limit 0.30 of vessel volume (B: Intelligen starts at 30.5%; NREL 50%) | base unaffected (39%); long, high-titer designs become infeasible |
+| P-13 | Production-phase maintenance | Measured 0.00437 g/g/h (A: Rebnegger 2024, VHH-secreting K. phaffii at low growth); range 0.0023–0.0161 | see R2-Q2 below |
+
+## Decision on R2-Q2 / R6-C2: production-phase stoichiometry
+
+Intelligen's Eq. 2 is a lumped expression-phase stoichiometry (100 g glucose → 28 g rOVA +
+8 g cells + 4 g host proteins, maintenance included). v1 used its 0.28 as the yield of the
+product reaction alone and then added Tijhuis maintenance (0.0174 g/g/h) and growth at
+0.01/h on top, an effective production-phase yield of 0.11. With chemostat-level maintenance
+Eq. 2 is impossible: maintenance alone would use all of its glucose.
+
+Decision (consistent with the evidence at near-zero growth, where maintenance falls about
+threefold; Rebnegger 2016):
+- production-phase maintenance = measured 0.00437 g/g/h (P-13); growth phase keeps Tijhuis;
+- growth in production = Intelligen's own: 917 kg of cells on 8,927 kg in 72 h, 0.0014/h;
+- product-reaction yield derived so the model reproduces Eq. 2: 1/Y = 100/28 − (8/28)/0.5705
+  − 0.00437/0.00475 → **Y_ps = 0.465** (0.80 of the energetic ceiling); tested in
+  `tests/test_model.py`;
+- cell density at the start of production re-derived with Intelligen's volume balance
+  (8,927 kg in ~83 m³): **107 g/L**, not the 80–83 g/L read from harvest (R6-m). The model's
+  harvest density is then 94 g/L (Intelligen 92) and q_p 4.65 mg/g/h (Intelligen 4.75).
+
+Effect: the production-phase effective yield is 0.276 (Intelligen 0.28). Base BLG moves little
+(+0.1% against the v1 set, because more cells at the start of production offset the cheaper
+stoichiometry), but O₂ per kg falls from 241 to 147 mol and the titer ceiling rises (see the
+results). The v1 reading (Y_ps 0.28) is the low end of the yield range.
+
+## Batch 2 implementation (2026-09-27)
+
+Implemented: every "Fix" decision in R1–R6 that touches the model or data, P-1 to P-13 and
+R2-Q2/R6-C2. The report and memo text (R7, and the report parts of R1, R2 and R4) follow in
+the rebuild.
+
+Base results, v1 → batch 2 (price-anchored capital, US Midwest, 10 kt/yr):
+
+| Case | v1 | Batch 2 |
+|---|---|---|
+| BLG concentrate, MSP_CCF $/kg protein | 29.18 | 29.37 |
+| OVA concentrate | 31.60 | 29.45 |
+| OVA isolate | 37.80 | 35.12 |
+| BLG, EU (NL) | 33.56 | 33.52 (now with the 1.09 construction factor) |
+| Academic BLG | 187.7 (Li 5.14 g/L) | 64.2 (Yao 13.88 g/L, ethanol-induced, flagged); Li 5.14 g/L 164.1 |
+| Academic OVA (T. reesei, 2 g/L) | 467.3 | 389.8 |
+| Industry BLG (42 g/L) | 22.81 | 21.91 |
+
+One-at-a-time effects on base BLG of reverting a batch-2 decision: membranes to v1 prices
++16.6%; no spent-cell disposal −4.1%; diafiltration at 30 L/m²/h −2.7%; v1 production
+stoichiometry alone +2.3%; no centrifuge paste loss −1.9%; MF at 10 L/m²/h +1.1%; dryer feed
+at 15% solids +0.9%; v1 dryer basis +0.6%; no CIP −0.7%; salts at 38 kg/m³ +0.4%.
+
+Code and data changes: `pf_ferm` (production-phase maintenance, production-phase glucose),
+`plant` (paste-model centrifugation, MF/UF/DF, dryer feed solids, whole fermenters, chillers,
+supervisors, CIP, location factor, P/O-based ceiling, q_p ceiling, crude branch), `params`
+(location-keyed ranges, order-independent overrides, strict sampling), `scenarios` (feasibility
+limits, tornado truncation and capital bar, host-specific Monte Carlo counting errors as
+infeasible, refined physical-limit search with binding constraints), calibration cases (R4-3,
+R4-6, R4-7, R4-17, R6-m12), evidence corrections (R6-m10/m11, NP-5), titers.csv (new full
+texts), and 22 new model tests.

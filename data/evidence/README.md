@@ -1,7 +1,7 @@
 # data/evidence/ — sourced parameter candidates (Phase B)
 
 Research output, one YAML per topic. The model never reads these files directly. A value
-moves into data/assumptions.yaml (or a host/product/calibration file) only after its
+moves into data/pf/base.yaml (or a host/product/calibration file) only after its
 quote has been checked, keeping the same source fields.
 
 Each entry:

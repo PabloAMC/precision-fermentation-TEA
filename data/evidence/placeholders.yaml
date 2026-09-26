@@ -1,0 +1,999 @@
+# data/evidence/placeholders.yaml: evidence gathered 2026-09-26 (audit batch 2) for the parameters
+# that were grade-E placeholders in v1, and for the audit's open sourcing requests: membrane skid
+# cost (1), downstream floor area (2), lab area (3), antifoam (4), spent-biomass disposal (5),
+# NL-vs-US construction location factor (6), fermenter heat transfer (7), ovalbumin solubility (8),
+# spray-dryer cost (9), evaporators (10), dryer feed solids (11), minimum initial fill (12) and the
+# maintenance of producing K. phaffii (13). Decisions taken from it are in data/pf/base.yaml and
+# docs/AUDIT.md (P-1 to P-13). Items are numbered in the section headers below.
+#
+# Evidence for the grade-E placeholders and the extra items 9-13 (research pass 2026-09-26).
+# Format: data/evidence/README.md. Every quote was read from raw text: curl + tag stripping,
+# Europe PMC full-text XML, pdftotext on PDFs downloaded to the scratch dir (then deleted),
+# official JSON APIs (Comext, Comtrade, eCFR), or DOM text from the built-in browser.
+# No quote comes from a summarising fetch tool. Entries with quote: null are leads that could
+# not be verified; they are NOT usable until someone reads the source.
+# "Derived" numbers in notes are my arithmetic, not the source's. Check them.
+# Values keep the source's own units and years; conversions appear only in notes.
+
+# =========================================================================================
+# 1. dsp.membrane_skid_usd_m2 (MF/UF skid excluding membranes, $ per m2 of membrane)
+# =========================================================================================
+
+- key: membrane_system_capex_sw_vs_ceramic_dairy_mercierbouchard2017
+  value: 321.02
+  high: 5079.37
+  unit: "CAD per m2 membrane, capital investment excluding membranes (value = polymeric spiral-wound 0.1 um MF; high = ceramic graded-permeability MF); cost year not stated (paper 2017)"
+  grade: B
+  source: "Mercier-Bouchard D, Benoit S, Doyen A, Britten M, Pouliot Y. Process efficiency of casein separation from milk using polymeric spiral-wound microfiltration membranes. J Dairy Sci 100:8838-8848 (2017)"
+  doi_or_url: 10.3168/jds.2017-13015
+  locator: "Table 4 footnote 2, p.8846 (author PDF on ideatech.fsaa.ulaval.ca)"
+  quote: "Comparative capital investment costs (excluding membranes) of Can$321.02/m2 for SW membranes and Can$5,079.37/m2 for GP membranes. Depreciation of 5% per year applied."
+  read: fulltext
+  note: >-
+    Design assumption in a peer-reviewed simulation of an industrial dairy plant treating
+    1.5 million L of skim milk per day (20 h). Table 4 sizes the plants at "Membrane area
+    required (m2) 5,184.7" (spiral-wound) and "1,353.6" (ceramic). Footnote 3 prices the
+    membranes separately: CAD 300 per 6.69 m2 spiral module (about CAD 45/m2) and CAD 1,200
+    per 0.72 m2 ceramic module (about CAD 1,667/m2). The row is labelled "Installation
+    capital investment", so these are probably installed costs, not purchase costs; the paper
+    does not say. Derived: about USD 250/m2 (spiral) and USD 3,900/m2 (ceramic) at an assumed
+    2017 rate of 1.30 CAD/USD. Food-grade sanitary design, the closest analogue found for a PF
+    plant. The authors attribute the SW-vs-ceramic comparison to Hu et al. (2015), not read.
+
+- key: ro_system_capex_dairy_chamberland2020
+  value: 400
+  unit: "CAD per m2 membrane, RO system cost (industrial value); cost year not stated (paper 2020)"
+  grade: B
+  source: "Chamberland J, Benoit S, Doyen A, Pouliot Y. Integrating reverse osmosis to reduce water and energy consumption in dairy processing: a predictive analysis for Cheddar cheese manufacturing plants. J Water Process Eng 38:101606 (2020)"
+  doi_or_url: 10.1016/j.jwpe.2020.101606
+  locator: "Section 2.4 (CAPEX assumptions), p.3 (author PDF on ideatech.fsaa.ulaval.ca)"
+  quote: "They were calculated using the following assumptions: RO system costs of 400 CA$. m-2 (industrial value), interest rate of 7%, an amortization period of 15 years [37]."
+  read: fulltext
+  note: >-
+    Reverse osmosis on dairy streams (whey, UF permeate, skim milk), spiral-wound. "Industrial
+    value" means industry-supplied; the paper does not say whether membranes are included.
+    RO skids need higher-pressure housings and pumps than UF, so a UF skid should cost the
+    same or less per m2. Derived: about USD 300/m2 at an assumed 2020 rate of 1.34 CAD/USD.
+    Quote reassembled from the two-column PDF text (hyphenation "RO sys-tem" removed).
+
+- key: membrane_hardware_cost_food_water_superpro
+  value: 85
+  low: 70
+  high: 100
+  unit: "USD per m2 membrane, hardware (purchase) cost for large food and water installations; cost year not stated"
+  grade: B
+  source: "Intelligen Inc. SuperPro Designer online help, Appendix A 'Feed & Bleed Concentration (Continuous Membrane Filtration)', section Equipment Purchase Cost (accessed 2026-09-26)"
+  doi_or_url: https://docs.intelligen.com/spd/SPDWebHelp/Bk7/AppendixA/Feed_Bleed_Concentration_Continuous_Membrane_Filtration.htm
+  locator: "Equipment Purchase Cost paragraph"
+  quote: "For large membrane installations in the food and water industries, the cost of hardware is in the range of $70-100/m 2 of membrane area. For small installations in the biopharmaceutical industry, the hardware cost is approximately 10 times higher."
+  read: html
+  note: >-
+    value is the midpoint. The preceding sentences say purchase cost comes from "built-in
+    correlations derived from vendor data" and that "a unit sold to the biopharmaceutical
+    industry may cost 2-5 times the cost of a similar unit (same membrane size) sold to the
+    food or water treatment industries." This is the software Intelligen used for the OVA TEA.
+    The text is undated and may be old; treat the dollar year as unknown (probably 2000s).
+
+- key: uf_unit_capex_small_superpro_chen2023
+  value: 174000
+  unit: "USD for an 80 m2 ultrafiltration unit (SuperPro Designer database; cost year not stated, paper 2023)"
+  grade: B
+  source: "Chen Y, Zicari S, Zhang R. Economic analysis of enzyme recycling during enzymatic hydrolysis of sugar beets for soluble sugars production. Food Bioeng 2(3):200-211 (2023)"
+  doi_or_url: 10.1002/fbe2.12056
+  locator: "Section 3.1.2 Alternative scenario A, 'Membrane ultrafiltration'"
+  quote: "The capital investment and total power consumption of the ultrafiltration unit are assumed to be $174,000 and 16 kW, respectively, from the SuperPro Designer database."
+  read: html
+  note: >-
+    Previous sentence: "A membrane ultrafiltration unit is modeled in the process with a
+    membrane area of 80 m2." Derived: USD 2,175/m2. The same section prices the PES flat-sheet
+    membrane at "$171/m2" (Synder quote). A small unit, so per-m2 cost is high; it shows that
+    $1,000-2,000/m2 is a small-skid number, not a large-plant one. Read from browser DOM text
+    (Wiley blocks curl).
+
+- key: membrane_system_cost_curve_biopharma_petrides
+  value: 230000
+  low: 150000
+  unit: "USD2012 hardware (purchase) cost of a membrane filtration system; value at 55 m2, low at 5 m2 (biopharma specification)"
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Figure 11.8, p.11-27; text p.11-26"
+  quote: "The cost of the membrane filtration systems includes the cost of the skid, tank, pumps and automation hardware and software."
+  read: fulltext
+  note: >-
+    Numbers read by eye from the rendered figure (y axis "Hardware Cost ($1,000)"): about 150
+    at 5 m2, 175 at 15 m2, 210 at 30 m2 and 230 at 55 m2 (approximate, +/- 5). Derived: about
+    $4,200/m2 at 55 m2, and cost rises only about 1.5x for 11x the area. Biopharma
+    specification. The same chapter says food, biofuel and water systems cost "more than an
+    order of magnitude lower" (key membrane_system_cost_food_vs_biopharma in dsp.yaml).
+
+# =========================================================================================
+# 2. capital.dsp_area_factor (downstream + drying floor area / fermentation floor area)
+# =========================================================================================
+
+- key: dsp_area_factor_no_direct_source
+  value: null
+  unit: "downstream + drying building area as a fraction of fermentation building area"
+  grade: E
+  source: "not found"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: abstract
+  note: >-
+    No public source gives the floor area of a recovery/drying section relative to the
+    fermentation hall. I searched TEA reports (NREL 2011, Intelligen 2025 OVA, Humbird 2021),
+    press material for PF plants (Liberation Labs Richmond: 600,000 L, "fully dedicated DSP",
+    no floor area published), enzyme-plant press releases and food-plant design texts. The
+    Humbird rules below are the nearest analogue. Two ways to settle it: (1) a plot plan or
+    permit filing for a real PF, enzyme or WPC plant; (2) calibrate the area factor so that the
+    total building cost lands near Petrides' building multiplier (next-but-one key).
+
+- key: shop_and_warehouse_area_frac_humbird2021
+  value: 0.25
+  unit: "shop area, and separately warehouse area, as a fraction of fermentation area"
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI sheet 4FB-020, rows 237-238 (Buildings block), columns A-K"
+  quote: "Shop | % of ferm area | 0.25 | 1316.9916518612665 | 1 | Maint shop | ... | ratioed to total ferm area"
+  read: fulltext
+  note: >-
+    Cells joined with "|"; the warehouse row reads "Warehouse | % of ferm area | 0.25 | ...
+    | Every ton of product occupies an area of warehouse for some time". Row 232 has the
+    packing factor 0.15 already used in base.yaml. plant.py hard-codes both 0.25 factors
+    without a YAML source; this is that source. Humbird's cultured-meat plant has no separate
+    downstream building, so it gives no DSP ratio.
+
+- key: building_multiplier_enzyme_plants_petrides
+  value: 0.45
+  low: 0.1
+  high: 3.0
+  unit: "building cost as a multiple of total equipment purchase cost (PC)"
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Table 11.3 and text, pp.11-25 to 11-26"
+  quote: "The average value of 0.45 corresponds to relatively large plants that produce medium to high value products (e.g., industrial enzymes)."
+  read: fulltext
+  note: >-
+    Table 11.3 row: "Buildings 0.45 x PC 0.1-3.0". The text says commodity plants (ethanol,
+    citric acid) sit at the low end and biopharma at the high end. The next paragraph gives the
+    area method: "For more accurate estimation of building costs, it is necessary to estimate
+    the process area required based on the footprint of the equipment and the space required
+    around the equipment". Use as a calibration check on dsp_area_factor: compute modelled
+    building cost / PEC and compare with 0.45 (my suggestion, not the source's). The quoted
+    sentence runs across the page break between pp.11-25 and 11-26.
+
+# =========================================================================================
+# 3. capital.lab_m2 (QC/QA + microbiology laboratory floor area)
+# =========================================================================================
+
+- key: qc_lab_area_humbird2021
+  value: 147.1
+  unit: "m2 QC laboratory (Class 1,000 / ISO 6) in a 6.8 kt/yr cultured-meat plant"
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI sheet 4FB-020, row 234 (and LaTeX table cell S223); plant size cell K97"
+  quote: "QC lab | % of cell lab | 0.5 | 147.09629912544415 | 1 | Class 1,000 (ISO 6)"
+  read: fulltext
+  note: >-
+    Rule: QC lab = 50% of the cell-lab area; comment cell K234 "Every ton of product occupies
+    an area of QC lab for some time". Row 233: "Cell lab | sqm/active seed | 10 |
+    294.1925982508883" (10 m2 per active seed culture). Labs total 441 m2. Cell K97 gives
+    "This facility | 6.820910323431501 | kTA" (wet cell mass). Analogy only: a PF plant needs
+    fewer seed cultures (a few seed trains) but more product QC (protein assays, allergen and
+    residual-DNA tests).
+
+- key: lab_building_unit_cost_petrides
+  value: 2250
+  low: 1500
+  high: 3000
+  unit: "USD2012 per m2 laboratory building"
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Table 11.4 Building Cost Estimation (Year 2012 Prices), p.11-26"
+  quote: "Laboratory 1500–3000"
+  read: fulltext
+  note: >-
+    value is the midpoint. Same table: "Office 750–900", "Mechanical room (utilities) 450–900",
+    "Class 100,000 3000–3750" $/m2. Cross-check for the lab unit cost already in base.yaml
+    (Humbird lab $2,637/m2 in 2018$), which sits inside this range. Not an area.
+
+# =========================================================================================
+# 4. media.antifoam_kg_per_m3
+# =========================================================================================
+
+- key: antifoam_corn_oil_nrel2011
+  value: 0.1
+  unit: "% v/v corn oil in the cellulase production medium (derived about 0.9-1.0 kg/m3 broth)"
+  grade: B
+  source: "Humbird D, Davis R, Tao L, et al. Process design and economics for biochemical conversion of lignocellulosic biomass to ethanol. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Table 20 Cellulase Production Nutrient Requirements, p.39; Appendix A item P-420, p.103 (local copy references/text/NREL_2011_...txt)"
+  quote: "Corn oil 0.1% v/v"
+  read: fulltext
+  note: >-
+    T. reesei, 300 m3 fed-batch. The equipment list row "P- 420 Anti-foam Pump ... 11 kg/hr
+    ... 13.4" gives an antifoam stream of 13.4 kg/h. Derived: 9 vessels x 240 m3 final broth
+    per 168 h = 12.9 m3/h, so about 1.0 kg antifoam per m3 of broth, consistent with 0.1% v/v
+    oil. Vegetable oil is a weak antifoam used at high dose; silicone or polyglycol antifoams
+    are dosed 5-50x lower (next keys). This is the high end.
+
+- key: antifoam_typical_usage_sensor_controlled_fedbatch_us5260202
+  value: 0.11
+  low: 0.02
+  high: 0.2
+  unit: "g antifoam per L fermentation broth (total usage, sensor-controlled yeast fed-batch)"
+  grade: B
+  source: "Clarke PM, Mead DJ, Collins SH (Delta Biotechnology Ltd). Fermentation method. US 5,260,202 A (1993)"
+  doi_or_url: https://patents.google.com/patent/US5260202A/en
+  locator: "Description, background on fed-batch foam control; Example 1"
+  quote: "Typical total usage rates for an antifoam agent in such a sensor-controlled process are 0.02-0.2 g per liter of fermentation broth."
+  read: html
+  note: >-
+    value is the midpoint. Example 1 (S. cerevisiae secreting albumin, 93 g/L final biomass):
+    polypropylene glycol 2000 added by the foam sensor, "the final level of addition was 0.2
+    g/l." The invention itself deliberately runs polyoxyalkylenes at 1-5 g/L as a protein
+    stabiliser ("between about 0.5 and 10 g, preferably between about 1 and 5 g, per liter"),
+    which raised recombinant albumin yield, so higher doses are possible if they pay back.
+
+- key: antifoam_behm2022_from_humbird2011
+  value: 0.2
+  unit: "g/L antifoam agent in the production medium"
+  grade: B
+  source: "Behm K, Nappa M, Aro N, et al. Comparison of carbon footprint and water scarcity footprint of milk protein produced by cellular agriculture and the dairy industry. Int J Life Cycle Assess 27:1017-1034 (2022)"
+  doi_or_url: 10.1007/s11367-022-02087-0
+  locator: "Table 2 'Additional nutrients and antifoam agent taken from Humbird et al. (2011)', p.1023 (local copy)"
+  quote: "Antifoam agent | g/l | 0.2"
+  read: fulltext
+  note: >-
+    T. reesei BLG process (VTT). Table cells joined with "|". The table claims to follow
+    Humbird et al. (2011), but NREL 2011 lists corn oil at 0.1% v/v (~0.9 g/L). The 0.2 g/L is
+    therefore Behm's own reading or a different antifoam; the paper does not explain.
+
+- key: antifoam_pdms_per_kg_ova_jarvio2021
+  value: 0.04
+  unit: "kg polydimethylsiloxane per kg Tr-OVA product (92% dm)"
+  grade: B
+  source: "Järviö N, Parviainen T, Maljanen NL, et al. Ovalbumin production using Trichoderma reesei culture and low-carbon energy could mitigate the environmental impacts of chicken-egg-derived ovalbumin. Nature Food 2:1005-1013 (2021), Supplementary Information"
+  doi_or_url: 10.1038/s43016-021-00418-2
+  locator: "SI Supplementary Table 2 (inventory per kg Tr-OVA), inputs (local copy)"
+  quote: "Antifoam agent, polydimethylsiloxane 0.04 kg"
+  read: fulltext
+  note: >-
+    Per kg product, not per m3. The inventory does not give the broth volume, so I could not
+    convert it. At the OVA titres in base.yaml (30 g/L) it would imply roughly 1 kg/m3 (my
+    rough derivation, low confidence).
+
+- key: antifoam_per_t_protein_voutilainen2021
+  value: 0.021
+  unit: "t antifoam per t protein (dry matter)"
+  grade: B
+  source: "Voutilainen E, Pihlajaniemi V, Parviainen T. Economic comparison of food protein production with single-cell organisms from lignocellulose side-streams. Bioresour Technol Rep 14:100683 (2021), SI workbook"
+  doi_or_url: 10.1016/j.biteb.2021.100683
+  locator: "SI sheet 'Process assumptions', cells B44:D44 (local copy)"
+  quote: "Antifoam (t/DM t protein) | 0.021 | Humbird et al., 2011"
+  read: fulltext
+  note: >-
+    Taken from NREL 2011 (corn-oil basis). Derived from NREL's own numbers: 13.4 kg/h
+    antifoam for ~540 kg/h protein = 0.025 t/t. Cross-check only.
+
+# =========================================================================================
+# 5. utilities.biomass_disposal_usd_t_dry (positive = cost to the plant; plant.py multiplies
+#    dry cell tonnes by this value and adds it to operating cost)
+# =========================================================================================
+
+- key: gm_spent_biomass_disposal_practice_garnica2026
+  value: null
+  unit: "qualitative: current fate of genetically modified spent microbial biomass"
+  grade: A
+  source: "Garnica-Garcia F, Lal N, Marcellin E. Primary challenges in the upcycling of genetically modified spent microbial biomass. New Biotechnol 94:172-183 (2026)"
+  doi_or_url: 10.1016/j.nbt.2026.05.008
+  locator: "abstract (PubMed 42178043)"
+  quote: "At present, the dominant industrial practice is to sterilise and dispose of this biomass in landfills. This approach incurs significant costs associated with sterilisation, transport, and waste management"
+  read: abstract
+  note: >-
+    Review focused on precision fermentation. The full text (ScienceDirect, bot check) was not
+    readable; it may contain cost numbers. The base case of zero cost is inconsistent with
+    this statement: GM biomass is a cost today unless a feed or fertiliser outlet is approved.
+
+- key: land_application_cost_biosolids_epa2000
+  value: 175
+  low: 60
+  high: 290
+  unit: "USD per dry short ton (1996$) for land application of biosolids"
+  grade: B
+  source: "US EPA. Biosolids Technology Fact Sheet: Land Application of Biosolids. EPA 832-F-00-064 (September 2000)"
+  doi_or_url: https://www.epa.gov/sites/default/files/2018-11/documents/land-application-biosolids-factsheet.pdf
+  locator: "section Costs, p.4"
+  quote: "One source identified costs for land application varying from $60 to $290 per dry ton (O’Dette, 1996.)"
+  read: fulltext
+  note: >-
+    value is the midpoint. Analogy (D-grade relevance): sewage biosolids, not yeast. The same
+    page says "farmers sometimes pay to have biosolids applied to their lands", i.e. a
+    positive value is possible. Derived: $66-320 per metric t DM in 1996$, or roughly
+    $135-650/t DM in 2025$ with CPI-U (156.9 -> ~322); includes dewatering in some programmes.
+    This is the US route most like Novozymes' NovoGro practice (inactivated biomass spread on
+    farmland). Quote reassembled from the two-column PDF text.
+
+- key: landfill_tipping_fee_us_eref2024
+  value: 62.28
+  unit: "USD per (short) ton wet waste, US national average MSW landfill tipping fee, 2024"
+  grade: C
+  source: "Waste Advantage Magazine. EREF report shows 10% increase in U.S. landfill tipping fees, largest increase since 2022 (2025), reporting EREF 2024 Analysis of MSW Landfill Tipping Fees"
+  doi_or_url: https://wasteadvantagemag.com/eref-report-shows-10-increase-in-u-s-landfill-tipping-fees-largest-increase-since-2022/
+  locator: "article text, first paragraph"
+  quote: "The new national average is $62.28 per ton, with large landfills charging over $70."
+  read: html
+  note: >-
+    Trade press reporting an industry survey (351 landfills); the EREF report itself is
+    paywalled. Derived: $69/t wet; at 25% dry solids (base.yaml wet_cells_solids) that is
+    about $275/t DM before transport and sterilisation. Upper-end disposal route for the US.
+
+- key: ad_gate_fee_uk_wrap2025
+  value: 24
+  low: -42
+  high: 78
+  unit: "GBP per tonne (wet) food waste to anaerobic digestion, UK local-authority median 2024/25"
+  grade: C
+  source: "WRAP. Gate Fees Report 2024/2025: Comparing the costs of alternative recycling and waste treatment options (published 27 Aug 2025)"
+  doi_or_url: https://www.wrap.ngo/sites/default/files/2025-09/WRAP-Gate-Fees-Report-2024-25-v2.pdf
+  locator: "Executive summary table 'Summary of UK AD gate fees reported by local authorities, 2024/25 (£/tonne)'"
+  quote: "Food waste 24 26 -42 to 78 85"
+  read: fulltext
+  note: >-
+    Columns: median, mean, range, response count. Survey, UK not NL. The text adds that the
+    median "has increased from £20/tonne in 2023/24 to £24/tonne in 2024/25" and that
+    authorities "should not expect to receive negative gate fees". Derived: about $31/t wet,
+    or about $120/t DM at 25% solids. Biogas is the Danish route for enzyme-plant biomass
+    (next key), so this is the EU disposal analogue.
+
+- key: enzyme_biomass_to_biogas_kalundborg
+  value: 300000
+  unit: "t/yr of yeast cream and biotech biomass from Novo Nordisk and Novonesis processed by the Kalundborg biogas plant"
+  grade: C
+  source: "Bigadan. Kalundborg Bioenergy case page (accessed 2026-09-26); Kalundborg Symbiosis, 'Kalundborg Bioenergy' page"
+  doi_or_url: https://bigadan.com/cases/kalundborg-bioenergy
+  locator: "case page text"
+  quote: "Annually, Bigadan processes about 300,000 tons of biomass from Novo Nordisk and Novonesis."
+  read: html
+  note: >-
+    Company claim. Symbiosis page (https://www.symbiosis.dk/en/kalundborg-bioenergi/): "The
+    biogas and fertilizer potential of residual biomass from Novonesis (NovoGro®) and Novo
+    Nordisk (yeast cream) is utilized and realized at a local biogas plant." Shows the EU
+    route for GM fermentation biomass: heat-inactivation, digestion, digestate as fertiliser.
+    No price is published.
+
+- key: kpastoris_dried_yeast_feed_rule_21cfr573587
+  value: 10
+  unit: "% maximum inclusion of Komagataella pastoris dried yeast in broiler feed (US food-additive regulation)"
+  grade: A
+  source: "US Code of Federal Regulations, 21 CFR 573.587 Komagataella pastoris dried yeast (eCFR, version 2025-01-01)"
+  doi_or_url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-E/part-573/subpart-B/section-573.587
+  locator: "§ 573.587(a)"
+  quote: "The food additive Komagataella pastoris dried yeast is non-viable and may be used in feed formulations of broiler chickens as a source of protein not to exceed 10 percent by weight of the total formulation."
+  read: fulltext
+  note: >-
+    Specification (b): crude protein not less than 60%, moisture not more than 6%. A legal US
+    feed outlet exists for dried, non-viable K. pastoris, but only after drying, and whether
+    a GM production strain's biomass qualifies without further FDA-CVM review is not stated.
+    Supports a credit case (negative disposal cost) in the US, with regulatory risk.
+
+- key: inactive_yeast_eu_import_unit_value_2025
+  value: 1.132
+  unit: "EUR per kg product (EU27 extra-EU imports, CN 2102 20 19 inactive yeasts in bulk), 2025"
+  grade: A
+  source: "Eurostat Comext DS-045409, EU27_2020 imports from extra-EU, CN 21022019 'Inactive yeasts (excl. in tablet, cube or similar form, or in immediate packings of <= 1 kg)'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=1&flow=2&product=21022011&product=21022019&product=21022090&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&time=2023&time=2024&time=2025"
+  locator: "flow 1 (imports), 2023-2025 VALUE_IN_EUROS and QUANTITY_IN_100KG"
+  quote: "2025: VALUE_IN_EUROS 91006515, QUANTITY_IN_100KG 803704.06"
+  read: html
+  note: >-
+    JSON API read into memory, accessed 2026-09-26 (dataset updated 2026-09-15). Unit values
+    (computed): 2023 1.139, 2024 1.130, 2025 1.132 EUR/kg on about 80 kt/yr, i.e. dried
+    feed-type yeast. Derived: about $1,375/t DM at 1.13 USD/EUR and ~93% DM. A CEILING on the
+    value of spent biomass: drying (about 3 kg water per kg DM from a 25% cake), feed approval
+    and logistics come first. US data are less useful: HS 210220 US imports 2025 = 3.49
+    USD/kg and exports 4.50 USD/kg (UN Comtrade public API), which mix in specialty yeasts.
+
+# =========================================================================================
+# 6. Construction location factor, NW Europe (Netherlands) vs US
+# =========================================================================================
+
+- key: location_factors_vs_netherlands_ieaghg2018
+  value: 0.94
+  unit: "US Midwest / Netherlands materials factor (Table 3 also gives labour productivity 0.95 and labour cost 0.92)"
+  grade: B
+  source: "IEAGHG (Amec Foster Wheeler Italiana). Effects of Plant Location on the Costs of CO2 Capture. IEAGHG Technical Report 2018/04 (April 2018)"
+  doi_or_url: "https://ieaghg.org/publications/2018-04%20Effects%20of%20plant%20location%20on%20the%20costs%20of%20CO2%20Capture.pdf"
+  locator: "Chapter B.2, section 3.2.5, Table 3 'Location cost factors compared to The Netherlands' (sheet 9 of 17); repeated as Table 5 in the Executive Summary"
+  quote: "USA (mid-west) 0.94 0.95 0.92"
+  read: fulltext
+  note: >-
+    Columns: Material factors, Labour factors (productivity), Labour factors (costs). Built
+    from Compass yearbook data, Amec FW databases and Aspen Capital Cost Estimator. Table 2 of
+    the same section gives factors against the US Gulf Coast: "The NL 1.01 1.25 1.36" and
+    "USA (mid-west) 0.95 1.19 1.04". The US labour-cost figure is internally inconsistent
+    (1.04/1.36 = 0.76, not the 0.92 in Table 3); the plant totals (next key) match the 0.92.
+
+- key: location_ratio_nl_vs_us_midwest_same_plant_ieaghg2018
+  value: 1.09
+  low: 1.075
+  high: 1.09
+  unit: "ratio of Total Plant Cost, identical plant built in the Netherlands vs US Midwest (Wisconsin/Wyoming); derived"
+  grade: B
+  source: "IEAGHG (Amec Foster Wheeler Italiana). Effects of Plant Location on the Costs of CO2 Capture. IEAGHG Technical Report 2018/04 (April 2018)"
+  doi_or_url: "https://ieaghg.org/publications/2018-04%20Effects%20of%20plant%20location%20on%20the%20costs%20of%20CO2%20Capture.pdf"
+  locator: "Chapter E Economics, Table 5 'SC PC plant cases TPC and TCR' (sheet 11-12 of 52) and Table 6 'NGCC plant cases TPC and TCR' (sheet 15-16)"
+  quote: "3A* 1398.5 1400 1821.8 1824 ... 3A 1283.3 1285 1673.2 1676"
+  read: fulltext
+  note: >-
+    TPC in M€ (3Q2016). Footnote: "Cases market with (*) are located in the Hypothetical The
+    Netherlands location". Derived NL/US ratios: coal plant cases 3A 1.090, 3B 1.087, 3.1A
+    1.090, 3.1B 1.088, 3.2A 1.090, 3.2B 1.088; gas-turbine cases IIIA 1.076, IIIB 1.080,
+    III.1A 1.075 (the gas turbine was priced on the world market with no location factor).
+    Power plants carry more site labour than a PF plant, whose cost is dominated by imported
+    stainless equipment, so a PF plant is probably nearer 1.06-1.09 (my inference). Currency
+    basis next key.
+
+- key: location_study_currency_basis_ieaghg2018
+  value: 1.13
+  unit: "USD per EUR exchange rate used, 3Q2016 price level"
+  grade: B
+  source: "IEAGHG (Amec Foster Wheeler Italiana). Effects of Plant Location on the Costs of CO2 Capture. IEAGHG Technical Report 2018/04 (April 2018)"
+  doi_or_url: "https://ieaghg.org/publications/2018-04%20Effects%20of%20plant%20location%20on%20the%20costs%20of%20CO2%20Capture.pdf"
+  locator: "Chapter B.2, section 3.2.1 Currency (sheet 5 of 17)"
+  quote: "The estimate is in euro (€), based on 3Q2016 price level. The euro / US dollar exchange rate considered in the study is 1.13 US$/€."
+  read: fulltext
+  note: >-
+    Location factors move with exchange rates. base.yaml converts 2025 euros at 1.13 (ECB),
+    the same rate, so no FX correction is needed; relative construction inflation NL vs US
+    2016-2025 is not corrected (unknown).
+
+- key: us_location_adjustment_houston_vs_iowa_eia2016
+  value: -0.08
+  low: -0.12
+  high: -0.04
+  unit: "fractional location variation vs US average: Houston (Gulf Coast); Iowa (Davenport +0.01, Waterloo -0.02) in the same table"
+  grade: B
+  source: "US EIA. Capital Cost Estimates for Utility Scale Electricity Generating Plants (November 2016), Appendix B"
+  doi_or_url: https://www.eia.gov/analysis/studies/powerplants/capitalcost/pdf/capcost_assumption.pdf
+  locator: "Table 9-2 Location-based costs for AG-NGCC facility (January 1, 2016 dollars); also Tables 3-2 to 17-2"
+  quote: "Texas Houston 1,104 -8% (89) 1,015"
+  read: fulltext
+  note: >-
+    Same table: "Iow a Davenport 1,104 1% 8 1,112" (pdftotext splits "Iowa"). Across
+    technologies Houston is 4-17% below the US average and Iowa -8% to +7%. Derived Iowa/Houston
+    ratios: NGCC 1.10-1.12, coal (USC) 1.07-1.13, AG-NGCC 1.07-1.10. Use this to move a Gulf
+    Coast-based cost to the Midwest (~x1.07-1.12). Whether Humbird's ACCE-based costs are Gulf
+    Coast or US average was not checked.
+
+- key: location_factor_table_towler_sinnott_unverified
+  value: null
+  unit: "location factors vs US Gulf Coast (textbook table)"
+  grade: A
+  source: "Towler G, Sinnott R. Chemical Engineering Design, 2nd ed. Elsevier (2013), ch.7 Capital Cost Estimating, pp.307-354"
+  doi_or_url: 10.1016/B978-0-08-096659-5.00007-9
+  locator: "Table 7.7 (location factors), from Aspen Richardson's International Construction Cost Factor Location Manual (2003)"
+  quote: null
+  read: abstract
+  note: >-
+    NOT VERIFIED. The only online copies are unauthorised, so I did not use them. From
+    memory the table lists US Midwest ~1.02 and the Netherlands ~1.19 vs US Gulf Coast
+    (2003 exchange rates); these numbers are unverified and must be checked in the book. If
+    right, NL/Midwest ~1.17, and it agrees with IEAGHG x EIA (1.09 x ~1.10 = ~1.20 vs USGC).
+
+# =========================================================================================
+# 7. Heat transfer in large aerobic fermenters (U and practical kW/m3)
+# =========================================================================================
+
+- key: u_jacket_and_tube_baffle_pichia_us4670397
+  value: 199.9
+  low: 58.7
+  high: 289.9
+  unit: "BTU/(h ft2 F): value = overall U of tube-baffle cooling surfaces; low = jacket overall U; high = broth-side film coefficient on tube baffles"
+  grade: B
+  source: "Wegner EH, Hunt HR (Phillips Petroleum Co). Fermentation apparatus. US 4,670,397 A (1987)"
+  doi_or_url: https://patents.google.com/patent/US4670397A/en
+  locator: "Example, Table II"
+  quote: "Heat Transfer Coefficient, BTU/hr/ft.sup.2 /°F. Jacket, Overall 61.6 58.7 Baffles, Overall 114.7 199.9 Baffles, Biofluid 161.5 289.9"
+  read: html
+  note: >-
+    Two columns: plate baffles (prior art) vs tube baffles (invention). P. pastoris NRRL
+    Y-11430 on methanol, continuous, 30 C, 8-10 psig, ~630 L liquid in a 1,500 L fermentor.
+    Derived (x5.678 to W/m2/K): jacket 350 and 333 W/m2/K; plate-baffle surfaces 651; tube
+    baffles 1,135; broth-side film 917 and 1,646 W/m2/K. The only measured U on a Pichia broth
+    found. Pilot scale: large vessels have lower broth-side coefficients (Gregory & Green,
+    engineering.yaml). Fills the gap key u_jacket_and_internal_coil_fermenter.
+
+- key: heat_removed_pichia_high_otr_us4670397
+  value: 1.70
+  high: 1.73
+  unit: "10^5 BTU/h total heat removed (jacket + baffles) from ~630 L broth at OTR 488-526 mmol/L/h"
+  grade: B
+  source: "Wegner EH, Hunt HR (Phillips Petroleum Co). Fermentation apparatus. US 4,670,397 A (1987)"
+  doi_or_url: https://patents.google.com/patent/US4670397A/en
+  locator: "Example, Table II; description of the invention"
+  quote: "Thus, heat removal on the order of at least about 36 Kcal/liter/hour are possible with fermentation apparatus constructed in accordance with the present invention."
+  read: html
+  note: >-
+    Table II: "Oxygen Transfer Rate, mmole O.sub.2 /L/hr 487.8 526.0", "Liquid Volume, L 636.5
+    625.2", "Mixer Power, KW (net) 10.9 10.4", heat removed "Total 1.73 1.70". Derived: 36
+    kcal/L/h = 42 kW/m3 (claimed capability); measured ~80 kW/m3 at ~500 mmol O2/L/h, of
+    which ~17 kW/m3 is agitator power; metabolic part ~460 kJ/mol O2, consistent with
+    engineering.yaml. Pilot scale with a very high surface-to-volume ratio; an upper bound.
+
+- key: scp_fermenter_heat_load_200_300m3_us3986934
+  value: null
+  unit: "qualitative: 'several million kcal' per hour from a 200-300 m3 SCP yeast fermenter"
+  grade: B
+  source: "Muller H. Apparatus for aerobic cultivation of micro-organisms. US 3,986,934 A (1976); current assignee Chemap AG"
+  doi_or_url: https://patents.google.com/patent/US3986934A/en
+  locator: "Background of the invention"
+  quote: "several million kcal. of heat must be removed each hour from a fermentation vessel having a capacity of 200-300 cubic meters of fermentation medium."
+  read: html
+  note: >-
+    Nutrient-yeast (SCP) cultivation at generation times of 1.5-2.5 h. Derived: 2-5 x 10^6
+    kcal/h over 200-300 m3 is about 8-30 kW/m3, the range the base 25 kW/m3 sits in. The
+    patent adds that cooling water "is frequently not very cold".
+
+- key: internal_coil_area_limit_600m3_almeida2025
+  value: 474
+  unit: "m2 of internal-coil area that fits in a 600 m3 bubble column (0.79 m2/m3, derived)"
+  grade: B
+  source: "Almeida Benalcázar E, et al. Single cell protein production from ethanol: model-based bioreactor operation at industrial scale. Biotechnol Bioeng 122:1441-1460 (2025)"
+  doi_or_url: 10.1002/bit.28969
+  locator: "Section 2.8 Heat balance and heat transfer (Europe PMC PMC12067044)"
+  quote: "The need for an external cooling system was identified by calculating the cooling area that can be provided by an internal coil, which is 474 m 2 ."
+  read: fulltext
+  note: >-
+    Next sentence: "In the present study case, such an area was found to be between 1.1 and
+    3.5 m 2 /m 3 for the range of superficial gas velocities", i.e. the required area was 1.4-4x
+    what a coil can provide, so an external shell-and-tube loop (U 1.4 kW/m2/K, 5-20 C chilled
+    water, dT_lm 15 C; engineering.yaml) was chosen. Derived: coil-only capacity about 0.79 x
+    1.4 x 15 = 17 kW/m3, using the paper's own U. Coil design rules from Towler & Sinnott.
+
+# =========================================================================================
+# 8. Ovalbumin solubility near neutral pH (is ~50 g/L a real limit?)
+# =========================================================================================
+
+- key: ova_dissolved_200mg_ml_water_wang2025
+  value: 200
+  unit: "g/L ovalbumin (Sigma A5503) dissolved in water for DSC"
+  grade: A
+  source: "Wang L, Li R, Lv S, Liu Y, Fang S, Zang J, Qing M, Chi Y. The thermodynamic and gelation properties of ovalbumin and lysozyme. Gels 11(6):470 (2025)"
+  doi_or_url: 10.3390/gels11060470
+  locator: "Section 4.2.5 Effect of Protein Concentration (Europe PMC PMC12191903)"
+  quote: "OVA and LYZ were dissolved in water at concentrations of 50 mg/mL, 100 mg/mL, and 200 mg/mL, respectively."
+  read: fulltext
+  note: >-
+    Section 4.1: "Ovalbumin (product A5503 approximately 98% purity as per manufacturer)",
+    the same product whose data sheet quotes 40 mg/mL (key below). Results report a
+    denaturation peak at 200 mg/mL, so the protein was in solution (the results text has a
+    typo, "200 mg/mL, 10 mg/mL, and 5 mg/mL"). Water, unbuffered; pH not stated for this step.
+
+- key: ova_up_to_60g_l_ph7_weijers2003
+  value: 60
+  unit: "g/L highest ovalbumin concentration used, pH 7.0, 0-100 mM NaCl"
+  grade: A
+  source: "Weijers M, Barneveld PA, Cohen Stuart MA, Visschers RW. Heat-induced denaturation and aggregation of ovalbumin at neutral pH described by irreversible first-order kinetics. Protein Sci 12:2693-2703 (2003)"
+  doi_or_url: 10.1110/ps.03242803
+  locator: "Materials and methods, sample preparation (PMC2366979)"
+  quote: "Final protein concentrations were varied between 0.1 and 60 g/L and NaCl concentrations between 0 and 100 mM."
+  read: fulltext
+  note: >-
+    Next sentences: stirred 2 h, "The pH of the solution was adjusted to 7.0" and filtered "to
+    remove a small fraction of insoluble material". Shows >50 g/L at pH 7 and low salt; not a
+    solubility measurement.
+
+- key: rova_7pct_in_water_every_us12096784
+  value: 70
+  unit: "g/L (7% w/v protein) recombinant and native ovalbumin solutions in distilled water"
+  grade: B
+  source: "The EVERY Company. Ovalbumin protein compositions. US 12,096,784 B2"
+  doi_or_url: https://patents.google.com/patent/US12096784B2/en
+  locator: "Example 38 (foaming of various species rOVA) (local text references/text/Every_US12096784_...txt)"
+  quote: "Eleven mL of solution (7% w/v of protein) was created for each ostrich rOVA, chicken rOVA, and chicken nOVA."
+  read: fulltext
+  note: >-
+    Pichia-secreted rOVA powders blended into distilled water; "Clarity and solubility of the
+    rOVA solutions were then assessed visually." Note the chicken rOVA was "solubilized at pH
+    12 before removing bioburden and returned to pH 6 before drying", which hints that the
+    acid-precipitated product needed alkali to redissolve; that concerns the isolate route,
+    not the UF retentate.
+
+- key: egg_white_uf_11_5_to_23pct_solids_tsai1977
+  value: 23
+  low: 11.5
+  unit: "% solids of liquid egg white after (value) and before (low) industrial ultrafiltration"
+  grade: A
+  source: "Tsai LS, Ijichi K, Harris MW. Concentration of egg white by ultrafiltration. J Food Prot 40(7):449-455 (1977)"
+  doi_or_url: 10.4315/0362-028X-40.7.449
+  locator: "abstract (PubMed 30731618)"
+  quote: "The estimated cost of concentrating egg white from 11.5 to 23% solid and at a volume of 10,000 lb. per day or 2,500,000 lb. per year, was $0.0295 per pound of concentrate."
+  read: abstract
+  note: >-
+    24 plant batches of 5,000 lb in an egg-products plant (SANOVO unit). Derived: egg-white
+    protein is ~10.5% of liquid white and ovalbumin ~54% of it, so 23% solids is about 110 g/L
+    ovalbumin in solution (native pH ~9, with other egg proteins). Industrial evidence that
+    OVA solutions well above 50 g/L are processed by UF.
+
+- key: ova_vendor_solubility_test_sigma_a5503
+  value: 40
+  unit: "mg/mL, vendor solubility statement (quality-control test concentration, not a limit)"
+  grade: C
+  source: "Sigma-Aldrich (Merck). Product page A5503 Albumin from chicken egg white, lyophilized powder, >=98% (accessed 2026-09-26, ES locale)"
+  doi_or_url: https://www.sigmaaldrich.com/US/en/product/sigma/a5503
+  locator: "Properties table, 'solubility'; Questions & Answers"
+  quote: "H2O: soluble 40 mg/mL"
+  read: html
+  note: >-
+    Read from browser DOM text. A Technical Support answer on the same page: "We have only
+    tested solubility in water. Salts in buffers may make solubility more difficult."
+    Interchim's sheet (FT-R5851B) says "Ovalbumin is soluble up 50mg/ml in water, giving a
+    clear or yellowish solution." Vendor figures of 40-50 mg/mL are probably the origin of the
+    "practical solubility limit" of 50 g/L; Wang et al. (2025) dissolved this same product at
+    200 mg/mL. A search snippet claimed the older Sigma data sheet said 50 mg/mL; not verified.
+
+- key: egg_white_uf_froning1987_unverified
+  value: null
+  unit: "% solids of egg white after UF"
+  grade: A
+  source: "Froning GW, Wehling RL, Ball HR, Hill RM. Effect of ultrafiltration and reverse osmosis on the composition and functional properties of egg white. Poultry Sci 66:1168-1173 (1987)"
+  doi_or_url: 10.3382/ps.0661168
+  locator: null
+  quote: null
+  read: abstract
+  note: >-
+    NOT VERIFIED: abstract not in PubMed or Crossref. A search snippet says UF raised solids
+    "from 11.40 to 23.24%" with no protein lost to the permeate. Poultry Science back issues
+    are open access on the publisher site (blocked to scripts here).
+
+# =========================================================================================
+# 9. Spray dryer capital cost vs water-evaporation capacity
+# =========================================================================================
+
+- key: spray_dryer_purchase_cost_superpro_yver2012
+  value: 897
+  unit: "USD1000 purchase cost (2011 prices) of a spray dryer, 7.61 m3 chamber, drying ~790 kg/h water (derived)"
+  grade: B
+  source: "Yver AL, Bonnaillie LM, Yee W, McAloon A, Tomasula PM. Fractionation of whey protein isolate with supercritical carbon dioxide - process modeling and cost estimation. Int J Mol Sci 13:240-259 (2012)"
+  doi_or_url: 10.3390/ijms13010240
+  locator: "Table 3 equipment list; section 2.5 (Europe PMC PMC3269684)"
+  quote: "SDR-107 | Spray Dryer | Volume = 7.61 m 3 | 897 |"
+  read: fulltext
+  note: >-
+    USDA-ARS SuperPro model; section 2.5: "Costs of all major process equipment (including
+    high-pressure reactor, high-speed centrifuge, spray-dryer, drum dryer, compressor) were
+    based on information received from equipment suppliers". WPI prices are July 2011.
+    Derived feed: 10% WPI case, ~790 kg/h water to the dryer (816 kg/h water minus ~30 kg/h
+    to the precipitate). Section 3.2.4 says halving feed concentration (about 2.1x the water)
+    needed "a larger centrifuge (52% cost increase), spray dryer (59% cost increase)". Derived
+    exponent ln 1.59 / ln 2.1 = 0.62. Scaled at that exponent: ~$1.6M (2011$) at 2,000 kg/h,
+    vs the model's $2.5M (2018$).
+
+- key: spray_dryer_cost_bands_watson_dairy_consulting
+  value: 7.5
+  low: 1
+  high: 30
+  unit: "GBP million per dryer: value = mid-size milk-powder MSD dryer (1,000 kg/h powder, GBP 5-10M); low = small specialty dryer (~200 kg/h, GBP 1-3M); high = large infant-formula MSD (5,000 kg/h, all integration, GBP 15-30M)"
+  grade: C
+  source: "Watson Dairy Consulting. Spray dryer equipment and operation: tall form, MSD, compact (web page, accessed 2026-09-26)"
+  doi_or_url: https://dairyconsultant.co.uk/si-section16.php
+  locator: "FAQ 'How much does a dairy spray dryer cost?'"
+  quote: "Small specialty dryer (~200 kg/hr): £1–3M. Mid-size milk powder dryer (1,000 kg/hr MSD): £5–10M. Large infant formula dryer (5,000 kg/hr MSD with all integration): £15–30M."
+  read: html
+  note: >-
+    Consultancy estimate, undated, capacity in kg/h POWDER, scope ("dryer alone") unclear
+    and probably installed. The page adds "Plus civils, utilities, evaporator integration and
+    downstream packaging (often equal to dryer cost)". Derived exponent from the mid and large
+    bands: ln 3 / ln 5 = 0.68. Milk concentrate at ~48% TS gives ~1 kg water per kg powder,
+    so 1,000 kg/h powder is ~1,000 kg/h water; a 36% WPC80 feed gives ~1.6 kg/kg.
+
+- key: spray_dryer_max_unit_capacity_vendor_ranges
+  value: 25000
+  low: 10000
+  unit: "kg/h powder, largest single-dryer capacity offered (value = GEA/Niro; low = SiccaDania; Tetra Pak/SPX/Anhydro 15,000)"
+  grade: C
+  source: "Watson Dairy Consulting. Spray dryer equipment and operation: tall form, MSD, compact (web page, accessed 2026-09-26)"
+  doi_or_url: https://dairyconsultant.co.uk/si-section16.php
+  locator: "supplier table"
+  quote: "GEA / Niro | Industry leader; premium; integrated MSD™, FSD™ | 50–25,000 kg/hr"
+  read: html
+  note: >-
+    Same table: "Tetra Pak / SPX FLOW / Anhydro | Major competitor; broad range | 50–15,000
+    kg/hr" and "SiccaDania | ... | 200–10,000 kg/hr". Powder basis. The model's max 10,000 kg/h
+    of WATER is therefore conservative for dairy-scale dryers. A search snippet attributes "up
+    to ... 10,000 ... kg water evaporation per hour" to Fasaei et al. (2018, Algal Research,
+    doi 10.1016/j.algal.2017.11.038); not read.
+
+# =========================================================================================
+# 10. Falling-film evaporators (MVR/TVR) for protein concentrates and egg white
+# =========================================================================================
+
+- key: evaporator_mvr_water_per_kwh_tetrapak
+  value: 90
+  low: 80
+  high: 100
+  unit: "kg water evaporated per kWh electricity (MVR falling film, dairy)"
+  grade: C
+  source: "Tetra Pak. Dairy Processing Handbook (online), chapter 7.6 Evaporators"
+  doi_or_url: https://dairyprocessinghandbook.tetrapak.com/chapter/evaporators
+  locator: "section Mechanical vapour recompression (MVR)"
+  quote: "Mechanical vapour recompression makes it possible to evaporate 80 – 100 kg of water with 1 kWh."
+  read: html
+  note: >-
+    Derived: 10-12.5 kWh per t water, consistent with the handbook's Table 7.6.2 value of
+    0.012 kWh/kg (evaporator_mvr_electricity in dsp.yaml). Same chapter: MVR "can halve the
+    operating costs compared to a conventional six-effect evaporator with a thermocompressor";
+    TVR steam 0.08 (6 effects) to 0.25 (1 effect) kg/kg is already in dsp.yaml.
+
+- key: evaporator_mvr_capacity_range_tetrapak
+  value: 100
+  low: 1
+  unit: "t/h water evaporated per MVR falling-film evaporator (vendor range)"
+  grade: C
+  source: "Tetra Pak. Tetra Pak Evaporator Falling Film MVR, product page (accessed 2026-09-26)"
+  doi_or_url: https://www.tetrapak.com/en-us/solutions/integrated-solutions-equipment/processing-equipment/evaporation/tetra-pak-evaporator-mvr
+  locator: "section Capacity"
+  quote: "Evaporation rates vary from 1-100 tonnes per hour depending on product type and composition."
+  read: html
+  note: "Vendor marketing. Maximum single-unit size for a scaling cap."
+
+- key: evaporator_max_solids_milk_whey_mvr_tetrapak
+  value: 0.51
+  low: 0.45
+  high: 0.65
+  unit: "mass fraction dry matter after MVR evaporation (value = milk upper; low/high = whey range)"
+  grade: C
+  source: "Tetra Pak. Dairy Processing Handbook (online), chapter 18 Milk and whey fractionation"
+  doi_or_url: https://dairyprocessinghandbook.tetrapak.com/chapter/milk-and-whey-fractionation
+  locator: "section Total concentration of solids"
+  quote: "Employing MVR in this subsequent phase of milk concentration can elevate the dry matter to 48 – 51% total solids (TS), while for whey concentration, it can raise the dry matter from as little as 20% to 45 – 65%."
+  read: html
+  note: >-
+    These streams are lactose-rich. Chapter 7.6 adds that pre-concentrators take milk and whey
+    "to 32 – 40% solids content" and that skim and whole milk reach "50% and 52%". Not
+    applicable to >80% protein concentrates (next key).
+
+- key: high_protein_wpc_no_evaporation_tetrapak
+  value: 0.35
+  unit: "mass fraction dry matter fed to the dryer by nanofiltration instead of evaporation, WPC > 60% protein (lower bound)"
+  grade: C
+  source: "Tetra Pak. Dairy Processing Handbook (online), chapter 18 Milk and whey fractionation"
+  doi_or_url: https://dairyprocessinghandbook.tetrapak.com/chapter/milk-and-whey-fractionation
+  locator: "section on WPC production (after Table 18.3)"
+  quote: "For WPC with protein concentration above 60% dry matter, to minimise heat damage instead of evaporation, a nanofiltration step is used to feed > 35% dry matter prior to spray drying."
+  read: html
+  note: >-
+    Preceding sentence: "Typically, for WPC35, as with milk and MPCs, an evaporator is used to
+    concentrate before spray drying." Implication for BLG/OVA concentrates (>80% protein): the
+    dairy industry does not evaporate them; it uses high-concentration membranes. An evaporator
+    step in the PF model would need its own justification. Chapter 19 adds "WPC and WPI
+    concentrates are usually spray dried cold at ~10 °C".
+
+- key: membrane_and_evaporation_energy_vs_drying_tetrapak
+  value: 0.11
+  low: 0.10
+  high: 0.12
+  unit: "energy for water removal by membranes and/or evaporation as a fraction of the spray-drying energy for the same water"
+  grade: C
+  source: "Tetra Pak. Dairy Processing Handbook (online), chapter 19 Milk and whey powdered ingredients"
+  doi_or_url: https://dairyprocessinghandbook.tetrapak.com/chapter/milk-and-whey-powdered-ingredients
+  locator: "section Spray drying, introduction"
+  quote: "To minimise energy costs, the solids in the liquid feed to be dried are maximised through water removal by membrane filtration and/or evaporation, which only requires about 10 to 12% of the energy used for spray drying."
+  read: html
+  note: "Order-of-magnitude argument for raising dryer feed solids. Ramirez et al. (2006, in dsp.yaml) give 10-20x."
+
+- key: mvr_vs_tvr_finisher_capex_glmhydro
+  value: 250000
+  low: 15000
+  unit: "USD: MVR turbofan incl. installation and extra heating surface (value) vs TVR steam ejector (low), same dairy finisher duty"
+  grade: C
+  source: "GLM Hydro. Evaluation of a MVR versus TVR heated falling film finisher (web article, undated, accessed 2026-09-26)"
+  doi_or_url: https://www.glmhydro.com/other/evaluation-a-mvr-versus-tvr-heated-falling-film-finisher/
+  locator: "article text"
+  quote: "while the TVR steam ejector would cost roughly $15,000, the MVR turbofan would cost almost $250,000 taking the additional installation cost and increase of the finisher heating surface area into account."
+  read: html
+  note: >-
+    Vendor case study. The TVR needed "approximately 1,700 pounds an hour of live steam"; the
+    MVR "approximately 40 kW". Payback "almost 10 years" at their prices. Incremental cost of
+    the compression device only, not a whole evaporator. No whole-evaporator $/(kg/h) was found
+    beyond the NREL brine MVR already in dsp.yaml (~$55 per kg/h, 2010$).
+
+# =========================================================================================
+# 11. Spray-dryer inlet solids for WPC80, WPI and egg white
+# =========================================================================================
+
+- key: wpi_dryer_feed_solids_milk_wpi_tetrapak
+  value: 0.365
+  low: 0.36
+  high: 0.37
+  unit: "mass fraction dry matter of milk-WPI UF retentate after high-concentration membranes, fed to the dryer"
+  grade: C
+  source: "Tetra Pak. Dairy Processing Handbook (online), chapter 18 Milk and whey fractionation"
+  doi_or_url: https://dairyprocessinghandbook.tetrapak.com/chapter/milk-and-whey-fractionation
+  locator: "section on milk WPI and MCC, Figure 18.5 description"
+  quote: "After storage (6), the UF retentate can be further concentrated to 36 – 37% dry matter (8), preheated (11) to attain specific functional properties and dried (12) to no greater than 4% moisture."
+  read: html
+  note: >-
+    Step (8) is the "WPI & MCC high concentration membrane plant" in Figure 18.5. For WPI from
+    cheese whey the same chapter says: "The resulting WPI retentate is then further
+    concentrated using (8) NF (35 – 37% DM) and spray-dried". WPC80 is ~36% TS (key
+    spray_dryer_feed_solids_wpc in dsp.yaml, chapter 19) after UF to 27-32%.
+
+- key: egg_white_uf_to_20_30pct_dm_before_drying_ep2926674
+  value: 0.25
+  low: 0.20
+  high: 0.30
+  unit: "mass fraction dry matter of egg white concentrated by UF before spray drying (prior art cited)"
+  grade: B
+  source: "Schneppe B, Bosse G (OVOBEST Eiprodukte GmbH). Method for producing a food product based on egg white. EP 2 926 674 B1 (2016), citing DD 290128 A5"
+  doi_or_url: https://patents.google.com/patent/EP2926674B1/en
+  locator: "Description, prior art paragraph on DD 290128 A5"
+  quote: "the concentration of egg white by ultrafiltration to withdraw about 50% water at 5 to 40 ° C to 20 to 30% dry matter followed by spray drying."
+  read: html
+  note: >-
+    Google's machine translation of a German-language patent; the quote is the translation,
+    not the original wording. value is the midpoint. The next prior-art note cites Egg
+    Bioscience and Biotechnology (ed. Mine, 2008, pp.307-325): spray drying at 121-232 C, with
+    UF or RO pre-concentration to cut cost. Without UF, egg white is dried from its native
+    ~11.5% solids (Tsai 1977, item 8). Egg white is heat-sensitive, so it is concentrated by
+    membranes, not evaporators.
+
+# =========================================================================================
+# 12. Minimum initial working volume (fill fraction) for large fed-batch fermenters
+# =========================================================================================
+
+- key: fedbatch_fill_50_to_80pct_nrel2011
+  value: 0.5
+  high: 0.8
+  unit: "fraction of total vessel volume at start (value) and end (high) of fed-batch, 300 m3 enzyme fermenters"
+  grade: B
+  source: "Humbird D, Davis R, Tao L, et al. Process design and economics for biochemical conversion of lignocellulosic biomass to ethanol. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Section 3.4.2, p.37; Table 19 (local copy)"
+  quote: "Fermentation is assumed to be a fed-batch process starting at 50% working volume and ending at 80%."
+  read: fulltext
+  note: "T. reesei cellulase, 300 m3, H/D 2. Table 19: 'Maximum working volume 80%'."
+
+- key: fedbatch_initial_volume_ova_intelligen2025
+  value: 41523
+  unit: "L broth at the start of the growth phase in a 136 m3 fermenter (30.5% of vessel volume, derived)"
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Fermentation section, p.6-7 (local copy)"
+  quote: "Considering that the working volume at the beginning of the growth phase is 41,523 L, and that the inoculum is set to 5% of the fermentation volume"
+  read: fulltext
+  note: >-
+    Same report: "136-m3 stirred-tank fermentors" and "By the end of the main fermentation
+    step, the broth volume is approximately 107 m3". Derived: start 30.5%, end 78.7% of vessel
+    volume. K. phaffii OVA, the closest analogue.
+
+- key: fedbatch_initial_volume_40pct_pichia_us9938327
+  value: 0.4
+  unit: "initial volume as a fraction of the MAXIMUM WORKING volume (K. phaffii fed-batch protocol)"
+  grade: B
+  source: "Impossible Foods Inc. Expression constructs and methods of genetically engineering methylotrophic yeast. US 9,938,327 B2 (2018)"
+  doi_or_url: https://patents.google.com/patent/US9938327B2/en
+  locator: "Fermentation Protocol (local text references/text/Impossible_US9938327_...txt)"
+  quote: "The initial volume should be about 40 % of the maximum fermenter volume, e. g ., 4 L , if the maximum working volume of the fermenter is 10 L ."
+  read: fulltext
+  note: >-
+    Quote reassembled from the two-column PDF text (a medium table is interleaved). Continues: "This is because the process will approach the maximum working volume by the end
+    of the fermentation." Lab-scale protocol; at an 80% maximum working volume it is ~32% of
+    vessel volume, close to Intelligen's 30.5%.
+
+- key: fedbatch_fill_cultured_meat_and_yeast_humbird2021
+  value: 0.66
+  low: 0.6
+  high: 0.8
+  unit: "fraction of vessel volume: value = start of cultured-meat fed-batch; high = its end; low = final working volume of the baker's-yeast bubble column"
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), preprint text (local copy)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Section 3 fed-batch simulation; Appendix A baker's yeast (local text lines ~3026 and ~5362)"
+  quote: "At t=0, the bioreactor volume is set to 13.2 m3 (66% working volume) with"
+  read: fulltext
+  note: >-
+    End of that fed batch: "16 m3 (80% working volume)". For baker's yeast (Appendix A): "final
+    working volume. The latter is kept relatively low (60%) to allow for gas holdup and
+    foaming". A physical minimum (lowest impeller submerged) was not found as a number in any
+    readable design text; Benz (Agitator Design for Gas-Liquid Fermenters and Bioreactors,
+    Wiley 2021, doi 10.1002/9781119650546) is the likely source.
+
+# =========================================================================================
+# 13. Maintenance coefficient m_s of recombinant, protein-producing K. phaffii
+#     (all quotes re-read from Europe PMC full-text XML on 2026-09-26; hosts.yaml has
+#     overlapping entries for some of these)
+# =========================================================================================
+
+- key: ms_fab2f5_glucose_25c_maurer2006
+  value: 0.0161
+  unit: "g glucose/g DCW/h"
+  grade: A
+  source: "Maurer M, Kühleitner M, Gasser B, Mattanovich D. Versatile modeling and optimization of fed batch processes for the production of secreted heterologous proteins with Pichia pastoris. Microb Cell Fact 5:37 (2006)"
+  doi_or_url: 10.1186/1475-2859-5-37
+  locator: "Results, Chemostat (PMC1712348)"
+  quote: "Y XS = 0.559 and m S = 0.0161 h -1 were derived according to eq (26)."
+  read: fulltext
+  note: >-
+    PRODUCING strain: "P. pastoris strain X33 (wild type strain) expressing extracellularly the
+    Fab fragment of the anti-HIV antibody 2F5 under control of the GAP promoter". Glucose-limited
+    chemostat, D 0.0086-0.2 1/h, "Fermentation temperature was controlled at 25°C". Unit
+    written as h-1 in the paper; it is g substrate per g biomass per hour. Close to the model's
+    Tijhuis value (0.0176) at maint_factor 1.0.
+
+- key: ms_producing_vs_nonproducing_rebnegger2016
+  value: 0.0100
+  low: 0.0077
+  high: 0.0161
+  unit: "g glucose/g DCW/h: value = non-producing strain (chemostat); low = value - 1 SD; high = top of the producing-strain range quoted"
+  grade: A
+  source: "Rebnegger C, Vos T, Graf AB, Valli M, Pronk JT, Daran-Lapujade P, Mattanovich D. Pichia pastoris exhibits high viability and a low maintenance energy requirement at near-zero specific growth rates. Appl Environ Microbiol 82:4570-4583 (2016)"
+  doi_or_url: 10.1128/AEM.00638-16
+  locator: "Results, maintenance in glucose-limited chemostats (PMC4984280)"
+  quote: "was ∼50% lower than the m S values calculated for heterologous-protein-producing P. pastoris strains grown in glucose-limited chemostats, which ranged from 0.0147 ± 0.0009 g S g X −1 h −1"
+  read: fulltext
+  note: >-
+    Non-producing CBS7435 delta-flo8, glucose, 25 C, D 0.025-0.10 1/h: "estimated m S (±
+    standard deviation) of 0.0100 ± 0.0023 g S g X −1 h −1". Producing strains: 0.0147 (their
+    ref. 7 = Rebnegger et al. 2014 Biotechnol J 9:511, recalculated) to 0.0161 (ref. 8 =
+    Maurer 2006). Abstract: at near-zero growth (retentostat) m_s = "3.1 ± 0.1 mg glucose per g
+    biomass and h", 3-fold lower. Direction: production RAISES m_s by ~50-60% in this
+    comparison.
+
+- key: ms_vhh_glucose_30c_rebnegger2024
+  value: 0.00437
+  low: 0.00410
+  high: 0.00464
+  unit: "g glucose/g DCW/h (+/- 1 SD)"
+  grade: A
+  source: "Rebnegger C, et al. Protein production dynamics and physiological adaptation of recombinant Komagataella phaffii at near-zero growth rates. Microb Cell Fact 23:44 (2024)"
+  doi_or_url: 10.1186/s12934-024-02314-3
+  locator: "Results, model-based predictions (PMC10851509)"
+  quote: "retentostat growth predictions were made using estimates of m S (4.37 ± 0.27 mg g −1  h −1 ) and Y XS max (0.544 ± 0.002 g g −1 )"
+  read: fulltext
+  note: >-
+    PRODUCING strain: VHH-secreting CBS2612 delta-flo8, glucose-limited chemostats at 30 C, D
+    0.015-0.17 1/h, fitted over mu <= 0.05 1/h. The paper states the prior expectation that
+    "recombinant protein production might lead to a higher energy demand for maintenance",
+    but its own value is BELOW the 2016 non-producer's chemostat estimate (0.0100, 25 C) and
+    only ~40% above its near-zero-growth value (0.0031). So production did not visibly raise
+    m_s here (different temperature and fitting window; not a controlled comparison).
+
+- key: ms_crl1_gene_dosage_nietotaype2020
+  value: 0.029
+  low: 0.0023
+  unit: "g substrate/g DCW/h: value = 5-copy clone (MCC); low = 1-copy clone (SCC)"
+  grade: A
+  source: "Nieto-Taype MA, Garrigós-Martínez J, Sánchez-Farrando M, Valero F, Garcia-Ortega X, Montesinos-Seguí JL. Rationale-based selection of optimal operating strategies and gene dosage impact on recombinant protein production in Komagataella phaffii (Pichia pastoris). Microb Biotechnol 13:315-327 (2020)"
+  doi_or_url: 10.1111/1751-7915.13498
+  locator: "Results and Discussion, chemostat characterisation (PMC7017824)"
+  quote: "a relevant difference on m S has been described between SCC and MCC, specifically the difference is about one order of magnitude (0.0023 and 0.029 respectively)."
+  read: fulltext
+  note: >-
+    PRODUCING strains: X-33 secreting Candida rugosa lipase 1 (Crl1) under PGAP with 1 or 5
+    integrated copies. Chemostats at mu 0.025-0.15 1/h "as described elsewhere
+    (Garcia-Ortega et al., 2016)"; substrate glucose and temperature not restated in this
+    paper (glucose inferred from the PGAP process; temperature unverified). Direction: higher
+    gene dosage (more production burden) RAISED m_s ~13x. The authors link it to the
+    recombinant protein production burden.
+
+- key: ms_heyland2010_looser2015_unverified
+  value: null
+  unit: "g glucose/g DCW/h"
+  grade: A
+  source: "Heyland J, Fu J, Blank LM, Schmid A. Quantitative physiology of Pichia pastoris during glucose-limited high-cell density fed-batch cultivation for recombinant protein production. Biotechnol Bioeng 107:357-368 (2010); Looser V, et al. Cultivation strategies to enhance productivity of Pichia pastoris: a review. Biotechnol Adv 33:1177-1193 (2015)"
+  doi_or_url: "10.1002/bit.22836; 10.1016/j.biotechadv.2015.05.008"
+  locator: null
+  quote: null
+  read: abstract
+  note: >-
+    NOT READ: neither is open access in Europe PMC. Heyland reports fed-batch (not chemostat)
+    physiology of a producing strain on glucose; Looser tabulates literature m_s values. Worth
+    downloading to check whether fed-batch m_s differs from chemostat values.

@@ -11,11 +11,12 @@ tonnes per year. Every computed number here is reproduced by
 Numbers are either quoted from a source on disk (key from
 [`references/INDEX.md`](../references/INDEX.md)) or flagged. *Illustrative* marks a
 typical value chosen only to teach. *(textbook)* marks a standard reference value quoted
-from memory, to be sourced in Phase B (Doran; the scale-up reviews). Neither kind is ever
-a model input.
+from memory. Where the model needs such a value, Phase B sourced it separately in
+`data/evidence/` (for example the heat per mol of O₂, §3.3). Neither kind is ever a model
+input.
 
 The running example is NREL's on-site cellulase plant (`humbird2011`, §3.4, printed pp.
-36–42). It is the best-documented public design of a plant that secretes a protein from a
+36–43). It is the best-documented public design of a plant that secretes a protein from a
 fungus, and every number in it can be checked. Exercise A1 then applies the same ideas to
 Intelligen's ovalbumin plant, so this primer deliberately leaves that one alone.
 
@@ -81,14 +82,14 @@ The running example in numbers (`humbird2011`, printed pp. 37–41):
 | Titer at harvest | 50 g/L |
 | Yield on glucose | 0.24 kg protein / kg glucose |
 | Volumetric productivity | 0.30 g/L/h [§4] |
-| Output | ~490 kg/h protein to hydrolysis, plus 10% recycled to media prep (≈4 kt/yr) |
-| Electricity | 5.3 MW in the area; NREL states 9 kWh per kg protein (Table 21; production basis not stated) |
+| Output | 490 kg/h of protein to hydrolysis (≈4.1 kt/yr at 8,410 h/yr), plus 10% for media prep. The $4.24/kg below rests on ~580 kg/h (≈4.9 kt/yr) [§4b] |
+| Electricity | 5.3 MW in the area; NREL states 9 kWh per kg protein (Table 21; basis not stated, but 5,340 kW ÷ 9 ≈ 590 kg/h, close to the ~580 kg/h behind $4.24/kg) [§4b] |
 | Cost | $4.24/kg protein (2007$): glucose 57%, capital 21%, electricity 13%, other nutrients 5%, fixed 4% |
 | Not included | Any downstream processing, formulation, transport, licensing |
 
 Keep the last row in mind. A crude enzyme used on site is not a food ingredient. The
-distance from $4/kg to the ~$39/kg (gross, before a by-product credit) of a purified, dried
-food protein is Part 3 of exercise A1.
+distance from $4/kg to the ~$41/kg of a purified, dried food protein (per kg of protein;
+$39/kg of powder, gross, before a by-product credit) is Part 3 of exercise A1.
 
 ## 3. Biology as chemistry
 
@@ -146,8 +147,10 @@ stoichiometry is the backbone of the whole model.
 Respiration releases about **0.46 MJ per mol of O₂** consumed, nearly independent of
 organism or substrate. This is Thornton's rule: burning organic matter releases roughly
 110–115 kJ per mole of electrons passed to oxygen, and each O₂ takes four.
-*Illustrative:* Doran (2013) quotes ~460 kJ/mol; Cooney et al. (1969) ~0.50 MJ/mol. The
-Doran chapter is on the Phase B fetch list.
+The 460 kJ/mol figure is now sourced (grade A in `data/evidence/engineering.yaml`): it is
+Roels' (1983) value, as quoted by Almeida Benalcázar et al. (2025). Calorimetry averages
+455 ± 15 kJ/mol (Maskow et al. 2010). Cooney et al. (1969), as generalised by Shuler and
+Kargi, give ~0.50 MJ/mol.
 
 For NREL [§3]: 84 mol O₂/kg × 0.46 MJ/mol = **39 MJ of heat per kg protein** (10.7 kWh
 thermal). One 300 m³ reactor at full rate releases **1.07 MW**. All of it must be removed
@@ -168,13 +171,20 @@ specific productivity $q_P$ (g product per g cells per h). In fed-batch operatio
 choose μ through the feed rate. That is a trade-off. Fast growth makes more cells and so
 costs yield. Slow growth over a long batch lets maintenance eat the sugar.
 
-**Ceilings** [§2], both to be done properly in Phase C2:
-- If every electron of glucose ended up in protein, the yield would be **0.79 g/g**. This
-  is impossible, because making protein costs energy.
-- Charging only the energy of joining amino acids brings it to **~0.6 g/g**. This assumes
-  ~4.3 ATP per peptide bond, supplied by burning more glucose, a mean residue of 110 g/mol
-  and a P/O ratio of 1.0–1.5 (all textbook). This is a rough estimate; the real
-  ceiling is lower once amino-acid synthesis is costed.
+**Ceilings** [§2, §2b]:
+- If every electron of glucose ended up in NREL's cellulase, the yield would be
+  **0.79 g/g**. For BLG it is 0.70 and for OVA 0.72. This is impossible, because making
+  protein costs energy.
+- Charging only the energy of joining amino acids brings the cellulase value to
+  **~0.6 g/g**. This assumes ~4.3 ATP per peptide bond, supplied by burning more glucose, a
+  mean residue of 110 g/mol and a P/O ratio of 1.0–1.5 (all textbook). This is a rough
+  estimate; the real ceiling is lower once amino-acid synthesis is costed.
+- The model (`energetic_ceiling` in `src/pftea/product.py`) charges 4 ATP per peptide
+  bond. It takes ATP per glucose from the *K. phaffii* P/O ratio of 1.48 (Chung et al.
+  2010): 4 + 12 × 1.48 = 21.8 (4 ATP from glycolysis and the TCA cycle, plus 1.48 for each
+  of the 12 O atoms that take glucose's 24 electrons). That gives about **0.58 g/g for BLG
+  and 0.59 for OVA**. The energy of amino-acid synthesis beyond carbon and electrons is not
+  counted, so this is an upper bound.
 
 **Reality.** NREL assumes 0.24 g/g overall. GFI's private-sector survey reports
 0.03–0.17 g/g (`gfi2025costs`, Table 2). Most of the gap between ~0.1 and ~0.6 is sugar
@@ -286,7 +296,9 @@ Treat that as an order of magnitude only:
   fungal-specific one.
 
 Production-scale OTR ceilings of order 100–250 mmol/L/h are the working range here
-(illustrative); the proper sources (Garcia-Ochoa 2009, Crater 2018) are in Phase B.
+(illustrative). The model's sourced cap is 150 mmol/L/h (range 100–200, grade B;
+`fermenter.otr_cap_mol_m3_h` in `data/pf/base.yaml`). Humbird (2021) puts about 200 as the
+practical maximum in fermentation.
 
 Oxygen costs electricity twice:
 - **Compressing air.** Isentropic work is
@@ -320,6 +332,9 @@ A process that runs happily in a 1 m³ pilot can be cooling-limited at 300 m³. 
 design therefore puts chilled-water coils inside the vessel. Fermentation at ~30 °C with
 cooling-tower water at 25–30 °C leaves almost no ΔT, hence chillers. NREL's chiller draw
 (1.59 MW) against ~9.2 MW of heat implies a coefficient of performance of about 5.8 [§8].
+NREL itself states 0.56 kW of electricity per ton of refrigeration (`humbird2011`, p.55),
+a COP of 6.3, at which 1.59 MW removes about 10 MW [§8]. Our 9.2 MW is a rough estimate
+that ignores the seed reactors.
 
 ### 5.4 The productivity ceiling in one line
 
@@ -343,8 +358,9 @@ transfer and cool. Humbird did exactly this for animal cells.
 - **Gradients.** Mixing times in large tanks are tens of seconds, so cells cycle through
   sugar-rich and oxygen-poor zones.
 - **Foam.** It needs antifoam, which can interfere with downstream steps.
-- **Vessel size.** Practical maximum sizes for aerobic fermenters are a few hundred m³;
-  Phase B will source the numbers.
+- **Vessel size.** Industrial aerobic fermenters run at 200–1,000 m³, and Humbird puts the
+  largest practical stirred tank at ~1,000 m³ (Humbird 2021; `data/evidence/engineering.yaml`).
+  The model's base vessel is 200 m³ (range 100–500).
 - **Shear.** Unlike for animal cells, this is rarely binding for microbes.
 
 ## 6. Downstream processing
@@ -404,6 +420,10 @@ adds working capital to reach total capital investment (TCI).
   - additional piping 4.5% of ISBL;
   - prorateable costs, field expenses, contingency and other costs at 10% of TDC each;
   - home office and construction at 20% of TDC.
+
+  For the ethanol plant (feedstock handling and wastewater excluded) this comes to a Lang
+  factor of 3.1 (FCI over purchased equipment; Table 28, printed p.62). Definitions differ:
+  Humbird's factors are TCI/PEC, NREL's is FCI/PEC and Intelligen's is DFC/PEC.
 - **Scaling.** Cost ∝ capacity^n with n ≈ 0.6 (the "six-tenths rule"). Doubling capacity
   multiplies cost by 1.52, so cost per unit capacity falls 24%. A 10× increase cuts unit
   capital cost to 0.40× [§11]. This only holds while you can build bigger. Past the
@@ -448,9 +468,17 @@ assumptions (`humbird2011`, Table 33): 30-year life, 35% tax, 40% equity with an
 over 10 years, 7-year accelerated depreciation, 3-year construction, and working capital
 of 5% of FCI.
 
-**Why this matters.** Two TEAs of the *same* plant can differ by more than 10% purely
-through convention. Exercise A1 measures this. Before comparing any two published numbers,
-put them on one convention. We will report both COP and MSP.
+**Why this matters.** Two TEAs of the *same* plant can differ severalfold through
+accounting and costing choices alone, with the same biology:
+- how capital is annualised moves Intelligen's cost by 12% (exercise A1, step 1.4);
+- how capital is estimated as well moves our base case by 1.7×: $29.2/kg BLG with
+  Humbird's price-anchored convention, $16.8 with the lighter design-report one (report,
+  Table 1);
+- published designs come out 2.7–2.8× below our model run on the same process (report,
+  Table 4: NREL, Voutilainen).
+
+Before comparing any two published numbers, put them on one convention. We report both
+COP and MSP.
 
 ### 7.5 Nth-of-a-kind
 
@@ -498,7 +526,7 @@ term because NREL has no DSP. Three habits follow:
 
 Humbird's key move was to show that some aspirational inputs are physically impossible,
 and to report the cost *at* the limits. Ours will be assembled from:
-- the yield ceiling (§3.4; C2 will derive it for each host);
+- the yield ceiling (§3.4; the model derives it per product in `src/pftea/product.py`);
 - the O₂-transfer and cooling ceilings as functions of vessel size (§5);
 - the largest practical vessel;
 - the minimal DSP that meets the specification (§6);
@@ -511,11 +539,15 @@ insufficient**.
 ## 10. What the literature knows, and does not
 
 See [`docs/LITERATURE.md`](LITERATURE.md). In brief:
-- The best academic titers are about 5 g/L for BLG and 2 g/L for OVA, both still to be
-  verified against full texts.
+- The best academic titers, now read in full text, are 5–14 g/L for BLG (*K. phaffii*,
+  5 L bioreactors; Li 2026, Yao 2026) and 2 g/L for OVA (*T. reesei*, Aro 2023; two bands
+  combined, one of them a clipped form).
 - Companies claim 30 to 120 g/L. The EVERY patent reports 30 g/L for ovomucoid; Onego's
   claim is in the press.
-- No public BLG/OVA yield on sugar exists.
+- No measured BLG/OVA yield on sugar exists. The public values are design or derived
+  numbers: BLG 0.223 g/g (Behm 2022, a *T. reesei* design), OVA 0.28 g/g (Intelligen, a
+  design, expression phase only) and OVA 0.39 g/g (Järviö 2021, derived from an LCA
+  inventory; being re-checked).
 - No per-step food-grade DSP recovery has been published.
 - No peer-reviewed TEA of BLG or OVA exists.
 
@@ -563,7 +595,7 @@ Answer without looking back. Answers are below.
 5. A company reports 60 g/L. What else do you need before you can check it against
    oxygen-transfer physics?
 6. What is the difference between COP and MSP? Why can two honest TEAs of one plant
-   differ by more than 10%?
+   differ severalfold?
 7. Titer doubles at fixed batch time and yield. Which cost terms halve and which do not?
 8. Why does downstream recovery multiply every upstream cost?
 9. What is the sugar floor at Y = 0.15 g/g, glucose at $0.36/kg and 85% recovery?
@@ -583,17 +615,24 @@ Answer without looking back. Answers are below.
 5. Batch time (for rate), yield or cell density (for O₂ per kg), vessel size and pressure
    (for OTR and cooling capacity).
 6. COP recovers capital without a return; MSP includes a return on capital (capital charge
-   or DCF). Conventions on depreciation, overheads, maintenance and insurance alone can move
-   the result by more than 10% (exercise A1, step 1.4).
+   or DCF). Conventions on depreciation, overheads, maintenance and insurance alone move
+   Intelligen's result by 12% (exercise A1, step 1.4). Add how capital itself is estimated
+   (equipment prices, installation factors, fixed-cost rates) and our base case moves by
+   1.7×; published designs sit 2.7–2.8× below our model run on the same process (§7.4).
 7. Volume-driven DSP roughly halves. So does fermentation capital, because at fixed batch
    time the rate doubles too, provided the tank can supply twice the O₂ and cooling per m³
    (§5.4). Sugar, O₂ per kg and mass-driven DSP do not move.
 8. Every kg lost downstream was paid for upstream (sugar, O₂, fermenter time). So each
    upstream cost per kg of *product* is divided by R.
 9. 0.36 / (0.15 × 0.85) = $2.82/kg protein.
-10. Against Petrides' facility classes in Humbird's Table 3.1: 4.7 for an outdoor lysine
-    plant up to 7.1 for aseptic lactase. First check what the purchased cost includes: a
-    bare vessel or a piped, instrumented skid. A skid carries part of the installation
-    already, and applying the full factor to it is double-dipping.
+10. Against two benchmarks. Petrides' facility classes in Humbird's Table 3.1 run from 4.7
+    for an outdoor lysine plant up to 7.1 for aseptic lactase. NREL's itemised estimate
+    gives 3.1 for its ethanol plant (`humbird2011` Table 28, p.62). So 4 sits between an
+    enzyme design report and Petrides' lightest class. Our model brackets it with two
+    conventions: Humbird's price-anchored one (effective Lang factor ~5.1) and a light
+    design-report one (the published designs use 2.7–4; report §2.5 and §3). First check
+    the definition (DFC, FCI or TCI over PEC) and what the purchased cost includes: a bare
+    vessel or a piped, instrumented skid. A skid carries part of the installation already,
+    and applying the full factor to it is double-dipping.
 
 </details>

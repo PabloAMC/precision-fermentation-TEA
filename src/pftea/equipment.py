@@ -5,8 +5,12 @@ otherwise. Each function returns the purchased cost of ONE unit of the given siz
 splits a duty over identical units no larger than the maximum size.
 
 Fermenters use Humbird's microbial STR quotes (Table10 "STRFERM", 1-196 m3), interpolated
-log-log between quotes. Beyond 196 m3 the curve is extrapolated with the exponent of the last
-segment (0.89): big fermenters are heavy, so the economy of scale is weak (conservative).
+log-log between quotes. Beyond the largest quote (196 m3) there are no quotes: the curve is
+extrapolated with `exponent_above` (base.yaml capital.fermenter_exponent_above_table; Humbird's
+own power fit of the bare-vessel quotes, Equip!BM74:BO74, has exponent 0.69). The last quoted
+segment (100 -> 196 m3) has exponent 0.998, i.e. no economy of scale; using it beyond the table
+was an audit finding (docs/AUDIT.md R3-F3).
+Spray-dryer cost has no Humbird quote; its basis is a graded parameter in base.yaml (dsp).
 """
 from __future__ import annotations
 
@@ -35,8 +39,11 @@ def units(duty: float, max_size: float) -> tuple[int, float]:
     return n, duty / n
 
 
-def fermenter(volume_m3: float) -> float:
+def fermenter(volume_m3: float, exponent_above: float | None = None) -> float:
     """Microbial STR, vessel + agitator, bare (ACCE via Humbird Table10 STRFERM)."""
+    v_top, c_top = STRFERM[-1]
+    if exponent_above is not None and volume_m3 > v_top:
+        return c_top * (volume_m3 / v_top) ** exponent_above
     return _loglog(STRFERM, volume_m3)
 
 
@@ -95,12 +102,11 @@ def membrane_skid(m2: float, usd_per_m2_2018: float) -> float:
     return usd_per_m2_2018 * m2
 
 
-def spray_dryer(kg_water_h: float, ref_cost_2018: float = 2.5e6, ref_kg_h: float = 2000.0,
-                exponent: float = 0.6) -> float:
-    """Spray dryer incl. air heater, cyclones, bag filter (power law; basis in base.yaml)."""
+def spray_dryer(kg_water_h: float, ref_cost_2018: float, ref_kg_h: float, exponent: float) -> float:
+    """Spray dryer incl. air heater, cyclones, bag filter: power law, basis in base.yaml (dsp.spray_dryer)."""
     return ref_cost_2018 * (kg_water_h / ref_kg_h) ** exponent
 
 
 # largest single units (Equip sheet)
 MAX = dict(sterilizer_L_h=100000, compressor_acmh=52500, chiller_kW=12000, boiler_kg_h=360000,
-           centrifuge_gpm=150, rvf_kg_h=12000, tank_m3=500, dryer_kg_h=10000)
+           centrifuge_gpm=150, rvf_kg_h=12000, tank_m3=500)

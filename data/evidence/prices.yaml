@@ -925,6 +925,32 @@
   csv: "data/prices/natural_gas_nonhousehold_dk_band_i3_eurostat.csv"
   note: "value = mean of 2025 semesters (computed; 2024 mean 16.04). = 19.712 EUR/MMBtu = 22.27 USD/MMBtu at ECB 2025 (1 MMBtu = 1.055056 GJ). Larger bands, X_VAT, 2025-S1/S2: I4 (100,000-999,999 GJ) 15.9878/13.7703; I5 (1-4 PJ) 16.0975/13.3056 EUR/GJ."
 
+- key: "electricity_nonhousehold_band_if_nw_europe_2025"
+  value: 0.12885
+  unit: "EUR/kWh (excl. VAT and recoverable levies), band IF (70,000-149,999 MWh/yr)"
+  year: 2025
+  values: {"NL": [0.1377, 0.1200], "BE": [0.1155, 0.1141], "DE": [0.1447, 0.1440], "DK": [0.1208, 0.1203], "FR": [0.0820, 0.0715], "EU27_2020": [0.1246, 0.1217]}
+  grade: "A"
+  source: "Eurostat nrg_pc_205 'Electricity prices for non-household consumers - bi-annual data (from 2007 onwards)'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205 (JSON API; geo EU27_2020, BE, DK, DE, FR, NL; nrg_cons MWH70000-149999; tax X_VAT; currency EUR)"
+  locator: "nrg_cons=MWH70000-149999 (band IF), tax=X_VAT, 2025-S1 and 2025-S2 (values list = [S1, S2])"
+  quote: "NL 2025-S1 0.1377, 2025-S2 0.1200 EUR/kWh; BE 0.1155, 0.1141; DE 0.1447, 0.1440; DK 0.1208, 0.1203"
+  read: "html"
+  note: "value = NL mean of the 2025 semesters (computed), the eu_nw electricity price in base.yaml (x ECB 2025 1.1300 = $0.1456/kWh). EU range in base.yaml: BE (low, $0.1297) and DE (high, $0.1631). Band IF matches a 10 kt/yr plant's ~80-110 GWh/yr (audit R5-12: the used values previously lived only in notes). Extracted from the JSON saved by reviewer R5, 2026-09-26."
+
+- key: "natural_gas_nonhousehold_band_i4_nw_europe_2025"
+  value: 17.3518
+  unit: "EUR/GJ gross calorific value (excl. VAT and recoverable levies), band I4 (100,000-999,999 GJ/yr)"
+  year: 2025
+  values: {"NL": [18.8891, 15.8144], "BE": [11.876, 11.0876], "DE": [16.2904, 15.1533], "DK": [15.9878, 13.7703], "FR": [14.0336, 12.4456], "EU27_2020": [15.1293, 13.4179]}
+  grade: "A"
+  source: "Eurostat nrg_pc_203 'Gas prices for industrial consumers - bi-annual data (from 2007 onwards)'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_203 (JSON API; geo EU27_2020, BE, DK, DE, FR, NL; nrg_cons GJ100000-999999; tax X_VAT; currency EUR; unit GJ_GCV)"
+  locator: "nrg_cons=GJ100000-999999 (band I4), tax=X_VAT, 2025-S1 and 2025-S2 (values list = [S1, S2])"
+  quote: "NL 2025-S1 18.8891, 2025-S2 15.8144 EUR/GJ; BE 11.876, 11.0876; DE 16.2904, 15.1533; DK 15.9878, 13.7703"
+  read: "html"
+  note: "value = NL mean of the 2025 semesters (computed), the eu_nw gas price in base.yaml (x ECB 2025 1.1300 = $19.61/GJ; audit R5-7 moved EU gas from EU27 to NL to match electricity). EU range: BE (low, $12.97) and NL (high). Band I4 matches the plant's dryer + boiler gas (~0.1-0.3 PJ/yr). Extracted from the JSON saved by reviewer R5, 2026-09-26."
+
 - key: "water_drinking_business_vitens_nl"
   value: 1.15
   unit: "EUR/m3 (excl. 9% VAT; volume charge)"

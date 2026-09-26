@@ -12,4 +12,5 @@ spec:                       # no OVA GRAS spec on disk yet: base = BLG concentra
   protein_min_frac_powder: {value: 0.70, grade: D, source: "analogy with FDA-GRN1056 (BLG)"}
   target_min_frac_protein: {value: 0.80, grade: D, source: "analogy with FDA-GRN1056 (BLG)"}
   moisture_max: {value: 0.07, grade: D, source: "analogy with FDA-GRN1056 (BLG)"}
-solubility_practical_g_L: {value: 50, grade: B, source: "intelligen_ovalbumin2025 p.8: 'target concentration was set to 50 g/L of rOvalbumin, which corresponds to its practical solubility limit'"}
+solubility_practical_g_L: {value: null, grade: A, note: "audit P-8: not applied as a limit; 50 g/L is a sensitivity (plant.solubility_override_g_L)",
+  source: "no measured limit near fermentation conditions. OVA dissolved at 200 g/L in water (Wang et al. 2025 Gels 11:470, A); up to 60 g/L at pH 7 (Weijers 2003 Protein Sci, A); rOVA made up at 7% w/v in water (EVERY US 12,096,784 B2 Ex. 38, B); egg white ultrafiltered industrially to 23% solids, ~110 g/L OVA (Tsai 1977, A, derived). Intelligen p.8 calls 50 g/L 'its practical solubility limit' without a source; vendor sheets give 40-50 mg/mL as QC test concentrations (Sigma A5503, Interchim; C). Caveat: no data at pH 5, the fermentation pH, near OVA's pI of ~4.5 (data/evidence/placeholders.yaml item 8)"}

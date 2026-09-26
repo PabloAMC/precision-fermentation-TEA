@@ -22,9 +22,9 @@
 #   "...cell densities of up to / medium. In some cases, the medium is BSGY medium. In /
 #   100 g dry cell weight/L, 150 g dry cell weight/L or 200 g dry / cell weight/L." - the
 #   quoted sentence is exact once the other column is dropped. 27 of the 42 on-disk quotes
-#   match after punctuation-insensitive normalisation; the other 15 fail only for this
-#   reason and each was read in context before being recorded. When auditing, read around
-#   the locator rather than grepping.
+#   match after punctuation-insensitive normalisation; 14 of the other 15 fail only for this
+#   reason, and one dropped a word (kphaffii_our_methanol_induction_universal2026, fixed in the
+#   2026-09-26 audit, R6-m11). When auditing, read around the locator rather than grepping.
 #
 # - Quotes marked "table cell" or "TABLE ROW" in the note were read from a table (in the
 #   Europe PMC full-text XML, or a PDF dump) rather than from running prose. They are the
@@ -541,7 +541,7 @@
   source: "Liu H, Du W, Chang X, et al. Front Microbiol 17:1854154 (2026), citing Yu et al. 2010"
   doi_or_url: Universal2026_pichia-shakeflask-fermenter-medium.txt
   locator: "Discussion (shake-flask vs bioreactor oxygen transfer)"
-  quote: "in stirred bioreactors with active aeration, P. pastoris can achieve a high and stable oxygen uptake rate (OUR) of 200-300 mmoL/L/h during the methanol induction phase"
+  quote: "in stirred bioreactors equipped with active aeration, P. pastoris can achieve a high and stable oxygen uptake rate (OUR) of 200-300 mmoL/L/h during the methanol induction phase"
   read: fulltext
   note: >
     CRITICAL for vessel sizing: 200-300 mmol O2/L/h is far above what a large fermenter can
@@ -866,7 +866,7 @@
   source: "Bechtel A, et al. Microb Cell Fact 23:266 (2024)"
   doi_or_url: 10.1186/s12934-024-02544-5
   locator: "Results (bioreactor cultivations, P_AOX1)"
-  quote: "Specific productivity q_p of 1.53 +/- 0.03 ukat/g_DCW/h achieved with P_AOX1"
+  quote: "A specific growth rate mu of 0.023 +/- 0.001 per hour was obtained during cultivation, resulting in a specific cell productivity q p of 1.53 +/- 0.03 ukat o NPGal /g DCW /h."
   read: html
   note: >
     Paenibacillus wynnii beta-galactosidase, glycerol batch then methanol feed, 1.4 L bioreactor.
@@ -1037,7 +1037,7 @@
   source: "Arvas M, Haiminen N, Smit B, et al. BMC Genomics 12:616 (2011)"
   doi_or_url: 10.1186/1471-2164-12-616
   locator: "Background"
-  quote: "highest specific extracellular protein production rates for T.reesei have been detected at a relatively low specific growth rate of D = 0.03 h-1"
+  quote: "the highest specific extracellulaer [sic] protein production rates for T.reesei have been detected at a relatively low specific growth rate of D = 0.03"
   read: html
   note: >
     Independent confirmation of Pakula's optimum. Their own chemostats ran Rut-C30 at D = 0.03 and
@@ -1335,7 +1335,7 @@
   grade: A
   host: generic
   source: "Martin WF, et al. Biochim Biophys Acta Bioenerg (2025), 'ATP requirements for growth reveal the bioenergetic impact of mitochondrial symbiosis'"
-  doi_or_url: 10.1016/j.bbabio.2025.149530
+  doi_or_url: 10.1016/j.bbabio.2025.149564
   locator: "Section 1.1, The cost of synthesizing proteins"
   quote: "The cost assumed for protein synthesis at the ribosome is uncontested, 4 ATP per peptide bond."
   read: html
@@ -1354,7 +1354,7 @@
   unit: kJ/mol O2
   grade: A
   host: generic
-  source: "von Stockar U, Maskow T, Liu J, et al. Microb Biotechnol 3:...(2010), 'What heat is telling us about microbial conversions'"
+  source: "Maskow T, Kemp R, Buchholz F, Schubert T, Kiesel B, Harms H. What heat is telling us about microbial conversions in nature and technology: from chip- to megacalorimetry. Microb Biotechnol 3:269-284 (2010)"
   doi_or_url: 10.1111/j.1751-7915.2009.00121.x
   locator: "p.278, section 'The additional benefit of calorespirometric ratios'"
   quote: "This ratio (rq/rO2) is called the oxycaloric equivalent ... and usually attains values between -430 and -480 kJ mol-O2-1 with an averaged value of -455 +/- 15 kJ mol-O2-1"
@@ -1497,8 +1497,8 @@
     Same group as Li 2026 (Cai M, ECUST). Needs institutional access.
 
 - key: blg_carbon_yield_aoryzae_nielsen2025
-  value: 70
-  unit: "% carbon yield"
+  value: null
+  unit: "relative improvement over the design centre point (no absolute yield given)"
   grade: A
   host: aoryzae
   source: "Nielsen MB, Meyer AS, Hansen K, Arnau J. Ind Biotechnol (2025)"
@@ -1507,12 +1507,11 @@
   quote: "The optimal production yield, representing a protein production increase of almost 80% and a carbon yield above 70%, was achieved at pH 6.9, 36 degC, and a carbon-input of 1.23x."
   read: abstract
   note: >
-    Aspergillus oryzae (21st.BIO / Novonesis industrial host), NOT one of this TEA's two hosts -
-    so grade A but off-host. A ">70% carbon yield" for BLG is far above any titer-based yield in
-    this file and is the most optimistic protein-on-carbon number found; it is a CARBON yield
-    (C in product / C in feed), not a mass yield, so it is not directly comparable to 0.21-0.28
-    g/g. No titer, duration or biomass is given in the abstract; the Sage full text returns 403.
-    The strain is stated to have made registration batches for a US FDA GRAS notice.
+    CORRECTED 2026-09-26 (audit R6-M3/NP-5) after reading the full text: the "carbon yield above
+    70%" is a RELATIVE improvement over the experimental-design centre point (Table 2: 100 -> 173),
+    not an absolute carbon or mass yield, so value is null. Aspergillus oryzae (21st.BIO /
+    Novonesis industrial host), not one of this TEA's two hosts; no absolute titer or yield is
+    given. The strain is stated to have made registration batches for a US FDA GRAS notice.
 
 - key: blg_ova_host_comparison_summary
   value: null

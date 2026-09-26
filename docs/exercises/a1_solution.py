@@ -30,6 +30,8 @@ UTILITIES = 5_876_327          # $/yr (Table 4)
 POWER_MWH = 27_077             # Table 4
 CHILLED_T = 6_182_685          # t/yr chilled water (Table 4)
 V_END_M3, TITER, DCW = 107.0, 30.0, 92.0   # broth m3, g/L OVA, g/L cells at harvest (p.7)
+V_START_M3 = 41.523            # working volume at the start of the growth phase (p.6)
+GROWTH_H = 36                  # growth phase, h (p.5); the expression phase is 72 h (p.6)
 # Eq. (1) growth, per 100 g glucose reacted: -> 40 g cells, 54.56 g O2 consumed (p.7)
 # Eq. (2) expression, per 100 g glucose: -> 8 g cells + 28 g OVA + 4 g HCP, 53.51 g O2 (p.7)
 Y_X_GROWTH, O2_GROWTH = 0.40, 0.5456
@@ -45,6 +47,8 @@ CP_WATER = 4.18                     # kJ/kg/K
 # 10 y; maintenance 4% TCI; insurance + tax 5% TCI.
 HUMBIRD_CCF = 0.075 / (1 - 1.075 ** -10)
 HUMBIRD_MAINT, HUMBIRD_INS = 0.04, 0.05
+NREL_USD_KG = 4.24                  # NREL on-site cellulase, $/kg protein, 2007$ (humbird2011 p.41)
+MODEL_OTR_CAP = 150                 # the model's O2-transfer cap, mmol/L/h (data/pf/base.yaml)
 
 
 def line(label, value, unit="", fmt="{:,.2f}"):
@@ -101,7 +105,11 @@ line("    pure OVA in powder per batch", ova_product, "kg", "{:,.0f}")
 line("    overall downstream recovery", ova_product / ova_broth, "", "{:.3f}")
 uf_yield = UF_CF ** -(1 - UF_REJECTION)       # retained fraction when concentrating CF-fold
 line("    UF retention at 5x (rejection 0.995)", uf_yield, "", "{:.3f}")
-line("    UF x precipitation x basket", uf_yield * PRECIP * BASKET, "(rest lost in clarification)", "{:.3f}")
+steps = uf_yield * PRECIP * BASKET
+line("    UF x precipitation x basket", steps, "", "{:.3f}")
+line("    unaccounted for: overall / listed steps", ova_product / ova_broth / steps, "", "{:.3f}")
+line("    harvest volume that would close the balance", ova_product / (steps * TITER),
+     "m3 (paper: 'approximately 107')", "{:.1f}")
 
 glc_expr = ova_broth / Y_P_EXPR                  # glucose reacted in expression phase
 cells_expr = glc_expr * Y_X_EXPR
@@ -144,14 +152,35 @@ line("R2 facility-dependent", r2 / 1e6, "M$/yr")
 line("R5 rebuilt unit cost", r5, f"$/kg ({100 * (r5 / (AOC / OUTPUT_KG) - 1):+.1f}%)")
 swap = (AOC - slices["facility"] + r2) / OUTPUT_KG
 line("  swapping only maintenance to 6% of PEC", swap, f"$/kg ({100 * (swap / (AOC / OUTPUT_KG) - 1):+.1f}%)")
+# How much can R5 test? R1-R4 reuse the paper's totals; only the maintenance rate and the
+# glucose tonnage are the student's own. Solve for the range that keeps R5 within +-20%.
+fixed_r5 = (MATERIALS - GLUCOSE_USD) + deprec + fixed + UTILITIES + r4
+hi_r5 = 1.2 * AOC
+line("  part of R5 fixed by the paper's totals", fixed_r5 / OUTPUT_KG, "$/kg")
+line("  R5 stays within 20% for maintenance up to",
+     (hi_r5 - fixed_r5 - glc_fed * batches * 0.36) / pec, "of PEC/yr (glucose from the balance)",
+     "{:.2f}")
+line("  R5 stays within 20% for annual glucose up to",
+     (hi_r5 - fixed_r5 - R0 * pec) / 0.36 / 1e6, "kt/yr (maintenance 6% of PEC)", "{:.0f}")
+line("  R5 with zero maintenance and zero glucose", fixed_r5 / OUTPUT_KG,
+     f"$/kg ({100 * (fixed_r5 / AOC - 1):+.1f}%, still within 20%)")
 
 print("\nPART 3 - rough what-ifs (see A1_SOLUTION.md for the reasoning)")
 unit = AOC / OUTPUT_KG
-# 3.1 titer 60 g/L, same batch time and overall yield. First the physics: O2 demand and heat
-# per m3 double. Average OUR over the culture (volume grows 41.5 -> 107 m3; take ~100 m3):
-our_avg = o2_mol / 108 / 100
-line("3.1 average OUR today (mol O2 / 108 h / ~100 m3)", our_avg, "mmol/L/h", "{:.0f}")
-line("    ... at twice the titer in the same time", 2 * our_avg, "mmol/L/h", "{:.0f}")
+# 3.1 titer 60 g/L, same batch time and overall yield. First the physics, phase by phase. The
+# growth phase burns most of the O2 in a third of the time. The broth grows from 41.5 m3 towards
+# the 107 m3 harvest volume, so dividing by 107 m3 gives a lower bound on its average uptake.
+o2_growth_kmol = O2_GROWTH * glc_growth / 32
+our_growth_lo = o2_growth_kmol * 1000 / GROWTH_H / V_END_M3
+line("3.1 growth-phase O2 per batch (Eq. 1)", o2_growth_kmol,
+     f"kmol = {O2_GROWTH * glc_growth:,.0f} kg", "{:,.1f}")
+line("    growth-phase OUR over the 107 m3 harvest volume", our_growth_lo,
+     "mmol/L/h (a lower bound)", "{:.0f}")
+line("    ... over the 41.5 m3 starting volume", o2_growth_kmol * 1000 / GROWTH_H / V_START_M3,
+     "mmol/L/h", "{:.0f}")
+line("    growth OUR at twice the titer (2x cells), 107 m3", 2 * our_growth_lo,
+     "mmol/L/h (a lower bound)", "{:.0f}")
+line("    the model's O2-transfer cap (data/pf/base.yaml)", MODEL_OTR_CAP, "mmol/L/h", "{:.0f}")
 line("    jacket limit at 136 m3 (PRIMER sec. 5.3, no agitation heat)", 53, "mmol/L/h", "{:.0f}")
 line("    60 g/L vs OVA practical solubility (p.8)", 60 / SOLUBILITY_G_L, "x the limit", "{:.1f}")
 # If it were feasible anyway. ASSUMPTIONS: fermentation + clarification carry ~55% of capital
@@ -170,3 +199,7 @@ t32 = (slices["facility"] * 10 ** (0.8 - 1) + MATERIALS + UTILITIES + slices["la
 line("3.2 scale x10, rough", t32, f"$/kg ({100 * (t32 / unit - 1):+.0f}%)")
 variable = (MATERIALS + UTILITIES + slices["waste"] + slices["consumables"]) / OUTPUT_KG
 line("    materials + utilities + waste + consumables (do not scale)", variable, "$/kg")
+# 3.3 the gap to NREL, per kg of protein on both sides (step 1.5 for Intelligen)
+ova_usd_kg = AOC / OUTPUT_KG / ova_frac
+line("3.3 gap per kg protein: Intelligen OVA - NREL cellulase", ova_usd_kg - NREL_USD_KG, "$/kg")
+line("    ratio", ova_usd_kg / NREL_USD_KG, "x", "{:.1f}")

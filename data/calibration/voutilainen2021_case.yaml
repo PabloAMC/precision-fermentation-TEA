@@ -23,10 +23,11 @@ overrides:
   hosts.treesei.maint_factor: 0.0        # their stoichiometry is yield-based
   fermenter.volume_m3: 300
   fermenter.fill_max: 0.7
-  dsp.recovery_cell_removal: 0.9604      # pressure filter + sheet filter, 2% each
+  dsp.recovery_cell_removal_override: 0.9604   # pressure filter + sheet filter, 2% each
   dsp.mf_recovery: 1.0
   dsp.uf_rejection: 0.9999               # UF step loss applied through dryer recovery below
   dsp.diafiltration_volumes: 0
+  dsp.dryer_feed_solids_ova: 0.28        # 'the protein is concentrated to 28% ... using ultrafiltration'
   dsp.dryer_recovery: 0.9412             # UF 2% x drying 2% x fermentation 2%
   dsp.powder_moisture: 0.10              # 90% dry matter
   utilities.glucose_usd_kg: 0.5645       # 504 EUR/t x 1.12
@@ -36,4 +37,9 @@ overrides:
   media.antifoam_price_usd_kg: 1.12
   labour.operator_salary_usd: 78400      # 70 kEUR
   capital.cost_index_2018_to_2025: 1.007  # to 2019: CEPCI 607.5/603.1 (prices.yaml)
-finance: {rate: 0.05, life: 20, tax: 0.20, construction: [1.03], depreciation: [], wc_frac: 0.0}
+# Their DCF (SI 'DCF', reconstructed in voutilainen2021.yaml, reproduces 9,007 EUR/t): 5% on
+# (1 - tax)(revenue - opex), no depreciation, capital 1.03 x FCI at t = 0, a start-up year at 50%
+# revenue and 50% variable cost, revenue inflating 1%/yr and opex rising from 11.02 to 13.10 M EUR
+# over years 1-20. By-products (combustion value) are not modelled here, so the credit is 0.
+finance: {rate: 0.05, life: 20, tax: 0.20, capital_factor: 1.03, inflation: 0.01, opex_growth: 0.009142,
+  startup_revenue: 0.5, startup_variable: 0.5, byproduct: 0.0}

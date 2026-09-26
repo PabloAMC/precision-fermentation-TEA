@@ -73,8 +73,9 @@ The listed purification steps give **0.884**:
 - Precipitation catches 0.90.
 - The basket centrifuge keeps 0.99.
 
-The remaining ~3% is lost in clarification, despite the microfilter retentate being
-recycled.
+The remaining ~3% (0.857/0.884 = 0.969) is unaccounted for, within the rounding of the
+stated volumes. Intelligen gives no recovery for clarification or drying, and a harvest of
+103.7 m³ instead of "approximately 107 m³" (p.7) would close the balance.
 
 **2.2 Glucose.**
 - The expression phase needs 3,210/0.28 = 11,464 kg of glucose per batch, and makes
@@ -107,8 +108,9 @@ consistent: agitator power ends up as heat too, and the 15 °C precipitation ste
 chilled.
 
 **2.5 Electricity.** Intelligen uses **27 kWh per kg of powder**, against NREL's 9 per kg
-protein. The like-for-like gap is even larger than 3×, because NREL's 9 includes the
-chillers while Intelligen prices chilled water separately. The reasons:
+protein. The like-for-like gap is even larger than 3×, because NREL's 9 includes its
+chillers (rated at 0.56 kW per ton of refrigeration, a COP of about 6.3; NREL p.55, PRIMER
+§5.3) while Intelligen prices chilled water separately. The reasons:
 - 2.1× more O₂ per kg;
 - aeration at 1.2–1.6 vvm against NREL's ~0.3, and compressor work scales with air volume;
 - centrifuges, filtration pumps and the spray-dryer and evaporator fans.
@@ -118,22 +120,38 @@ rather than the 9.7% solved for in 1.3, and take glucose from your own balance, 
 $0.49/kg below Table 3. The rebuilt unit cost is then **$37.66/kg (−3.4%)**, within the
 20% criterion. Swapping only the maintenance rate gives $38.19 (−2.0%).
 
+Treat this as a bookkeeping check, not a test. R1–R4 reuse the paper's own totals, which
+fix $32.17 of the $38.99. R5 therefore stays within 20% for any maintenance rate from 0 to
+48% of PEC per year (with the balance glucose), and for any annual glucose from 0 to 37 kt
+(at 6% maintenance). The glucose check against Table 3 (0.90 in 2.2) is the diagnostic
+one.
+
 ## Part 3: rough what-ifs
 
 These are my estimates, with the assumptions in `a1_solution.py`. Your numbers can
-legitimately differ.
+legitimately differ. They use Intelligen's own accounting: SuperPro costs at 1 kt/yr, with
+a 44% facility slice and equipment scaled by the six-tenths rule. The full model answers
+the same questions at 10 kt/yr, sometimes differently; each item says where.
 
-**3.1 Titer doubles at the same batch time and yield.** First, the physics.
+**3.1 Titer doubles at the same batch time and yield.** First, the physics, phase by
+phase.
 
-The same O₂ per kg delivered twice as fast per m³ doubles the average O₂ uptake, from
-≈53 to **≈106 mmol/L/h**, with higher peaks. By PRIMER §5.3 a jacket at 136 m³ supports
-only ≈53, or ≈37 once agitation heat is counted. So the plant would need internal coils,
-colder coolant or more pressure, and it would pay more power per mol of O₂. Worse, 60 g/L
-is 1.2× the ~50 g/L that Intelligen calls ovalbumin's practical solubility limit (p.8), so
-product could start coming out of solution in the fermenter.
+The growth phase is the hard one. It burns 22,317 kg of glucose in 36 h, which takes
+0.5456 × 22,317 kg = 12,176 kg (380.5 kmol) of O₂. Even spread over the full 107 m³
+harvest volume, that is **≈99 mmol/L/h**. The real volume is smaller, so the true average
+is higher: 255 at the 41.5 m³ start. That already exceeds the ≈53 a jacket can cool at
+136 m³ on PRIMER §5.3's illustrative numbers, so Intelligen's design needs internal coils
+or an external loop as it stands. At the same overall yield and stoichiometry, doubling the
+titer doubles the cells, and with them the growth-phase uptake: at least **≈198 mmol/L/h**.
+That is above the 150 mmol/L/h cap the model uses, and close to the ~200 that Humbird
+(2021) calls about the practical maximum. Worse, 60 g/L is 1.2× the ~50 g/L that
+Intelligen calls ovalbumin's practical solubility limit (p.8), so product could start
+coming out of solution in the fermenter.
 
 As posed, the what-if is **probably infeasible**. The realistic versions are twice the
 titer at the same *rate* (longer batches), or a cooling and O₂ upgrade that costs money.
+The full model agrees: at 80 g/L cells in a 200 m³ vessel, a 72 h production phase tops
+out near 54 g/L (report, Table 6, for BLG; OVA is within 1 g/L of it).
 
 If it were feasible anyway: about **$33/kg (−15%)**, range $31–35.
 - What falls: fermentation and clarification capital (half the broth volume, at the
@@ -142,8 +160,14 @@ If it were feasible anyway: about **$33/kg (−15%)**, range $31–35.
   broth), utilities (same O₂ per kg, more power per mol), drying, most labour and
   overheads.
 
-**Doubling titer does not halve cost**, and doubling it *at the same batch time* runs
-straight into the limits of PRIMER §5.
+**In Intelligen's accounting, doubling titer does not halve cost.** The what-if fixes the
+overall yield, and the 44% facility slice shrinks only with the six-tenths power of the
+broth volume. The full model gives a different answer at 10 kt/yr: cost falls roughly as
+1/titer until the O₂ wall (report, Figure 2). Doubling BLG titer from 30 to 60 g/L cuts the
+price by nearly half where 60 g/L is feasible ($38.3 → $20.1/kg, −48%, with a 120 h
+production phase). There, fermenters are numbered up, so their number halves with the
+broth volume, and at a fixed cell density fewer cells are grown per kg of product. In both
+views, doubling titer *at the same batch time* runs into the limits of PRIMER §5.
 
 **3.2 Ten times the scale:** about **$30/kg (−22%)**, range $27–33.
 - Fermenters are numbered up (50 × 136 m³), while downstream equipment scales up. An
@@ -152,18 +176,32 @@ straight into the limits of PRIMER §5.
 - Materials, utilities, waste and consumables are **$18.7/kg in this design and do not
   move with scale**.
 
-That is the key insight for Phase E. Beyond a few kt/yr, the floor is set by yield (sugar,
-O₂, cooling) and by downstream chemistry (ammonium sulfate, waste, membranes), not by
-scale.
+So in Intelligen's accounting at 1 kt/yr, what scale leaves behind is set by yield (sugar,
+O₂, cooling) and by downstream chemistry (ammonium sulfate, waste, membranes). That is a
+property of this design and its accounting, not a general rule. In the full model, with
+Humbird's capital convention, capital-related costs (capital charge, maintenance,
+insurance and tax) are ~68% of the base-case BLG price at 10 kt/yr (report, Table 5) and
+~75% of the physical-limit floor at 100 kt/yr (report §4.5). Scale helps little beyond
+about 10 kt/yr, because the plant then adds fermenters rather than bigger ones (report
+§4.7). From there, capital per kg is set by productivity (g/L/h), not by scale.
 
-**3.3 The bridge from $4 to $39.** The gap is $38.99 − $4.24 = $34.75/kg. Below is my
-rough split; the midpoints sum to about the gap, and each row is uncertain by ±50%. Nobody
-has published this decomposition, which is why it is Figure 2 of our report.
+**3.3 The bridge from $4 to $41 per kg of protein.** Compare per kg of protein on both
+sides (step 1.5): $41.45 − $4.24 = **$37.21/kg, a 9.8× gap**. Below is my rough split for
+Intelligen's design and accounting, per kg of powder. Each row is uncertain by ±50%. The
+midpoints sum to $33.5/kg; on a protein basis, the powder's 94% ovalbumin content adds
+~$2.5/kg, which brings the total close to the gap.
+
+The report's cost bridge (Figure 3) does this with the full model, from an NREL-style
+cellulase ($7.1/kg in 2025$) to the base BLG concentrate at 10 kt/yr ($29.2/kg). Its
+largest steps are the capital convention (+$8.3), the titer drop from 50 to 30 g/L (+$8.2)
+and downstream processing and drying (+$7.0). The ovalbumin isolate adds $8.6 more. Titer
+weighs far more there than in my split (+$2–4): at 10 kt/yr and a fixed cell density, both
+fermenter capital and the sugar spent on cells scale with 1/titer.
 
 | Difference | NREL cellulase | Intelligen ovalbumin | Rough share of the gap |
 |---|---|---|---|
 | Purification and drying | None: whole broth used on site | Centrifuges, MF, UF, precipitation, washing, spray-drying, fertiliser section | +$11–16/kg: capital, ammonium sulfate, consumables, waste, drying energy |
-| Scale, vessel size, accounting | ~4 kt/yr, 300 m³, capital recovered over 30 years in a DCF | 1 kt/yr, 136 m³, SuperPro-style facility cost (with the factory overhead in hint H5) | +$9–14/kg |
+| Scale, vessel size, accounting | ~4–5 kt/yr, 300 m³, capital recovered over 30 years in a DCF | 1 kt/yr, 136 m³, SuperPro-style facility cost (with the factory overhead in hint H5) | +$9–14/kg |
 | Yield and oxygen | 0.24 g/g, 84 mol O₂/kg | 0.094 g/g, 178 mol O₂/kg | +$5–7/kg: about 3× the glucose per kg, twice the aeration and cooling |
 | Titer | 50 g/L | 30 g/L | +$2–4/kg |
 | Cost year | 2007$ | 2025$ | +$1–2/kg on capital and labour |
@@ -177,7 +215,11 @@ has published this decomposition, which is why it is Figure 2 of our report.
 2. **92 g/L of cells at harvest.** It sets two thirds of the glucose and the oxygen, and
    it is unsourced.
 3. **Lang factor 4.** Intelligen sources it to GFI's review of Humbird (its ref. [31],
-   p.16). It is below Petrides' 4.7 for an outdoor lysine plant (Humbird Table 3.1). If
-   the right class is 5–6, capital and the 44% slice are understated by 25–50%.
+   p.16). It is below Petrides' 4.7 for an outdoor lysine plant (Humbird Table 3.1) but
+   above NREL's 3.1 for its ethanol plant (NREL Table 28, p.62). The definitions
+   differ: Intelligen's is DFC/PEC, NREL's FCI/PEC and Humbird's TCI/PEC. The full model
+   brackets it with two conventions: Humbird's price-anchored one (effective Lang factor
+   ~5.1) and a light design-report one (the published designs use 2.7–4; report §2.5 and
+   §3). If the right class is 5–6, capital and the 44% slice are understated by 25–50%.
 
 The 99% purity from a single ammonium-sulfate precipitation is a close fourth.

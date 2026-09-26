@@ -73,23 +73,26 @@ def s_scenarios(res):
             res["scenarios"][f"{name}/{prod}"] = summary(sc.run(name, prod))
             res["scenarios"][f"{name}/{prod}/light"] = summary(sc.run(name, prod, sc.LIGHT))
             res["scenarios"][f"{name}/{prod}/eu"] = summary(sc.run(name, prod, {"plant.location": "eu_nw"}))
+    # academic BLG on glucose (Li 2026) beside the ethanol-induced best titer (Yao 2026)
+    res["scenarios"]["academic/blg_li2026"] = summary(sc.run("academic", "blg", variant="blg_li2026"))
+    res["scenarios"]["academic/blg_li2026/light"] = summary(sc.run("academic", "blg", sc.LIGHT, variant="blg_li2026"))
 
 
 def s_physical_limit(res):
+    """Cost floors, their binding constraints, and the sensitivities to the limits that bind."""
     res["physical_limit"] = {}
+
+    def put(key, pl):
+        if pl:
+            res["physical_limit"][key] = dict(summary(pl["result"]), X_prod=pl["X_prod"], t_prod=pl["t_prod"],
+                                              titer=pl["titer"], binding=pl["binding"])
     for prod in ("blg", "ova"):
         for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
-            pl = sc.physical_limit(prod, extra)
-            if pl:
-                res["physical_limit"][f"{prod}/{label}"] = dict(summary(pl["result"]), X_prod=pl["X_prod"],
-                                                               t_prod=pl["t_prod"], titer=pl["titer"])
-    # sensitivity: OVA if its practical solubility were not 50 g/L (Intelligen's assumption) but BLG-like
-    ul = float(params.v(BASE, "dsp.uf_end_g_L"))
-    for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
-        pl = sc.physical_limit("ova", {**extra, "plant.solubility_override_g_L": ul, "dsp.uf_end_g_L": ul})
-        if pl:
-            res["physical_limit"][f"ova/{label}/solubility_{ul:g}"] = dict(
-                summary(pl["result"]), X_prod=pl["X_prod"], t_prod=pl["t_prod"], titer=pl["titer"])
+            put(f"{prod}/{label}", sc.physical_limit(prod, extra, fast=FAST))
+    # the specific-productivity ceiling (grade D) and Intelligen's unsourced OVA solubility
+    for q in (20, 120):
+        put(f"blg/humbird/q_p_max_{q}", sc.physical_limit("blg", {"strain.q_p_max_mg_g_h": q}, fast=FAST))
+    put("ova/humbird/solubility_50", sc.physical_limit("ova", {"plant.solubility_override_g_L": 50.0}, fast=FAST))
 
 
 def s_cost_vs_titer(res):
@@ -117,14 +120,20 @@ def s_bridge(res):
 
 
 def s_required(res):
-    """Fig. 3 and table: titer needed for a target price, and the O2/heat titer ceiling, per production time."""
+    """Fig. 3 and table: titer needed for a target price, and the titer ceiling, per production time.
+
+    Also: the ceiling on Humbird A.1's OTR basis (cap per m3 of cell-free liquid; audit R2-1) and
+    how the 72 h ceiling moves with the yield and the production-phase maintenance (audit R7-C1).
+    """
     t_prods = [36, 48, 60, 72, 96, 120]
     targets = [10, 20, 50]
     res["required_t_prods"] = t_prods
-    res["required"], res["titer_ceiling"] = {}, {}
+    res["required"], res["titer_ceiling"], res["titer_ceiling_cellfree"] = {}, {}, {}
+    cf = {"fermenter.otr_cap_basis": "cell_free_liquid"}
     for prod in ("blg", "ova"):
         p0 = params.override(BASE, {"plant.product": prod})
         res["titer_ceiling"][prod] = [sc.max_feasible_titer(p0, tp) for tp in t_prods]
+        res["titer_ceiling_cellfree"][prod] = [sc.max_feasible_titer(params.override(p0, cf), tp) for tp in t_prods]
         for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
             p = params.override(p0, extra)
             out = {}
@@ -136,6 +145,15 @@ def s_required(res):
                     rows.append(dict(titer=T, feasible=T is not None, ceiling=ceil))
                 out[str(tg)] = rows
             res["required"][f"{prod}/{label}"] = out
+    p0 = params.override(BASE, {"plant.product": "blg"})
+    yields = [0.28, 0.35, 0.40, 0.465, 0.50, 0.55]
+    maint = [0.0023, 0.00437, 0.008, 0.0161]
+    res["ceiling_vs"] = {
+        "Y_ps_g_g": dict(values=yields, ceiling_72h=[sc.max_feasible_titer(params.override(p0, {"strain.Y_ps_g_g": y}), 72)
+                                                     for y in yields]),
+        "m_s_prod_g_g_h": dict(values=maint, ceiling_72h=[sc.max_feasible_titer(
+            params.override(p0, {"hosts.kphaffii.m_s_prod_g_g_h": m}), 72) for m in maint]),
+    }
 
 
 def s_claims(res):
@@ -145,7 +163,7 @@ def s_claims(res):
     for c in bm.claims():
         ch = {"plant.product": c["model_product"], "strain.host": c["model_host"]}
         if c["model_host"] == "treesei":
-            ch.update({k: acad[k] for k in ("strain.X_prod_g_L",)})
+            ch.update({k: acad[k] for k in ("strain.X_prod_g_L", "strain.mu_prod_per_h")})
         p = params.override(BASE, ch)
         tp = sc.min_feasible_t_prod(p, c["titer"])
         row = dict(label=c["label"], titer=c["titer"], host=c["model_host"], product=c["model_product"],
@@ -162,12 +180,13 @@ def s_policy(res):
     """EU policy levers on the base BLG plant: what closes the US-EU gap, and what cheaper capital does."""
     eu = {"plant.product": "blg", "plant.location": "eu_nw"}
     us_price = lambda k: params.v(params.override(BASE, {"plant.location": "us_midwest"}), k)  # noqa: E731
-    energy = {k: us_price(k) for k in ("utilities.electricity_usd_kWh", "utilities.natural_gas_usd_GJ",
-                                       "utilities.steam_usd_t")}
+    energy = {k: us_price(k) for k in ("utilities.electricity_usd_kWh", "utilities.natural_gas_usd_GJ")}
     cases = {
         "EU base": {},
         "EU with US energy prices": energy,
         "EU with US glucose price": {"utilities.glucose_usd_kg": us_price("utilities.glucose_usd_kg")},
+        "EU with US construction cost": {"capital.location_factor": 1.0},
+        "EU with US wages": {"labour.operator_salary_usd": us_price("labour.operator_salary_usd")},
         "EU, capital at 4%/10 yr": {"finance.ccf_rate": 0.04},
         "EU, capital at 4%/20 yr": {"finance.ccf_rate": 0.04, "finance.ccf_life_y": 20},
     }
@@ -188,9 +207,13 @@ def s_monte_carlo(res):
     for name in ("academic", "industry"):
         for prod in ("blg", "ova"):
             p = sc.scenario_params(name, prod)
-            mc = sc.monte_carlo(p, sc.load(name)["mc_paths"], n=n, seed=1, ranges=sc.load(name).get("mc_ranges"))
+            paths, ranges = sc.mc_config(name, prod)
+            mc = sc.monte_carlo(p, paths, n=n, seed=1, ranges=ranges)
+            base = plant.evaluate(p).msp_ccf
+            ok = mc["msp"][mc["feasible"]]
             res["monte_carlo"][f"{name}/{prod}"] = dict(p10=mc["p10"], p50=mc["p50"], p90=mc["p90"], n=int(len(mc["msp"])),
-                                                       feasible_frac=float(mc["feasible"].mean()),
+                                                       feasible_frac=float(mc["feasible"].mean()), base=base,
+                                                       base_percentile=float((ok < base).mean() * 100) if ok.size else None,
                                                        msp=[float(x) for x in mc["msp"]],
                                                        feasible=[bool(x) for x in mc["feasible"]])
 
@@ -201,13 +224,17 @@ def s_scale(res):
 
 def s_calibration(res):
     res["calibration"] = {"bakers_yeast": {"cop": hy.run()["cop"], "humbird": 1.8899, "market_implied": 1.90}}
-    for name, light in (("nrel2011_cellulase", cal.LIGHT), ("intelligen2025_ova", cal.LIGHT),
+    for name, light in (("nrel2011_cellulase", cal.LIGHT), ("intelligen2025_ova", None),
                         ("voutilainen2021_case", cal.voutilainen_conventions("nrel"))):
         o = cal.run(name)
         res["calibration"][name] = {k: [float(a), float(b)] for k, (a, b) in o["compare"].items()}
         res["calibration"][name]["msp_ccf_per_kg_target"] = float(o["result"].msp_ccf)
-        k0, (a0, b0) = next(iter(cal.run(name, light)["compare"].items()))
-        res["calibration"][name][k0 + " [light convention]"] = [float(a0), float(b0)]
+        if light:    # Intelligen's target is already recast into the Humbird convention (A1 step 1.4)
+            k0, (a0, b0) = next(iter(cal.run(name, light)["compare"].items()))
+            res["calibration"][name][k0 + " [light convention]"] = [float(a0), float(b0)]
+    o = cal.run("voutilainen2021_case", cal.voutilainen_conventions("humbird"))
+    k0, (a0, b0) = next(iter(o["compare"].items()))
+    res["calibration"]["voutilainen2021_case"][k0 + " [their fixed costs, Humbird capital]"] = [float(a0), float(b0)]
 
 
 SECTIONS = {"base": s_base, "scenarios": s_scenarios, "physical_limit": s_physical_limit,

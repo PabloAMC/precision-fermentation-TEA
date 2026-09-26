@@ -1075,7 +1075,7 @@
   source: "Losoi P, Konttinen J, Santala V. Substantial gradient mitigation in simulated large-scale bioreactors by optimally placed multiple feed points. Biotechnol Bioeng 119(12):3549-3566 (2022)"
   doi_or_url: 10.1002/bit.28232
   locator: "Methods (Europe PMC PMC9828524)"
-  quote: "Each reactor was simulated with a compartment model based on previously published modeling approaches, with gas flow rates ranging from 0.085 to 0.98 vvm."
+  quote: "they cover industrially relevant stirred tanks and bubble columns with working volumes from 8 to 237 m 3 in different geometries and configurations with gas flow rates ranging from 0.085 to 0.98 vvm"
   read: html
   note: >-
     value = midpoint. Also: "...compartment models of four industrially relevant bioreactors
