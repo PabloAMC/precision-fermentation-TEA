@@ -97,15 +97,20 @@ and carbon pricing (the EU variant may add it as a sensitivity).
 
 | Scenario | Inputs allowed |
 |---|---|
-| `academic` | Evidence grades A and B only (peer-reviewed measurements, patent examples) |
-| `industry` | Adds grade C (company claims, GFI private-sector benchmarks) |
-| `required` | Inverse: the performance needed for $10, $20 and $50 per kg protein |
-| `physical-limit` | Stoichiometric maximum yield; O₂- and cooling-limited rate in the largest practical vessel; minimal downstream processing for the spec; contract sugar; 100 kt/yr |
+| `academic` | Titers from peer-reviewed full texts (grade A). Where no product-specific value exists (product yield, maintenance, most process values) the base values are kept, which include design values (B) and a few analogies and guesses (D, E). |
+| `industry` | The base case with one grade-C input: the private-sector average titer (GFI 2025). |
+| `required` | Inverse: the titer needed for $10, $20 and $50 per kg protein at each production time. |
+| `physical-limit` | Product yield near the energetic ceiling (not the stoichiometric maximum, which ignores ATP); the lowest measured maintenance; no growth in production; rate limited by the O₂ cap (250 mol/m³/h with head pressure), cooling (40 kW/m³), the minimum initial fill and a secretion ceiling (40 mg/g/h, grade D) in 400 m³ vessels; minimal downstream processing for the spec; contract sugar; 100 kt/yr. |
+
+*Changed 2026-09-27 (audit R8-m4):* the definitions above now describe what runs; the v1 text
+promised "grades A and B only" for `academic` and a "stoichiometric maximum yield" for
+`physical-limit`, which the model did not do. Logged in PLAN.md.
 
 ## Out of scope for v1
 
 - Casein and micelle formation (v2).
-- Other products. Lactoferrin appears only as a downstream calibration case.
+- Other products. *Added 2026-09-26 at Pablo's request:* lactoferrin as a high-value contrast
+  case (report Q8), and milk and egg equivalents of the costs (report Q7).
 - Strain engineering.
 - Full LCA; only the physical intensities above are reported.
 - Market forecasts, company-specific costs, private data.

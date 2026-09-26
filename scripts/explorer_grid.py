@@ -21,12 +21,13 @@ AXES = {
     "site": ["us_midwest", "eu_nw"],
     "titer": [2, 3, 5, 8, 12, 20, 30, 42, 60, 80, 110],
     "t_prod": [36, 48, 72, 96, 120, 168],
-    "X_prod": [40, 80, 120],
-    "Y_ps": [0.20, 0.28, 0.40],
+    "X_prod": [40, 80, 107, 140],
+    "Y_ps": [0.28, 0.40, 0.465, 0.55],
 }
 GROUPS = {"capital": ["capital charge"], "maintenance + insurance": ["maintenance", "insurance & tax"],
           "labour": ["labour"], "glucose": ["glucose"],
-          "other materials": ["ammonia", "salts & other media", "DSP chemicals", "membranes", "biomass disposal"],
+          "other materials": ["ammonia", "salts & other media", "DSP chemicals", "membranes", "chromatography resin",
+                              "biomass disposal"],
           "utilities": ["electricity", "natural gas & steam", "water & wastewater"]}
 
 
@@ -58,8 +59,9 @@ if __name__ == "__main__":
     points = list(itertools.product(*AXES.values()))
     with Pool(8) as pool:
         out = pool.map(run, points, chunksize=16)
-    grid = {"axes": AXES, "groups": list(GROUPS), "flags": {"0": "feasible", "1": "exceeds O2/heat limit",
-            "2": "above OVA practical solubility (50 g/L)", "3": "yield above the energetic ceiling"},
+    grid = {"axes": AXES, "groups": list(GROUPS), "flags": {"0": "feasible",
+            "1": "breaks a physical limit (O2 transfer, heat removal, minimum fill or specific productivity)",
+            "2": "above an assumed solubility", "3": "yield above the energetic ceiling"},
             "values": out, "order": list(AXES), "generated": time.strftime("%Y-%m-%d %H:%M")}
     (ROOT / "results/explorer_grid.json").write_text(json.dumps(grid, separators=(",", ":")))
     print(f"{len(points)} points in {time.time() - t0:.0f}s; failed {sum(o is None for o in out)}")

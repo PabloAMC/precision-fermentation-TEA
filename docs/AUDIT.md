@@ -312,3 +312,16 @@ $216/kg with price-anchored capital, $134/kg with design-report capital, against
 lactoferrin at $200–1,500/kg (grade C, 2013–2025). At the best public methanol-free titer
 (2.8 g/L, porcine LF, Yen 2024) $531/$283. Resin life is the largest downstream lever (125 cycles:
 $364/kg).
+
+## Finding during the v2 rebuild (2026-09-27): what sets the titer ceiling
+
+With the minimum starting volume added (R2-Q1) and the production stoichiometry corrected, the base
+titer ceiling is no longer set by O₂ transfer: at every production time the limit that fails just
+above it is the minimum starting volume. A higher titer needs more sugar feed; with a 50 wt%
+feed and a broth that must end at 80% of the vessel, the batch would have to start below 30%.
+Ceilings at 36/72/120 h: 81/74/65 g/L (they fall with time because maintenance keeps consuming
+feed). Relaxing either design choice (20% start, or a 65% feed) lifts the 72 h ceiling to ~125 g/L,
+where the secretion ceiling or O₂ (on Humbird's cell-free basis) binds. Decision: report the
+ceiling as a volume ceiling set by design choices, with these sensitivities (`ceiling_limits` in
+`results/analyses.json`, report Table 7); v1's "O₂ wall" wording is withdrawn everywhere. The
+teaching documents were updated to v2 results.

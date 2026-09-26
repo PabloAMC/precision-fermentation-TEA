@@ -54,6 +54,9 @@ physical limits, and the performance needed for price parity.
 | **F. Review** | ~4, mostly waiting | Assumptions and figures sent to a GFI fermentation scientist, an enzyme-industry bioprocess engineer and a known sceptic (optionally Humbird); docs/REVIEW.md | Every comment answered or fixed |
 | **G. Release** | 2 | Report plus engrXiv preprint, SI (code, YAML, exported workbook), explorer (cultivated-meat pattern), one-page memo, scored priors | Public |
 
+**Status (2026-09-27).** v1 was audited (docs/AUDIT.md) and v2 implements the findings; phases
+F (review packet) and G (release files) are being prepared. Earlier status, kept for the record:
+
 **Status (2026-09-26, end of day).** A v1 draft of phases B–E and G is built and awaits
 Pablo's review.
 - **B:** four evidence files, 369 graded entries: hosts, downstream, engineering, prices.
@@ -68,6 +71,20 @@ Phase F (external review) has not started. Open items:
 - 9 parameters are still grade E (listed in the report's limitations).
 
 ## Decisions log
+
+- **2026-09-26/27, audit and v2 (Claude, at Pablo's request "make sure there are no mistakes",
+  then "close the gaps"; for Pablo's review):**
+  - Eight independent reviewers (R1–R8) audited v1; every finding, decision and effect is in
+    `docs/AUDIT.md`, implemented in three commits on branch `audit-fixes`.
+  - A research pass sourced the grade-E placeholders (P-1 to P-13); six guesses remain, four of them
+    formerly hidden constants in the code.
+  - Production-phase stoichiometry: the product yield is derived from Intelligen's Eq. 2 with a
+    measured production-phase maintenance (AUDIT, decision on R2-Q2/R6-C2).
+  - OVA's 50 g/L "practical solubility" is no longer a limit (P-8); it is a sensitivity.
+  - Capital conventions renamed: "price-anchored capital (Humbird method)" and "design-report
+    capital (NREL-style)" (Pablo, 2026-09-26).
+  - Added at Pablo's request: milk and egg equivalents; a lactoferrin contrast case.
+  - SCOPE's scenario definitions rewritten to match what runs (R8-m4).
 
 - **2026-09-26, working mode:** Pablo reviews the finished v1 rather than gating each phase.
   Claude builds B through G as a complete draft. Gates that need Pablo move to that review:

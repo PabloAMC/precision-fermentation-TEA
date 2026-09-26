@@ -144,14 +144,17 @@ is higher: 255 at the 41.5 m³ start. That already exceeds the ≈53 a jacket ca
 or an external loop as it stands. At the same overall yield and stoichiometry, doubling the
 titer doubles the cells, and with them the growth-phase uptake: at least **≈198 mmol/L/h**.
 That is above the 150 mmol/L/h cap the model uses, and close to the ~200 that Humbird
-(2021) calls about the practical maximum. Worse, 60 g/L is 1.2× the ~50 g/L that
-Intelligen calls ovalbumin's practical solubility limit (p.8), so product could start
-coming out of solution in the fermenter.
+(2021) calls about the practical maximum. And 60 g/L is 1.2× the ~50 g/L that Intelligen
+calls ovalbumin's practical solubility limit (p.8), although that figure has no source and
+OVA dissolves at far higher concentrations (report, section 2.4).
 
 As posed, the what-if is **probably infeasible**. The realistic versions are twice the
 titer at the same *rate* (longer batches), or a cooling and O₂ upgrade that costs money.
-The full model agrees: at 80 g/L cells in a 200 m³ vessel, a 72 h production phase tops
-out near 54 g/L (report, Table 6, for BLG; OVA is within 1 g/L of it).
+The full model frames it differently. It keeps the cell density and lets each cell secrete
+more (4.7 → 11 mg/g/h), so 60 g/L in 72 h stays feasible: its ceiling at 72 h is about
+74 g/L, set by the vessel's volume (more product needs more sugar feed, and a batch must
+start at least 30% full), not by O₂ (report, section Q3). Whether a strain can double its
+specific productivity is the biological question the what-if hides.
 
 If it were feasible anyway: about **$33/kg (−15%)**, range $31–35.
 - What falls: fermentation and clarification capital (half the broth volume, at the
@@ -162,11 +165,11 @@ If it were feasible anyway: about **$33/kg (−15%)**, range $31–35.
 
 **In Intelligen's accounting, doubling titer does not halve cost.** The what-if fixes the
 overall yield, and the 44% facility slice shrinks only with the six-tenths power of the
-broth volume. The full model gives a different answer at 10 kt/yr: cost falls roughly as
-1/titer until the O₂ wall (report, Figure 2). Doubling BLG titer from 30 to 60 g/L cuts the
-price by nearly half where 60 g/L is feasible ($38.3 → $20.1/kg, −48%, with a 120 h
-production phase). There, fermenters are numbered up, so their number halves with the
-broth volume, and at a fixed cell density fewer cells are grown per kg of product. In both
+broth volume. The full model gives a different answer at 10 kt/yr: cost falls roughly as 1/titer until
+the feasibility ceiling (report, section Q1). Doubling BLG titer from 30 to 60 g/L in a 72 h
+production phase cuts the price by nearly half ($29.4 → $16.2/kg, −45%). There, fermenters
+are numbered up, so their number halves with the broth volume, and at a fixed cell density
+fewer cells are grown per kg of product. In both
 views, doubling titer *at the same batch time* runs into the limits of PRIMER §5.
 
 **3.2 Ten times the scale:** about **$30/kg (−22%)**, range $27–33.
@@ -181,9 +184,9 @@ O₂, cooling) and by downstream chemistry (ammonium sulfate, waste, membranes).
 property of this design and its accounting, not a general rule. In the full model, with
 Humbird's capital convention, capital-related costs (capital charge, maintenance,
 insurance and tax) are ~68% of the base-case BLG price at 10 kt/yr (report, Table 5) and
-~75% of the physical-limit floor at 100 kt/yr (report §4.5). Scale helps little beyond
-about 10 kt/yr, because the plant then adds fermenters rather than bigger ones (report
-§4.7). From there, capital per kg is set by productivity (g/L/h), not by scale.
+~67% of the physical-limit floor at 100 kt/yr (report, section Q4). Scale helps little
+beyond about 10 kt/yr, because the plant then adds fermenters rather than bigger ones
+(report, section Q6). From there, capital per kg is set by productivity (g/L/h), not by scale.
 
 **3.3 The bridge from $4 to $41 per kg of protein.** Compare per kg of protein on both
 sides (step 1.5): $41.45 − $4.24 = **$37.21/kg, a 9.8× gap**. Below is my rough split for
@@ -191,10 +194,10 @@ Intelligen's design and accounting, per kg of powder. Each row is uncertain by �
 midpoints sum to $33.5/kg; on a protein basis, the powder's 94% ovalbumin content adds
 ~$2.5/kg, which brings the total close to the gap.
 
-The report's cost bridge (Figure 3) does this with the full model, from an NREL-style
-cellulase ($7.1/kg in 2025$) to the base BLG concentrate at 10 kt/yr ($29.2/kg). Its
-largest steps are the capital convention (+$8.3), the titer drop from 50 to 30 g/L (+$8.2)
-and downstream processing and drying (+$7.0). The ovalbumin isolate adds $8.6 more. Titer
+The report's cost bridge (section Q2) does this with the full model, from an NREL-style
+cellulase ($7.0/kg in 2025$) to the base BLG concentrate at 10 kt/yr ($29.4/kg). Its
+largest steps are the titer drop from 50 to 30 g/L (+$8.4), the capital convention (+$7.8)
+and downstream processing and drying (+$7.7). The ovalbumin isolate adds $5.7 more. Titer
 weighs far more there than in my split (+$2–4): at 10 kt/yr and a fixed cell density, both
 fermenter capital and the sugar spent on cells scale with 1/titer.
 
@@ -219,7 +222,7 @@ fermenter capital and the sugar spent on cells scale with 1/titer.
    above NREL's 3.1 for its ethanol plant (NREL Table 28, p.62). The definitions
    differ: Intelligen's is DFC/PEC, NREL's FCI/PEC and Humbird's TCI/PEC. The full model
    brackets it with two conventions: Humbird's price-anchored one (effective Lang factor
-   ~5.1) and a light design-report one (the published designs use 2.7–4; report §2.5 and
-   §3). If the right class is 5–6, capital and the 44% slice are understated by 25–50%.
+   ~5.2) and a design-report one (the published designs use 2.7–4; report, sections 2.5
+   and 3). If the right class is 5–6, capital and the 44% slice are understated by 25–50%.
 
 The 99% purity from a single ammonium-sulfate precipitation is a close fourth.

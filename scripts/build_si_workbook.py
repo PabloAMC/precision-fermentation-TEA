@@ -61,6 +61,8 @@ def sheet(title, header, rows, widths=None, note=None):
 
 
 def num(x):
+    if isinstance(x, dict) and any(k in x for k in ("us_midwest", "eu_nw")):    # location-keyed range end
+        return f"US {x.get('us_midwest')} / EU {x.get('eu_nw')}"
     return x if isinstance(x, (int, float)) and not isinstance(x, bool) else (None if x is None else str(x))
 
 
@@ -68,16 +70,18 @@ def num(x):
 ws = wb.active
 ws.title = "README"
 lines = [
-    ("Supplementary workbook: the cost of precision-fermented BLG and OVA (draft v1)", HDR),
+    ("Supplementary workbook: the cost of precision-fermented BLG and OVA, with a lactoferrin contrast case (v2, audited)", HDR),
     (f"Generated from results/analyses.json ({R['generated']}) and the data files of the pf-tea repository.", BODY),
     ("All sheets hold values exported by scripts/build_si_workbook.py, except 'Accounting', which is live (formulas).", BODY),
     ("Money: 2025 US dollars. Per kg = per kg of target protein unless the column says powder.", BODY),
     ("MSP_CCF: annual operating cost plus a capital charge (7.5%, 10 years = 14.6% of TCI per year), divided by output.", BODY),
-    ("Conventions: 'humbird' = Humbird 2021 facility-class capital (base); 'light' = NREL-style capital and fixed costs.", BODY),
-    ("Evidence grades: A measured/official, B design value or patent example, C claim or survey, D derived, E placeholder.", BODY),
+    ("Capital conventions: 'humbird' = price-anchored capital (Humbird 2021 facility classes; base);", BODY),
+    ("        'light' = design-report capital (NREL-style vendor-quote fermenters and ~2% fixed costs).", BODY),
+    ("Evidence grades: A measured/official, B design value or patent example, C claim or survey, D analogy or derived,", BODY),
+    ("        E guess (listed in docs/VALIDATION.md and docs/AUDIT.md).", BODY),
     ("Sheets: Parameters, Scenarios, Results, Cost_breakdown, Capex_base, Cost_vs_titer, Required_titer, Claims,", BODY),
-    ("        Tornado, MonteCarlo, Scale, Bridge, Calibration, Titers, Evidence_hosts, Evidence_dsp,", BODY),
-    ("        Evidence_engineering, Evidence_prices, Accounting (live).", BODY),
+    ("        Tornado, MonteCarlo, Scale, Bridge, Calibration, Equivalents, Lactoferrin, Titers, Evidence_* (one per", BODY),
+    ("        evidence file), Accounting (live).", BODY),
 ]
 for i, (t, f) in enumerate(lines, 1):
     ws.cell(i, 1, t).font = f
@@ -105,13 +109,13 @@ sheet("Parameters", ["path", "label", "value (US)", "value (EU)", "low", "high",
 
 # ---------------------------------------------------------------- Scenarios
 rows = []
-for name in ("academic", "industry", "physical_limit"):
+for name in ("academic", "industry", "physical_limit", "lactoferrin"):
     s = yaml.safe_load((ROOT / f"data/pf/scenarios/{name}.yaml").read_text())
-    for blk in ("common", "blg", "ova"):
-        for k, x in (s.get(blk) or {}).items():
-            rows.append([name, blk, k, num(x)])
-    for k, x in (s.get("mc_ranges") or {}).items():
-        rows.append([name, "mc_ranges", k, json.dumps(x)])
+    for blk, body in s.items():
+        if blk in ("description", "search", "mc_paths"):
+            continue
+        for k, x in (body or {}).items():
+            rows.append([name, blk, k, json.dumps(x) if isinstance(x, dict) else num(x)])
 sheet("Scenarios", ["scenario", "block", "parameter", "override"], rows, [16, 12, 40, 20],
       note="Overrides applied on top of base.yaml (data/pf/scenarios/*.yaml). Comments with sources are in the files.")
 
@@ -128,6 +132,7 @@ rows += [res_row(f"base_eu/{k}", d) for k, d in R["base_eu"].items()]
 rows += [res_row(f"base_isolate/{k}", d) for k, d in R["base_isolate"].items()]
 rows += [res_row(k, d) for k, d in R["scenarios"].items()]
 rows += [res_row(f"physical_limit/{k}", d) for k, d in R["physical_limit"].items()]
+rows += [res_row(f"lactoferrin/{k}", d) for k, d in R["lactoferrin"]["cases"].items()]
 sheet("Results", ["case", "titer g/L", "MSP_CCF $/kg", "COP $/kg", "MSP_DCF $/kg", "MSP_CCF $/kg powder", "TCI $",
                   "glucose kg/kg", "electricity kWh/kg", "feasible", "flags"], rows,
       [30, 10, 13, 11, 13, 16, 16, 13, 16, 9, 60])
@@ -166,13 +171,17 @@ sheet("Claims", ["claim", "titer g/L", "host", "product", "cells g/L", "shortest
       [[c["label"], c["titer"], c["host"], c["product"], c["X_prod"], c["t_prod_min"], c.get("msp_humbird"),
         c.get("msp_light")] for c in R["claims"]], [52, 10, 10, 9, 10, 22, 13, 12])
 sheet("Tornado", ["parameter", "label", "grade", "low", "high", "MSP at low", "MSP at high", "base", "swing",
-                  "feasible at low", "feasible at high"],
-      [[t["path"], label(t["path"]), t["grade"], t["low"], t["high"], t["msp_low"], t["msp_high"], t["base"], t["swing"],
-        t.get("feasible_low"), t.get("feasible_high")] for t in R["tornado"]],
-      [38, 32, 7, 10, 10, 12, 12, 10, 10, 14, 14], note="Industry-benchmark BLG, one parameter at a time.")
-sheet("MonteCarlo", ["scenario", "draws", "feasible fraction", "p10", "p50", "p90"],
-      [[k, d.get("n"), d["feasible_frac"], d["p10"], d["p50"], d["p90"]] for k, d in R["monte_carlo"].items()],
-      [18, 8, 16, 10, 10, 10], note="Triangular draws over each scenario's ranges; percentiles over feasible draws only.")
+                  "low truncated to feasibility", "high truncated to feasibility"],
+      [[t["path"], label(t["path"]), t["grade"], num(t["low"]), num(t["high"]), t["msp_low"], t["msp_high"], t["base"],
+        t["swing"], t.get("truncated_low"), t.get("truncated_high")] for t in R["tornado"]],
+      [38, 32, 9, 12, 12, 12, 12, 10, 10, 16, 16],
+      note="Industry-benchmark BLG, one parameter at a time. An end that breaks a physical limit is replaced by the last "
+           "feasible value (truncated = TRUE). 'capital.basis' is the capital-convention bar.")
+sheet("MonteCarlo", ["scenario", "draws", "feasible fraction", "p10", "p50", "p90", "scenario value", "its percentile"],
+      [[k, d.get("n"), d["feasible_frac"], d["p10"], d["p50"], d["p90"], d.get("base"), d.get("base_percentile")]
+       for k, d in R["monte_carlo"].items()],
+      [18, 8, 16, 10, 10, 10, 14, 14], note="Triangular draws over each scenario's ranges; percentiles over feasible draws "
+                                            "only; draws the model cannot build count as infeasible.")
 sheet("Scale", ["kt/yr"] + list(R["scale"]["curves"].keys()),
       [[o / 1000] + [R["scale"]["curves"][k][i] for k in R["scale"]["curves"]] for i, o in enumerate(R["scale"]["outputs"])],
       [10, 22, 22, 22, 22], note="Industry-benchmark BLG, MSP_CCF $/kg.")
@@ -187,11 +196,29 @@ for name in ("nrel2011_cellulase", "intelligen2025_ova", "voutilainen2021_case")
 sheet("Calibration", ["anchor", "quantity", "ours", "theirs"], rows, [22, 58, 14, 14],
       note="docs/VALIDATION.md has the diagnosis of every difference.")
 
+E_ = R["equivalents"]
+rows = []
+for name, src in E_["sources"].items():
+    for lab, ser in src["prices"].items():
+        for yr, x in sorted(ser.items()):
+            rows.append([name, lab, int(yr), x, src["protein_equivalent"][lab][yr]])
+sheet("Equivalents", ["source", "price series", "year", f"$ per unit (2025$)", "$ per kg of its protein (2025$)"], rows,
+      [8, 44, 8, 18, 26], note="Milk: per litre (33.7 g protein, 3.3 g BLG); eggs: per US large egg (3.64 g egg-white protein, "
+                               "1.96 g OVA). data/evidence/milk_egg.yaml; the protein price is an upper bound on its value.")
+L_ = R["lactoferrin"]
+rows = [[k, d["design"]["titer"], d["msp_ccf"], d["per_kg_powder"], d["tci"]] for k, d in L_["cases"].items()]
+rows += [[f"titer {T} g/L (price-anchored)", T, m, None, None] for T, m in zip(L_["cost_vs_titer"]["titers"], L_["cost_vs_titer"]["msp"])]
+rows += [[f"scale {x} t/yr (price-anchored)", 10, m, None, None] for x, m in zip(L_["cost_vs_scale"]["t_per_yr"], L_["cost_vs_scale"]["msp"])]
+rows += [[f"sensitivity {k}", 10, m, None, None] for k, m in L_["resin"].items()]
+sheet("Lactoferrin", ["case", "titer g/L", "MSP_CCF $/kg LF", "$/kg powder", "TCI $"], rows, [52, 10, 16, 14, 16],
+      note=f"Contrast case, 250 t/yr, cation exchange (data/pf/scenarios/lactoferrin.yaml). Reported dairy bLF prices "
+           f"${L_['reported_prices']['band'][0]:,.0f}-{L_['reported_prices']['band'][1]:,.0f}/kg (grade C).")
+
 # ---------------------------------------------------------------- data
 with (ROOT / "data/titers.csv").open() as fh:
     t = list(csv.reader(fh))
 sheet("Titers", t[0], t[1:], [14, 14, 10, 10, 8, 10, 12, 20, 6, 50, 20, 12, 8, 8, 50])
-for f in ("hosts", "dsp", "engineering", "prices"):
+for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin"):
     E = yaml.safe_load((ROOT / f"data/evidence/{f}.yaml").read_text())
     rows = [[e.get("key"), num(e.get("value")) if not isinstance(e.get("value"), (dict, list)) else json.dumps(e.get("value")),
              num(e.get("low")), num(e.get("high")), e.get("unit", ""), e.get("grade", ""), e.get("source", ""),
@@ -219,13 +246,21 @@ for i, (k, x, src) in enumerate(inputs, 4):
     c.comment = Comment(f"Source: {src}", "pf-tea")
 ws["A9"], ws["B9"] = "Annual operating cost item, $/yr", "Value"
 ws["A9"].font = ws["B9"].font = HDR
-op_items = [k for k in b["per_kg"] if k != "capital charge"]
+op_items = [k for k in b["per_kg"] if k not in ("capital charge", "maintenance", "insurance & tax")]
 r = 10
 for k in op_items:
     ws.cell(r, 1, k).font = BODY
     c = ws.cell(r, 2, b["per_kg"][k] * inputs[0][1])
     c.font = BLUE
     c.comment = Comment("Source: results/analyses.json base.blg.per_kg x annual output", "pf-tea")
+    r += 1
+for k, frac, src in (("maintenance", "maintenance_frac_tci", "Humbird 2021 p.46: 4% of TCI"),
+                     ("insurance & tax", "insurance_tax_frac_tci", "Humbird 2021 p.46: 5% of TCI")):
+    ws.cell(r, 1, f"{k} (fraction of TCI in column C)").font = BODY
+    cf = ws.cell(r, 3, float(P["finance"][frac]["value"]))
+    cf.font = BLUE
+    cf.comment = Comment(f"Source: {src}", "pf-tea")
+    ws.cell(r, 2, f"=C{r}*B5").font = BODY          # live: follows TCI
     r += 1
 last = r - 1
 ws.cell(r + 1, 1, "Calculation").font = HDR
