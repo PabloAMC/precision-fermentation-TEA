@@ -64,6 +64,40 @@ def s_base(res):
     res["base_isolate"] = {prod: ev({"plant.product": prod, "plant.spec": "isolate"}) for prod in ("blg", "ova")}
     res["benchmarks"] = {"incumbents": bm.incumbents(), "titer_markers": bm.titer_markers()}
     res["labels"] = LABELS
+    res["constants"] = constants()
+
+
+def constants() -> dict:
+    """Model-derived constants quoted in the report text (so none is typed there)."""
+    import dataclasses
+
+    from pftea import equipment as eq
+    from pftea import pf_ferm as pf
+    from pftea import product as pr
+    from pftea import thermo as th
+    v_ = params.v
+    f = v_(BASE, "hosts.kphaffii.biomass_formula")
+    host = pf.Host(bio=th.biomass(f["C"], f["H"], f["O"], f["N"]), mu_max=0.2, T_C=v_(BASE, "hosts.kphaffii.temperature_C"))
+    g = host.growth
+    vessel = plant._vessel(BASE)
+    cond = pf.Conditions(T_C=host.T_C, rt_refrig=v_(BASE, "utilities.rt_refrig"))
+    nrel = cal.load("nrel2011_cellulase")["overrides"]
+    to2007 = nrel["capital.cost_index_2018_to_2025"]
+    nb = v_(BASE, "capital.nrel_basis")
+    r = plant.evaluate(params.override(BASE, {"plant.product": "blg"}))
+    return dict(
+        Yx_max=g.bio.mw / (-g.growth.of("Glucose (s)") * pf.MW["glc"]),
+        m_s_tijhuis=host.m_s_tijhuis,
+        gamma_biomass=g.bio.gamma, gamma_blg=pr.protein("blg").species.gamma, gamma_ova=pr.protein("ova").species.gamma,
+        atp_per_glucose=v_(BASE, "energetics.substrate_atp_per_glucose") + 12 * v_(BASE, "hosts.kphaffii.po_ratio"),
+        otr_aeration_only=pf.otr_physical(dataclasses.replace(vessel, heat_max_kW_m3=None), cond),
+        otr_with_heat=pf.otr_physical(vessel, cond),
+        otr_cap_cellfree_per_broth=dataclasses.replace(vessel, otr_cap_basis="cell_free_liquid").cap_per_broth(
+            v_(BASE, "strain.X_prod_g_L")),
+        strferm_300m3_2007usd=eq.fermenter(300, v_(BASE, "capital.fermenter_exponent_above_table")) * to2007,
+        nrel_fermenter_300m3_2007usd=nb["fermenter_2018usd_300m3"] * to2007,
+        o2_mol_per_kg_made=r.batch.o2_kmol * 1000 / r.batch.product_kg,
+    )
 
 
 def s_scenarios(res):
@@ -156,6 +190,32 @@ def s_required(res):
     }
 
 
+def s_ceiling(res):
+    """What sets the titer ceiling: the limit that fails just above it, and how the ceiling moves when
+    the design choices behind it move (minimum starting volume, feed concentration, O2-cap basis)."""
+    p0 = params.override(BASE, {"plant.product": "blg"})
+    cases = {"base": {}, "minimum fill 0.20": {"fermenter.min_initial_fill": 0.20},
+             "glucose feed 65 wt%": {"fermenter.feed_glucose_wt": 0.65},
+             "no minimum fill": {"fermenter.min_initial_fill": 0.01},
+             "no minimum fill, O2 cap per cell-free liquid": {"fermenter.min_initial_fill": 0.01,
+                                                              "fermenter.otr_cap_basis": "cell_free_liquid"}}
+    kinds = (("initial fill", "minimum starting volume"), ("OUR", "O2 transfer"), ("heat", "heat removal"),
+             ("productivity", "secretion ceiling"), ("reachable", "titer not reachable"))
+    out = {}
+    for label, ch in cases.items():
+        p = params.override(p0, ch)
+        rows = []
+        for tp in (36, 72, 120):
+            c = sc.max_feasible_titer(p, tp)
+            lim = None
+            if c:
+                r = plant.evaluate(params.override(p, {"strain.t_prod_h": float(tp), "strain.titer_g_L": c * 1.03}))
+                lim = next((name for key, name in kinds if any(key in f for f in r.flags)), "; ".join(r.flags))
+            rows.append(dict(t_prod=tp, ceiling=c, limit=lim))
+        out[label] = rows
+    res["ceiling_limits"] = out
+
+
 def s_claims(res):
     """Q5: shortest production phase in which each claimed titer is feasible, and the MSP there."""
     acad = sc.load("academic")["ova"]
@@ -197,7 +257,8 @@ def s_policy(res):
 def s_tornado(res):
     """Industry-benchmark BLG; the scenario's own ranges (mc_ranges) replace base ranges where given."""
     p = params.override(P_IND, {k: dict(val) for k, val in sc.load("industry").get("mc_ranges", {}).items()})
-    paths = [x for x in params.ranged_leaves(p) if not x.startswith(("plant.", "hosts.treesei"))]
+    skip = ("plant.", "hosts.treesei", "dsp.cex_", "dsp.dryer_feed_solids_ova", "dsp.dryer_feed_solids_lf")
+    paths = [x for x in params.ranged_leaves(p) if not x.startswith(skip)]
     res["tornado"] = sc.tornado(p, paths)
 
 
@@ -287,7 +348,8 @@ def s_lactoferrin(res):
 
 
 SECTIONS = {"base": s_base, "scenarios": s_scenarios, "physical_limit": s_physical_limit,
-            "cost_vs_titer": s_cost_vs_titer, "bridge": s_bridge, "required": s_required, "claims": s_claims,
+            "cost_vs_titer": s_cost_vs_titer, "bridge": s_bridge, "required": s_required, "ceiling": s_ceiling,
+            "claims": s_claims,
             "policy": s_policy,
             "tornado": s_tornado,
             "monte_carlo": s_monte_carlo, "scale": s_scale, "calibration": s_calibration,

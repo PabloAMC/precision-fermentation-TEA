@@ -67,7 +67,7 @@ Write short answers on the *Part3* sheet.
   purified ovalbumin costs $38.99/kg of powder (2025$); put it per kg of protein first
   (step 1.5). List every difference between the two plants and rank them by how much of
   the ~9.8× gap per kg of protein you think each explains. The report's cost bridge
-  (Figure 3) answers the same question with the full model.
+  (section Q2) answers the same question with the full model.
 - **3.4** Which three input numbers would you most want to verify before trusting $39/kg?
 
 ## When you are done

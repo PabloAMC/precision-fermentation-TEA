@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "pf-tea: an open techno-economic model for precision-fermented food proteins (β-lactoglobulin, ovalbumin, lactoferrin)"
+message: "If you use this model or its data, please cite it as below."
+type: software
+authors:
+  - family-names: "Moreno Casares"
+    given-names: "Pablo Antonio"
+version: "0.2.0"
+date-released: "2026-09-27"
+license: MIT
+repository-code: "https://github.com/PabloAMC/pf-tea"
+keywords:
+  - precision fermentation
+  - techno-economic analysis
+  - beta-lactoglobulin
+  - ovalbumin
+  - lactoferrin
+  - Komagataella phaffii
+  - bioprocess engineering
+abstract: >-
+  A public-data-only techno-economic model of food proteins made by precision fermentation,
+  following Humbird's (2021) method: element- and electron-balanced stoichiometry, an
+  oxygen-transfer-limited fed-batch fermenter, a downstream train and a capital estimate
+  anchored to the market price of baker's yeast. Every parameter carries a source and an
+  evidence grade. Prepared with an AI assistant and audited by independent AI reviewers;
+  not yet peer-reviewed.

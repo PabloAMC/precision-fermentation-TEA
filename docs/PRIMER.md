@@ -471,10 +471,10 @@ of 5% of FCI.
 **Why this matters.** Two TEAs of the *same* plant can differ severalfold through
 accounting and costing choices alone, with the same biology:
 - how capital is annualised moves Intelligen's cost by 12% (exercise A1, step 1.4);
-- how capital is estimated as well moves our base case by 1.7×: $29.2/kg BLG with
-  Humbird's price-anchored convention, $16.8 with the lighter design-report one (report,
+- how capital is estimated as well moves our base case by 1.8×: $29.4/kg BLG with
+  Humbird's price-anchored convention, $16.1 with the lighter design-report one (report,
   Table 1);
-- published designs come out 2.7–2.8× below our model run on the same process (report,
+- published designs come out 2.4–2.5× below our model run on the same process (report,
   Table 4: NREL, Voutilainen).
 
 Before comparing any two published numbers, put them on one convention. We report both
@@ -618,7 +618,7 @@ Answer without looking back. Answers are below.
    or DCF). Conventions on depreciation, overheads, maintenance and insurance alone move
    Intelligen's result by 12% (exercise A1, step 1.4). Add how capital itself is estimated
    (equipment prices, installation factors, fixed-cost rates) and our base case moves by
-   1.7×; published designs sit 2.7–2.8× below our model run on the same process (§7.4).
+   1.8×; published designs sit 2.4–2.5× below our model run on the same process (§7.4).
 7. Volume-driven DSP roughly halves. So does fermentation capital, because at fixed batch
    time the rate doubles too, provided the tank can supply twice the O₂ and cooling per m³
    (§5.4). Sugar, O₂ per kg and mass-driven DSP do not move.
@@ -629,8 +629,8 @@ Answer without looking back. Answers are below.
     for an outdoor lysine plant up to 7.1 for aseptic lactase. NREL's itemised estimate
     gives 3.1 for its ethanol plant (`humbird2011` Table 28, p.62). So 4 sits between an
     enzyme design report and Petrides' lightest class. Our model brackets it with two
-    conventions: Humbird's price-anchored one (effective Lang factor ~5.1) and a light
-    design-report one (the published designs use 2.7–4; report §2.5 and §3). First check
+    conventions: Humbird's price-anchored one (effective Lang factor ~5.2) and a light
+    design-report one (the published designs use 2.7–4; report, sections 2.5 and 3). First check
     the definition (DFC, FCI or TCI over PEC) and what the purchased cost includes: a bare
     vessel or a piped, instrumented skid. A skid carries part of the installation already,
     and applying the full factor to it is double-dipping.

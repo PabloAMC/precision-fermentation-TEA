@@ -87,7 +87,7 @@ for ax, prod in zip(axes, ("blg", "ova")):
         cx, cy = c.get("ceiling", [None] * 3)[k], c.get("msp_at_ceiling", [None] * 3)[k]
         if cx and cy and (len(x) == 0 or cx > x[-1]):
             x, y = np.append(x, cx), np.append(y, cy)
-        lab_ = f"{tp} h production (O2 limit at {cx:.0f} g/L)" if cx else f"{tp} h production"
+        lab_ = f"{tp} h production (ceiling {cx:.0f} g/L)" if cx else f"{tp} h production"
         ax.plot(x, y, color=CAT[k], marker="o", ms=3.5, label=lab_, zorder=3)
         if cx and cy:
             ax.plot([cx], [cy], marker="D", ms=6, color=CAT[k], mec=SURF, mew=1.2, zorder=4)
@@ -95,7 +95,7 @@ for ax, prod in zip(axes, ("blg", "ova")):
     cx, cy = c.get("ceiling", [None, None, None])[1], c.get("light_72h_at_ceiling")
     if cx and cy:
         x, y = np.append(x, cx), np.append(y, cy)
-    ax.plot(x, y, color=CAT[1], ls=(0, (3, 2)), lw=1.4, label="72 h production, light capital", zorder=3)
+    ax.plot(x, y, color=CAT[1], ls=(0, (3, 2)), lw=1.4, label="72 h production, design-report capital", zorder=3)
     ax.plot([], [], marker="D", ms=6, color=INK2, ls="none", label="cheapest feasible design at that time")
     for t, lab in marks[prod]:
         ax.axvline(t, color=AXIS, lw=0.8, zorder=0)
@@ -110,11 +110,12 @@ for ax, prod in zip(axes, ("blg", "ova")):
 axes[0].set_ylabel("minimum selling price ($/kg target protein, 2025)")
 h, l_ = axes[0].get_legend_handles_labels()
 fig.legend(h, l_, loc="lower center", ncol=3, fontsize=7.2, bbox_to_anchor=(0.5, -0.06))
-fig.text(0.01, -0.13, "10 kt/yr, US Midwest, 200 m3 fermenters at 80 g/L cells, dried concentrate. Each line ends at the highest "
-         "titer the fermenter can reach in that production time (O2 transfer or heat removal); legend labels are for BLG.\n"
-         "Price bands: UN Comtrade and Eurostat export unit values of whey protein >80% (US, EU) and dried egg albumin (EU), "
-         "per kg protein (80% and 78% protein). Top axis: published and claimed titers (data/titers.csv).",
-         fontsize=7, color=MUTED)
+fig.text(0.01, -0.13, f"10 kt/yr, US Midwest, 200 m3 fermenters, {R['base']['blg']['design']['X_end']:.0f} g/L cells at harvest, dried "
+         "concentrate. Each line ends at the highest feasible titer in that production time (O2 transfer, heat removal, "
+         "minimum fill, specific productivity); legend labels are for BLG.\n"
+         f"Price bands: UN Comtrade and Eurostat export unit values of whey protein >80% (US, EU) and dried egg albumin (EU), "
+         f"per kg protein ({inc['whey']['protein_frac']:.0%} and {inc['egg']['protein_frac']:.1%} protein), 2025 dollars. "
+         "Top axis: published and claimed titers (data/titers.csv).", fontsize=7, color=MUTED)
 save(fig, "fig1_cost_vs_titer.png")
 
 # ------------------------------------------------------------------ Fig 2 bridge (horizontal waterfall)
@@ -163,8 +164,12 @@ for ax, prod in zip(axes, ("blg", "ova")):
     ceil = np.array([c if c else np.nan for c in R["titer_ceiling"][prod]], float)
     ax.fill_between(tps, ceil, 400, color="#efeee9", zorder=0, lw=0)
     ax.plot(tps, ceil, color=INK2, lw=1.2, zorder=2)
-    ax.text(tps[-1] - 1, ceil[-1] * 1.12, "O2/heat limit, 200 m3 fermenter at 80 g/L cells", fontsize=7, color=INK2,
-            va="bottom", ha="right")
+    ax.text(tps[0] + 1, 330, "grey: above the feasibility ceiling (solid line;\nin the base set by the minimum starting volume)\n"
+            "dotted: the ceiling with the O2 cap per m3 of\ncell-free liquid, as in Humbird's workbook",
+            fontsize=6.6, color=INK2, va="top", ha="left", linespacing=1.3)
+    cf = np.array([c if c else np.nan for c in R.get("titer_ceiling_cellfree", {}).get(prod, [])], float)
+    if cf.size:
+        ax.plot(tps, cf, color=INK2, lw=0.9, ls=(0, (1, 2)), zorder=2)
     for k, tg in enumerate(("10", "20", "50")):
         for basis, ls in (("humbird", "-"), ("light", (0, (3, 2)))):
             rows_ = R["required"][f"{prod}/{basis}"][tg]
@@ -172,24 +177,25 @@ for ax, prod in zip(axes, ("blg", "ova")):
             ys = [r_["titer"] for r_ in rows_ if r_["titer"]]
             if xs:
                 ax.plot(xs, ys, color=CAT[k], ls=ls, lw=1.8, marker="o", ms=4, zorder=3,
-                        label=f"${tg}/kg, {'Humbird' if basis == 'humbird' else 'light'} capital")
+                        label=f"${tg}/kg, {'price-anchored' if basis == 'humbird' else 'design-report'} capital")
     if prod == "ova":
         ax.axhline(50, color=CAT[1], lw=0.9, ls=(0, (1, 2)))
-        ax.text(31, 46, "OVA practical solubility, 50 g/L (Intelligen's assumption)", fontsize=6.8, color=INK2, va="top")
+        ax.text(124, 50 * 0.97, "50 g/L:\nIntelligen's\nassumed\nsolubility\n(sensitivity)", fontsize=6.4, color=INK2,
+                va="top", ha="left", linespacing=1.2)
     ax.set_yscale("log")
     ax.set_ylim(4, 400)
     plain(ax.yaxis, [5, 10, 20, 50, 100, 200, 400])
-    ax.set_xlim(30, 125)
+    ax.set_xlim(30, 138 if prod == "ova" else 125)
     ax.set_xlabel("production phase (h)")
     ax.set_title(PROD[prod])
 axes[0].set_ylabel("titer needed (g/L)")
 h, l_ = axes[0].get_legend_handles_labels()
 fig.legend(h, l_, loc="lower center", ncol=4, fontsize=7.2, bbox_to_anchor=(0.5, -0.07))
-missing = [f"${tg}/kg ({b})" for tg in ("10", "20", "50") for b in ("humbird", "light")
-           if not any(r_["titer"] for r_ in R["required"][f"blg/{b}"][tg])]
+missing = [f"${tg}/kg ({'price-anchored' if b == 'humbird' else 'design-report'} capital)" for tg in ("10", "20", "50")
+           for b in ("humbird", "light") if not any(r_["titer"] for r_ in R["required"][f"blg/{b}"][tg])]
 fig.text(0.01, -0.12, "Lines: titer at which the minimum selling price equals the target (10 kt/yr, US), searched only "
-         "below the O2/heat ceiling; grey: designs the fermenter cannot run."
-         + (f"\nNot reachable at any production time with 80 g/L cells and base yield: {', '.join(missing)}." if missing else ""),
+         "below the feasibility ceiling; grey: designs the fermenter cannot run."
+         + (f"\nNot reachable at any production time with the base cells and yield: {', '.join(missing)}." if missing else ""),
          fontsize=7, color=MUTED)
 save(fig, "fig3_required_titer.png")
 
@@ -198,7 +204,7 @@ groups = [("capital charge", ["capital charge"]), ("maintenance + insurance", ["
           ("labour", ["labour"]), ("glucose", ["glucose"]),
           ("other raw materials", ["ammonia", "salts & other media", "DSP chemicals"]),
           ("utilities", ["electricity", "natural gas & steam", "water & wastewater"]),
-          ("membranes + waste", ["membranes", "biomass disposal"])]
+          ("membranes, resin + waste", ["membranes", "chromatography resin", "biomass disposal"])]
 rows = [("base case, BLG (30 g/L)", R["base"]["blg"]), ("base case, OVA (30 g/L)", R["base"]["ova"]),
         ("industry benchmark, BLG (42 g/L)", R["scenarios"]["industry/blg"]),
         ("industry benchmark, OVA (42 g/L)", R["scenarios"]["industry/ova"])]
@@ -206,7 +212,7 @@ for k in ("blg/humbird", "ova/humbird", "blg/light", "ova/light"):
     if k in R["physical_limit"]:
         prod, basis = k.split("/")
         d = R["physical_limit"][k]
-        rows.append((f"physical limit, {prod.upper()} ({d['titer']:g} g/L){', light capital' if basis == 'light' else ''}", d))
+        rows.append((f"physical limit, {prod.upper()} ({d['titer']:.0f} g/L){', design-report capital' if basis == 'light' else ''}", d))
 XCUT = 36
 fig, ax = plt.subplots(figsize=(9.5, 4.8))
 for i, (lab, d) in enumerate(rows[::-1]):
@@ -228,17 +234,27 @@ ax.grid(axis="y", visible=False)
 save(fig, "fig4_breakdown.png")
 
 # ------------------------------------------------------------------ Fig 5 tornado
-tor = [t for t in R["tornado"] if t["swing"] > 0.05][:14]
+tor = [t for t in R["tornado"] if t["swing"] > 0.05][:16]
 base_v = tor[0]["base"]
-fig, ax = plt.subplots(figsize=(8.8, 5.2))
+ORD["structural"] = INK2
+fig, ax = plt.subplots(figsize=(8.8, 5.6))
+
+
+def tlabel(par, trunc):
+    txt = {"design-report (NREL-style)": "design-report", "price-anchored (Humbird)": "price-anchored"}.get(par, None)
+    txt = txt or (f"{par:.3g}" if isinstance(par, float) else f"{par}")
+    return txt + (" \u2020" if trunc else "")
+
+
 for i, t in enumerate(tor[::-1]):
     col = ORD.get(t["grade"], ORD[""])
-    for val, par, feas in ((t["msp_low"], t["low"], t.get("feasible_low", True)),
-                           (t["msp_high"], t["high"], t.get("feasible_high", True))):
-        ax.barh(i, val - base_v, left=base_v, color=col, height=0.6, hatch=None if feas else "////",
-                edgecolor=SURF if feas else INK2, linewidth=0.0 if feas else 0.5)
-        ax.text(val + (0.25 if val >= base_v else -0.25), i, f"{par:g}" + ("" if feas else "*"),
-                ha="left" if val >= base_v else "right", va="center", fontsize=6.8, color=INK2)
+    for val, par, trunc in ((t["msp_low"], t["low"], t.get("truncated_low", False)),
+                            (t["msp_high"], t["high"], t.get("truncated_high", False))):
+        ax.barh(i, val - base_v, left=base_v, color=col, height=0.6, edgecolor=SURF, linewidth=0.0)
+        other = t["msp_high"] if val == t["msp_low"] else t["msp_low"]
+        right = val > base_v + 0.05 or (abs(val - base_v) <= 0.05 and other < base_v)
+        ax.text(val + (0.25 if right else -0.25), i, tlabel(par, trunc),
+                ha="left" if right else "right", va="center", fontsize=6.8, color=INK2)
 ax.axvline(base_v, color=INK, lw=1)
 ax.set_yticks(range(len(tor)))
 ax.set_yticklabels([plabel(t["path"]) for t in tor[::-1]], fontsize=7.8)
@@ -246,14 +262,15 @@ money(ax.xaxis)
 lo_all = min(min(t["msp_low"], t["msp_high"]) for t in tor)
 hi_all = max(max(t["msp_low"], t["msp_high"]) for t in tor)
 ax.set_xlim(lo_all - 3, hi_all + 3)
-ax.legend(handles=[Patch(color=ORD[g], label=f"grade {g}") for g in "ABCDE"], fontsize=7.5, ncol=5,
+ax.legend(handles=[Patch(color=ORD[g], label=f"grade {g}") for g in "ABCDE"]
+          + [Patch(color=ORD["structural"], label="convention")], fontsize=7.5, ncol=6,
           loc="upper center", bbox_to_anchor=(0.45, -0.1))
 ax.set_title(f"Industry-benchmark BLG (${base_v:.1f}/kg): one parameter at a time, coloured by evidence grade")
 ax.set_xlabel("$/kg target protein; numbers at the bar ends are the parameter values tested")
 ax.grid(axis="y", visible=False)
-if any(not (t.get("feasible_low", True) and t.get("feasible_high", True)) for t in tor):
-    fig.text(0.01, -0.07, "* hatched: that parameter value breaks the O2/heat limit at the benchmark titer and "
-             "production time; its cost is not achievable as designed.", fontsize=7, color=MUTED)
+if any(t.get("truncated_low") or t.get("truncated_high") for t in tor):
+    fig.text(0.01, -0.07, "\u2020 the end of the evidence range breaks a physical limit at the benchmark titer and production "
+             "time; the bar stops at the last feasible value shown.", fontsize=7, color=MUTED)
 save(fig, "fig5_tornado.png")
 
 # ------------------------------------------------------------------ Fig 6 scale
@@ -261,17 +278,19 @@ sc_ = R["scale"]
 fig, ax = plt.subplots(figsize=(7.4, 4.2))
 styles = {"US, Humbird capital": (CAT[0], "-"), "EU, Humbird capital": (CAT[1], "-"),
           "US, light capital": (CAT[0], (0, (3, 2))), "EU, light capital": (CAT[1], (0, (3, 2)))}
+NAMES = {"US, Humbird capital": "US, price-anchored capital", "EU, Humbird capital": "EU (NL), price-anchored capital",
+         "US, light capital": "US, design-report capital", "EU, light capital": "EU (NL), design-report capital"}
 X = np.array(sc_["outputs"]) / 1000
 for lab, ys in sc_["curves"].items():
     col, ls = styles[lab]
-    ax.plot(X, ys, color=col, ls=ls, marker="o", ms=4, label=lab)
-    ax.text(X[-1] * 1.08, ys[-1], f"{lab}: ${ys[-1]:.1f}", fontsize=7.2, color=INK2, va="center")
+    ax.plot(X, ys, color=col, ls=ls, marker="o", ms=4, label=NAMES[lab])
+    ax.text(X[-1] * 1.08, ys[-1], f"{NAMES[lab]}: ${ys[-1]:.1f}", fontsize=7.2, color=INK2, va="center")
 ax.set_xscale("log")
 plain(ax.xaxis, [1, 2.5, 5, 10, 25, 50, 100])
 ax.set_xlabel("plant output (kt target protein per year)")
 ax.set_ylabel("$/kg target protein, 2025")
 money(ax.yaxis)
-ax.set_xlim(0.85, 420)
+ax.set_xlim(0.85, 900)
 ax.set_title("Industry-benchmark BLG: plant scale and siting")
 ax.legend(fontsize=7.5, loc="upper right")
 fig.text(0.01, -0.04, "Above ~10 kt/yr the plant adds 200 m3 fermenters rather than larger ones, so fermentation "
@@ -290,6 +309,8 @@ for i, k in enumerate(order):
     ax.scatter(ms[fe], i + jit[fe], s=5, color=col, alpha=0.25, lw=0, zorder=2)
     ax.plot([d["p10"], d["p90"]], [i, i], color=col, lw=3, solid_capstyle="round", zorder=3)
     ax.plot(d["p50"], i, "o", color=col, ms=8, mec=SURF, mew=2, zorder=4)
+    if d.get("base"):
+        ax.plot(d["base"], i, marker="|", ms=14, mew=2, color=INK, zorder=5)
     ax.text(np.nanmax(ms[fe]) * 1.12, i, f"median ${d['p50']:.0f}, p10-p90 ${d['p10']:.0f}-{d['p90']:.0f}; "
             f"{100 * d['feasible_frac']:.0f}% of {d.get('n', len(ms))} draws feasible", va="center", fontsize=7.2,
             color=INK2)
@@ -299,7 +320,7 @@ ax.set_yticklabels([{"academic": "academic best", "industry": "industry benchmar
 ax.set_xscale("log"); money(ax.xaxis)
 ax.set_xlim(8, 4000)
 ax.set_title("Uncertainty from the evidence ranges (feasible plants only)")
-ax.set_xlabel("$/kg target protein, 2025 (dots: individual feasible draws)")
+ax.set_xlabel("$/kg target protein, 2025 (dots: individual feasible draws; black tick: the scenario's own value)")
 ax.grid(axis="y", visible=False)
 save(fig, "fig7_montecarlo.png")
 
@@ -330,7 +351,7 @@ box(21, 16, 19, 14, "Production fermenters",
     f"{n_ferm} x 200 m3 stirred tanks\ngrowth {de['t_growth_h']:.0f} h + production {de['t_total_h'] - de['t_growth_h']:.0f} h\n"
     f"{de['X_end']:.0f} g/L cells, {de['titer']:.0f} g/L protein\nO2 transfer {de['otr_max']:.0f} mol/m3/h (cap)")
 box(46, 16, 14, 14, "Cell removal", f"dilute to 45 g/L cells\n2-stage disk-stack\ncentrifuges; MF polish\n({de['mf_m2']:,.0f} m2)")
-box(66, 16, 14, 14, "Concentration", f"ultrafiltration\n+ diafiltration\n({de['uf_m2']:,.0f} m2)\nconcentration x{de['CF']:.1f}")
+box(66, 16, 14, 14, "Concentration", f"ultrafiltration\n+ diafiltration\n({de['uf_m2']:,.0f} m2)\nto {100 * de['dryer_inlet_solids']:.0f}% solids")
 box(86, 16, 17, 14, "Spray dryer", f"{de['evap_kg_h']:,.0f} kg/h water\nevaporated\npowder: {100 * de['purity_dry']:.0f}% BLG (dry),\n5% moisture",
     fill="#eaf6f0")
 arrow(15.6, 23, 20.4, 23)
@@ -356,3 +377,71 @@ ax.text(1, 3.2, f"Utilities: air compressors, chillers (peak heat {de['heat_peak
 ax.text(1, 0.4, "Base case: K. phaffii, 30 g/L beta-lactoglobulin, 10 kt/yr of protein, US Midwest. "
         "All numbers from results/analyses.json.", fontsize=7, color=MUTED)
 save(fig, "fig0_flowsheet.png")
+
+# ------------------------------------------------------------------ Fig 8 milk and egg equivalents
+eqv = R["equivalents"]
+fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.3))
+for ax, (name, prod) in zip(axes, (("milk", "blg"), ("egg", "ova"))):
+    src = eqv["sources"][name]
+    c = R["cost_vs_titer"][prod]
+    k72 = c["t_prods"].index(72)
+    T, y, _ = feasible_part(c["titers"], c["msp"][k72], c["feasible"][k72])
+    cx, cy = c["ceiling"][k72], c["msp_at_ceiling"][k72]
+    if cx and cy:
+        T, y = np.append(T, cx), np.append(y, cy)
+    unit = src["all_protein_g"] / 1000                       # $/kg protein -> $ per litre or per egg
+    ax.plot(T, y * unit, color=CAT[0], marker="o", ms=3.5, zorder=3,
+            label=f"PF {prod.upper()} replacing the {src['all_protein_g']:.1f} g of "
+                  f"{'milk' if name == 'milk' else 'egg-white'} protein, 72 h production")
+    for j, (lab, ser) in enumerate(src["prices"].items()):
+        vals = list(ser.values())
+        yr = max(ser, key=int)                                 # JSON keys are strings
+        last = ser[yr]
+        ax.axhspan(min(vals), max(vals), color=[BAND["whey"], BAND["egg"], "#e6f4ec"][j % 3], zorder=0, lw=0)
+        ax.axhline(last, color=MUTED, lw=0.8, ls=(0, (4, 3)), zorder=1)
+        below = name == "egg" and j == 0                     # wholesale sits just under retail: label it below
+        ax.text(2.1, last * (0.96 if below else 1.04), f"{lab}: {yr} ${last:.2f}; 2015-{yr} ${min(vals):.2f}-{max(vals):.2f}",
+                fontsize=6.6, color=INK2, va="top" if below else "bottom")
+    ax.set_xscale("log"); ax.set_yscale("log")
+    plain(ax.xaxis, [2, 5, 10, 20, 50, 100])
+    ax.set_xlim(1.8, 120)
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda x_, _: f"${x_:.2f}"))
+    ax.set_xlabel("titer at harvest (g/L)")
+    ax.set_ylabel(f"$ per {src['per']} (2025)")
+    ax.set_title({"milk": "Protein in a litre of milk", "egg": "Egg-white protein in one egg"}[name])
+    ax.legend(fontsize=6.8, loc="upper right")
+fig.text(0.01, -0.06, "The natural source's price divided by its protein is an upper bound on what that protein is worth: fat, lactose "
+         "and yolk carry part of the price, and whey is a by-product of cheese (report section on equivalents). Price-anchored "
+         "capital, 10 kt/yr, US; milk and egg prices deflated to 2025 dollars with CPI-U.", fontsize=7, color=MUTED)
+save(fig, "fig8_equivalents.png")
+
+# ------------------------------------------------------------------ Fig 9 lactoferrin contrast case
+lf = R["lactoferrin"]
+fig, ax = plt.subplots(figsize=(7.4, 4.3))
+lo, hi = lf["reported_prices"]["band"]
+ax.axhspan(lo, hi, color=BAND["egg"], zorder=0, lw=0)
+ax.text(1.05, hi * 0.92, f"dairy bovine lactoferrin, reported prices 2013-2025: ${lo:,.0f}-{hi:,.0f}/kg (grade C)",
+        fontsize=7, color=INK2, va="top")
+ax.plot(lf["cost_vs_titer"]["titers"], lf["cost_vs_titer"]["msp"], color=CAT[0], marker="o", ms=4, zorder=3,
+        label="PF lactoferrin, cation exchange, price-anchored capital (250 t/yr)")
+pts = [("lf/humbird", "design titer 10 g/L (Intelligen)", CAT[0], "D"), ("lf/light", "same, design-report capital", CAT[0], "s"),
+       ("lf_academic/humbird", "best public titer 2.8 g/L (Yen 2024)", CAT[1], "D"),
+       ("lf_ufdf_only/humbird", "10 g/L, UF/DF only (optimistic)", CAT[2], "D")]
+for key, lab, col, mk in pts:
+    d = lf["cases"][key]
+    ax.plot([d["design"]["titer"]], [d["msp_ccf"]], marker=mk, ms=7, color=col, mec=SURF, mew=1.2, ls="none", zorder=4,
+            label=f"{lab}: ${d['msp_ccf']:.0f}/kg")
+ax.set_xscale("log"); ax.set_yscale("log")
+plain(ax.xaxis, [1, 2, 5, 10, 20, 30])
+ax.set_xlim(0.9, 35)
+ax.set_ylim(60, 2200)
+ax.yaxis.set_major_locator(matplotlib.ticker.FixedLocator([100, 200, 300, 500, 1000, 1500]))
+ax.yaxis.set_minor_formatter(NullFormatter())
+money(ax.yaxis)
+ax.set_xlabel("titer at harvest (g/L)")
+ax.set_ylabel("$/kg lactoferrin, 2025")
+ax.set_title("A high-value contrast: PF lactoferrin costs less than most reported dairy prices")
+ax.legend(fontsize=6.8, loc="lower left")
+fig.text(0.01, -0.05, "K. phaffii without methanol (as FDA GRN 1219 and 1284), 90% lactoferrin powder. No PF lactoferrin price is public; "
+         "the world market is ~0.3-1.6 kt/yr, so a 10 kt plant would not fit it.", fontsize=7, color=MUTED)
+save(fig, "fig9_lactoferrin.png")
