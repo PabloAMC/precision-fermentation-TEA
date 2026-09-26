@@ -27,9 +27,41 @@ incumbents:
   money_year: 2025         # trade values are deflated to this year's dollars (the model's money year)
   deflator: cpi_u_us       # BLS CPI-U annual average, data/evidence/prices.yaml
 
+reported_prices:           # products without a trade code: price points from reports and trade press (benchmarks.reported_prices)
+  lactoferrin:
+    label: "dairy bovine lactoferrin (reports and trade press, nominal US$)"
+    compare_to: lf
+    evidence: lactoferrin      # data/evidence/lactoferrin.yaml
+    keys: [blf_price_trade_press_series, blf_price_range_gfi2025, blf_price_gfieurope2025, blf_price_mao2023]
+    grade: C
+
+equivalents:               # the model's $/kg protein expressed per litre of milk and per egg (benchmarks.equivalents)
+  # Composition from data/evidence/milk_egg.yaml (entry derived_protein_per_litre_and_per_egg, by field).
+  # Prices are that file's annual series, converted per unit and deflated with CPI-U to money_year.
+  evidence_key: derived_protein_per_litre_and_per_egg
+  milk:
+    per: "litre of cow's milk"
+    compare_to: blg
+    target_field: milk_blg_g_per_L             # BLG in a litre (3.3 g)
+    all_protein_field: milk_all_protein_g_per_L  # all milk protein in a litre (33.7 g)
+    density_key: milk_density_fdc_sr_legacy    # kg/L, for prices per kg or per cwt
+    prices:
+      - {key: us_all_milk_price_nass, unit: usd_per_cwt, label: "US farm milk (all-milk price)"}
+      - {key: eu_raw_milk_price_mmo, unit: eur_per_100kg, label: "EU raw milk (first purchasers)"}
+      - {key: us_retail_milk_whole_bls, unit: usd_per_gal, label: "US retail whole milk"}
+  egg:
+    per: "US large egg"
+    compare_to: ova
+    target_field: ova_g_per_large_egg            # ovalbumin in an egg (1.96 g)
+    all_protein_field: egg_white_protein_g_per_large_egg   # egg-white protein in an egg (3.64 g)
+    prices:
+      - {key: us_wholesale_eggs_ny_ers, unit: usc_per_doz, label: "US wholesale eggs (New York, Grade A large)"}
+      - {key: us_retail_eggs_grade_a_large_bls, unit: usd_per_doz, label: "US retail eggs (Grade A large)"}
+
 titer_markers:             # (product in titers.csv, source_key, host) -> max titer of matching rows
   blg:
-    - {product: blg, source_key: Li2026, host: K. phaffii, label: "best published BLG (Li 2026, abstract)"}
+    - {product: blg, source_key: Yao2026, host: K. phaffii, label: "best published BLG (Yao 2026; ethanol induction)"}
+    - {product: blg, source_key: Li2026, host: K. phaffii, label: "best published BLG on glucose (Li 2026)"}
     - {product: "other:PF-average-published", source_key: gfi2025costs, host: various, label: "published-TEA average (GFI 2025)"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "private average (GFI 2025 survey)"}
     - {product: blg, source_key: behm2022, host: T. reesei, label: "design titer (Behm 2022; NREL cellulase)"}

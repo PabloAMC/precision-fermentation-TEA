@@ -1,0 +1,15 @@
+# Eurostat apri_ap_anouta 'Selling prices of animal products (absolute prices) - annual price (from 2000 onwards)', prod_ani 12200000 'Fresh eggs (whole country) - prices per 100 items', currency EUR, geo ES (Spain).
+# https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/apri_ap_anouta?format=JSON&lang=en&currency=EUR&prod_ani=12200000&time=2015..2025 (dataset updated 2025-05-15); accessed 2026-09-26.
+# Official annual national price (not computed). Agricultural selling price (farm level) per 100 eggs. No EU aggregate exists in this dataset.
+# Unit: EUR per 100 eggs.
+year,value
+2015,7.67
+2016,6.60
+2017,8.29
+2018,8.40
+2019,7.38
+2020,7.67
+2021,7.92
+2022,12.49
+2023,16.02
+2024,14.88

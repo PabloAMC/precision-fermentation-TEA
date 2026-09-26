@@ -1,0 +1,23 @@
+# 'lactoferrin': a high-value contrast case (bovine lactoferrin, K. phaffii, methanol-free as in
+# FDA GRN 1219 and 1284), at a plant size that fits the market: 250 t/yr (Intelligen's 2024 design
+# made 251 t/yr of powder; the world bLF market is ~0.3-1.6 kt/yr, sources disagree ~5x).
+# Downstream: MF -> cation exchange -> UF/DF -> spray dryer, the dairy route and every
+# commercial PF route; UF/DF without chromatography (Intelligen case a) is the optimistic variant.
+# Price band: dairy bLF US$200-1,500/kg in 2013-2025 trade press and reports (grade C;
+# data/evidence/lactoferrin.yaml); no PF lactoferrin price is public.
+description: "Bovine lactoferrin, 250 t/yr, cation-exchange purification"
+common:
+  plant.product: lf
+  plant.spec: cex
+  plant.annual_target_protein_t: 250
+lf:                                   # design titer: Intelligen 2024 (reported in David 2026, Table 2)
+  strain.titer_g_L: 10                # 'The baseline scenario assumes a titre of 10 g/L achieved over a 5-day fermentation period' (B)
+  strain.t_prod_h: 90                 # 5-day batch less the model's ~30 h growth phase
+lf_academic:                          # best public methanol-free secreted LF: Yen 2024, porcine LF, K. phaffii, 5 L
+  strain.titer_g_L: 2.8               # grade A (full text); bovine 3.5 g/L (Iglesias-Figueroa 2016) is a lysate yield, not used
+  strain.t_prod_h: 114                # 144 h total less ~30 h growth
+lf_ufdf_only:                         # optimistic: Intelligen case a, 90% purity by UF/DF alone (a design assumption)
+  strain.titer_g_L: 10
+  strain.t_prod_h: 90
+  plant.spec: concentrate
+  dsp.concentrate_target_frac_dry: 0.90

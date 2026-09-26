@@ -8,7 +8,7 @@
 
 plant:
   product: {value: blg, note: "blg | ova"}
-  spec: {value: concentrate, note: "concentrate (GRN 1056-type, UF/DF + dry) | isolate (adds precipitation) | crude (whole broth)"}
+  spec: {value: concentrate, note: "concentrate (GRN 1056-type, UF/DF + dry) | isolate (adds precipitation) | cex (adds cation-exchange capture; lactoferrin) | crude (whole broth)"}
   annual_target_protein_t: {value: 10000, low: 1000, high: 100000, unit: t/yr, grade: C,
     source: "gfi2025costs Table 2: private-sector volumes 2,500-25,000+ t/yr; SCOPE base"}
   operating_days: {value: 330, low: 320, high: 350, unit: d/yr, grade: B,
@@ -130,6 +130,36 @@ dsp:
     source: "whey protein practice (Tetra Pak Dairy Processing Handbook): WPC80 UF retentates reach 27-32% DM and are dried at ~36% ('~36% for WPC80', ch.19); WPI and >60%-protein WPC are brought to 35-37% DM by NF/high-concentration membranes, not evaporators (ch.18). value = UF-only midpoint; high = NF. The final concentration step is costed at the DF flux"}
   dryer_feed_solids_ova: {value: 0.23, low: 0.20, high: 0.30, unit: mass fraction dry matter, grade: C,
     source: "egg-white practice applied to rOVA (close analogy): egg white is ultrafiltered industrially from 11.5% to 23% solids (Tsai et al. 1977 J Food Prot 40:449, 24 plant batches, A as data); UF to 20-30% DM before spray drying (EP 2 926 674 B1 citing DD 290128, B). 23% solids is ~200 g/L protein; OVA dissolves at 200 g/L in water (Wang 2025, A), so the Intelligen/vendor '50 g/L practical solubility' is not a limit (audit P-8)"}
+  dryer_feed_solids_lf: {value: 0.27, low: 0.20, high: 0.37, unit: mass fraction dry matter, grade: D,
+    source: "analogy: no lactoferrin-specific value; whey-protein UF retentates reach 27-32% DM (Tetra Pak, C), so the UF-only low end is used; range as for BLG and egg white"}
+  # c'. cation-exchange capture (spec 'cex': lactoferrin; the dairy route and every commercial PF route)
+  cex_dbc_g_L: {value: 75, low: 50, high: 100, unit: g protein/L resin, grade: B,
+    source: "EVERY US 2024/0083940 A1 [0700]: 'The ligand density would accommodate protein binding capacity between 50-100 g protein/L resin' (dsp.yaml iex_binding_capacity_cex_every; a design statement, not a measured dynamic capacity for lactoferrin)"}
+  cex_cv_per_cycle: {value: 16, grade: B, source: "EVERY US 2024/0083940 A1 Table 4: equilibration 4 + wash 2-3 + elution 3-4 + CIP 3 + regeneration 3 column volumes (midpoints; dsp.yaml iex_column_volumes_per_cycle_every)"}
+  cex_elution_cv: {value: 3.5, grade: B, source: "same Table 4: elution 3-4 CV of '25 mM Citrate buffer with 1M NaCl'"}
+  cex_elution_nacl_kg_m3: {value: 58.4, grade: B, source: "1 M NaCl (EVERY Table 4) = 58.44 kg/m3; the dairy process elutes with 10-15% NaCl (Mao 2023), higher"}
+  cex_cip_cv: {value: 3, grade: B, source: "EVERY Table 4: CIP 3 CV of 1 M NaOH"}
+  cex_cip_naoh_kg_m3: {value: 40.0, grade: B, source: "1 M NaOH (EVERY Table 4) = 40.0 kg/m3"}
+  cex_regen_cv: {value: 3, grade: B, source: "EVERY Table 4: regeneration 3 CV of '20% EtOH and 150 mM NaCl', listed per cycle in 'a typical process' (often only for storage; per cycle is conservative)"}
+  cex_regen_etoh_kg_m3: {value: 157.8, grade: B, source: "20% v/v ethanol x 789 kg/m3 (EVERY Table 4)"}
+  cex_regen_nacl_kg_m3: {value: 8.77, grade: B, source: "150 mM NaCl (EVERY Table 4) = 8.77 kg/m3"}
+  cex_cycle_h: {value: 3.5, low: 2.0, high: 6.0, unit: h per cycle, grade: E,
+    source: "guess: ~17.5 CV per cycle (16 buffer + ~1.5 load) at ~5 CV/h, a typical packed-bed flow; sets only the resin volume (capital), not the buffer or resin-replacement costs, which scale with protein throughput / capacity"}
+  cex_recovery: {value: 0.832, low: 0.60, high: 0.95, grade: B,
+    source: "EVERY US 2025/0134130 Ex. 5: 'Chromatography purification recovered about 83.2% POI' (dsp.yaml iex_cex_step_recovery_every). low: Helaina's whole LF train 'recovery of the purification is >60%' (Lu 2024, C); high: judgment"}
+  cex_resin_usd_L: {value: 1250, low: 100, high: 2000, unit: $/L resin, grade: B,
+    source: "Petrides 2015 p.11-33: protein IEX/HIC resins '$500 to $2,000 per liter' (midpoint); low = polymeric resins 'under $100 per liter' (both dsp.yaml). Industrial lactoferrin uses agarose SP Sepharose Big Beads (Pires 2025), a protein resin"}
+  cex_resin_life_cycles: {value: 1000, low: 125, high: 1000, unit: cycles, grade: A,
+    source: "Pires et al. 2025 J Chromatogr A 1760:466274 (industrial lactoferrin CEX): 'After over a thousand cycles, the column must be replaced' (a lower bound; dsp.yaml iex_resin_lifetime_industrial_lactoferrin). low = Petrides' biopharma 50-200 cycles (midpoint, B)"}
+  cex_hardware_usd_per_L_resin: {value: 1000, low: 300, high: 3000, unit: $ (2018$) per L resin, grade: E,
+    source: "guess: columns, skid and automation per litre of packed resin; no public cost found (lactoferrin research pass). Petrides' membrane-system curve (biopharma) is the nearest analogue. Resin first fill is added to TCI unfactored"}
+  cex_diafiltration_volumes: {value: 4, grade: D,
+    source: "derived: 1 M NaCl in the eluate is washed out by DF to ~2% of protein at 50 g/L after 4 volumes (58.4 x e^-4 = 1.1 g/L), meeting ash <3.5% (GRN 1284); 3 volumes would leave ~6%"}
+  cex_target_frac_dry: {value: 0.90, low: 0.77, high: 0.94, grade: A,
+    source: "lactoferrin share of the powder: GRN 1284 (All G) batches 93.6-95.2% protein x 95.7-99.4% LF of protein (~0.90-0.94); low = GRN 1219 (TurtleTree) batches 80.5-83.5% protein x >=95% (~0.77-0.79)"}
+  nacl_usd_kg: {value: 0.184, grade: A, source: "prices.yaml salt_food_grade_eu_import_unit_value: EUR 0.1629/kg (2025) x ECB 1.1300"}
+  naoh_usd_kg: {value: 0.585, grade: A, source: "prices.yaml sodium_hydroxide_eu_import_unit_value: EUR 0.5177/kg NaOH (100% basis, 2025) x ECB 1.1300"}
+  ethanol_usd_kg: {value: 0.915, grade: A, source: "prices.yaml ethanol_undenatured_eu_import_unit_value: EUR 0.8099/kg (2025) x ECB 1.1300"}
   # d. isolate: precipitation (Intelligen OVA design)
   isolate_uf_end_g_L: {value: 50, grade: B, source: "intelligen p.8: UF to 50 g/L before precipitation (their design; not a solubility limit, see dryer_feed_solids_ova)"}
   precip_recovery: {value: 0.891, grade: B, source: "intelligen p.8: 90% precipitated x 99% retained by basket centrifuges"}
@@ -198,9 +228,9 @@ labour:
   attention_seed: {value: 0.1, grade: B, source: "Humbird A.1!C230 (large seed)"}
   worker_efficiency: {value: 0.8, grade: B, source: "Humbird A.1!C224"}
   continuous_fte_per_shift:
-    value: {media_prep: 0.5, centrifuges: 0.5, membranes: 1.0, dryer: 1.0, utilities: 1.0, maintenance: 1.0, qc_lab: 1.0, isolate_extra: 1.0}
+    value: {media_prep: 0.5, centrifuges: 0.5, membranes: 1.0, dryer: 1.0, utilities: 1.0, maintenance: 1.0, qc_lab: 1.0, isolate_extra: 1.0, chromatography: 1.0}
     grade: D
-    source: "Humbird A.1 continuous-area FTE rules (0.25-1 per area) extended to the DSP areas"
+    source: "Humbird A.1 continuous-area FTE rules (0.25-1 per area) extended to the DSP areas; isolate_extra only for the isolate, chromatography only for the cex route"
   fermenters_per_continuous_crew: {value: 12, grade: E, source: "guess: one crew for the continuous areas per ~12 production fermenters (v1 hard-coded value, audit R3-F13); Humbird's rules are per plant of 6-8 fermenters"}
 
 capital:

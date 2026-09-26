@@ -1,0 +1,18 @@
+# Bovine lactoferrin (recombinant, as in FDA GRN 1219 TurtleTree and GRN 1284 All G, both K. phaffii).
+# Sequence: UniProt P24627 (TRFL_BOVIN), mature chain 20-708 (signal peptide 1-19 removed), 689 residues,
+# retrieved 2026-09-26 from https://rest.uniprot.org/uniprotkb/P24627.json (data/evidence/lactoferrin.yaml).
+# UniProt lists 16 disulfide bonds. Five N-glycosylation sites (Asn252/300/387/495/564, precursor numbering);
+# K. phaffii occupies four with oligomannose (GRN 1284), adding ~4-8 kDa: ignored in the elemental formula
+# (5-10% of mass), as for OVA. Iron (1.4 mg/g at full saturation) is ignored.
+name: lactoferrin
+key: lf
+uniprot: P24627
+mature_sequence: >-
+  APRKNVRWCTISQPEWFKCRRWQWRMKKLGAPSITCVRRAFALECIRAIAEKKADAVTLDGGMVFEAGRDPYKLRPVAAEIYGTKESPQTHYYAVAVVKKGSNFQLDQLQGRKSCHTGLGRSAGWIIPMGILRPYLSWTESLEPLQGAVAKFFSASCVPCIDRQAYPNLCQLCKGEGENQCACSSREPYFGYSGAFKCLQDGAGDVAFVKETTVFENLPEKADRDQYELLCLNNSRAPVDAFKECHLAQVPSHAVVARSVDGKEDLIWKLLSKAQEKFGKNKSRSFQLFGSPPGQRDLLFKDSALGFLRIPSKVDSALYLGSRYLTTLKNLRETAEEVKARYTRVVWCAVGPEEQKKCQQWSQQSGQNVTCATASTTDDCIVLVLKGEADALNLDGGYIYTAGKCGLVPVLAENRKSSKHSSLDCVLRPTEGYLAVAVVKKANEGLTWNSLKDKKSCHTAVDRTAGWNIPMGLIVNQTGSCAFDEFFSQSCAPGADPKSRLCALCAGDDQGLDKCVPNSKEKYYGYTGAFRCLAEDVGDVAFVKNDTVWENTNGESTADWAKNLNREDFRLLCLDGTRKPVTEAQSCHLAVAPNHAVVSRSDRAAHVKQVLLHQQALFGKNGKNCPDKFCLFKSETKNLLFNDNTECLAKLGGRPTYEEYLGTEYVTAIANLKKCSTSPLLEACAFLTR
+disulfides: 16
+post_translational: "N-glycans (4 of 5 sites in K. phaffii, oligomannose) and bound iron ignored in the elemental formula"
+spec:                       # base = All G GRN 1284 (the PF product matching the dairy spec); TurtleTree GRN 1219 is looser
+  protein_min_frac_powder: {value: 0.90, grade: A, source: "FDA GRN 1284 (All G) Table 4: 'Total Protein (N x 6.38) (%) >90 %'; EU novel food (dairy bLF) >93%; GRN 1219 (TurtleTree) >=80%"}
+  target_min_frac_protein: {value: 0.95, grade: A, source: "GRN 1284 and GRN 1219: lactoferrin >95% of protein; EU 2012/725/EU: >95%"}
+  moisture_max: {value: 0.045, grade: A, source: "GRN 1284 and EU 2012/725/EU: moisture <4.5%"}
+solubility_practical_g_L: {value: null, note: "not limiting at the titers modelled"}

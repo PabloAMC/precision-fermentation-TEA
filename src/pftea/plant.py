@@ -17,6 +17,13 @@ Blocks (data in data/pf/base.yaml; equations in each block's comments):
       Concentrate: the end volume holds the dryer-feed solids s_in (dairy/egg-white practice,
       membranes rather than evaporators): water = solids (1 - s_in)/s_in. Isolate: the UF ends
       at Intelligen's 50 g/L before precipitation.
+   c'. 'cex' spec only (lactoferrin): cation-exchange capture between MF and UF. Protein loaded
+      L = P R_cell R_MF; resin used per batch (m3 resin-cycles) = L / q (dynamic capacity).
+      Per resin-cycle: CV_tot column volumes of buffer (water and wastewater), elution CV_elu at
+      1 M NaCl (the eluate goes to UF/DF, which washes the salt out), CIP with NaOH and
+      regeneration with 20% ethanol. Resin replaced per year = resin-cycles / life; resin volume
+      installed = resin-cycles per hour x cycle time (first fill added to TCI unfactored);
+      column hardware per litre of resin. Recovery R_cex.
    d. Isolate only: ammonium-sulfate precipitation and washed basket centrifuges; the dryer is
       fed the cake (solids fraction s_cake).
    e. Spray dryer: water evaporated = solids (1 - s_in)/s_in; recovery R_dry.
@@ -164,11 +171,12 @@ def evaluate(p, keep_series=False) -> Result:
         raise ValueError("batch makes no product")
     crude = spec == "crude"
     n_st = int(v(p, "dsp.centrifuge_stages"))
+    resin_cyc = buffer_m3 = nacl_kg = naoh_kg = etoh_kg = 0.0     # cation exchange ('cex' spec only)
     if crude:                                              # whole broth used as is (NREL on-site enzyme)
         dil, V1, V_clar, V_wash, R_cell = 1.0, W, W, 0.0, 1.0
         R_mf = R_uf = 1.0
         V_ret, CF, N_dv, perm_c, perm_df, df_water = W, 1.0, 0.0, 0.0, 0.0, 0.0
-        target, purity = P_in, 1.0
+        target, purity, V_uf = P_in, 1.0, W
     else:
         # a. cell removal with n wash stages
         dil = max(X / v(p, "dsp.dilution_to_g_L_cells"), 1.0)
@@ -182,11 +190,22 @@ def evaluate(p, keep_series=False) -> Result:
         V_wash = (n_st - 1) * (V1 - Vp)
         # b. microfiltration polish
         R_mf = v(p, "dsp.mf_recovery")
+        # c'. cation-exchange capture ('cex' spec)
+        P_uf, V_uf = P_in * R_cell * R_mf, V_clar          # kg and m3 into UF
+        if spec == "cex":
+            resin_cyc = P_uf / v(p, "dsp.cex_dbc_g_L")      # m3 resin-cycles per batch
+            V_uf = v(p, "dsp.cex_elution_cv") * resin_cyc   # eluate
+            buffer_m3 = v(p, "dsp.cex_cv_per_cycle") * resin_cyc
+            nacl_kg = resin_cyc * (v(p, "dsp.cex_elution_cv") * v(p, "dsp.cex_elution_nacl_kg_m3")
+                                   + v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_nacl_kg_m3"))
+            naoh_kg = resin_cyc * v(p, "dsp.cex_cip_cv") * v(p, "dsp.cex_cip_naoh_kg_m3")
+            etoh_kg = resin_cyc * v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_etoh_kg_m3")
+            P_uf *= v(p, "dsp.cex_recovery")
         # c. ultrafiltration + diafiltration
         sigma = v(p, "dsp.uf_rejection")
-        P_uf = P_in * R_cell * R_mf                        # kg into UF
-        C_in = P_uf / V_clar                               # kg/m3 in the clarified liquid
-        purity = v(p, "dsp.isolate_target_frac_dry" if spec == "isolate" else "dsp.concentrate_target_frac_dry")
+        C_in = P_uf / V_uf                                 # kg/m3 into UF
+        purity = v(p, {"isolate": "dsp.isolate_target_frac_dry", "cex": "dsp.cex_target_frac_dry"}.get(
+            spec, "dsp.concentrate_target_frac_dry"))
         if spec == "isolate":
             V_ret = P_uf / v(p, "dsp.isolate_uf_end_g_L")
         else:                                              # end volume holds the dryer-feed solids
@@ -194,12 +213,12 @@ def evaluate(p, keep_series=False) -> Result:
             V_ret = P_uf / purity * (1 - s_in) / s_in / 1000
         if sol.get("value"):
             V_ret = max(V_ret, P_uf / sol["value"])        # cannot concentrate above solubility
-        V_ret = min(V_ret, V_clar)
-        CF = V_clar / V_ret
+        V_ret = min(V_ret, V_uf)
+        CF = V_uf / V_ret
         C_df = min(v(p, "dsp.diafiltration_conc_g_L"), P_uf / V_ret)
-        V_df = max(min(P_uf / C_df, V_clar), V_ret)        # volume while diafiltering
-        N_dv = v(p, "dsp.diafiltration_volumes")
-        perm_c = V_clar - V_df                             # concentration to C_df, at J_UF
+        V_df = max(min(P_uf / C_df, V_uf), V_ret)          # volume while diafiltering
+        N_dv = v(p, "dsp.cex_diafiltration_volumes" if spec == "cex" else "dsp.diafiltration_volumes")
+        perm_c = V_uf - V_df                               # concentration to C_df, at J_UF
         df_water = N_dv * V_df
         perm_df = df_water + (V_df - V_ret)                # diafiltration + final concentration, at J_DF
         R_uf = CF ** -(1 - sigma) * math.exp(-N_dv * (1 - sigma))
@@ -272,7 +291,8 @@ def evaluate(p, keep_series=False) -> Result:
     steam_kg_batch += b.W0 * 1000 * 4.1868 * 105 / 2410 * 0.1   # media heat-up, 90% HTST heat recovery
     cip_m3 = cip_kg / 1000
     dilution_m3 = W * (dil - 1)
-    proc_water_m3_batch = (b.feed_water_kg / 1000 + b.W0 + dilution_m3 + V_wash + df_water + wash_m3 + cip_m3)
+    proc_water_m3_batch = (b.feed_water_kg / 1000 + b.W0 + dilution_m3 + V_wash + df_water + wash_m3 + cip_m3
+                           + buffer_m3)
     water_m3_h = n_batches * proc_water_m3_batch / H
 
     # ---------------------------------------------------------------- 6. capital (2018$)
@@ -309,6 +329,9 @@ def evaluate(p, keep_series=False) -> Result:
         n_d, dsize = eq.units(evap_kg_h, v(p, "dsp.spray_dryer_max_kg_h"))
         isbl["spray dryers"] = eq.spray_dryer(dsize, v(p, "dsp.spray_dryer_cost_2018usd"), v(p, "dsp.spray_dryer_ref_kg_h"),
                                               v(p, "dsp.spray_dryer_exponent")) * n_d
+    resin_m3 = n_batches * resin_cyc / H * v(p, "dsp.cex_cycle_h") if spec == "cex" else 0.0   # installed resin
+    if spec == "cex":
+        isbl["CEX columns and skids"] = resin_m3 * 1000 * v(p, "dsp.cex_hardware_usd_per_L_resin")
     if spec == "isolate":
         isbl["precipitation + basket centrifuges"] = (eq.tank(min(V_ret, 100)) * 2
                                                       + eq.centrifuge(min(150, V_ret * 1000 / 3.785 / 60 / 4)) * 3)
@@ -348,8 +371,9 @@ def evaluate(p, keep_series=False) -> Result:
     L = "labour"
     batch_fte = (v(p, f"{L}.attention_production") * N_prod + v(p, f"{L}.attention_seed") * sum(seed_units)) / v(p, f"{L}.worker_efficiency")
     cont = v(p, f"{L}.continuous_fte_per_shift")
-    skip = {"isolate_extra"} | ({"centrifuges", "membranes", "dryer"} if crude else set())
-    cont_fte = sum(val for k, val in cont.items() if k not in skip) + (cont["isolate_extra"] if spec == "isolate" else 0)
+    skip = {"isolate_extra", "chromatography"} | ({"centrifuges", "membranes", "dryer"} if crude else set())
+    cont_fte = (sum(val for k, val in cont.items() if k not in skip) + (cont["isolate_extra"] if spec == "isolate" else 0)
+                + (cont.get("chromatography", 0.0) if spec == "cex" else 0))
     trains = max(1.0, N_prod / v(p, f"{L}.fermenters_per_continuous_crew"))
     operators = batch_fte + cont_fte * trains
     supervisors = operators / v(p, f"{L}.employees_per_supervisor")
@@ -369,13 +393,16 @@ def evaluate(p, keep_series=False) -> Result:
     else:
         tpc = tdc * (1 + fcl["ec"])
         tci = tpc * (1 + fcl["fc"]) * idx
+    resin_fill = resin_m3 * 1000 * v(p, "dsp.cex_resin_usd_L")    # traded consumable: unfactored, not location-scaled
+    tci += resin_fill
     capex = {**{f"ISBL: {k}": val * idx for k, val in isbl.items()},
              **{f"OSBL: {k}": val * idx for k, val in osbl.items()},
              "ISBL installation & missing": (isbl_tdc - isbl_pec) * idx,
              "OSBL installation & missing": (osbl_tdc - osbl_pec) * idx,
              "buildings": buildings * idx,
              "engineering & construction": (tpc - tdc) * idx,
-             "fees & contingency": tci - tpc * idx}
+             "fees & contingency": tci - resin_fill - tpc * idx,
+             "CEX resin first fill": resin_fill}
 
     # ---------------------------------------------------------------- 8. operating costs ($/yr)
     U = "utilities"
@@ -391,7 +418,8 @@ def evaluate(p, keep_series=False) -> Result:
     steam_price = _opt(p, f"{U}.steam_usd_t") or v(p, f"{U}.natural_gas_usd_GJ") * v(p, f"{U}.steam_gas_GJ_per_t")
     cw_makeup_m3 = (heat_avg_kW * (1 + c.rt_refrig) * H * 3600 / 2400 / 1000) * 1.3
     water_m3 = n_batches * proc_water_m3_batch + cw_makeup_m3
-    ww_m3 = n_batches * (permeate + wash_m3 + cip_m3)       # membrane permeates, cake wash, CIP
+    ww_m3 = n_batches * (permeate + wash_m3 + cip_m3 + buffer_m3 - (V_uf if spec == "cex" else 0.0))
+    # membrane permeates, cake wash, CIP and the column buffers other than the eluate (which goes to UF)
     cells_t = 0.0 if crude else n_batches * b.cells_kg / 1000   # crude broth keeps its cells (used on site)
     nb_maint = (isbl_tdc * idx * nb["maintenance_frac_isbl"] + tci * nb.get("maintenance_frac_fci", 0.0))
     annual = {
@@ -401,7 +429,11 @@ def evaluate(p, keep_series=False) -> Result:
                                             + v(p, "media.h3po4_kg_per_kg_cells") * b.cells_kg * v(p, "media.h3po4_price_usd_kg")
                                             + v(p, "media.antifoam_kg_per_m3") * W * v(p, "media.antifoam_price_usd_kg")
                                             + v(p, "media.methanol_kg_per_kg_product") * P_in * v(p, "media.methanol_price_usd_kg")),
-        "DSP chemicals": n_batches * (AS_kg * v(p, "dsp.ammonium_sulfate_usd_kg") + cip_kg * v(p, "dsp.cip_price_usd_kg")),
+        "DSP chemicals": n_batches * (AS_kg * v(p, "dsp.ammonium_sulfate_usd_kg") + cip_kg * v(p, "dsp.cip_price_usd_kg")
+                                      + nacl_kg * v(p, "dsp.nacl_usd_kg") + naoh_kg * v(p, "dsp.naoh_usd_kg")
+                                      + etoh_kg * v(p, "dsp.ethanol_usd_kg")),
+        "chromatography resin": (n_batches * resin_cyc / v(p, "dsp.cex_resin_life_cycles") * 1000
+                                 * v(p, "dsp.cex_resin_usd_L")) if spec == "cex" else 0.0,
         "membranes": (mf_m2 + uf_m2) * v(p, "dsp.membrane_price_usd_m2") / v(p, "dsp.membrane_life_y"),
         "electricity": elec_kWh * v(p, f"{U}.electricity_usd_kWh"),
         "natural gas & steam": gas_GJ * v(p, f"{U}.natural_gas_usd_GJ") + steam_t * steam_price,
@@ -413,6 +445,7 @@ def evaluate(p, keep_series=False) -> Result:
                             else tci * v(p, "finance.insurance_tax_frac_tci")),
     }
     variable = sum(val for k, val in annual.items() if k not in ("labour", "maintenance", "insurance & tax"))
+    # (maintenance and insurance are charged on TCI including the resin first fill)
     fixed = annual["labour"] + annual["maintenance"] + annual["insurance & tax"]
     ccf = fin.ccf(v(p, "finance.ccf_rate"), v(p, "finance.ccf_life_y"))
     annual["capital charge"] = tci * ccf
@@ -440,7 +473,7 @@ def evaluate(p, keep_series=False) -> Result:
                   target_per_batch_kg=target, product_made_kg=P_in, o2_kmol_batch=b.o2_kmol,
                   powder_per_batch_kg=powder, purity_dry=purity, otr_max=omax, our_peak=b.our_max,
                   heat_peak_kW_m3=b.heat_max_kW_m3, seeds_m3=seeds, seed_units=seed_units, mf_m2=mf_m2,
-                  uf_m2=uf_m2, CF=CF, evap_kg_h=evap_kg_h, dryer_inlet_solids=(0.0 if crude else dryer_in_solids),
+                  uf_m2=uf_m2, CF=CF, evap_kg_h=evap_kg_h, resin_m3=resin_m3, dryer_inlet_solids=(0.0 if crude else dryer_in_solids),
                   fte=fte, area_m2=total_area, lang_effective=tci / (idx * (isbl_pec + osbl_pec)),
                   y_ps_over_ceiling=v(p, "strain.Y_ps_g_g") / ceiling, energetic_ceiling=ceiling,
                   effective_yield_production=(b.product_kg / b.glucose_prod_kg if b.glucose_prod_kg > 0 else float("nan")),

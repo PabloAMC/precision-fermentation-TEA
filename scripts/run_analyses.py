@@ -237,11 +237,61 @@ def s_calibration(res):
     res["calibration"]["voutilainen2021_case"][k0 + " [their fixed costs, Humbird capital]"] = [float(a0), float(b0)]
 
 
+def s_equivalents(res):
+    """Milk and egg equivalents: modelled $/kg protein per litre of milk and per egg, beside the
+    prices of milk and eggs, and the titer at which PF protein matches them (72 h production)."""
+    eq = bm.equivalents()
+    out = {"sources": eq, "cases": {}, "break_even_titer_72h": {}}
+    for name, prod in (("milk", "blg"), ("egg", "ova")):
+        d = eq[name]
+        cases = {"base": {}, "base, design-report capital": sc.LIGHT}
+        rows = {}
+        for label, extra in cases.items():
+            msp = plant.evaluate(params.override(BASE, {"plant.product": prod, **extra})).msp_ccf
+            rows[label] = dict(msp=msp, target_per_unit=msp * d["target_g"] / 1000,
+                               all_protein_per_unit=msp * d["all_protein_g"] / 1000)
+        for scen in ("industry", "academic"):
+            msp = sc.run(scen, prod).msp_ccf
+            rows[scen] = dict(msp=msp, target_per_unit=msp * d["target_g"] / 1000,
+                              all_protein_per_unit=msp * d["all_protein_g"] / 1000)
+        out["cases"][name] = rows
+        p = params.override(BASE, {"plant.product": prod})
+        ceil = sc.max_feasible_titer(p, 72)
+        be = {}
+        for lab, series in d["protein_equivalent"].items():
+            for tag, target in (("2025", series[max(series)]), ("band low", min(series.values())),
+                                ("band high", max(series.values()))):
+                T = sc.required_titer(p, target, 72, hi=ceil) if ceil else None
+                be[f"{lab} [{tag}]"] = dict(target_usd_kg=target, titer=T)
+        out["break_even_titer_72h"][name] = dict(ceiling=ceil, rows=be)
+    res["equivalents"] = out
+
+
+def s_lactoferrin(res):
+    """Contrast case: bovine lactoferrin at 250 t/yr (data/pf/scenarios/lactoferrin.yaml)."""
+    out = {"reported_prices": bm.reported_prices()["lactoferrin"], "cases": {}}
+    for var in ("lf", "lf_academic", "lf_ufdf_only"):
+        for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
+            out["cases"][f"{var}/{label}"] = summary(sc.run("lactoferrin", "lf", extra, variant=var))
+    p = sc.scenario_params("lactoferrin", "lf")
+    titers = [1, 2.8, 5, 10, 20, 30]
+    out["cost_vs_titer"] = dict(titers=titers, msp=[plant.evaluate(params.override(p, {"strain.titer_g_L": float(T)})).msp_ccf
+                                                    for T in titers])
+    scales = [100, 250, 1000, 2500]
+    out["cost_vs_scale"] = dict(t_per_yr=scales, msp=[plant.evaluate(params.override(p, {"plant.annual_target_protein_t": float(x)})).msp_ccf
+                                                       for x in scales])
+    out["resin"] = {f"{k}={x}": plant.evaluate(params.override(p, {k: x})).msp_ccf
+                    for k, xs in (("dsp.cex_resin_life_cycles", (125, 1000)), ("dsp.cex_resin_usd_L", (100, 2000)),
+                                  ("dsp.cex_hardware_usd_per_L_resin", (300, 3000))) for x in xs}
+    res["lactoferrin"] = out
+
+
 SECTIONS = {"base": s_base, "scenarios": s_scenarios, "physical_limit": s_physical_limit,
             "cost_vs_titer": s_cost_vs_titer, "bridge": s_bridge, "required": s_required, "claims": s_claims,
             "policy": s_policy,
             "tornado": s_tornado,
-            "monte_carlo": s_monte_carlo, "scale": s_scale, "calibration": s_calibration}
+            "monte_carlo": s_monte_carlo, "scale": s_scale, "calibration": s_calibration,
+            "equivalents": s_equivalents, "lactoferrin": s_lactoferrin}
 
 if __name__ == "__main__":
     t0 = time.time()

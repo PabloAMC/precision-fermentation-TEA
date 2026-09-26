@@ -1,0 +1,18 @@
+# U.S. Bureau of Labor Statistics, CPI Average Price Data, series APU0000709112: Milk, fresh, whole, fortified, per gal. (3.8 lit) in U.S. city average, average price, not seasonally adjusted.
+# BLS Public API v1: https://api.bls.gov/publicAPI/v1/timeseries/data/ (POST seriesid=APU0000709112, 2015-2024 and 2025-2026); accessed 2026-09-26.
+# Annual value = simple mean of the published monthly values (computed; BLS does not publish annual averages for this series in the data viewer).
+# 2025 = mean of 11 months (October 2025 footnote X: 'Data unavailable due to the 2025 lapse in appropriations'). 2026 = Jan-Aug 2026 only (partial year).
+# Unit: USD per US gallon (3.785411784 L). Retail price, all outlets, U.S. city average.
+year,value
+2015,3.4187
+2016,3.2043
+2017,3.2255
+2018,2.8958
+2019,3.0357
+2020,3.3184
+2021,3.5445
+2022,4.0910
+2023,4.0274
+2024,3.9839
+2025,4.0665
+2026,4.1756

@@ -1,0 +1,18 @@
+# U.S. Bureau of Labor Statistics, CPI Average Price Data, series APU0000708111: Eggs, grade A, large, per doz. in U.S. city average, average price, not seasonally adjusted.
+# BLS Public API v1: https://api.bls.gov/publicAPI/v1/timeseries/data/ (POST seriesid=APU0000708111, 2015-2024 and 2025-2026); accessed 2026-09-26.
+# Annual value = simple mean of the published monthly values (computed; BLS does not publish annual averages for this series in the data viewer).
+# 2025 = mean of 11 months (October 2025 footnote X: 'Data unavailable due to the 2025 lapse in appropriations'). 2026 = Jan-Aug 2026 only (partial year).
+# Unit: USD per dozen. Retail price, all outlets, U.S. city average.
+year,value
+2015,2.4694
+2016,1.6842
+2017,1.4671
+2018,1.7417
+2019,1.3958
+2020,1.5057
+2021,1.6740
+2022,2.8568
+2023,2.7962
+2024,3.1715
+2025,4.2516
+2026,2.3085
