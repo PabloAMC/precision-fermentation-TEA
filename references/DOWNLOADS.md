@@ -1,10 +1,13 @@
 # Documents to download (for Pablo)
 
-**Status 2026-09-26 evening.**
-- Received and filed: 1 (Li), 2 (Yao), 3 (Aro), 4 main article (Järviö), 5 (Nielsen), plus a review
-  (Shukla 2026, *Applied Food Research* 6:102015).
-- Still needed: 4 **Supplementary Information** (Järviö), 6 (Jin 2024), 7 (the FDA GRAS notices),
-  and P2 (8–13). P3 is optional.
+**Status 2026-09-27.**
+- Received and filed: 1 (Li), 2 (Yao), 3 (Aro), 4 (Järviö, article and Supplementary
+  Information), 5 (Nielsen), FDA GRN 1056, plus Shukla 2026, Behm 2022, Zhang 2024, Yamanie 2026,
+  Risner 2023, Puetz 2019, Klein-Marcuschamer 2012 and Voutilainen 2021 with its SI.
+- Still needed, in order of usefulness: **P4** (new: sources behind v2 values that were read only
+  as abstracts), **P1c** (supplementary files with the missing process data), **P1b** 14–15
+  (lactoferrin design basis and titer), 6 (Jin 2024), 7 (the other FDA GRAS notices), P2 (8–13).
+  P3 is optional.
 
 Save PDFs into `references/papers/` (articles) or `references/reports/` (FDA notices), with
 the filename given. Both folders are git-ignored, so nothing copyrighted is published. DOIs
@@ -35,6 +38,33 @@ with the suffix `_SI`.
 | 19 | FDA GRAS notices on lactoferrin made by fermentation: search the inventory for "lactoferrin" (the site returned errors on 2026-09-26) | FDA GRAS Notice Inventory | `reports/FDA-GRN<number>.pdf` | Spec and process of commercial PF lactoferrin |
 | 20 | Abeyrathne EDNS, Lee HY, Ahn DU. Egg white proteins and their potential use in food processing or as nutraceutical and pharmaceutical agents — a review. Poult Sci 92:3292 (2013). Open access | 10.3382/ps.2013-03391 | `papers/Abeyrathne2013_egg_white_proteins.pdf` | Ovalbumin share of egg-white protein (for the per-egg equivalent) |
 
+## P1c — supplementary files that hold the missing process data (added 2026-09-26 night)
+
+| # | Document | Where | Save as | Why |
+|---|---|---|---|---|
+| 21 | Li et al. 2026 (Metab Eng 99:102555) **Supplementary data**, especially Table S4 (glucose feed profile) | "Supplementary data" link on the ScienceDirect article page (doi 10.1016/j.ymben.2026.102555) | `papers/Li2026_blg_kphaffii_SI.pdf` (or .docx) | The only route to a public BLG yield on glucose |
+| 22 | Yao et al. 2026 (Food Biosci 82:109383) **Supplementary data** (Figs S7, S10) | ScienceDirect article page (doi 10.1016/j.fbio.2026.109383) | `papers/Yao2026_blg_yeast_SI.pdf` | Feed amounts for the 13.88 g/L run |
+| 23 | Järviö et al. 2021 (Nature Food) **Supplementary Data** file (the model-input spreadsheet, not the Supplementary Information PDF, which is already on disk) | Nature Food article page, "Supplementary information" section (doi 10.1038/s43016-021-00418-2) | `papers/Jarvio2021_ova_lca_SD.xlsx` | Titer, time and biomass behind the inventory |
+| 24 | Nelisse P et al. (DSM). WO2022269549A2 (2022): extended β-lactoglobulin fermentation | patents.google.com/patent/WO2022269549A2 (free) | `patents/DSM_WO2022269549_blg-fermentation.pdf` | A. niger BLG process data (Vivici's lineage) |
+
+## P4 — sources behind v2 values that were read only as abstracts (added 2026-09-27)
+
+Each is cited in `data/evidence/` with `read: abstract` (or as an unverified lead). With the full
+text we can check the quote, or replace the value. DOIs checked against Crossref on 2026-09-27.
+
+| # | Document | DOI | Save as | Why |
+|---|---|---|---|---|
+| 25 | Heyland J, Fu J, Blank LM, Schmid A. Quantitative physiology of *Pichia pastoris* during glucose-limited high-cell density fed-batch cultivation for recombinant protein production. Biotechnol Bioeng 107:357–368 (2010) | 10.1002/bit.22836 | `papers/Heyland2010_pichia_fedbatch_physiology.pdf` | Fed-batch maintenance of a producing strain on glucose: checks the production-phase maintenance that sets the product yield (report Methods 2.2) |
+| 26 | Looser V, Bruhlmann B, Bumbak F, et al. Cultivation strategies to enhance productivity of *Pichia pastoris*: a review. Biotechnol Adv 33:1177–1193 (2015) | 10.1016/j.biotechadv.2015.05.008 | `papers/Looser2015_pichia_cultivation_review.pdf` | Tabulated maintenance and productivity values across studies |
+| 27 | Tsai LS, Ijichi K, Harris MW. Concentration of egg white by ultrafiltration. J Food Prot 40(7):449–455 (1977) | 10.4315/0362-028X-40.7.449 | `papers/Tsai1977_egg_white_UF.pdf` | Basis for the OVA dryer-feed solids and for dropping the 50 g/L solubility limit |
+| 28 | Froning GW, Wehling RL, Ball HR, Hill RM. Effect of ultrafiltration and reverse osmosis on the composition and functional properties of egg white. Poult Sci 66:1168–1173 (1987) | 10.3382/ps.0661168 | `papers/Froning1987_egg_white_UF_RO.pdf` | Same question; currently an unverified lead |
+| 29 | Garnica-Garcia F, Lal N, Marcellin E. Primary challenges in the upcycling of genetically modified spent microbial biomass. New Biotechnol 94:172–183 (2026) | 10.1016/j.nbt.2026.05.008 | `papers/GarnicaGarcia2026_spent_biomass.pdf` | Spent-cell disposal route (base: sterilise and landfill) |
+| 30 | Pires MC, Jungbauer A, Lau D, et al. Column ageing of agarose-based chromatography in industrial lactoferrin purification. J Chromatogr A 1760:466274 (2025). Open access (CC BY) | 10.1016/j.chroma.2025.466274 | `papers/Pires2025_lactoferrin_column_ageing.pdf` | Resin lifetime in the lactoferrin case |
+| 31 | Wang X, Liao Y, Guo X, Xing D, et al. Comparative study of cation-exchange resins for high-efficiency preparation of bovine lactoferrin and its N-glycomic analysis by HILIC-MS/MS. J Agric Food Chem 74(7):6488–6504 (2026) | 10.1021/acs.jafc.5c12835 | `papers/Wang2026_lactoferrin_cex_resins.pdf` | Binding capacity of the capture resin |
+| 32 | Hu C, Shen W, Xia Y, Zhou L, Yang H, Chen X. Efficient production of the recombinant human lactoferrin in an engineered *Trichoderma reesei*. J Agric Food Chem 73:32795–32806 (2025) | 10.1021/acs.jafc.5c11534 | `papers/Hu2025_lactoferrin_treesei.pdf` | Lactoferrin titer table |
+| 33 | Towler G, Sinnott R. Chemical Engineering Design, 2nd ed. Elsevier (2013), ch. 7 "Capital cost estimating" (a library copy is fine) | 10.1016/B978-0-08-096659-5.00007-9 | `papers/TowlerSinnott2013_ch7_capital_cost.pdf` | Location factors and installation factors, a textbook cross-check of the capital conventions |
+| 34 | Huntington JA, Stein PE. Structure and properties of ovalbumin. J Chromatogr B 756:189–198 (2001) | 10.1016/S0378-4347(01)00108-6 | `papers/Huntington2001_ovalbumin_structure.pdf` | Optional: ovalbumin properties (currently an unverified lead) |
+
 ## P2 — engineering cross-checks
 
 | # | Document | DOI | Save as | Why |
@@ -59,4 +89,4 @@ with the suffix `_SI`.
 | Shao Y et al. High-level secretory production of leghemoglobin in *Pichia pastoris*… Bioresour Technol 363:127884 (2022) | 10.1016/j.biortech.2022.127884 | `papers/Shao2022_leghemoglobin.pdf` |
 | Liu K et al. Reprogrammed *Komagataella phaffii* for enhanced secretory expression of human lactoferrin. J Biotechnol (2026) | 10.1016/j.jbiotec.2026.07.011 | `papers/Liu2026_lactoferrin.pdf` |
 
-More items will be added here if the placeholder-parameter search finds paywalled sources.
+Items 25–34 came from the v2 placeholder and lactoferrin searches. More will be added if the review finds gaps.
