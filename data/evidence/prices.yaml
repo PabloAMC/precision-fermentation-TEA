@@ -1,0 +1,1320 @@
+# data/evidence/prices.yaml - Phase B price, utility, labour and cost-index evidence (2026-09-26).
+# Format: see data/evidence/README.md. Extra fields used here: `year` (year of `value`), `values` (series map),
+# `csv` (companion time series in data/prices/). All web sources accessed 2026-09-26.
+# `read: html` covers HTML pages and online tables/JSON APIs read in memory (nothing downloaded).
+# Conversions: 1 lb = 0.45359237 kg; 1 short ton = 907.18474 kg; 1 MMBtu = 1.055056 GJ; EUR->USD at ECB annual averages.
+# Trade unit values (UN Comtrade, Eurostat Comext) are official statistics but only PROXIES for product prices.
+
+
+# ---------------- 1. Incumbent product prices ----------------
+
+- key: "wpc34_us_dmn_annual_official"
+  value: 1.6416
+  unit: "USD/lb (34% protein product)"
+  year: 2025
+  values: {2023: 1.0681, 2024: 1.1239, 2025: 1.6416}
+  grade: "A"
+  source: "USDA AMS Dairy Market News, report AMS_1623 'Dairy Monthly Averages', section 'Dry Products Monthly Averages'"
+  doi_or_url: "https://mymarketnews.ams.usda.gov/public_data?slug_id=1623 (JSON: https://mymarketnews.ams.usda.gov/public_data/ajax-search-data-by-report-section/1623/Dry%20Products%20Monthly%20Averages?q=report_begin_date=01/01/2025:12/31/2025)"
+  locator: "commodity 'Whey Protein Concentrate', region 'CENTRAL AND WESTERN', lot '34% Protein', field yearly_Avg"
+  quote: "AMS_1623 Final rows, WPC CENTRAL AND WESTERN 34% Protein: yearly_Avg 2023 = 1.0681, 2024 = 1.1239, 2025 = 1.6416 Dollars per Pound (yearly_mostly_avg 1.0827, 1.0813, 1.6667)"
+  read: "html"
+  csv: "data/prices/wpc34_us_dmn.csv"
+  note: "MyMarketNews public-data table read in the browser pane, accessed 2026-09-26. WPC34 is the only formal USDA whey-protein price series; it is NOT WPC80. 2025 = 3.619 USD/kg product = 10.64 USD/kg protein at 34% protein (conversion mine). AMS_1623 public data starts in 2023 for this section; 2015-2022 are in the CSV (computed from weekly AMS_1053)."
+
+- key: "wpc34_us_dmn_annual_computed"
+  value: 1.6407
+  unit: "USD/lb (34% protein product)"
+  year: 2025
+  values: {2015: 0.808, 2016: 0.6975, 2017: 0.9336, 2018: 0.8374, 2019: 0.9356, 2020: 0.9547, 2021: 1.1719, 2022: 1.7118, 2023: 1.0659, 2024: 1.1281, 2025: 1.6407}
+  grade: "A"
+  source: "USDA AMS Dairy Market News, weekly report AMS_1053 'Whey Protein Concentrate - Central and West U.S.'"
+  doi_or_url: "https://mymarketnews.ams.usda.gov/public_data/ajax-search-data-by-report/1053?q=report_begin_date=01/01/<YEAR>:12/31/<YEAR>"
+  locator: "all weekly rows with report_begin_date in the year; fields price_min, price_max (Dollars per Pound), lot_Desc '34% Protein'"
+  quote: "Weekly ranges transcribed from AMS_1053 public data; annual means of (price_min+price_max)/2: 2015 0.808, 2019 0.9356, 2022 1.7118, 2024 1.1281, 2025 1.6407"
+  read: "html"
+  csv: "data/prices/wpc34_us_dmn.csv"
+  note: "Annual value computed by me as the unweighted mean of weekly range midpoints; check vs official: 2024 1.1281 vs 1.1239, 2025 1.6407 vs 1.6416 (within 0.4%). CLAL.it republishes the same DMN series (section=sieroproteine) with Jan-Dec means in USD/t that match the 'mostly' midpoints within ~1% (checked 2016, 2021-2025)."
+
+- key: "wpc80_regular_us_dmn_2026"
+  value: 12.5
+  low: 9.75
+  high: 13.25
+  unit: "USD/lb (WPC80 product)"
+  year: 2026
+  values: {"2026-04-27": "9.75-11.0", "2026-06-22": "12.5-13.0", "2026-07-06": "12.5-13.0", "2026-07-13": "12.5-13.0", "2026-08-03": "12.25-13.25", "2026-08-10": "12.0-13.0", "2026-08-17": "11.75-12.75", "2026-08-24": "11.5-12.85"}
+  grade: "A"
+  source: "USDA AMS Dairy Market News, AMS_1053 weekly commodity_narrative (WPC 34% report), 2026 issues"
+  doi_or_url: "https://mymarketnews.ams.usda.gov/public_data/ajax-search-data-by-report/1053?q=report_begin_date=01/01/2026:12/31/2026"
+  locator: "field commodity_narrative, report_begin_date 2026-03-02 to 2026-09-21"
+  quote: "Regular WPC 80% is reported from $12.25 to $13.25. (week of 2026-08-03); Contacts reported WPC 80% spot trades at $11.00 per pound, with recent values ranging from $9.75 to $11.00. (2026-04-27)"
+  read: "html"
+  csv: "data/prices/wpc80_us_dmn_narrative_2026.csv"
+  note: "Narrative trade reports in an official USDA report, not a formal price series. Only 2026 narratives carry WPC80 dollar figures in the public data; 2024-2025 WPC80 prices appear only in the weekly DMN PDF (https://www.ams.usda.gov/mnreports/dywweeklyreport.pdf, not downloaded). Other 2026 quotes (not in CSV because not an explicit range): 2026-03-09 'second quarter pricing indications at or above $9.00 for regular product and about $9.50 for instantized'; 2026-03-23 'WPC 80% and whey protein isolate trending near $11 and $13, respectively'; 2026-09-21 'Regular and instant WPC 80% are trading in the mid-$10s to mid-$11s.' value 12.5 = typical Jun-Aug 2026 midpoint (my reading). 12.5 USD/lb = 27.56 USD/kg product = 34.45 USD/kg protein at 80%. 2026 is an extreme (GLP-1 demand) year; do not use as a steady-state price without saying so."
+
+- key: "wpi_us_dmn_2026"
+  value: 14.0
+  low: 12.0
+  high: 14.9
+  unit: "USD/lb (WPI product)"
+  year: 2026
+  values: {"2026-04-27": "firmly in the $12s", "2026-06-01": "around $14", "2026-06-22": "$13.50 to $14", "2026-07-13": "mid-$13s to mid-$14s", "2026-08-10": "$14 to the upper $14s", "2026-09-21": "in the $14s"}
+  grade: "A"
+  source: "USDA AMS Dairy Market News, AMS_1053 weekly commodity_narrative, 2026 issues"
+  doi_or_url: "https://mymarketnews.ams.usda.gov/public_data/ajax-search-data-by-report/1053?q=report_begin_date=01/01/2026:12/31/2026"
+  locator: "field commodity_narrative, 2026-04-27 to 2026-09-21"
+  quote: "WPC 80% is quoted in the mid-$12s to $13 range, while whey protein isolate (WPI) is reported around $14. (week of 2026-06-01)"
+  read: "html"
+  note: "Narrative quotes, not a price series. low/high = my reading of 'the $12s' and 'upper $14s'. 14 USD/lb = 30.86 USD/kg product; at 90% protein (WPI is defined as >=90% protein) = 34.29 USD/kg protein."
+
+- key: "wpi_us_dec2024_stonex"
+  value: 8.5
+  unit: "USD/lb (WPI, lower bound 'above')"
+  year: 2024
+  grade: "C"
+  source: "Donnay N (StoneX Group). 'The whey market looks to remain strong'. Hoard's Dairyman Intel, 19 Dec 2024"
+  doi_or_url: "https://hoards.com/article-35994-the-whey-market-looks-to-remain-strong.html"
+  locator: "paragraph 1"
+  quote: "whey protein isolate (WPI) now at record high prices above $8.50 per pound ($18,700 per metric ton)"
+  read: "html"
+  note: "Industry analyst commentary. 8.50 USD/lb = 18.74 USD/kg (source gives 18,700 USD/t)."
+
+- key: "wpc80_us_dec2024_stonex"
+  value: 4.75
+  unit: "USD/lb (WPC80 spot)"
+  year: 2024
+  grade: "C"
+  source: "Donnay N (StoneX Group). 'The whey market looks to remain strong'. Hoard's Dairyman Intel, 19 Dec 2024"
+  doi_or_url: "https://hoards.com/article-35994-the-whey-market-looks-to-remain-strong.html"
+  locator: "penultimate section"
+  quote: "If spot WPC80 is going for $4.75 per pound ($10,500 per metric ton), my calculations would suggest dry whey would need to move about 79 cents per pound"
+  read: "html"
+  note: "Conditional phrasing: the analyst's working spot level in Dec 2024, same article says 'WPC80 prices have climbed the least during 2024'. 4.75 USD/lb = 10.47 USD/kg."
+
+- key: "whey_protein_us_2024_2025_vesper"
+  value: 10.5
+  unit: "USD/lb (WPI, Sept 2025)"
+  year: 2025
+  values: {"WPI_2024-01": 6.7, "WPI_2025-01": 9.5, "WPI_2025-09": 10.5, "WPI_EU_2025-09": 10.33, "WPC80_instant_US_2025-09": 5.8, "WPC80_late2025_from": 8, "WPC80_late2025_to": 11}
+  grade: "C"
+  source: "Hidden M. 'US whey protein prices in 2025: How GLP-1 and the protein trend broke $10/lb for the first time'. Vesper blog, 14 Apr 2026 (Vesper Price Index)"
+  doi_or_url: "https://vespertool.com/blog/us-whey-protein-prices-in-2025-how-glp-1-and-the-protein-trend-broke-10-lb-for-the-first-time/"
+  locator: "sections 'The setup: January 2025', 'September: Parity, Then inversion', 'December', 'The year in numbers'"
+  quote: "WPI trajectory : $6.70/lb (January 2024) to $10.50/lb (September 2025). ... US instant WPC80 traded at $5.80/lb. That was a record."
+  read: "html"
+  note: "Commercial price-reporting agency (proprietary index), marketing blog. Also: 'WPI hit $9.5/lb in January'; 'US WPI hit $10.50/lb ... above European prices at $10.33/lb' (Sep 2025); 'They'd left a market at $8/lb. Now it was $11/lb.' (WPC80, late 2025); May 2025: 'US WPC80 was “landing” in Europe at EUR 11,000/mt. European domestic prices were EUR 12,000/mt.'"
+
+- key: "whey_protein_gt80_us_export_unit_value"
+  value: 10.599
+  unit: "USD/kg product (FOB export unit value)"
+  year: 2025
+  values: {2015: 7.126, 2016: 7.768, 2017: 8.619, 2018: 6.831, 2019: 7.253, 2021: 7.644, 2022: 11.956, 2023: 8.229, 2024: 9.128, 2025: 10.599}
+  grade: "A"
+  source: "UN Comtrade (US-reported trade), HS 350220 'Milk albumin, including concentrates of two or more whey proteins', exports to World"
+  doi_or_url: "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=842&period=<YEAR>&partnerCode=0&cmdCode=350220&flowCode=X"
+  locator: "annual records, fields primaryValue (FOB USD) and netWgt (kg)"
+  quote: "2024: primaryValue 807846127 USD, netWgt 88505710 kg; 2025: primaryValue 985450360 USD, netWgt 92978476 kg"
+  read: "html"
+  csv: "data/prices/whey_protein_gt80_us_export_uv.csv"
+  note: "JSON API read in memory (public preview endpoint), accessed 2026-09-26. HS 3502.20 covers whey protein concentrates with >80% whey protein on dry matter, i.e. WPC80 and WPI together (and alpha-lac/lactalbumin). Unit value = value/weight (computed): 2024 9.128, 2025 10.599 USD/kg. Proxy only: product mix, contract lags and FOB basis; it runs well below 2025 spot quotes for WPI. Several years have Comtrade-estimated weights (flagged in CSV); 2020 has no weight."
+
+- key: "whey_protein_gt80_eu_export_unit_value"
+  value: 12.6037
+  unit: "EUR/kg product (extra-EU export unit value)"
+  year: 2025
+  values: {2015: 5.9785, 2016: 4.9421, 2017: 6.5066, 2018: 4.7292, 2019: 5.5344, 2020: 4.8707, 2021: 7.1255, 2022: 11.2548, 2023: 7.1675, 2024: 10.1068, 2025: 12.6037}
+  grade: "A"
+  source: "Eurostat Comext DS-045409 'EU trade since 1988 by HS2-4-6 and CN8', EU27_2020 exports to extra-EU, CN 3502 20 91"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=2&product=35022091&product=35021190&product=35011090&product=17023050&product=17023090&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&indicators=SUPPLEMENTARY_QUANTITY&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023&time=2024&time=2025"
+  locator: "product 35022091 ('Milk albumin \"lactalbumin\", incl. concentrates of two or more whey proteins, containing by weight > 80% whey proteins, c...'), indicators VALUE_IN_EUROS, QUANTITY_IN_100KG"
+  quote: "2024: VALUE_IN_EUROS 558815409, QUANTITY_IN_100KG 552910.72; 2025: VALUE_IN_EUROS 698425913, QUANTITY_IN_100KG 554144.78"
+  read: "html"
+  csv: "data/prices/whey_protein_gt80_eu_export_uv.csv"
+  note: "JSON API read in memory, accessed 2026-09-26 (dataset updated 2026-09-15). Proxy for EU WPC80/WPI price (mix of both). Unit value computed: 2024 10.1068, 2025 12.6037 EUR/kg; in USD at ECB annual rates: 2024 10.94, 2025 14.24 USD/kg. Extra-EU imports of the same CN code (CIF): 2024 12.4887, 2025 13.8796 EUR/kg (Comext, flow 1)."
+
+- key: "egg_albumin_dried_eu_export_unit_value"
+  value: 8.1548
+  unit: "EUR/kg product (extra-EU export unit value)"
+  year: 2024
+  values: {2015: 11.4331, 2016: 8.7737, 2017: 6.443, 2018: 6.2921, 2019: 5.7093, 2020: 5.9157, 2021: 6.6518, 2022: 12.6264, 2023: 14.5108, 2024: 8.1548, 2025: 6.9929}
+  grade: "A"
+  source: "Eurostat Comext DS-045409, EU27_2020 exports to extra-EU, CN 3502 11 90 'Egg albumin, dried, fit for human consumption'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=2&product=35022091&product=35021190&product=35011090&product=17023050&product=17023090&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&indicators=SUPPLEMENTARY_QUANTITY&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023&time=2024&time=2025"
+  locator: "product 35021190, indicators VALUE_IN_EUROS, QUANTITY_IN_100KG"
+  quote: "2024: VALUE_IN_EUROS 127757941, QUANTITY_IN_100KG 156665.33; 2025: VALUE_IN_EUROS 102782506, QUANTITY_IN_100KG 146981.97"
+  read: "html"
+  csv: "data/prices/egg_albumin_dried_eu_export_uv.csv"
+  note: "Proxy for dried egg-white powder price. UV 2024 8.1548 EUR/kg = 8.83 USD/kg; 2025 6.9929 EUR/kg = 7.9 USD/kg (ECB annual rates). Protein basis: Voutilainen 2021 SI ('Commercial protein prices' sheet) lists egg white powder at 78% protein. The 2022-2023 peak coincides with avian-influenza supply losses (timing only; cause not stated by the source)."
+
+- key: "egg_albumin_dried_us_export_unit_value"
+  value: 3.475
+  unit: "USD/kg product (FOB export unit value)"
+  year: 2019
+  values: {2015: 3.8, 2016: 3.454, 2017: 3.913, 2018: 3.829, 2019: 3.475, 2022: 10.909, 2023: 18.228}
+  grade: "A"
+  source: "UN Comtrade (US-reported), HS 350211 'Egg albumin, dried', exports to World"
+  doi_or_url: "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=842&period=<YEAR>&partnerCode=0&cmdCode=350211&flowCode=X"
+  locator: "annual records, primaryValue and netWgt"
+  quote: "2019: primaryValue 4443018 USD, netWgt 1278434 kg; 2023: primaryValue 8369438 USD, netWgt 459158.568 kg (estimated)"
+  read: "html"
+  csv: "data/prices/egg_albumin_dried_us_export_uv.csv"
+  note: "LOW CONFIDENCE. Small volumes; 2022-2023 weights are Comtrade estimates and 2024-2025 have no weight. US imports of HS 350211 give 3.0-3.9 USD/kg in 2015-2025 (e.g. 2025: 4121067 USD / 1334430 kg = 3.09 USD/kg), well below EU export values; composition unknown. The USDA dried-albumen price quotes that would settle the US level are only in PDF reports (https://www.ams.usda.gov/mnreports/ams_3725.pdf 'Egg Markets Overview'; https://www.ams.usda.gov/mnreports/ams_2842.pdf 'Weekly National Egg Products'), not downloaded; the MyMarketNews public data for AMS_2842 has dried whole egg and yolk but no dried albumen."
+
+- key: "casein_acid_us_dmn_annual"
+  value: 3.9214
+  unit: "USD/lb (casein, U.S. imports)"
+  year: 2025
+  values: {2015: 3.5216, 2016: 2.9012, 2017: 3.4158, 2018: 3.0962, 2019: 3.2284, 2020: 3.7782, 2021: 4.5894, 2022: 6.5762, 2023: 4.8663, 2024: 3.8241, 2025: 3.9231}
+  grade: "A"
+  source: "USDA AMS Dairy Market News: AMS_1623 'Dairy Monthly Averages' (official yearly_Avg 2023-2025) and AMS_1051 'Casein - U.S.' weekly (2015-2025)"
+  doi_or_url: "https://mymarketnews.ams.usda.gov/public_data?slug_id=1623 ; https://mymarketnews.ams.usda.gov/public_data/ajax-search-data-by-report/1051?q=report_begin_date=01/01/<YEAR>:12/31/<YEAR>"
+  locator: "AMS_1623 section 'Dry Products Monthly Averages', commodity Casein, group Acid, region U.S. Imports, field yearly_Avg; AMS_1051 fields price_min/price_max"
+  quote: "AMS_1623 Final, Casein Acid U.S. Imports yearly_Avg: 2023 = 4.8713, 2024 = 3.8246, 2025 = 3.9214 Dollars per Pound"
+  read: "html"
+  csv: "data/prices/casein_acid_us_dmn.csv"
+  note: "values map = my annual means of weekly range midpoints (2024 3.8241 vs official 3.8246). 2025 official 3.9214 USD/lb = 8.645 USD/kg product (protein content of casein not stated by the source). DMN region for this series is 'U.S. Imports'."
+
+- key: "casein_rennet_us_dmn_annual"
+  value: 3.609
+  unit: "USD/lb (casein, U.S. imports)"
+  year: 2025
+  values: {2015: 3.3764, 2016: 2.8213, 2017: 2.7935, 2018: 2.3926, 2019: 3.1138, 2020: 3.8793, 2021: 4.3337, 2022: 5.5498, 2023: 4.7229, 2024: 3.617, 2025: 3.6096}
+  grade: "A"
+  source: "USDA AMS Dairy Market News: AMS_1623 'Dairy Monthly Averages' (official yearly_Avg 2023-2025) and AMS_1051 'Casein - U.S.' weekly (2015-2025)"
+  doi_or_url: "https://mymarketnews.ams.usda.gov/public_data?slug_id=1623 ; https://mymarketnews.ams.usda.gov/public_data/ajax-search-data-by-report/1051?q=report_begin_date=01/01/<YEAR>:12/31/<YEAR>"
+  locator: "AMS_1623 section 'Dry Products Monthly Averages', commodity Casein, group Rennet, region U.S. Imports, field yearly_Avg; AMS_1051 fields price_min/price_max"
+  quote: "AMS_1623 Final, Casein Rennet U.S. Imports yearly_Avg: 2023 = 4.7276, 2024 = 3.6183, 2025 = 3.609 Dollars per Pound"
+  read: "html"
+  csv: "data/prices/casein_rennet_us_dmn.csv"
+  note: "values map = my annual means of weekly range midpoints (2024 3.617 vs official 3.6183). 2025 official 3.609 USD/lb = 7.956 USD/kg product (protein content of casein not stated by the source). DMN region for this series is 'U.S. Imports'."
+
+- key: "casein_food_eu_export_unit_value"
+  value: 6.9142
+  unit: "EUR/kg product (extra-EU export unit value)"
+  year: 2025
+  values: {2015: 6.6224, 2016: 5.5072, 2017: 5.9006, 2018: 4.9516, 2019: 5.4929, 2020: 6.8933, 2021: 7.4309, 2022: 11.033, 2023: 9.6846, 2024: 7.2729, 2025: 6.9142}
+  grade: "A"
+  source: "Eurostat Comext DS-045409, EU27_2020 exports to extra-EU, CN 3501 10 90 (casein for food/fodder and other casein)"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=2&product=35022091&product=35021190&product=35011090&product=17023050&product=17023090&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&indicators=SUPPLEMENTARY_QUANTITY&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023&time=2024&time=2025"
+  locator: "product 35011090, VALUE_IN_EUROS, QUANTITY_IN_100KG"
+  quote: "2024: VALUE_IN_EUROS 413077821, QUANTITY_IN_100KG 567968.64; 2025: VALUE_IN_EUROS 461619853, QUANTITY_IN_100KG 667636.43"
+  read: "html"
+  csv: "data/prices/casein_food_eu_export_uv.csv"
+  note: "Proxy. 2024 7.2729 EUR/kg = 7.87 USD/kg; 2025 6.9142 EUR/kg = 7.81 USD/kg (ECB annual)."
+
+- key: "wpc80_wpi_price_range_gfi2025"
+  value: null
+  low: 8.2
+  high: 17.7
+  unit: "USD/kg product"
+  grade: "C"
+  source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
+  doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
+  locator: "section 1.3.3, p.31 (text file lines ~1219-1227)"
+  quote: "Higher-purity whey products, such as WPC80 and WPI, fall between $8.2 and $17.7/kg, or roughly $10.3–$19.9/kg-protein (Figure 12)."
+  read: "fulltext"
+  note: "No year or source series stated in the text beyond 'wholesale market prices'; Figure 12 caption mentions trade import/export data for enzymes."
+
+- key: "whey_protein_price_range_gfi2025"
+  value: null
+  low: 1.2
+  high: 17.7
+  unit: "USD/kg product"
+  grade: "C"
+  source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
+  doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
+  locator: "section 1.3.3, p.31"
+  quote: "whey proteins span a broader range—from $1.2 to $17.7/ kg ($6.7–$19.9/kg-protein)."
+  read: "fulltext"
+  note: "All whey proteins (dry whey to WPI)."
+
+- key: "casein_price_range_gfi2025"
+  value: null
+  low: 8.0
+  high: 11.0
+  unit: "USD/kg product"
+  grade: "C"
+  source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
+  doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
+  locator: "section 1.3.3, p.31"
+  quote: "casein ranges from $8.0 to $11.0/kg ($9.6–$12.2/kg-protein)"
+  read: "fulltext"
+  note: ""
+
+- key: "egg_white_price_range_gfi2025"
+  value: null
+  low: 1.6
+  high: 14.0
+  unit: "USD/kg product"
+  grade: "C"
+  source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
+  doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
+  locator: "section 1.3.3, p.31"
+  quote: "Egg white protein prices range from approximately $1.6 to $14.0/kg, depending on purity, with protein-adjusted prices between $15.6 and $59.4/kg-protein (Figure 12)."
+  read: "fulltext"
+  note: "Range spans liquid to powder; per kg protein 15.6-59.4 USD."
+
+- key: "egg_white_powder_price_intelligen2025"
+  value: null
+  low: 5
+  high: 100
+  unit: "USD/kg product"
+  grade: "C"
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) via precision fermentation: TEA using SuperPro Designer. Intelligen (2025)"
+  doi_or_url: "10.13140/RG.2.2.29080.87048 (local: references/reports/Intelligen_2025_ovalbumin_TEA.pdf)"
+  locator: "p.17 (text lines ~575-578); refs 32-35"
+  quote: "the current wholesale price of egg white powder manufactured in the United States is nearly $100/kg [32,33]. ... egg white powder can be found at approximately £10/kg (~US$13.5/kg) [34], while in China prices range between US$5/kg to US$ US$15/kg"
+  read: "fulltext"
+  note: "Refs 32-33 are online bakery/bulk-food shops (bakersauthority.com, bulkfoods.com), ref 34 a UK online shop, ref 35 Alibaba: listing prices, not bulk contract prices. Treat the 100 USD/kg as an upper outlier."
+
+
+# ---------------- 2. Feedstocks and chemicals ----------------
+
+- key: "glucose_de95_midwest_gfi2025"
+  value: 0.4
+  low: 0.35
+  high: 0.56
+  unit: "USD/kg glucose (DE95)"
+  year: 2025
+  grade: "B"
+  source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
+  doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
+  locator: "Table 6 'Sensitivity analysis of SCP COP drivers', p.58; text p.59"
+  quote: "A 40% increase in DE95 glucose price (from $0.40/kg to $0.56/kg) caused a 14.3% rise in COP."
+  read: "fulltext"
+  note: "Hawkwood FEL-1 SCP model, Midwest USA location, corn glucose DE95. Table 6 row 'Feedstock cost $/kg $0.40 (base) $0.35 (improved) $0.56 (reduced)'. Dry-basis vs syrup basis not stated."
+
+- key: "glucose_humbird2021_text"
+  value: 0.26
+  low: 0.25
+  high: 1.0
+  unit: "USD/kg glucose"
+  year: 2019
+  grade: "B"
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239 (2021); engrXiv revision"
+  doi_or_url: "10.1002/bit.27848 (local: references/papers/Humbird2021_cultured_meat.pdf)"
+  locator: "section 'Glucose' (text lines ~2503-2517) and Section 4 (line ~3233)"
+  quote: "Spot prices for glucose in the range of $0.50–$1.00/kg are inflated by a vanishingly small spot market ... contract prices for more established industries are closer to ~$0.25/kg"
+  read: "fulltext"
+  note: "Model uses 'The price of glucose is fixed at $0.26/kg'. Dollar year ~2019-2020 (not stated in this passage)."
+
+- key: "glucose_humbird2021_si_rawutil"
+  value: 0.264
+  unit: "USD/kg glucose"
+  year: 2019
+  values: {"IHS_PEP_MSP": 0.43, "IHS_PEP_margin_loaded_Mar2019": 0.5638, "IHS_PEP_commodity_cost_Mar2019": 0.5512, "USDA_ERS_wholesale_list_delivered_west_coast_Table7": 0.9658, "wet_mill_contract_industry_source": 0.25, "dry_fractionation_Fluid_Quip": 0.264, "cost_used": 0.264}
+  grade: "B"
+  source: "Humbird D (2021) SI workbook, sheet RawUtil"
+  doi_or_url: "local: references/papers/Humbird2021_cultured_meat_SI.xlsm"
+  locator: "sheet RawUtil, cells C7:F14 (Glucose block)"
+  quote: "C11 'USDA ERS, Sugars & Sweetners' D11 0.9658 /kg F11 'Wholesale list price, Delivered, west coast' I11 'Table 7'; C12 'Wet mill contract' D12 0.25; C14 'Cost used' D14 0.264"
+  read: "fulltext"
+  note: "Cell values read with openpyxl (data_only). Humbird's text (glucose_humbird2021_text) treats spot/list prices as inflated relative to contract prices (~0.25 USD/kg)."
+
+- key: "glucose_nrel2011"
+  value: 0.2579
+  unit: "USD/lb glucose (2007$)"
+  year: 2007
+  grade: "B"
+  source: "Humbird D, Davis R, Tao L, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: "docs.nrel.gov/docs/fy11osti/47764.pdf (local: references/reports/NREL_2011_Humbird_TP-5100-47764_biochemical_ethanol.pdf)"
+  locator: "Table 29 'Chemical Costs and Sources', p.63"
+  quote: "Glucose                      $0.2579/lb          USDA ERS [78]"
+  read: "fulltext"
+  note: "= 0.5686 USD/kg (2007$). Table 30 lists glucose at 526.52 $/ton, which differs from 0.2579 $/lb x 2000 = 515.8 $/ton (not explained in the report)."
+
+- key: "glucose_syrup_intelligen2025"
+  value: 0.36
+  unit: "USD/kg glucose syrup (concentration not stated)"
+  year: 2025
+  grade: "B"
+  source: "Intelligen (2025) ovalbumin TEA"
+  doi_or_url: "10.13140/RG.2.2.29080.87048 (local)"
+  locator: "Table 3 'Raw Material Cost Breakdown', p.18"
+  quote: "Glucose Syrup                          0.360          13,021,171          kg         4,691,528              57.76"
+  read: "fulltext"
+  note: "SuperPro 'Glucose Syrup' stream; dry-solids content not given in the report text. 57.8% of raw-material cost."
+
+- key: "dextrose_us_imarc"
+  value: 611
+  unit: "USD/t dextrose (form not stated)"
+  year: 2025
+  values: {"US_2025-06": 611, "US_2026-03": 537, "US_2026-06": 534, "DE_2025-06": 674, "DE_2026-03": 616, "DE_2026-06": 630, "CN_2025-06": 503}
+  grade: "C"
+  source: "IMARC Group. Dextrose Prices, Chart, Trend, Index and Forecast (web page)"
+  doi_or_url: "https://www.imarcgroup.com/dextrose-pricing-report"
+  locator: "sections 'Dextrose Prices Outlook Q2 2025', 'Q1 2026', 'Q2 2026'"
+  quote: "During the second quarter of 2025, the dextrose prices in the USA reached 611 USD/MT in June."
+  read: "html"
+  note: "Market-research marketing page; method and basis (monohydrate powder? delivered?) not given."
+
+- key: "glucose_us_export_unit_value"
+  value: 0.765
+  unit: "USD/kg product (FOB export unit value)"
+  year: 2025
+  values: {2022: 0.642, 2023: 0.718, 2024: 0.721, 2025: 0.765}
+  grade: "A"
+  source: "UN Comtrade (US-reported), HS 170230 'Glucose and glucose syrup, not containing or containing <20% fructose', exports"
+  doi_or_url: "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=842&period=<YEAR>&partnerCode=0&cmdCode=170230&flowCode=X"
+  locator: "annual records, primaryValue and netWgt"
+  quote: "2024: primaryValue 383936759 USD, netWgt 532628964 kg; 2025: primaryValue 344573165 USD, netWgt 450470045.074 kg (estimated)"
+  read: "html"
+  csv: "data/prices/glucose_us_export_uv.csv"
+  note: "Upper-bound proxy: mixes dextrose powder and syrups of unknown dry solids; 2025 net weight is a Comtrade estimate. Not a Midwest bulk contract price."
+
+- key: "glucose_syrup_eu_export_unit_value"
+  value: 0.4305
+  unit: "EUR/kg product (syrup, as traded)"
+  year: 2025
+  values: {2015: 0.3682, 2016: 0.3414, 2017: 0.3919, 2018: 0.3828, 2019: 0.4309, 2020: 0.3863, 2021: 0.4342, 2022: 0.4115, 2023: 0.6106, 2024: 0.4812, 2025: 0.4305}
+  grade: "A"
+  source: "Eurostat Comext DS-045409, EU27_2020 exports to extra-EU, CN 1702 30 90 (glucose and glucose syrup, excl. dextrose powder and isoglucose)"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=2&product=35022091&product=35021190&product=35011090&product=17023050&product=17023090&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&indicators=SUPPLEMENTARY_QUANTITY&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023&time=2024&time=2025"
+  locator: "product 17023090"
+  quote: "2024: VALUE_IN_EUROS 81404327, QUANTITY_IN_100KG 1691815.94; 2025: VALUE_IN_EUROS 67089559, QUANTITY_IN_100KG 1558470.3"
+  read: "html"
+  csv: "data/prices/glucose_syrup_eu_export_uv.csv"
+  note: "Proxy for EU glucose-syrup price, as-traded basis (dry-solids content of the traded syrups is not reported by the source). Dextrose powder CN 17023050 exports: 2024 1.0024, 2025 0.9272 EUR/kg (CSV dextrose_powder_eu_export_uv.csv)."
+
+- key: "white_sugar_eu_average_price"
+  value: 537.05
+  unit: "EUR/t white sugar (ex-factory, EU average)"
+  year: 2025
+  values: {2015: 419.25, 2016: 445.5, 2017: 475.25, 2018: 350.68, 2019: 323.01, 2020: 375.96, 2021: 401.81, 2022: 499.95, 2023: 819.91, 2024: 759.73, 2025: 537.05}
+  grade: "A"
+  source: "European Commission, Agri-food data portal, sugar prices (EU sugar price reporting)"
+  doi_or_url: "https://api.tech.ec.europa.eu/agrifood/api/sugar/prices?years=2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026"
+  locator: "records sugarRegion='EU Average', contractType='Monthly data'"
+  quote: "EU Average monthly prices 2025 (EUR/t): Jan 558.9 ... Jun 536.3 ... Dec 518.3; 2024: Jan 852.7 ... Dec 580.5"
+  read: "html"
+  csv: "data/prices/white_sugar_eu_avg_price.csv"
+  note: "Context only: white sugar (sucrose), not glucose."
+
+- key: "glucose_us_ers_sweetener_prices_table"
+  value: null
+  unit: "cents/lb (dextrose, glucose syrup, HFCS list prices, Midwest)"
+  grade: "A"
+  source: "USDA ERS, Sugar and Sweeteners Yearbook Tables: 'World, U.S., and Mexican sugar and corn sweetener prices'"
+  doi_or_url: "https://www.ers.usda.gov/media/5169/world-us-and-mexican-sugar-and-corn-sweetener-prices.xlsx (page: https://www.ers.usda.gov/data-products/sugar-and-sweeteners-yearbook-tables)"
+  locator: "XLSX (last updated 9/2/2026)"
+  quote: null
+  read: "html"
+  note: "NOT READ: the table is only downloadable (XLSX/CSV), which this task forbids. It is the primary public source for US dextrose/corn-syrup list prices; Pablo should download it and add a verified entry."
+
+- key: "ammonia_anhydrous_iowa_retail_usda"
+  value: 784.01
+  unit: "USD/short ton NH3 (retail, FOB distributor)"
+  year: 2025
+  values: {2024: 723.63, 2025: 784.01}
+  grade: "A"
+  source: "USDA AMS Market News, 'Iowa Production Cost Report (Bi-Weekly)', AMS_2863"
+  doi_or_url: "https://mymarketnews.ams.usda.gov/public_data?slug_id=2863 (JSON: https://mymarketnews.ams.usda.gov/public_data/ajax-search-data-by-report-section/2863/Report%20Details%20-%20Prices?q=report_begin_date=01/01/2025:12/31/2025)"
+  locator: "section 'Report Details - Prices', class 'Anhydrous Ammonia', sale_type Ask, freight F.O.B., shipping_point Distributor, field price_avg"
+  quote: "Anhydrous Ammonia, Dollars Per Ton, Ask, F.O.B., Distributor: e.g. report 12/22/2025 price_min 795, price_max 900, price_avg 857.2"
+  read: "html"
+  note: "values = mean of bi-weekly price_avg (computed): 2024 n=18 reports from 2024-04-29 (range 602-835), 2025 n=25 (range 653-944). 784.01 USD/short ton = 0.864 USD/kg NH3. Farm retail price incl. distribution margin: an upper bound for plant bulk supply."
+
+- key: "ammonia_anhydrous_illinois_retail_usda"
+  value: 792.92
+  unit: "USD/short ton NH3 (retail, FOB distributor)"
+  year: 2025
+  values: {2024: 725.39, 2025: 792.92}
+  grade: "A"
+  source: "USDA AMS Market News, 'Illinois Production Cost Report (Bi-weekly)', AMS_3195"
+  doi_or_url: "https://mymarketnews.ams.usda.gov/public_data?slug_id=3195"
+  locator: "section 'Report Details - Prices', class 'Anhydrous Ammonia', Ask, F.O.B., Distributor, price_avg"
+  quote: "Anhydrous Ammonia [Dollars Per Ton; Ask; F.O.B.; Distributor]: 2025 26 reports, price_min 650 to price_max 925"
+  read: "html"
+  note: "Mean of bi-weekly price_avg (computed): 2024 n=19 from 2024-04-15 (635-860); 2025 n=26 (650-925). = 0.874 USD/kg (2025)."
+
+- key: "ammonia_anhydrous_us_import_unit_value"
+  value: 0.611
+  unit: "USD/kg NH3 (CIF import unit value)"
+  year: 2025
+  values: {2022: 1.054, 2023: 0.644, 2024: 0.589, 2025: 0.611}
+  grade: "A"
+  source: "UN Comtrade (US-reported), HS 281410 'Anhydrous ammonia', imports"
+  doi_or_url: "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=842&period=<YEAR>&partnerCode=0&cmdCode=281410&flowCode=M"
+  locator: "annual records"
+  quote: "2024: primaryValue 1220695881 USD, netWgt 2073156000 kg; 2025: primaryValue 1239238339 USD, netWgt 2029140000 kg"
+  read: "html"
+  csv: "data/prices/ammonia_anhydrous_us_import_uv.csv"
+  note: "Large volume (2,029,140,000 kg imported in 2025), so a reasonable public proxy for a bulk price. Exports UV 2024 0.317, 2025 0.369 USD/kg."
+
+- key: "ammonia_anhydrous_eu_import_unit_value"
+  value: 0.5295
+  unit: "EUR/kg NH3 (extra-EU import unit value)"
+  year: 2025
+  values: {2015: 0.4051, 2016: 0.2698, 2017: 0.2681, 2018: 0.2801, 2019: 0.2424, 2020: 0.2039, 2021: 0.4543, 2022: 1.2033, 2023: 0.607, 2024: 0.5377, 2025: 0.5295}
+  grade: "A"
+  source: "Eurostat Comext DS-045409, EU27_2020 imports from extra-EU, CN 2814 10 00 'Anhydrous ammonia'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=1&product=28141000&product=28142000&product=31022100&product=29051100&product=28151100&product=28151200&product=28092000&product=15200000&product=29054500&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&indicators=SUPPLEMENTARY_QUANTITY&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023&time=2024&time=2025"
+  locator: "product 28141000"
+  quote: "2024: VALUE_IN_EUROS 1119458169, QUANTITY_IN_100KG 20819104.55; 2025: VALUE_IN_EUROS 1412258748, QUANTITY_IN_100KG 26670256.64"
+  read: "html"
+  csv: "data/prices/ammonia_anhydrous_eu_import_uv.csv"
+  note: "Proxy for NW-Europe bulk ammonia."
+
+- key: "ammonia_aqueous_eu_import_unit_value"
+  value: 0.9978
+  unit: "EUR/kg solution (concentration not reported)"
+  year: 2025
+  values: {2015: 0.4769, 2016: 0.3816, 2017: 0.4728, 2018: 0.4661, 2019: 0.3529, 2020: 0.4643, 2021: 0.5747, 2022: 0.8859, 2023: 0.8331, 2024: 0.8317, 2025: 0.9978}
+  grade: "A"
+  source: "Eurostat Comext DS-045409, EU27_2020 imports from extra-EU, CN 2814 20 00 'Ammonia in aqueous solution'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=1&product=28141000&product=28142000&product=31022100&product=29051100&product=28151100&product=28151200&product=28092000&product=15200000&product=29054500&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&indicators=SUPPLEMENTARY_QUANTITY&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023&time=2024&time=2025"
+  locator: "product 28142000"
+  quote: "2024: VALUE_IN_EUROS 8814310, QUANTITY_IN_100KG 105977.49; 2025: VALUE_IN_EUROS 10111612, QUANTITY_IN_100KG 101338.95"
+  read: "html"
+  csv: "data/prices/ammonia_aqueous_eu_import_uv.csv"
+  note: "Small volumes (~10 kt/yr), per kg of solution; no supplementary quantity reported. Weak proxy."
+
+- key: "ammonia_aqueous_30pct_intelligen2025"
+  value: 0.152
+  unit: "USD/kg NH3 solution (30% w/w)"
+  year: 2025
+  grade: "B"
+  source: "Intelligen (2025) ovalbumin TEA"
+  doi_or_url: "10.13140/RG.2.2.29080.87048 (local)"
+  locator: "Table 3, p.18"
+  quote: "NH3 (30% w/w)                          0.152           2,368,979          kg            360,322               4.44"
+  read: "fulltext"
+  note: "= 0.507 USD/kg NH3 contained (0.152/0.30, computed)."
+
+- key: "ammonia_nrel2011"
+  value: 0.1993
+  unit: "USD/lb NH3 (2007$)"
+  year: 2007
+  grade: "B"
+  source: "NREL/TP-5100-47764 (2011)"
+  doi_or_url: "local: references/reports/NREL_2011_Humbird_TP-5100-47764_biochemical_ethanol.pdf"
+  locator: "Table 29, p.63"
+  quote: "Ammonia                      $0.1993/lb          Terra Industries via Harris Group"
+  read: "fulltext"
+  note: "= 0.4394 USD/kg (2007$)."
+
+- key: "ammonia_humbird2021_si"
+  value: 0.2981
+  unit: "USD/kg NH3"
+  year: 2019
+  values: {"IHS_PEP_spot_Mar2019": 0.2981, "IHS_PEP_MSP": 0.2869, "USDA_ERS_fertilizers_ag_grade_2014": 0.19}
+  grade: "B"
+  source: "Humbird D (2021) SI workbook, sheet RawUtil"
+  doi_or_url: "local: references/papers/Humbird2021_cultured_meat_SI.xlsm"
+  locator: "sheet RawUtil R2:U6 (Ammonia, anhydrous)"
+  quote: "R3 'IHS PEP yearbook, spot, Mar 2019' S3 0.2981 /kg; R6 'Cost used' S6 0.2981 /kg USD_kg_Ammonia"
+  read: "fulltext"
+  note: ""
+
+- key: "ammonia_voutilainen2021"
+  value: 700
+  unit: "EUR/t NH3"
+  year: 2020
+  grade: "B"
+  source: "Voutilainen E et al. Bioresour Technol Rep 14:100683 (2021), SI workbook"
+  doi_or_url: "10.1016/j.biteb.2021.100683 (local: references/papers/Voutilainen2021_scp_lignocellulose_economics_SI.xlsx)"
+  locator: "sheet 'Operating costs', row 16"
+  quote: "Ammonia (€/t)  | 700 | Pihlajaniemi et al., 2020, Alibaba"
+  read: "fulltext"
+  note: "Partly Alibaba-sourced: weak."
+
+- key: "ammonium_sulphate_eu_import_unit_value"
+  value: 0.1915
+  unit: "EUR/kg product"
+  year: 2025
+  values: {2015: 0.1438, 2016: 0.1284, 2017: 0.1348, 2018: 0.1391, 2019: 0.1535, 2020: 0.1307, 2021: 0.2049, 2022: 0.4318, 2023: 0.2971, 2024: 0.2147, 2025: 0.1915}
+  grade: "A"
+  source: "Eurostat Comext DS-045409, EU27_2020 imports from extra-EU, CN 3102 21 00 'Ammonium sulphate'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=1&product=28141000&product=28142000&product=31022100&product=29051100&product=28151100&product=28151200&product=28092000&product=15200000&product=29054500&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&indicators=SUPPLEMENTARY_QUANTITY&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023&time=2024&time=2025"
+  locator: "product 31022100"
+  quote: "2024: VALUE_IN_EUROS 119162582, QUANTITY_IN_100KG 5549789.12, SUPPLEMENTARY_QUANTITY 120790143; 2025: 293459628, 15322706.49, 330757205"
+  read: "html"
+  csv: "data/prices/ammonium_sulphate_eu_import_uv.csv"
+  note: "Supplementary quantity/net mass = 0.218, consistent with kg N (AS is 21.2% N) - my inference, unit label not returned by the API. Fertiliser grade."
+
+- key: "ammonium_sulphate_us_import_unit_value"
+  value: 0.328
+  unit: "USD/kg product (CIF import unit value)"
+  year: 2025
+  values: {2022: 0.542, 2023: 0.351, 2024: 0.335, 2025: 0.328}
+  grade: "A"
+  source: "UN Comtrade (US-reported), HS 310221 'Ammonium sulphate', imports"
+  doi_or_url: "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=842&period=<YEAR>&partnerCode=0&cmdCode=310221&flowCode=M"
+  locator: "annual records"
+  quote: "2024: primaryValue 359974933 USD, netWgt 1073393000 kg; 2025: primaryValue 413433696 USD, netWgt 1261707000 kg"
+  read: "html"
+  csv: "data/prices/ammonium_sulphate_us_import_uv.csv"
+  note: "Exports UV: 2024 0.205, 2025 0.234 USD/kg."
+
+- key: "ammonium_sulphate_intelligen2025"
+  value: 0.18
+  unit: "USD/kg"
+  year: 2025
+  grade: "B"
+  source: "Intelligen (2025) ovalbumin TEA"
+  doi_or_url: "10.13140/RG.2.2.29080.87048 (local)"
+  locator: "Table 3, p.18"
+  quote: "Amm. Sulfate                           0.180           9,221,148          kg         1,659,807              20.43"
+  read: "fulltext"
+  note: "Used for precipitation in DSP; mostly recovered as fertiliser (credit)."
+
+- key: "methanol_methanex_posted"
+  value: 1414
+  unit: "USD/t (North America non-discounted reference price, Sept 2026)"
+  year: 2026
+  values: {"NA_2026-09_USD_per_gal": 4.25, "NA_2026-09_USD_per_t": 1414, "EU_Q3_2026_EUR_per_t": 915, "Asia_2026-10_USD_per_t": 700, "China_2026-10_USD_per_t": 625}
+  grade: "C"
+  source: "Methanex Corporation. Pricing (current posted prices)"
+  doi_or_url: "https://www.methanex.com/about-methanol/pricing/"
+  locator: "table 'Current Posted Prices'"
+  quote: "Methanex Non-Discounted Reference Price Posted August 26, 2026 | USD 4.25/Gal* USD 1,414/MT"
+  read: "html"
+  note: "Producer list price; transactions are discounted from it. Europe: 'Methanex European Posted Contract Price Posted June 30, 2026 | Euro 915/MT'. History is an Excel download on the same page (not read)."
+
+- key: "methanol_eu_import_unit_value"
+  value: 0.3348
+  unit: "EUR/kg"
+  year: 2025
+  values: {2015: 0.2835, 2016: 0.1911, 2017: 0.2804, 2018: 0.3157, 2019: 0.2551, 2020: 0.1973, 2021: 0.3088, 2022: 0.3818, 2023: 0.2936, 2024: 0.3176, 2025: 0.3348}
+  grade: "A"
+  source: "Eurostat Comext DS-045409, EU27_2020 imports from extra-EU, CN 2905 11 00 'Methanol'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=1&product=28141000&product=28142000&product=31022100&product=29051100&product=28151100&product=28151200&product=28092000&product=15200000&product=29054500&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&indicators=SUPPLEMENTARY_QUANTITY&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023&time=2024&time=2025"
+  locator: "product 29051100"
+  quote: "2024: VALUE_IN_EUROS 2032295395, QUANTITY_IN_100KG 63987150.31; 2025: VALUE_IN_EUROS 1958943475, QUANTITY_IN_100KG 58517758.27"
+  read: "html"
+  csv: "data/prices/methanol_eu_import_uv.csv"
+  note: "~6 Mt/yr: good bulk proxy (CIF). US Comtrade methanol weights missing for 2023-2025."
+
+- key: "methanol_intelligen2025"
+  value: 0.91
+  unit: "USD/kg"
+  year: 2025
+  grade: "B"
+  source: "Intelligen (2025) ovalbumin TEA"
+  doi_or_url: "10.13140/RG.2.2.29080.87048 (local)"
+  locator: "Table 3, p.18"
+  quote: "Methanol                               0.910             280,325          kg           255,095               3.14"
+  read: "fulltext"
+  note: "Well above bulk trade values (EU import UV ~0.33 EUR/kg)."
+
+- key: "methanol_humbird2021_si"
+  value: 0.2682
+  unit: "USD/kg"
+  year: 2016
+  grade: "B"
+  source: "Humbird D (2021) SI workbook, sheet RawUtil"
+  doi_or_url: "local: references/papers/Humbird2021_cultured_meat_SI.xlsm"
+  locator: "sheet RawUtil L2:N4"
+  quote: "L3 'IHS PEP yearbook, spot, June 2016' M3 0.2682 /kg; L4 'Cost used' M4 0.2682"
+  read: "fulltext"
+  note: ""
+
+- key: "sodium_hydroxide_eu_import_unit_value"
+  value: 0.5177
+  unit: "EUR/kg NaOH (100% basis, via supplementary quantity)"
+  year: 2025
+  values: {2015: 0.2959, 2016: 0.3242, 2017: 0.3791, 2018: 0.4787, 2019: 0.4241, 2020: 0.3586, 2021: 0.3533, 2022: 0.8494, 2023: 0.7556, 2024: 0.5231, 2025: 0.5177}
+  grade: "A"
+  source: "Eurostat Comext DS-045409, EU27_2020 imports from extra-EU, CN 2815 12 00 'Sodium hydroxide in aqueous solution'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=1&product=28141000&product=28142000&product=31022100&product=29051100&product=28151100&product=28151200&product=28092000&product=15200000&product=29054500&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&indicators=SUPPLEMENTARY_QUANTITY&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023&time=2024&time=2025"
+  locator: "product 28151200, VALUE_IN_EUROS / SUPPLEMENTARY_QUANTITY"
+  quote: "2024: VALUE_IN_EUROS 379205459, QUANTITY_IN_100KG 14050398.56, SUPPLEMENTARY_QUANTITY 724951181; 2025: 368228516, 14065670.27, 711261182"
+  read: "html"
+  csv: "data/prices/sodium_hydroxide_solution_eu_import_uv.csv"
+  note: "Supplementary/net mass = 0.51-0.53, consistent with kg NaOH in ~50% lye (my inference). Per kg of solution: 2024 0.2699, 2025 0.2618 EUR/kg. Solid NaOH (CN 28151100) imports: 2024 0.691, 2025 0.730 EUR/kg."
+
+- key: "caustic_nrel2011"
+  value: 0.0678
+  unit: "USD/lb (2007$; basis as in NREL WWT design)"
+  year: 2007
+  grade: "B"
+  source: "NREL/TP-5100-47764 (2011)"
+  doi_or_url: "local: references/reports/NREL_2011_Humbird_TP-5100-47764_biochemical_ethanol.pdf"
+  locator: "Table 29, p.63"
+  quote: "Caustic                      $0.0678/lb          Brown and Caldwell WWT design [65]"
+  read: "fulltext"
+  note: "= 0.1495 USD/kg (2007$); concentration basis not stated in Table 29."
+
+- key: "sodium_hydroxide_voutilainen2021"
+  value: 300
+  unit: "EUR/t"
+  year: 2020
+  grade: "B"
+  source: "Voutilainen et al. (2021) SI workbook"
+  doi_or_url: "10.1016/j.biteb.2021.100683 (local SI)"
+  locator: "sheet 'Operating costs', row 18"
+  quote: "Sodium hydroxide (€/t) | 300 | Alibaba"
+  read: "fulltext"
+  note: "Alibaba-sourced: weak."
+
+- key: "phosphoric_acid_eu_import_unit_value"
+  value: 0.727
+  unit: "EUR/kg product (acid as traded)"
+  year: 2025
+  values: {2015: 0.5067, 2016: 0.4509, 2017: 0.4002, 2018: 0.4385, 2019: 0.459, 2020: 0.4262, 2021: 0.5522, 2022: 1.0339, 2023: 0.7643, 2024: 0.6684, 2025: 0.727}
+  grade: "A"
+  source: "Eurostat Comext DS-045409, EU27_2020 imports from extra-EU, CN 2809 20 00 'Phosphoric acid; polyphosphoric acids'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=1&product=28141000&product=28142000&product=31022100&product=29051100&product=28151100&product=28151200&product=28092000&product=15200000&product=29054500&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&indicators=SUPPLEMENTARY_QUANTITY&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023&time=2024&time=2025"
+  locator: "product 28092000"
+  quote: "2024: VALUE_IN_EUROS 798637145, QUANTITY_IN_100KG 11947945.6, SUPPLEMENTARY_QUANTITY 659855223; 2025: 820077053, 11280804.6, 626317147"
+  read: "html"
+  csv: "data/prices/phosphoric_acid_eu_import_uv.csv"
+  note: "Per supplementary unit (ratio 0.55 of net mass, consistent with kg P2O5 - my inference): 2024 1.2103, 2025 1.3094 EUR/kg P2O5. Grade mix (fertiliser vs technical/food) not reported."
+
+- key: "phosphoric_acid_us_import_unit_value"
+  value: 1.008
+  unit: "USD/kg product (CIF)"
+  year: 2025
+  values: {2022: 1.181, 2023: 1.077, 2024: 0.962, 2025: 1.008}
+  grade: "A"
+  source: "UN Comtrade (US-reported), HS 280920, imports"
+  doi_or_url: "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=842&period=<YEAR>&partnerCode=0&cmdCode=280920&flowCode=M"
+  locator: "annual records"
+  quote: "2024: primaryValue 322014593 USD, netWgt 334765000 kg; 2025: primaryValue 331381690 USD, netWgt 328880000 kg"
+  read: "html"
+  csv: "data/prices/phosphoric_acid_us_import_uv.csv"
+  note: "Concentration unknown. US export weights look erroneous in 2023-2024 (not used)."
+
+- key: "phosphoric_acid_85pct_intelligen2025"
+  value: 0.85
+  unit: "USD/kg (85% w/w)"
+  year: 2025
+  grade: "B"
+  source: "Intelligen (2025) ovalbumin TEA"
+  doi_or_url: "10.13140/RG.2.2.29080.87048 (local)"
+  locator: "Table 3, p.18"
+  quote: "H3PO4 (85% w/w)                        0.850             114,657          kg            97,510               1.20"
+  read: "fulltext"
+  note: ""
+
+- key: "antifoam_voutilainen2021"
+  value: 1000
+  unit: "EUR/t antifoam"
+  year: 2020
+  grade: "B"
+  source: "Voutilainen et al. (2021) SI workbook"
+  doi_or_url: "10.1016/j.biteb.2021.100683 (local SI)"
+  locator: "sheet 'Operating costs', row 23; consumption on sheet 'Process assumptions'"
+  quote: "Antifoam (€/t ) | 1000 | Internal information"
+  read: "fulltext"
+  note: "Only priced antifoam found in any source read. Same SI: 'Antifoam (t/DM t protein) | 0.021 | Humbird et al., 2011'. I found no public price statistic for food-grade antifoam (silicone or PPG); treat as B/E."
+
+- key: "glycerol_crude_eu_import_unit_value"
+  value: 0.4286
+  unit: "EUR/kg crude glycerol (as traded)"
+  year: 2025
+  values: {2015: 0.2711, 2016: 0.1904, 2017: 0.2367, 2018: 0.2745, 2019: 0.2064, 2020: 0.2405, 2021: 0.3507, 2022: 0.7848, 2023: 0.3824, 2024: 0.2985, 2025: 0.4286}
+  grade: "A"
+  source: "Eurostat Comext DS-045409, EU27_2020 imports from extra-EU, CN 1520 00 00 'Glycerol, crude; glycerol waters and lyes'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=en&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&flow=1&product=28141000&product=28142000&product=31022100&product=29051100&product=28151100&product=28151200&product=28092000&product=15200000&product=29054500&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&indicators=SUPPLEMENTARY_QUANTITY&time=2015&time=2016&time=2017&time=2018&time=2019&time=2020&time=2021&time=2022&time=2023&time=2024&time=2025"
+  locator: "product 15200000"
+  quote: "2024: VALUE_IN_EUROS 26609500, QUANTITY_IN_100KG 891566.91; 2025: VALUE_IN_EUROS 40914915, QUANTITY_IN_100KG 954705.42"
+  read: "html"
+  csv: "data/prices/glycerol_crude_eu_import_uv.csv"
+  note: "Glycerol content of crude not reported. Refined glycerol (CN 29054500) imports: 2024 0.7165, 2025 0.9459 EUR/kg (CSV glycerol_refined_eu_import_uv.csv)."
+
+- key: "glycerol_crude_us_export_unit_value"
+  value: 0.664
+  unit: "USD/kg crude glycerol (FOB)"
+  year: 2025
+  values: {2022: 0.695, 2023: 0.471, 2024: 0.464, 2025: 0.664}
+  grade: "A"
+  source: "UN Comtrade (US-reported), HS 152000, exports"
+  doi_or_url: "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=842&period=<YEAR>&partnerCode=0&cmdCode=152000&flowCode=X"
+  locator: "annual records"
+  quote: "2024: primaryValue 26142628 USD, netWgt 56288810 kg; 2025: primaryValue 19812792 USD, netWgt 29847689 kg"
+  read: "html"
+  csv: "data/prices/glycerol_crude_us_export_uv.csv"
+  note: "Refined glycerol (HS 290545) US exports UV: 2024 1.572, 2025 1.808 USD/kg (Comtrade). Humbird SI RawUtil L6:M8: 'IHS PEP yearbook, spot, June 2016' 0.7185 /kg glycerin (B)."
+
+
+# ---------------- 3. Utilities ----------------
+
+- key: "electricity_industrial_us_avg"
+  value: 8.62
+  unit: "cents/kWh"
+  year: 2025
+  values: {2025: 8.62, 2024: 8.13, 2023: 8.04, 2022: 8.32, 2021: 7.18, 2020: 6.67, 2019: 6.81, 2018: 6.92, 2017: 6.88, 2016: 6.76, 2015: 6.91}
+  grade: "A"
+  source: "U.S. EIA, electricity retail sales: average price to ultimate customers, industrial sector"
+  doi_or_url: "https://api.eia.gov/v2/electricity/retail-sales/data/?api_key=<DEMO_KEY>&frequency=annual&data[0]=price&facets[stateid][]=US&facets[sectorid][]=IND ; https://www.eia.gov/electricity/annual/html/epa_02_10.html"
+  locator: "API route electricity/retail-sales, stateid=US, sectorid=IND; cross-check EPA Table 2.10 / EPM Table 5.3"
+  quote: "API records (price, cents per kilowatt-hour): US 2024 = 8.13, 2025 = 8.62"
+  read: "html"
+  csv: "data/prices/electricity_industrial_us_avg_eia.csv"
+  note: "EIA Electric Power Monthly Table 5.3 (release 2026-09-24) row 2025 Industrial 8.62; EPA Table 2.4 row 2024 Industrial 8.13. Average revenue per kWh over all industrial customers (bundled, incl. delivery); a specific large plant's tariff can differ. DEMO_KEY API read in memory, accessed 2026-09-26."
+
+- key: "electricity_industrial_iowa"
+  value: 7.2
+  unit: "cents/kWh"
+  year: 2025
+  values: {2025: 7.2, 2024: 6.8, 2023: 6.91, 2022: 7.06, 2021: 6.63, 2020: 6.43, 2019: 6.6, 2018: 6.45, 2017: 6.21, 2016: 6.05, 2015: 5.9}
+  grade: "A"
+  source: "U.S. EIA, electricity retail sales: average price to ultimate customers, industrial sector"
+  doi_or_url: "https://api.eia.gov/v2/electricity/retail-sales/data/?api_key=<DEMO_KEY>&frequency=annual&data[0]=price&facets[stateid][]=IA&facets[sectorid][]=IND ; https://www.eia.gov/electricity/annual/html/epa_02_10.html"
+  locator: "API route electricity/retail-sales, stateid=IA, sectorid=IND; cross-check EPA Table 2.10 / EPM Table 5.3"
+  quote: "API records (price, cents per kilowatt-hour): IA 2024 = 6.8, 2025 = 7.2"
+  read: "html"
+  csv: "data/prices/electricity_industrial_iowa_eia.csv"
+  note: "EPA Table 2.10 row 'Iowa': Industrial Year 2024 6.80, Year 2023 6.91 (matches API). Average revenue per kWh over all industrial customers (bundled, incl. delivery); a specific large plant's tariff can differ. DEMO_KEY API read in memory, accessed 2026-09-26."
+
+- key: "electricity_industrial_illinois"
+  value: 10.14
+  unit: "cents/kWh"
+  year: 2025
+  values: {2025: 10.14, 2024: 8.83, 2023: 8.2, 2022: 8.57, 2021: 7.3, 2020: 6.7, 2019: 6.52, 2018: 6.8, 2017: 6.47, 2016: 6.51, 2015: 6.67}
+  grade: "A"
+  source: "U.S. EIA, electricity retail sales: average price to ultimate customers, industrial sector"
+  doi_or_url: "https://api.eia.gov/v2/electricity/retail-sales/data/?api_key=<DEMO_KEY>&frequency=annual&data[0]=price&facets[stateid][]=IL&facets[sectorid][]=IND ; https://www.eia.gov/electricity/annual/html/epa_02_10.html"
+  locator: "API route electricity/retail-sales, stateid=IL, sectorid=IND; cross-check EPA Table 2.10 / EPM Table 5.3"
+  quote: "API records (price, cents per kilowatt-hour): IL 2024 = 8.83, 2025 = 10.14"
+  read: "html"
+  csv: "data/prices/electricity_industrial_illinois_eia.csv"
+  note: "EPA Table 2.10 row 'Illinois': Industrial Year 2024 8.83, Year 2023 8.20 (matches API). Average revenue per kWh over all industrial customers (bundled, incl. delivery); a specific large plant's tariff can differ. DEMO_KEY API read in memory, accessed 2026-09-26."
+
+- key: "natural_gas_industrial_us_avg"
+  value: 5.23
+  unit: "USD/thousand cubic feet (Mcf)"
+  year: 2025
+  values: {2015: 3.93, 2016: 3.51, 2017: 4.08, 2018: 4.19, 2019: 3.9, 2020: 3.32, 2021: 5.44, 2022: 7.69, 2023: 4.53, 2024: 4.07, 2025: 5.23}
+  grade: "A"
+  source: "U.S. EIA Natural Gas Navigator: United States Natural Gas Industrial Price  (Dollars per Thousand Cubic Feet)"
+  doi_or_url: "https://www.eia.gov/dnav/ng/hist/n3035us3a.htm"
+  locator: "annual history table (release 8/31/2026); coverage from https://www.eia.gov/dnav/ng/hist/n3035us4a.htm"
+  quote: "United States Natural Gas Industrial Price  (Dollars per Thousand Cubic Feet): 2024 4.07, 2025 5.23; percent of industrial deliveries represented by the price: 2024 13.6, 2025 13.4"
+  read: "html"
+  csv: "data/prices/natural_gas_industrial_us_avg_eia.csv"
+  note: "CAVEAT, EIA definitions page (https://www.eia.gov/dnav/ng/TblDefs/ng_pri_sum_tbldef2.asp): 'These prices do not reflect average prices of natural gas transported to consumers for the account of third parties or \"spot-market\" prices.' The priced share is small (13.4% of US industrial deliveries in 2025; 2.4% in Iowa 2024), so large plants buying transport-only gas are not represented; Henry Hub plus transport is the other bound. Convert with EIA heat content of gas delivered to consumers (Btu/cf, gross): US 2025 1,036; Iowa 2024 1,069, 2025 1,060; Illinois 2024 1,044, 2025 1,048 -> e.g. US 2025 5.23/1.036 = 5.05 USD/MMBtu; Iowa 2024 5.77/1.069 = 5.40; Illinois 2025 7.05/1.048 = 6.73 USD/MMBtu (computed)."
+
+- key: "natural_gas_industrial_iowa"
+  value: 5.77
+  unit: "USD/thousand cubic feet (Mcf)"
+  year: 2024
+  values: {2015: 5.3, 2016: 4.7, 2017: 5.21, 2018: 5.37, 2019: 4.3, 2020: 4.48, 2021: 7.08, 2022: 8.66, 2023: 7.09, 2024: 5.77, 2025: "NA"}
+  grade: "A"
+  source: "U.S. EIA Natural Gas Navigator: Iowa Natural Gas Industrial Price  (Dollars per Thousand Cubic Feet)"
+  doi_or_url: "https://www.eia.gov/dnav/ng/hist/n3035ia3a.htm"
+  locator: "annual history table (release 8/31/2026); coverage from https://www.eia.gov/dnav/ng/hist/n3035ia4a.htm"
+  quote: "Iowa Natural Gas Industrial Price  (Dollars per Thousand Cubic Feet): 2024 5.77, 2025 NA; percent of industrial deliveries represented by the price: 2024 2.4, 2025 NA"
+  read: "html"
+  csv: "data/prices/natural_gas_industrial_iowa_eia.csv"
+  note: "CAVEAT, EIA definitions page (https://www.eia.gov/dnav/ng/TblDefs/ng_pri_sum_tbldef2.asp): 'These prices do not reflect average prices of natural gas transported to consumers for the account of third parties or \"spot-market\" prices.' The priced share is small (13.4% of US industrial deliveries in 2025; 2.4% in Iowa 2024), so large plants buying transport-only gas are not represented; Henry Hub plus transport is the other bound. Convert with EIA heat content of gas delivered to consumers (Btu/cf, gross): US 2025 1,036; Iowa 2024 1,069, 2025 1,060; Illinois 2024 1,044, 2025 1,048 -> e.g. US 2025 5.23/1.036 = 5.05 USD/MMBtu; Iowa 2024 5.77/1.069 = 5.40; Illinois 2025 7.05/1.048 = 6.73 USD/MMBtu (computed)."
+
+- key: "natural_gas_industrial_illinois"
+  value: 7.05
+  unit: "USD/thousand cubic feet (Mcf)"
+  year: 2025
+  values: {2015: 5.47, 2016: 5.03, 2017: 5.76, 2018: 5.55, 2019: 5.17, 2020: 4.26, 2021: 7.57, 2022: 9.17, 2023: 7.49, 2024: 6.62, 2025: 7.05}
+  grade: "A"
+  source: "U.S. EIA Natural Gas Navigator: Illinois Natural Gas Industrial Price  (Dollars per Thousand Cubic Feet)"
+  doi_or_url: "https://www.eia.gov/dnav/ng/hist/n3035il3a.htm"
+  locator: "annual history table (release 8/31/2026); coverage from https://www.eia.gov/dnav/ng/hist/n3035il4a.htm"
+  quote: "Illinois Natural Gas Industrial Price  (Dollars per Thousand Cubic Feet): 2024 6.62, 2025 7.05; percent of industrial deliveries represented by the price: 2024 5.2, 2025 5.9"
+  read: "html"
+  csv: "data/prices/natural_gas_industrial_illinois_eia.csv"
+  note: "CAVEAT, EIA definitions page (https://www.eia.gov/dnav/ng/TblDefs/ng_pri_sum_tbldef2.asp): 'These prices do not reflect average prices of natural gas transported to consumers for the account of third parties or \"spot-market\" prices.' The priced share is small (13.4% of US industrial deliveries in 2025; 2.4% in Iowa 2024), so large plants buying transport-only gas are not represented; Henry Hub plus transport is the other bound. Convert with EIA heat content of gas delivered to consumers (Btu/cf, gross): US 2025 1,036; Iowa 2024 1,069, 2025 1,060; Illinois 2024 1,044, 2025 1,048 -> e.g. US 2025 5.23/1.036 = 5.05 USD/MMBtu; Iowa 2024 5.77/1.069 = 5.40; Illinois 2025 7.05/1.048 = 6.73 USD/MMBtu (computed)."
+
+- key: "natural_gas_henry_hub"
+  value: 3.52
+  unit: "USD/MMBtu"
+  year: 2025
+  values: {2015: 2.62, 2016: 2.52, 2017: 2.99, 2018: 3.15, 2019: 2.56, 2020: 2.03, 2021: 3.89, 2022: 6.45, 2023: 2.53, 2024: 2.19, 2025: 3.52}
+  grade: "A"
+  source: "U.S. EIA, Henry Hub Natural Gas Spot Price (annual)"
+  doi_or_url: "https://www.eia.gov/dnav/ng/hist/rngwhhdA.htm"
+  locator: "decade table"
+  quote: "Henry Hub Natural Gas Spot Price (Dollars per Million Btu): 2024 2.19, 2025 3.52"
+  read: "html"
+  csv: "data/prices/natural_gas_henry_hub_eia.csv"
+  note: "Hub commodity spot price, excluding transport to a Midwest plant (lower bound on delivered cost). EIA's 2013 cell is blank on the annual page."
+
+- key: "natural_gas_heat_content_eia"
+  value: 1036
+  unit: "Btu per cubic foot (gross), US, gas delivered to consumers"
+  year: 2025
+  values: {"US": {"2020": "1,037", "2021": "1,037", "2022": "1,036", "2023": "1,036", "2024": "1,037", "2025": "1,036"}, "Iowa": {"2020": "1,069", "2021": "1,070", "2022": "1,066", "2023": "1,069", "2024": "1,069", "2025": "1,060"}, "Illinois": {"2020": "1,036", "2021": "1,034", "2022": "1,041", "2023": "1,040", "2024": "1,044", "2025": "1,048"}}
+  grade: "A"
+  source: "U.S. EIA Natural Gas Navigator: Heat Content of Natural Gas Delivered to Consumers"
+  doi_or_url: "https://www.eia.gov/dnav/ng/ng_cons_heat_a_EPG0_VGTH_btucf_a.htm"
+  locator: "summary table 2020-2025"
+  quote: "U.S. 2024 1,037; 2025 1,036; Iowa 2024 1,069; 2025 1,060; Illinois 2024 1,044; 2025 1,048"
+  read: "html"
+  note: "Use to convert USD/Mcf to USD/MMBtu."
+
+- key: "electricity_nonhousehold_eu27_band_id"
+  value: 0.1618
+  unit: "EUR/kWh (excl. VAT and recoverable levies)"
+  year: 2025
+  values: {"2023-S1": 0.2015, "2023-S2": 0.1866, "2024-S1": 0.163, "2024-S2": 0.1712, "2025-S1": 0.164, "2025-S2": 0.1596}
+  grade: "A"
+  source: "Eurostat nrg_pc_205 'Electricity prices for industrial consumers - bi-annual data (from 2007 onwards)'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205?format=JSON&lang=en&geo=EU27_2020&geo=NL&geo=DK&nrg_cons=MWH2000-19999&tax=X_TAX&tax=X_VAT&tax=I_TAX&currency=EUR&unit=KWH&sinceTimePeriod=2015-S1"
+  locator: "geo=EU27_2020, nrg_cons=MWH2000-19999 (band ID), tax=X_VAT, currency=EUR, unit=KWH (dataset updated 2026-09-24)"
+  quote: "EU27_2020 band ID X_VAT: 2024-S1 0.163, 2024-S2 0.1712, 2025-S1 0.164, 2025-S2 0.1596 EUR/kWh"
+  read: "html"
+  csv: "data/prices/electricity_nonhousehold_eu27_band_id_eurostat.csv"
+  note: "value = simple mean of the two 2025 semesters (computed; 2024 mean 0.1671). In USD at ECB 2025 rate: 0.1828 USD/kWh. Larger bands, X_VAT: IF (70,000-149,999 MWh) 2024-S1 0.1186, 2024-S2 0.1264, 2025-S1 0.1246, 2025-S2 0.1217; IG (>=150,000 MWh) 2024-S1 0.1067, 2024-S2 0.1187, 2025-S1 0.113, 2025-S2 0.1096 EUR/kWh. Scale check: Intelligen's 1 kt/yr OVA plant uses 27,077 MWh/yr (Table 4), so a 10 kt/yr plant at similar intensity would sit in band IF-IG (my scaling). X_TAX 2025-S1/S2 0.1387/0.1349; I_TAX 0.1969/0.192."
+
+- key: "electricity_nonhousehold_nl_band_id"
+  value: 0.1845
+  unit: "EUR/kWh (excl. VAT and recoverable levies)"
+  year: 2025
+  values: {"2023-S1": 0.2505, "2023-S2": 0.2289, "2024-S1": 0.1956, "2024-S2": 0.1961, "2025-S1": 0.1878, "2025-S2": 0.1811}
+  grade: "A"
+  source: "Eurostat nrg_pc_205 'Electricity prices for industrial consumers - bi-annual data (from 2007 onwards)'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205?format=JSON&lang=en&geo=EU27_2020&geo=NL&geo=DK&nrg_cons=MWH2000-19999&tax=X_TAX&tax=X_VAT&tax=I_TAX&currency=EUR&unit=KWH&sinceTimePeriod=2015-S1"
+  locator: "geo=NL, nrg_cons=MWH2000-19999 (band ID), tax=X_VAT, currency=EUR, unit=KWH (dataset updated 2026-09-24)"
+  quote: "NL band ID X_VAT: 2024-S1 0.1956, 2024-S2 0.1961, 2025-S1 0.1878, 2025-S2 0.1811 EUR/kWh"
+  read: "html"
+  csv: "data/prices/electricity_nonhousehold_nl_band_id_eurostat.csv"
+  note: "value = simple mean of the two 2025 semesters (computed; 2024 mean 0.1958). In USD at ECB 2025 rate: 0.2085 USD/kWh. Larger bands, X_VAT: IF (70,000-149,999 MWh) 2024-S1 0.1764, 2024-S2 0.1525, 2025-S1 0.1377, 2025-S2 0.12; IG (>=150,000 MWh) 2024-S1 0.1143, 2024-S2 0.1045, 2025-S1 0.1062, 2025-S2 0.0951 EUR/kWh. Scale check: Intelligen's 1 kt/yr OVA plant uses 27,077 MWh/yr (Table 4), so a 10 kt/yr plant at similar intensity would sit in band IF-IG (my scaling). X_TAX 2025-S1/S2 0.1486/0.1425; I_TAX 0.2273/0.2192."
+
+- key: "electricity_nonhousehold_dk_band_id"
+  value: 0.1246
+  unit: "EUR/kWh (excl. VAT and recoverable levies)"
+  year: 2025
+  values: {"2023-S1": 0.1351, "2023-S2": 0.1114, "2024-S1": 0.1083, "2024-S2": 0.1267, "2025-S1": 0.126, "2025-S2": 0.1232}
+  grade: "A"
+  source: "Eurostat nrg_pc_205 'Electricity prices for industrial consumers - bi-annual data (from 2007 onwards)'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205?format=JSON&lang=en&geo=EU27_2020&geo=NL&geo=DK&nrg_cons=MWH2000-19999&tax=X_TAX&tax=X_VAT&tax=I_TAX&currency=EUR&unit=KWH&sinceTimePeriod=2015-S1"
+  locator: "geo=DK, nrg_cons=MWH2000-19999 (band ID), tax=X_VAT, currency=EUR, unit=KWH (dataset updated 2026-09-24)"
+  quote: "DK band ID X_VAT: 2024-S1 0.1083, 2024-S2 0.1267, 2025-S1 0.126, 2025-S2 0.1232 EUR/kWh"
+  read: "html"
+  csv: "data/prices/electricity_nonhousehold_dk_band_id_eurostat.csv"
+  note: "value = simple mean of the two 2025 semesters (computed; 2024 mean 0.1175). In USD at ECB 2025 rate: 0.1408 USD/kWh. Larger bands, X_VAT: IF (70,000-149,999 MWh) 2024-S1 0.0988, 2024-S2 0.1125, 2025-S1 0.1208, 2025-S2 0.1203; IG (>=150,000 MWh) 2024-S1 0.098, 2024-S2 0.1136, 2025-S1 0.117, 2025-S2 0.1115 EUR/kWh. Scale check: Intelligen's 1 kt/yr OVA plant uses 27,077 MWh/yr (Table 4), so a 10 kt/yr plant at similar intensity would sit in band IF-IG (my scaling). X_TAX 2025-S1/S2 0.1249/0.1221; I_TAX 0.2768/0.2732."
+
+- key: "natural_gas_nonhousehold_eu27_band_i3"
+  value: 17.5663
+  unit: "EUR/GJ gross calorific value (excl. VAT and recoverable levies)"
+  year: 2025
+  values: {"2023-S1": 22.8906, "2023-S2": 19.1879, "2024-S1": 17.1924, "2024-S2": 17.7785, "2025-S1": 18.3259, "2025-S2": 16.8067}
+  grade: "A"
+  source: "Eurostat nrg_pc_203 'Gas prices for industrial consumers - bi-annual data (from 2007 onwards)'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_203?format=JSON&lang=en&geo=EU27_2020&geo=NL&geo=DK&nrg_cons=GJ10000-99999&tax=X_TAX&tax=X_VAT&tax=I_TAX&currency=EUR&unit=GJ_GCV&sinceTimePeriod=2015-S1"
+  locator: "geo=EU27_2020, nrg_cons=GJ10000-99999 (band I3), tax=X_VAT, currency=EUR, unit=GJ_GCV"
+  quote: "EU27_2020 band I3 X_VAT: 2024-S1 17.1924, 2024-S2 17.7785, 2025-S1 18.3259, 2025-S2 16.8067 EUR/GJ"
+  read: "html"
+  csv: "data/prices/natural_gas_nonhousehold_eu27_band_i3_eurostat.csv"
+  note: "value = mean of 2025 semesters (computed; 2024 mean 17.4855). = 18.533 EUR/MMBtu = 20.94 USD/MMBtu at ECB 2025 (1 MMBtu = 1.055056 GJ). Larger bands, X_VAT, 2025-S1/S2: I4 (100,000-999,999 GJ) 15.1293/13.4179; I5 (1-4 PJ) 13.7101/11.4509 EUR/GJ."
+
+- key: "natural_gas_nonhousehold_nl_band_i3"
+  value: 21.1595
+  unit: "EUR/GJ gross calorific value (excl. VAT and recoverable levies)"
+  year: 2025
+  values: {"2023-S1": 24.029, "2023-S2": 17.7566, "2024-S1": 20.666, "2024-S2": 17.2988, "2025-S1": 23.5839, "2025-S2": 18.7352}
+  grade: "A"
+  source: "Eurostat nrg_pc_203 'Gas prices for industrial consumers - bi-annual data (from 2007 onwards)'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_203?format=JSON&lang=en&geo=EU27_2020&geo=NL&geo=DK&nrg_cons=GJ10000-99999&tax=X_TAX&tax=X_VAT&tax=I_TAX&currency=EUR&unit=GJ_GCV&sinceTimePeriod=2015-S1"
+  locator: "geo=NL, nrg_cons=GJ10000-99999 (band I3), tax=X_VAT, currency=EUR, unit=GJ_GCV"
+  quote: "NL band I3 X_VAT: 2024-S1 20.666, 2024-S2 17.2988, 2025-S1 23.5839, 2025-S2 18.7352 EUR/GJ"
+  read: "html"
+  csv: "data/prices/natural_gas_nonhousehold_nl_band_i3_eurostat.csv"
+  note: "value = mean of 2025 semesters (computed; 2024 mean 18.9824). = 22.324 EUR/MMBtu = 25.23 USD/MMBtu at ECB 2025 (1 MMBtu = 1.055056 GJ). Larger bands, X_VAT, 2025-S1/S2: I4 (100,000-999,999 GJ) 18.8891/15.8144; I5 (1-4 PJ) 16.0618/10.386 EUR/GJ."
+
+- key: "natural_gas_nonhousehold_dk_band_i3"
+  value: 18.6829
+  unit: "EUR/GJ gross calorific value (excl. VAT and recoverable levies)"
+  year: 2025
+  values: {"2023-S1": 18.6353, "2023-S2": 16.16, "2024-S1": 14.1763, "2024-S2": 17.9036, "2025-S1": 19.8133, "2025-S2": 17.5525}
+  grade: "A"
+  source: "Eurostat nrg_pc_203 'Gas prices for industrial consumers - bi-annual data (from 2007 onwards)'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_203?format=JSON&lang=en&geo=EU27_2020&geo=NL&geo=DK&nrg_cons=GJ10000-99999&tax=X_TAX&tax=X_VAT&tax=I_TAX&currency=EUR&unit=GJ_GCV&sinceTimePeriod=2015-S1"
+  locator: "geo=DK, nrg_cons=GJ10000-99999 (band I3), tax=X_VAT, currency=EUR, unit=GJ_GCV"
+  quote: "DK band I3 X_VAT: 2024-S1 14.1763, 2024-S2 17.9036, 2025-S1 19.8133, 2025-S2 17.5525 EUR/GJ"
+  read: "html"
+  csv: "data/prices/natural_gas_nonhousehold_dk_band_i3_eurostat.csv"
+  note: "value = mean of 2025 semesters (computed; 2024 mean 16.04). = 19.712 EUR/MMBtu = 22.27 USD/MMBtu at ECB 2025 (1 MMBtu = 1.055056 GJ). Larger bands, X_VAT, 2025-S1/S2: I4 (100,000-999,999 GJ) 15.9878/13.7703; I5 (1-4 PJ) 16.0975/13.3056 EUR/GJ."
+
+- key: "water_drinking_business_vitens_nl"
+  value: 1.15
+  unit: "EUR/m3 (excl. 9% VAT; volume charge)"
+  year: 2025
+  values: {2025: 1.15, 2026: 1.23}
+  grade: "A"
+  source: "Vitens N.V. (Dutch drinking-water company). Tarieven voor zakelijke klanten"
+  doi_or_url: "https://www.vitens.nl/zakelijk/tarieven-zakelijk"
+  locator: "section 'Prijs per 1 m³ drinkwater'"
+  quote: "2026 < 100.000 m³: € 1,23 (excl. 9% btw) * 2025: € 1,15 (excl. 9% btw)"
+  read: "html"
+  note: "Published utility tariff (not a statistic). Excludes capacity charge (vastrecht) and tap-water tax (BoL, on first 50,000 m3/yr from 2026). >100,000 m3/yr uses the 'Ander water' tariff (not read)."
+
+- key: "water_large_users_nl_average_vemw"
+  value: 1.43
+  low: 1.0
+  high: 2.3
+  unit: "EUR/m3 (integral tariff, large users)"
+  year: 2025
+  grade: "C"
+  source: "VEMW. 'Waterprijzen voor zakelijk gebruikers opnieuw fors hoger', 15 Jan 2025"
+  doi_or_url: "https://www.vemw.nl/nieuwsbericht/2025/01/15/waterprijzen-voor-zakelijk-gebruikers-opnieuw-fors-hoger"
+  locator: "section 'Drinkwater: opnieuw forse stijging tarieven'"
+  quote: "Het gemiddelde tarief stijgt met ruim 11% tot € 1,43 per kubieke meter."
+  read: "html"
+  note: "Industrial-users association summary of all NL water companies. Range: 'Grootgebruikers ... [PWN] betalen € 2,30'; Brabant Water is the only one below 1 EUR/m3 (low bound approximate)."
+
+- key: "wastewater_levy_nl_average_vemw"
+  value: 81.21
+  low: 60.84
+  high: 107.55
+  unit: "EUR per vervuilingseenheid (v.e.)"
+  year: 2025
+  grade: "C"
+  source: "VEMW, 15 Jan 2025 (same article)"
+  doi_or_url: "https://www.vemw.nl/nieuwsbericht/2025/01/15/waterprijzen-voor-zakelijk-gebruikers-opnieuw-fors-hoger"
+  locator: "section 'Afvalwaterzuivering'"
+  quote: "Het gemiddelde tarief bedraagt in 2025 € 81,21 per vervuilingseenheid; een stijging van 8%."
+  read: "html"
+  note: "Zuiveringsheffing for discharge to municipal treatment. Range: Aa en Maas 60.84 to Delfland 107.55. Waterschapswet art. 122f(2)(a): one v.e. = 'het jaarlijks verbruik van 54,8 kilogram zuurstof' (https://wetten.overheid.nl/BWBR0005108/2026-01-01, A). So 81.21 EUR/v.e. = 1.48 EUR per kg oxygen demand (COD + N oxidation), computed."
+
+- key: "utilities_gfi2025_hawkwood"
+  value: null
+  unit: "base, improved, reduced"
+  year: 2025
+  values: {"electricity_USD_per_kWh": [0.08, 0.07, 0.11], "water_USD_per_m3": [1.5, 1.35, 2.1], "natural_gas_USD_per_MMBtu": [6.0, 5.4, 8.4]}
+  grade: "B"
+  source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
+  doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
+  locator: "Table 6, p.58"
+  quote: "Electricity cost      $/kWh         $0.08         $0.07           $0.11 ... Water cost            $/m3          $1.50 ... Natural gas cost      $/MMBTU       $6.00         $5.40           $8.40"
+  read: "fulltext"
+  note: "Hawkwood SCP pro forma, Midwest USA. Table 6 lists only 'Water cost'; the text groups 'water, and wastewater' under utilities, so whether 1.50 USD/m3 includes wastewater is not stated."
+
+- key: "utilities_intelligen2025"
+  value: null
+  unit: "USD per unit shown (2025 prices)"
+  year: 2025
+  values: {"std_power_USD_per_MWh": 90.0, "steam_USD_per_t": 20.0, "cooling_water_USD_per_t": 0.05, "chilled_water_USD_per_t": 0.4, "water_USD_per_t": 3.0, "purified_water_USD_per_t": 5.0, "natural_gas_USD_per_t": 175.0}
+  grade: "B"
+  source: "Intelligen (2025) ovalbumin TEA"
+  doi_or_url: "10.13140/RG.2.2.29080.87048 (local)"
+  locator: "Table 4 (utilities) and Table 3 (water, natural gas), pp.18-19"
+  quote: "Std Power                             90.000             27,077     MW-h ... Steam                                 20.000 ... Cooling Water                          0.050 ... Chilled Water                          0.400"
+  read: "fulltext"
+  note: "SuperPro defaults as used by Intelligen; location not stated."
+
+- key: "utilities_humbird2021_si"
+  value: null
+  unit: "USD per unit shown (~2019$)"
+  year: 2019
+  values: {"electricity_used_USD_per_kWh": 0.0472, "electricity_EIA_Q4_2018_industrial_avg": 0.0681, "natural_gas_USD_per_MMBtu": 2.9, "wastewater_USD_per_m3": 0.4, "wastewater_range_Petrides": "0.20-0.50", "cooling_water_USD_per_m3": 0.0388, "LP_steam_USD_per_t": 9.7, "MP_steam_USD_per_t": 12.4, "HP_steam_USD_per_t": 13.7, "well_water_USD_per_m3": 0.2642, "DI_water_USD_per_kg": 0.0121, "WFI_USD_per_kg": 0.02}
+  grade: "B"
+  source: "Humbird D (2021) SI workbook, sheet RawUtil"
+  doi_or_url: "local: references/papers/Humbird2021_cultured_meat_SI.xlsm"
+  locator: "sheet RawUtil BK1:BO42 (Utilities, Waste disposal)"
+  quote: "BK3 0.0681 /kWh 'EIA, Q42018 Industrial average'; BK4 0.0472 /kWh 'IHS PEP YB, 2019'; BK8 2.9 /MMBtu 'EIA, Contract, end 2018'; BQ3 '$0.20 - 0.50 per m3' Petrides; BS4 0.4 /m3"
+  read: "fulltext"
+  note: ""
+
+- key: "utilities_nrel2011"
+  value: null
+  unit: "2007$"
+  year: 2007
+  values: {"grid_electricity_USD_per_kWh": 0.0572, "fresh_water_USD_per_lb": 0.0001, "makeup_water_USD_per_ton": 0.23}
+  grade: "B"
+  source: "NREL/TP-5100-47764 (2011)"
+  doi_or_url: "local: references/reports/NREL_2011_Humbird_TP-5100-47764_biochemical_ethanol.pdf"
+  locator: "Tables 29-30, p.63"
+  quote: "Grid electricity              12,797 kW     $0.0572/kWh ... Fresh water                  $0.0001/lb          Peters & Timmerhaus [74]"
+  read: "fulltext"
+  note: "Table 30 'Makeup water' 0.23 $/ton."
+
+- key: "utilities_voutilainen2021"
+  value: null
+  unit: "EUR per unit shown (~2020, Finland)"
+  year: 2020
+  values: {"electricity_EUR_per_MWh": 45.9, "process_water_EUR_per_t": 0.5, "cooling_water_EUR_per_t": 0.05, "LP_steam_EUR_per_MWh": 10, "HP_steam_EUR_per_MWh": 20}
+  grade: "B"
+  source: "Voutilainen et al. (2021) SI workbook"
+  doi_or_url: "10.1016/j.biteb.2021.100683 (local SI)"
+  locator: "sheet 'Operating costs', rows 14-21"
+  quote: "Electricity (€/MWh) | 45.9 | Energiamarkkinavirasto."
+  read: "fulltext"
+  note: ""
+
+
+# ---------------- 4. Labour ----------------
+
+- key: "wage_chem_plant_operators_us_may2024"
+  value: 76290
+  unit: "USD/yr (mean annual wage)"
+  year: 2024
+  values: {"employment": 17840, "mean_hourly_USD": 36.68, "mean_annual_USD": 76290, "median_hourly_USD": 35.35}
+  grade: "A"
+  source: "U.S. BLS, Occupational Employment and Wages - May 2024, news release USDL-25-0451 (2 Apr 2025), Table 1"
+  doi_or_url: "https://www.bls.gov/news.release/archives/ocwage_04022025.htm"
+  locator: "Table 1 'National employment and wage data ... by occupation, May 2024', row 'Chemical plant and system operators' (SOC 51-8091)"
+  quote: "Chemical plant and system operators..............................................      17,840    36.68     76,290     35.35"
+  read: "html"
+  note: "Columns: employment, mean hourly, mean annual, median hourly. Read in the browser pane (bls.gov blocks scripts). Annual = hourly x 2,080 h. The May 2024 occupation profile page no longer exists (redirects)."
+
+- key: "wage_chem_plant_operators_us_may2025"
+  value: 79970
+  unit: "USD/yr (mean annual wage)"
+  year: 2025
+  values: {"employment": 16610, "mean_hourly_USD": 38.45, "mean_annual_USD": 79970, "median_hourly_USD": 37.56, "median_annual_USD_api": 78120}
+  grade: "A"
+  source: "U.S. BLS, Occupational Employment and Wages - May 2025, news release USDL-26-0725 (15 May 2026), Table 1; BLS API series OEUN000000000000051809104"
+  doi_or_url: "https://www.bls.gov/news.release/ocwage.htm ; https://api.bls.gov/publicAPI/v1/timeseries/data/ (OEUN000000000000051809104)"
+  locator: "Table 1, row 'Chemical plant and system operators' (SOC 51-8091)"
+  quote: "Chemical plant and system operators..............................................      16,610    38.45\t79,970     37.56"
+  read: "html"
+  note: "API confirms 2025 annual mean 79970, hourly 38.45, employment 16610, annual median 78120 (datatype 13). May 2023 profile (archived): employment 17,980, mean hourly $38.20, mean annual $79,450 (https://www.bls.gov/oes/2023/may/oes518091.htm)."
+
+- key: "wage_chem_equipment_operators_us_may2024"
+  value: 59800
+  unit: "USD/yr (mean annual wage)"
+  year: 2024
+  values: {"employment": 127410, "mean_hourly_USD": 28.75, "mean_annual_USD": 59800, "median_hourly_USD": 27.45}
+  grade: "A"
+  source: "U.S. BLS, USDL-25-0451, Table 1 (May 2024)"
+  doi_or_url: "https://www.bls.gov/news.release/archives/ocwage_04022025.htm"
+  locator: "Table 1, row 'Chemical equipment operators and tenders' (SOC 51-9011)"
+  quote: "Chemical equipment operators and tenders.........................................     127,410    28.75     59,800     27.45"
+  read: "html"
+  note: ""
+
+- key: "wage_chem_equipment_operators_us_may2025"
+  value: 60710
+  unit: "USD/yr (mean annual wage)"
+  year: 2025
+  values: {"employment": 139630, "mean_hourly_USD": 29.19, "mean_annual_USD": 60710, "median_hourly_USD": 27.9}
+  grade: "A"
+  source: "U.S. BLS, USDL-26-0725, Table 1 (May 2025); API OEUN000000000000051901104"
+  doi_or_url: "https://www.bls.gov/news.release/ocwage.htm"
+  locator: "Table 1, row 'Chemical equipment operators and tenders' (SOC 51-9011)"
+  quote: "Chemical equipment operators and tenders.........................................     139,630    29.19\t60,710     27.90"
+  read: "html"
+  note: ""
+
+- key: "wage_operators_iowa_illinois_may2025"
+  value: 58320
+  unit: "USD/yr (mean annual wage, 51-8091, Iowa)"
+  year: 2025
+  values: {"51-8091_IA_mean_annual": 58320, "51-8091_IA_employment": 490, "51-8091_IL_mean_annual": 68240, "51-8091_IL_employment": 160, "51-9011_IA_mean_annual": 60430, "51-9011_IL_mean_annual": 64120}
+  grade: "A"
+  source: "U.S. BLS OEWS May 2025 state estimates via BLS Public API v1"
+  doi_or_url: "https://api.bls.gov/publicAPI/v1/timeseries/data/"
+  locator: "series OEUS190000000000051809104, OEUS170000000000051809104, OEUS190000000000051901104, OEUS170000000000051901104 (annual mean wage), OEUS1[97]0000000000051809101 (employment)"
+  quote: "OEUS190000000000051809104 2025 Annual 58320; OEUS170000000000051809104 2025 Annual 68240; OEUS190000000000051901104 2025 Annual 60430; OEUS170000000000051901104 2025 Annual 64120"
+  read: "html"
+  note: "API JSON read in memory. OEWS series keep only the latest year, so May 2024 state values were not retrievable. Small state samples (Iowa 490 jobs): treat as indicative."
+
+- key: "labour_cost_hourly_manufacturing_eu27"
+  value: 35
+  unit: "EUR/hour (all employees, total labour cost)"
+  year: 2025
+  values: {2016: 25.9, 2020: 28.7, 2021: 28.9, 2022: 30.4, 2023: 32.1, 2024: 33.8, 2025: 35}
+  grade: "A"
+  source: "Eurostat lc_lci_lev 'Labour cost levels by NACE Rev. 2 activity'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/lc_lci_lev?format=JSON&lang=en&geo=EU27_2020&geo=NL&geo=DK&nace_r2=C&nace_r2=B-E&lcstruct=D1_D4_MD5&lcstruct=D11&unit=EUR&sinceTimePeriod=2015"
+  locator: "geo=EU27_2020, nace_r2=C, lcstruct=D1_D4_MD5, unit=EUR"
+  quote: "EU27_2020 C D1_D4_MD5: 2024 33.8, 2025 35"
+  read: "html"
+  csv: "data/prices/labour_cost_hourly_manufacturing_eu27_eurostat.csv"
+  note: "Average over all manufacturing employees (not operators specifically), including employer social contributions. In USD at ECB rates: 2024 36.58 USD/h."
+
+- key: "labour_cost_hourly_manufacturing_nl"
+  value: 47.3
+  unit: "EUR/hour (all employees, total labour cost)"
+  year: 2024
+  values: {2016: 35.9, 2020: 39.5, 2021: 40, 2022: 42, 2023: 44.8, 2024: 47.3}
+  grade: "A"
+  source: "Eurostat lc_lci_lev 'Labour cost levels by NACE Rev. 2 activity'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/lc_lci_lev?format=JSON&lang=en&geo=EU27_2020&geo=NL&geo=DK&nace_r2=C&nace_r2=B-E&lcstruct=D1_D4_MD5&lcstruct=D11&unit=EUR&sinceTimePeriod=2015"
+  locator: "geo=NL, nace_r2=C, lcstruct=D1_D4_MD5, unit=EUR"
+  quote: "NL C D1_D4_MD5: 2024 47.3, 2025 confidential (flag C)"
+  read: "html"
+  csv: "data/prices/labour_cost_hourly_manufacturing_nl_eurostat.csv"
+  note: "Average over all manufacturing employees (not operators specifically), including employer social contributions. NL 2025 for NACE C is confidential (flag C); NACE B-E (industry) 2025 = 50.7 EUR/h. In USD at ECB rates: 2024 51.2 USD/h."
+
+- key: "labour_cost_hourly_manufacturing_dk"
+  value: 55
+  unit: "EUR/hour (all employees, total labour cost)"
+  year: 2025
+  values: {2016: 43.4, 2020: 46.8, 2021: 48.8, 2022: 50.2, 2023: 51.6, 2024: 53.4, 2025: 55}
+  grade: "A"
+  source: "Eurostat lc_lci_lev 'Labour cost levels by NACE Rev. 2 activity'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/lc_lci_lev?format=JSON&lang=en&geo=EU27_2020&geo=NL&geo=DK&nace_r2=C&nace_r2=B-E&lcstruct=D1_D4_MD5&lcstruct=D11&unit=EUR&sinceTimePeriod=2015"
+  locator: "geo=DK, nace_r2=C, lcstruct=D1_D4_MD5, unit=EUR"
+  quote: "DK C D1_D4_MD5: 2024 53.4, 2025 55"
+  read: "html"
+  csv: "data/prices/labour_cost_hourly_manufacturing_dk_eurostat.csv"
+  note: "Average over all manufacturing employees (not operators specifically), including employer social contributions. In USD at ECB rates: 2024 57.8 USD/h."
+
+- key: "earnings_plant_machine_operators_eu_ses2022"
+  value: 43822
+  unit: "EUR/yr mean annual gross earnings (NL, ISCO OC8)"
+  year: 2022
+  values: {"EU27_2020_OC8": 29469, "EU27_2020_TOTAL": 39058, "NL_OC8": 43822, "NL_TOTAL": 50942, "DK_OC8": 59910, "DK_TOTAL": 65622}
+  grade: "A"
+  source: "Eurostat Structure of Earnings Survey 2022, earn_ses22_28 'Mean annual earnings by sex, age and occupation - NACE Rev. 2, B-S excluding O (2022)'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/earn_ses22_28?format=JSON&lang=en&geo=EU27_2020&geo=NL&geo=DK&isco08=OC8&isco08=TOTAL&sex=T&age=TOTAL&unit=EUR&indic_se=ERN&sizeclas=GE10"
+  locator: "sex=T, age=TOTAL, indic_se=ERN (gross earnings), sizeclas=GE10, unit=EUR, isco08 OC8 and TOTAL"
+  quote: "OC8 'Plant and machine operators and assemblers', 2022: EU27_2020 29469, DK 59910, NL 43822 EUR"
+  read: "html"
+  note: "Gross earnings only (no employer social contributions); ISCO 1-digit group is broader than chemical plant operators. 4-yearly survey; 2022 is the latest."
+
+- key: "labour_design_basis_tea"
+  value: null
+  unit: "USD/yr salary; burden as fraction of salaries"
+  values: {"NREL2011_shift_operator_2007USD": 38522, "NREL2011_labor_burden": 0.9, "Humbird2021_operator_USD": 50000, "Humbird2021_supervisor_USD": 70000, "Humbird2021_labor_burden": 1.0}
+  grade: "B"
+  source: "NREL/TP-5100-47764 (2011) Table 31; Humbird (2021) section 3.3 and SI RawUtil BF23:BG25"
+  doi_or_url: "local: references/reports/NREL_2011_Humbird_TP-5100-47764_biochemical_ethanol.pdf ; references/papers/Humbird2021_cultured_meat.pdf"
+  locator: "NREL Table 31 p.64; Humbird text lines ~2946-2952"
+  quote: "a baseline non-supervisory salary of $50,000/y is taken from the U.S. Bureau of Labor Statistics—Chemical Plant Operator. The supervisor’s salary is taken as 140% of this. A labor burden (overhead) of 100% is added"
+  read: "fulltext"
+  note: "NREL: 'Shift operators 38,522 20' (2007 salary, number required); 'Labor burden (90%)'; salaries for rural Midwest (Iowa, Missouri)."
+
+
+# ---------------- 5. Cost indices and exchange rates ----------------
+
+- key: "ppi_chemical_manufacturing"
+  value: 356.513
+  unit: "Index Dec 1984=100"
+  year: 2025
+  values: {2007: 203.342, 2008: 228.208, 2009: 224.675, 2010: 233.717, 2011: 252.067, 2012: 260.258, 2013: 263.908, 2014: 269.167, 2015: 264.833, 2016: 267.1, 2017: 277.592, 2018: 290.158, 2019: 292.067, 2020: 288.992, 2021: 322.832, 2022: 359.614, 2023: 356.535, 2024: 352.171, 2025: 356.513}
+  grade: "A"
+  source: "U.S. BLS Producer Price Index, series PCU325325 (Producer Price Index by Industry: Chemical Manufacturing), via FRED"
+  doi_or_url: "https://fred.stlouisfed.org/data/PCU325325"
+  locator: "FRED 'Table Data' page, monthly observations 1984-12-01 to 2026-08-01"
+  quote: "PCU325325 annual means of monthly values (computed): 2007 203.342, 2018 290.158, 2024 352.171, 2025 356.513"
+  read: "html"
+  csv: "data/prices/ppi_chemical_manufacturing_pcu325325.csv"
+  note: "Escalation factors (computed): 2018->2025 x1.2287; 2007->2025 x1.7533."
+
+- key: "ppi_machinery_equipment"
+  value: 186.2
+  unit: "Index 1982=100"
+  year: 2025
+  values: {2007: 127.25, 2008: 129.725, 2009: 131.258, 2010: 131.1, 2011: 132.742, 2012: 134.2, 2013: 135.15, 2014: 136.25, 2015: 136.95, 2016: 136.858, 2017: 137.875, 2018: 140.317, 2019: 143.358, 2020: 144.892, 2021: 149.941, 2022: 164.966, 2023: 174.192, 2024: 179.313, 2025: 186.2}
+  grade: "A"
+  source: "U.S. BLS Producer Price Index, series WPU11 (Producer Price Index by Commodity: Machinery and Equipment), via FRED"
+  doi_or_url: "https://fred.stlouisfed.org/data/WPU11"
+  locator: "FRED 'Table Data' page, monthly observations 1939-01-01 to 2026-08-01"
+  quote: "WPU11 annual means of monthly values (computed): 2007 127.25, 2018 140.317, 2024 179.313, 2025 186.2"
+  read: "html"
+  csv: "data/prices/ppi_machinery_equipment_wpu11.csv"
+  note: "Escalation factors (computed): 2018->2025 x1.3270; 2007->2025 x1.4633."
+
+- key: "ppi_pumps_compressors_equipment"
+  value: 396.168
+  unit: "Index 1982=100"
+  year: 2025
+  values: {2007: 194.983, 2008: 205.367, 2009: 212.65, 2010: 215.108, 2011: 223.35, 2012: 229.967, 2013: 235.167, 2014: 240.533, 2015: 244.792, 2016: 247.042, 2017: 251.517, 2018: 259.942, 2019: 266.442, 2020: 269.825, 2021: 280.937, 2022: 322.282, 2023: 352.372, 2024: 369.746, 2025: 396.168}
+  grade: "A"
+  source: "U.S. BLS Producer Price Index, series WPU1141 (Producer Price Index by Commodity: Machinery and Equipment: Pumps, Compressors, and Equipment), via FRED"
+  doi_or_url: "https://fred.stlouisfed.org/data/WPU1141"
+  locator: "FRED 'Table Data' page, monthly observations 1947-01-01 to 2026-08-01"
+  quote: "WPU1141 annual means of monthly values (computed): 2007 194.983, 2018 259.942, 2024 369.746, 2025 396.168"
+  read: "html"
+  csv: "data/prices/ppi_pumps_compressors_equipment_wpu1141.csv"
+  note: "Escalation factors (computed): 2018->2025 x1.5241; 2007->2025 x2.0318."
+
+- key: "ppi_metal_tanks_heavy_gauge"
+  value: 285.421
+  unit: "Index Dec 2003=100"
+  year: 2025
+  values: {2007: 132.242, 2008: 143.067, 2009: 142.208, 2010: 139.975, 2011: 139.958, 2012: 143.583, 2013: 145.192, 2014: 148.958, 2015: 147.583, 2016: 143.017, 2017: 136.45, 2018: 148.458, 2019: 158.358, 2020: 158.983, 2021: 198.904, 2022: 232.311, 2023: 240.974, 2024: 266.119, 2025: 285.421}
+  grade: "A"
+  source: "U.S. BLS Producer Price Index, series PCU332420332420 (Producer Price Index by Industry: Metal Tanks, Heavy Gauge, Manufacturing), via FRED"
+  doi_or_url: "https://fred.stlouisfed.org/data/PCU332420332420"
+  locator: "FRED 'Table Data' page, monthly observations 2003-12-01 to 2026-08-01"
+  quote: "PCU332420332420 annual means of monthly values (computed): 2007 132.242, 2018 148.458, 2024 266.119, 2025 285.421"
+  read: "html"
+  csv: "data/prices/ppi_metal_tanks_heavy_gauge_pcu332420332420.csv"
+  note: "Escalation factors (computed): 2018->2025 x1.9226; 2007->2025 x2.1583."
+
+- key: "ppi_power_boiler_heat_exchanger"
+  value: 294.211
+  unit: "Index Dec 2003=100"
+  year: 2025
+  values: {2007: 136.967, 2008: 147.433, 2009: 143.367, 2010: 144.667, 2011: 152.958, 2012: 156.317, 2013: 158.933, 2014: 160.9, 2015: 165.4, 2016: 167.65, 2017: 169.733, 2018: 178.958, 2019: 187.558, 2020: 191.183, 2021: 208.399, 2022: 236.784, 2023: 253.147, 2024: 270.552, 2025: 294.211}
+  grade: "A"
+  source: "U.S. BLS Producer Price Index, series PCU332410332410 (Producer Price Index by Industry: Power Boiler and Heat Exchanger Manufacturing), via FRED"
+  doi_or_url: "https://fred.stlouisfed.org/data/PCU332410332410"
+  locator: "FRED 'Table Data' page, monthly observations 2003-12-01 to 2026-08-01"
+  quote: "PCU332410332410 annual means of monthly values (computed): 2007 136.967, 2018 178.958, 2024 270.552, 2025 294.211"
+  read: "html"
+  csv: "data/prices/ppi_power_boiler_heat_exchanger_pcu332410332410.csv"
+  note: "Escalation factors (computed): 2018->2025 x1.6440; 2007->2025 x2.1480."
+
+- key: "ppi_machinery_manufacturing"
+  value: 190.547
+  unit: "Index Dec 2003=100"
+  year: 2025
+  values: {2007: 112.167, 2008: 117.025, 2009: 120.283, 2010: 120.533, 2011: 123.433, 2012: 126.192, 2013: 127.908, 2014: 130.008, 2015: 131.542, 2016: 132.108, 2017: 133.317, 2018: 136.142, 2019: 140.092, 2020: 142.117, 2021: 148.851, 2022: 166.864, 2023: 178.394, 2024: 184.19, 2025: 190.547}
+  grade: "A"
+  source: "U.S. BLS Producer Price Index, series PCU333333 (Producer Price Index by Industry: Machinery Manufacturing), via FRED"
+  doi_or_url: "https://fred.stlouisfed.org/data/PCU333333"
+  locator: "FRED 'Table Data' page, monthly observations 2003-12-01 to 2026-08-01"
+  quote: "PCU333333 annual means of monthly values (computed): 2007 112.167, 2018 136.142, 2024 184.19, 2025 190.547"
+  read: "html"
+  csv: "data/prices/ppi_machinery_manufacturing_pcu333333.csv"
+  note: "Escalation factors (computed): 2018->2025 x1.3996; 2007->2025 x1.6988."
+
+- key: "cpi_u_us"
+  value: 321.943
+  unit: "Index 1982-84=100 (annual average)"
+  year: 2025
+  values: {2007: 207.342, 2008: 215.303, 2009: 214.537, 2010: 218.056, 2011: 224.939, 2012: 229.594, 2013: 232.957, 2014: 236.736, 2015: 237.017, 2016: 240.007, 2017: 245.12, 2018: 251.107, 2019: 255.657, 2020: 258.811, 2021: 270.97, 2022: 292.655, 2023: 304.702, 2024: 313.689, 2025: 321.943}
+  grade: "A"
+  source: "U.S. BLS, CPI-U U.S. City Average All Items, NSA (series CUUR0000SA0), table on BLS Northeast Information Office site"
+  doi_or_url: "https://www.bls.gov/regions/northeast/data/consumerpriceindex_us_table.htm"
+  locator: "table 'Consumer Price Index for all Urban Consumers (CPI-U), Not Seasonally Adjusted', column Avg"
+  quote: "2025 | 317.671 | 319.082 | ... | 324.800 | (1)- | 324.122 | 324.054 | 321.943; footnote '(1) Data unavailable due to the 2025 lapse in appropriations'"
+  read: "html"
+  csv: "data/prices/cpi_u_us_bls.csv"
+  note: "Escalation (computed): 2018->2025 x1.2821; 2007->2025 x1.5527. BLS 2025 annual = mean of the 11 published months; FRED CPIAUCNS gives the same."
+
+- key: "cepci_annual"
+  value: 797.9
+  unit: "Index 1957-59=100"
+  year: 2023
+  values: {2007: 525.4, 2008: 575.4, 2009: 521.9, 2010: 550.8, 2011: 585.7, 2012: 584.6, 2013: 567.3, 2014: 576.1, 2015: 556.8, 2016: 541.7, 2017: 567.5, 2018: 603.1, 2019: 607.5, 2020: 596.2, 2021: 708.8, 2022: 816.0, 2023: 797.9}
+  grade: "B"
+  source: "Chemical Engineering Plant Cost Index (Chemical Engineering magazine, Access Intelligence), as transcribed by Towering Skills and by the University of Manchester CEPCI teaching app"
+  doi_or_url: "https://toweringskills.com/financial-analysis/cost-indices/ ; https://www.training.itservices.manchester.ac.uk/public/gced/reactors/CEPCI/js/sim-model.js"
+  locator: "Towering Skills 'Cost Indices' table 'Year CEPCI'; Manchester sim-model.js arrays year/CEPCI"
+  quote: "Year CEPCI 2024 Jun 798.8 2024 May 800.2 2024 Apr 799.5 2024 Mar 800.7 2024 Feb 800.0 2024 Jan 795.4 2023 797.9 2022 816.0 2021 708.8 2020 596.2 2019 607.5 2018 603.1"
+  read: "html"
+  csv: "data/prices/cepci_annual.csv"
+  note: "Primary source paywalled since Sept 2024 (Towering Skills: 'effective September 2024, the current publisher Access Intelligence LLC stopped publishing the CEPCI'). Two independent secondary transcriptions agree for 2007-2023 -> B. 2018->2023 x1.3230; 2007->2023 x1.5187. 2024 and 2025 annual values are not public: see cepci_2025_vs_2024."
+
+- key: "cepci_2025_vs_2024"
+  value: 1.016
+  unit: "ratio CEPCI 2025 annual / 2024 annual"
+  year: 2025
+  grade: "A"
+  source: "Jenkins S. 'Inflationary pressures push 2025 CEPCI annual average higher than 2024'. Chemical Engineering, 2 Apr 2026 (free lead paragraph)"
+  doi_or_url: "https://www.chemengonline.com/inflationary-pressures-push-2025-cepci-annual-average-higher-than-2024/?printmode=1"
+  locator: "lead paragraph (rest paywalled)"
+  quote: "Boosted by inflationary pressures, the 2025 annual average value for the Chemical Engineering Plant Cost Index® edged 1.6% higher than the previous year’s annual average, reversing the past two years of decreases."
+  read: "html"
+  note: "Publisher statement. 'reversing the past two years of decreases' implies CEPCI 2024 < 797.9 (2023). With Jan-Jun 2024 monthly 795.4-800.7, 2024 is plausibly ~790-797.9, so 2025 ~= 1.016 x that = ~803-811 (my inference, grade E for the number). Implied 2018->2025 ~x1.331-1.345; 2007->2025 ~x1.528-1.544. The Manchester '800' for 2024 is an estimate and conflicts with the publisher statement."
+
+- key: "eurusd_annual_average"
+  value: 1.13
+  unit: "USD per EUR"
+  year: 2025
+  values: {2007: 1.3705, 2008: 1.4708, 2009: 1.3948, 2010: 1.3257, 2011: 1.392, 2012: 1.2848, 2013: 1.3281, 2014: 1.3285, 2015: 1.1095, 2016: 1.1069, 2017: 1.1297, 2018: 1.181, 2019: 1.1195, 2020: 1.1422, 2021: 1.1827, 2022: 1.053, 2023: 1.0813, 2024: 1.0824, 2025: 1.13}
+  grade: "A"
+  source: "European Central Bank, euro foreign exchange reference rates, annual average (series EXR.A.USD.EUR.SP00.A); cross-check Federal Reserve G.5A via FRED AEXUSEU"
+  doi_or_url: "https://data-api.ecb.europa.eu/service/data/EXR/A.USD.EUR.SP00.A?format=jsondata&startPeriod=2007&endPeriod=2025 ; https://fred.stlouisfed.org/data/AEXUSEU"
+  locator: "ECB data API jsondata; FRED table page"
+  quote: "EXR.A.USD.EUR.SP00.A: 2024 1.08238046875, 2025 1.1299831372549; FRED AEXUSEU (G.5A): 2024 1.082, 2025 1.1306"
+  read: "html"
+  csv: "data/prices/eurusd_annual.csv"
+  note: "Use ECB for EUR->USD conversions of Eurostat prices; the Fed noon-buying-rate average differs by <0.001."
+
+- key: "escalation_factors_summary"
+  value: null
+  unit: "multiplier (later year / earlier year)"
+  values: {"PPI_PCU325325_2018_2025": 1.2287, "PPI_PCU325325_2007_2025": 1.7533, "PPI_WPU11_2018_2025": 1.327, "PPI_WPU11_2007_2025": 1.4633, "PPI_WPU1141_2018_2025": 1.5241, "PPI_WPU1141_2007_2025": 2.0318, "PPI_PCU332420332420_2018_2025": 1.9226, "PPI_PCU332410332410_2018_2025": 1.644, "PPI_PCU333333_2018_2025": 1.3996, "CPI_U_2018_2025": 1.2821, "CPI_U_2007_2025": 1.5527}
+  grade: "A"
+  source: "Computed from the ppi_* and cpi_u_us entries in this file (BLS data)"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: "html"
+  note: "Derived, not a quote (hence quote: null); check against the component entries. CEPCI factors are in cepci_annual (2018->2023 x1.3230, grade B) and cepci_2025_vs_2024 (2018->2025 ~x1.33-1.35, 2007->2025 ~x1.53-1.54, inferred, grade E)."

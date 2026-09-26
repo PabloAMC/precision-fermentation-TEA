@@ -12,11 +12,11 @@ David et al. 2026 (review, tifs) says the same. What does exist:
 
 | key | what it is | why it matters |
 |---|---|---|
-| voutilainen2021 | VTT; three SCPs + one "generalized recombinant protein" from straw sugar. Full SI workbook (balances, capex, opex, DCF) on disk | Validation target 1. GFI 2025 cites its $11.2/kg (spray-dried, 90% purity) as the lowest published PF COP |
-| humbird2011 (NREL) Area 400 | On-site T. reesei cellulase plant: 300 m3 reactors, **50 g/L titer, 0.24 kg protein/kg glucose, 120 h on + 48 h off** (Table 18) | Best fully public anchor for cheap crude secreted fungal protein. Proposed validation target |
+| voutilainen2021 | VTT; three SCPs + one "generalized recombinant protein" from straw sugar. Full SI workbook (balances, capex, opex, DCF) on disk | Calibration anchor 4 (plan v2). GFI 2025 cites its $11.2/kg (spray-dried, 90% purity) as the lowest published PF COP |
+| humbird2011 (NREL) Area 400 | On-site T. reesei cellulase plant: 300 m3 reactors, **50 g/L titer, 0.24 kg protein/kg glucose, 120 h on + 48 h off** (Table 18); $4.24/kg protein (2007$), crude | Best fully public anchor for cheap crude secreted fungal protein. Calibration anchor 2 (plan v2); the primer's running example |
 | kleinmarcuschamer2012 | Cellulase production TEA (LBNL) | Second crude-protein anchor; gives $/kg protein and its sensitivity to titer and yield |
-| intelligen_ovalbumin2025 | SuperPro example: yeast, 30 g/L in 4.5 d, 1000 t/yr, ammonium-sulfate precipitation | Closest thing to an OVA TEA. Not on disk (ResearchGate only). Candidate to replace the lactoferrin target |
-| intelligen_lactoferrin2024 | 10 g/L, 5 d, 250 t/yr, two DSP cases (UF/DF + spray-dry vs CEX) | The $292/kg target in tests. Not on disk |
+| intelligen_ovalbumin2025 | SuperPro example: yeast, 30 g/L in 4.5 d, 1000 t/yr, ammonium-sulfate precipitation | Closest thing to an OVA TEA. **On disk since 2026-09-26** (reports/Intelligen_2025_ovalbumin_TEA.pdf): $38.99/kg gross, $36.33 net, TCI $92M, 92 g/L DCW. Calibration anchor 3 and exercise A1 |
+| intelligen_lactoferrin2024 | 10 g/L, 5 d, 250 t/yr, two DSP cases (UF/DF + spray-dry vs CEX) | The $292/kg target in the old tests; optional DSP check in plan v2. Not on disk |
 | gfi2025costs | GFI + Hawkwood; survey of published TEMs vs private-sector data | Source of the 24 g/L (published avg) vs 42 g/L (private avg) benchmark, sec 1.3.2 |
 | gfieurope2025 | GFI Europe + ADL archetype cost models, $24-33/kg PF protein | Industry-side comparator, grade C |
 | risner2023 | Mycoprotein (biomass fermentation) TEM | Structure and sensitivity pattern to copy; not a PF product |
@@ -65,10 +65,13 @@ fermentation Vivici cross-references), any Onego Bio filing under that assignee.
 See references/TO_FETCH.md (full list with DOIs, priorities and filenames).
 Old list:
 Aro2023 (full text), Eastham2024, Nielsen2024, Nielsen2025, David2026, David2026lca,
-CortesPena2020, Jarvio2021 accepted manuscript, the three Intelligen white papers,
-Yao2026 (needs institutional access), DSM WO2022269549.
+CortesPena2020, Jarvio2021 accepted manuscript, the three Intelligen white papers
+(ovalbumin fetched 2026-09-26), Yao2026 (needs institutional access), DSM WO2022269549.
 
 ## 8. Recommendations for the plan
+Status 2026-09-26: items 1 and 2 were adopted in PLAN.md v2. The anchors are now baker's
+yeast (Humbird App. A, real price), NREL 2011 Area 400, Intelligen OVA 2025 and
+Voutilainen 2021.
 1. Add NREL 2011 Area 400 as validation target 1 (all inputs public, incl. yield).
 2. Swap the Intelligen lactoferrin target for the Intelligen ovalbumin 2025 model
    once its PDF is obtained; keep lactoferrin as the high-purity DSP check.

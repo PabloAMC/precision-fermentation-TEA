@@ -1,0 +1,14 @@
+# Bovine beta-lactoglobulin (whey). Sequence: UniProt P02754 (LACB_BOVIN), mature chain 17-178,
+# retrieved 2026-09-26 from https://rest.uniprot.org/uniprotkb/P02754.fasta (signal peptide 1-16 removed).
+name: beta-lactoglobulin
+key: blg
+uniprot: P02754
+mature_sequence: >-
+  LIVTQTMKGLDIQKVAGTWYSLAMAASDISLLDAQSAPLRVYVEELKPTPEGDLEILLQKWENGECAQKKIIAEKTKIPAVFKIDALNENKVLVLDTDYKKYLLFCMENSAEPEQSLACQCLVRTPEVDDEALEKFDKALKALPMHIRLSFNPTQLEEQCHI
+disulfides: 2
+post_translational: none modelled (not glycosylated)
+spec:                       # base spec = FDA GRN 1056 (Remilk) concentrate
+  protein_min_frac_powder: {value: 0.70, grade: A, source: "FDA-GRN1056 sec 2.3.1 Table: Protein >=70 wt%"}
+  target_min_frac_protein: {value: 0.80, grade: A, source: "FDA-GRN1056: beta-lactoglobulin as % of protein >=80%"}
+  moisture_max: {value: 0.07, grade: A, source: "FDA-GRN1056: moisture <=7 wt%"}
+solubility_practical_g_L: {value: null, note: "not needed: BLG is highly soluble; UF end concentration set in DSP"}

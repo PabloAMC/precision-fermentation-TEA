@@ -1,0 +1,20 @@
+year,value,unit,source_url,note
+2007,127.25,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2008,129.725,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2009,131.258,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2010,131.1,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2011,132.742,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2012,134.2,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2013,135.15,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2014,136.25,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2015,136.95,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2016,136.858,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2017,137.875,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2018,140.317,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2019,143.358,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2020,144.892,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2021,149.941,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2022,164.966,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2023,174.192,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2024,179.313,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT
+2025,186.2,Index 1982=100,https://fred.stlouisfed.org/data/WPU11,BLS PPI series WPU11 via FRED table page; annual = mean of 12 monthly NSA values (computed); FRED last updated 2026-09-10 11:55 AM CDT

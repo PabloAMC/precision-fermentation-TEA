@@ -1,0 +1,1153 @@
+# Calibration anchor 4 (PLAN.md, phase D): Voutilainen et al. 2021.
+# Extracted 2026-09-26 from the paper (PDF + text) and the SI workbook on disk. Not yet reviewed.
+#
+# Locators:
+#   SI 'Sheet'!A1 = cell in the SI workbook, read with openpyxl (values and formulas)
+#   SI 'Sheet'!A1:B2 (image ...) = picture embedded in the workbook at that anchor
+#   p.N = printed journal page N (PDF page N+1), with a verbatim quote
+#   Fig./Table = read from the figure or table on that page
+# `derived: true` means the number is NOT in the source. It is arithmetic on sourced numbers,
+# with the formula given. Check these first. Grades follow data/evidence/README.md
+# (B = design-basis assumption in a peer-reviewed TEA).
+
+source:
+  key: voutilainen2021
+  citation: >-
+    Voutilainen E, Pihlajaniemi V, Parviainen T (2021). Economic comparison of food protein
+    production with single-cell organisms from lignocellulose side-streams. Bioresource
+    Technology Reports 14:100683.
+  doi: 10.1016/j.biteb.2021.100683
+  license: CC BY 4.0
+  files:
+    paper_pdf: references/papers/Voutilainen2021_scp_lignocellulose_economics.pdf
+    paper_text: references/text/Voutilainen2021_scp_lignocellulose_economics.txt
+    si_workbook: references/papers/Voutilainen2021_scp_lignocellulose_economics_SI.xlsx
+  page_convention: "p.N = printed journal page; PDF page = N + 1 (VTT cover sheet first)."
+  si_structure: >-
+    A static results workbook, not the live model. The paper's Excel/VBA model (Solver,
+    Goal Seek, Monte Carlo) is not supplied. The SI has 8 sheets and only 24 formulas, all
+    cosmetic (label copies and averages on 'Commercial protein prices'). Every equation is an
+    embedded picture; they are transcribed in `equations` below. The four DCF tables are
+    embedded EMF pictures (xl/media/image97-100.emf); their numbers were read from the EMF
+    text records. 'Operating costs' values are text strings rounded to 0.01 M EUR. No sheet
+    itemises equipment.
+  verification: >-
+    Paper quotes were checked by script against a column-reflowed copy of the on-disk text.
+    SI cells were re-read and compared by script. Values read by eye from figures are marked
+    `read: figure`.
+  extracted: 2026-09-26
+  extracted_by: "Claude (subagent), unreviewed"
+
+cost_year: 2019          # equipment costs brought to 2019 with CEPCI 607.5 (p.4)
+currency: EUR
+cost_basis: "EUR per DM tonne of protein (recombinant: purified protein; SCP: protein in the biomass)"
+
+calibration_target:
+  case: recombinant_protein
+  value: 9007
+  unit: EUR/t DM protein (2019 EUR)
+  note: >-
+    Use this number as the anchor, not the $11.2/kg in GFI 2025. The $11.2/kg is GFI's
+    restatement in 2024 USD, most likely per kg of 90%-DM powder; see usd_figure_check.
+    tests/test_validation.py currently targets cop_usd_kg = 11.2. Revisit that in phase D.
+
+method_notes: |
+  Integrated greenfield plant at an unspecified location, 8000 h/yr, processing 40,000 t DM of
+  wheat straw a year. All four products share the sugar section: 1% H2SO4 steam explosion
+  (190 C, 15 min), enzymatic hydrolysis (enzyme dose, time and solids optimised inside the TEA
+  with Excel Solver), then centrifuges. This gives 15,417 t/yr of sugars at 67.7 g/L. Each
+  product then has its own fermentation and DSP. Mass balance in Excel, 2% loss per step.
+  CAPEX: each item's purchased cost is scaled from literature or quotes with
+  c1 = c0 (m2/m1)^n, c = a + b S^n or c = M a m^n. Costs are moved to 2019 with CEPCI and
+  converted USD->EUR by a factor e whose value is not reported. Unlisted items (pumps,
+  conveyors) add 20% to purchased equipment; SCP adds a further 10% for the RNA reactor.
+  FCI = 4.07 x purchased equipment (Peters-Timmerhaus ratio factors); working capital is 5% of
+  FCI. The sugar section (FCI 30.5 M EUR) sits inside each product's FCI (inferred; see
+  sugar_section_fci).
+  OPEX = variable + fixed. Variable: straw, enzymes, water, chemicals (H2SO4, NaOH, NH3,
+  antifoam, nutrients), and energy and electricity (agitation + aeration + 20%, plus steam).
+  Fixed: labour + maintenance. There is no insurance, overhead, G&A, QC, R&D or regulatory cost.
+  MPSP = the price at which the equity cash flow has zero NPV, over 20 years, found with Goal
+  Seek. Reconstructed from the SI DCF tables (reproduces 9007, see dcf_reconstruction):
+  - 40% equity, spent 30/70 over two construction years;
+  - 60% debt at 5%, repaid in 20 equal principal instalments;
+  - discount rate 5%;
+  - tax 20% on (revenue - opex), with no depreciation or interest deduction;
+  - one start-up year (50% revenue);
+  - by-products credited at combustion value;
+  - the equity CAPEX enters the NPV undiscounted, and working capital is left out.
+  This is equivalent to an unlevered 5% DCF with capital of 1.03 x FCI at t=0 (see
+  dcf_reconstruction.equivalent_unlevered_form).
+
+cases:
+
+  # ======================================================================================
+  recombinant_protein:
+    name_in_paper: "generalized recombinant protein (acellular, secreted)"
+    name_in_si: "Ovalbumin"                  # SI 'Capital costs'!M4
+    one_line: >-
+      A fed-batch fungal secretion process modelled on NREL 2011's T. reesei cellulase area.
+      Sugar is fed at 200 g/L, with 0.2 g protein and 0.2 g biomass per g sugar and 0.2 g/L/h.
+      DSP: pressure filter, then sheet filter, then UF to 28%, then spray dryer to 90% DM.
+      Output 2508 t DM protein/yr. MPSP 9007 EUR/t.
+    # scope: shared = common to all four cases (the SCP cases below reuse these);
+    #        case   = recombinant-specific.
+    parameters:
+
+      # ---------------- identity ----------------
+      - key: host_organism
+        value: "Trichoderma reesei (implied; never named as the host)"
+        unit: "-"
+        scope: case
+        locator: "p.3, sec. 2.1.3"
+        quote: "The NREL’s process set up is applicable to recombinant food protein production as the production host is the same and the product similar."
+        also: "p.7: 'The Trichoderma cell waste from the recombinant protein process'"
+        grade: B
+      - key: product
+        value: "microbial egg protein, generalized (the SI column is labelled 'Ovalbumin')"
+        unit: "-"
+        scope: case
+        locator: "p.3, sec. 2.1.3; SI 'Capital costs'!M4"
+        quote: "One generalized recombinant protein process based on the production of microbial egg protein was designed mainly using VTT’s technical data"
+        grade: B
+
+      # ---------------- plant scale and feedstock (shared) ----------------
+      - key: straw_capacity
+        value: 40000
+        unit: t DM straw/yr
+        scope: shared
+        locator: "p.3, sec. 2.2"
+        quote: "annual raw material capacity of 40,000 DM tons of straw with 8000 h of an annual production time"
+        grade: B
+        note: "The Monte Carlo range is 20,000-60,000 (Table 1). As-received straw = 40,000/0.85 = 47,059 t/yr (derived)."
+      - key: operating_hours
+        value: 8000
+        unit: h/yr
+        scope: shared
+        locator: "p.3, sec. 2.2"
+        quote: "annual raw material capacity of 40,000 DM tons of straw with 8000 h of an annual production time"
+        grade: B
+      - key: straw_dry_matter
+        value: 85
+        unit: "% DM"
+        scope: shared
+        locator: "p.2, sec. 2.1"
+        quote: "Wheat straw was assumed to have a dry matter (DM) of 85% and to contain 37% cellulose, 27% hemicelluloses, 20% lignin, and other 16% components"
+        grade: B
+      - key: straw_composition
+        value: {cellulose: 37, hemicellulose: 27, lignin: 20, other: 16}
+        unit: "% of DM"
+        scope: shared
+        locator: "p.2, sec. 2.1"
+        quote: "Wheat straw was assumed to have a dry matter (DM) of 85% and to contain 37% cellulose, 27% hemicelluloses, 20% lignin, and other 16% components"
+        grade: B
+      - key: straw_price
+        value: 42.57
+        unit: EUR/t DM
+        scope: shared
+        locator: "SI 'Operating costs'!J12"
+        also: "p.2, sec. 2.1"
+        quote: "The base case wheat straw price was estimated as 42.57 €/DM ton"
+        grade: B
+        note: "The SI cites internal information plus a transport-cost calculation. Monte Carlo range 50-150% (Table 1)."
+
+      # ---------------- sugar section (shared) ----------------
+      - key: pretreatment_acid
+        value: 1
+        unit: "% H2SO4 solution, slurry at 30% DM"
+        scope: shared
+        locator: "p.2, sec. 2.1.1"
+        quote: "mixed with a 1% food-grade H2SO4 solution (Niemi et al., 2017) to 30% DM"
+        grade: B
+        note: "Preheated to 100 C. Neutralised with food-grade NaOH (50%)."
+      - key: steam_explosion_temperature
+        value: 190
+        unit: degC
+        scope: shared
+        locator: "p.2, sec. 2.1.1"
+        quote: "with a retention time of 15 min at a temperature of 190"
+        grade: B
+        note: "Retention time 15 min. Continuous reactor."
+      - key: steam_explosion_pressure
+        value: 5.57
+        unit: bar
+        scope: shared
+        locator: "p.2, sec. 2.1.1"
+        quote: "a 5.57 bar pressure by adding 13 bar high-pressure steam"
+        grade: B
+      - key: hp_steam_use
+        value: 0.4
+        unit: t HP steam (13 bar)/t DM straw
+        scope: shared
+        locator: "p.2, sec. 2.1.1"
+        quote: "The high-pressure steam consumption in the process was estimated as 0.4 ton per ton DM"
+        grade: B
+      - key: steam_explosion_conversion
+        value: {pentose: 44, hexose: 5}
+        unit: "%"
+        scope: shared
+        locator: "SI 'Process assumptions'!C8 (pentose), C9 (hexose)"
+        also: "p.3, sec. 2.1.1"
+        quote: "during the steam explosion were 0.44 and 0.05, respectively"
+        grade: B
+        note: "The paper's sentence pairs 'pentose and hexose' with 'cellulose and hemicelluloses' in the wrong order. Physically, 44% of the hemicellulose goes to pentoses and 5% of the cellulose to glucose."
+      - key: solid_recovery
+        value: {cellulose: 83, hemicellulose: 31}
+        unit: "%"
+        scope: shared
+        locator: "SI 'Process assumptions'!C10, C11"
+        grade: B
+      - key: hydrolysis_temperature
+        value: 45
+        unit: degC
+        scope: shared
+        locator: "SI 'Process assumptions'!C13"
+        also: "p.2, sec. 2.1.1"
+        quote: "where the reaction temperature is 45"
+        grade: B
+      - key: enzyme_price
+        value: 10000
+        low: 3000
+        high: 20000
+        unit: EUR/t enzyme protein
+        scope: shared
+        locator: "SI 'Operating costs'!J13"
+        also: "p.4, sec. 3.1; Table 1 (triangular 3000/10,000/20,000)"
+        quote: "10 €/kg protein was selected as the base case"
+        grade: B
+      - key: hydrolysis_optimum
+        value: {yield_pct: 57.53, enzyme_mg_per_g_DM: 5.07, enzyme_mg_per_g_cellulose: 9.07, time_h: 128.52, solids_pct: 12.80}
+        unit: mixed
+        scope: shared
+        locator: "p.4, sec. 3.1"
+        quote: "The optimum hydrolysis yield for the base case was 57.53%, with the optimum E of 5.07 mg/g DM (9.07 mg/g cellulose), optimum t of 128.52 h and optimum c of 12.80%."
+        grade: B
+        note: "This is a Solver optimum, not an input. Fig. 2 labels give the rounded values Y=58%, E=5.0 mg/g, t=131 h, c=13%."
+      - key: hydrolysate_sugar_concentration
+        value: 67.7
+        unit: g/L
+        scope: shared
+        locator: "p.3, sec. 2.1.3"
+        quote: "The sugar concentration in the hydrolysate was 67.7 g/L for the base case scenario, and thus required concentration to 200 g/L."
+        grade: B
+      - key: sugar_output
+        value: 15417
+        unit: t sugars/yr (monomeric pentose + hexose)
+        scope: shared
+        locator: "p.6, sec. 3.3"
+        quote: "The sugar yield from 40,000 DM tons of straw was 15,417 tons/a."
+        grade: B
+      - key: sugar_production_cost
+        value: 504
+        low: 460
+        high: 550
+        unit: EUR/t sugar
+        scope: shared
+        locator: "Fig. 2C, p.5 (value at the optimum marker); range p.4, sec. 3.1"
+        quote: "The sugar production cost were in the range of 460–550 €/DM ton"
+        read: figure
+        grade: B
+        note: >-
+          This is the plant's own cost of making sugar (straw, enzymes, chemicals, steam and
+          the sugar section's capital), not a market price. The 460-550 range comes from moving
+          the enzyme price and hydrolysis CAPEX to 50-150% of base. For comparison, p.4 gives a
+          '10-year average sugar market price of 308 €/ton'. The recombinant case's
+          sugar-related share of cost comes out at 35% (see derived).
+
+      # ---------------- fermentation (recombinant) ----------------
+      - key: fermentation_mode
+        value: fed-batch
+        unit: "-"
+        scope: case
+        locator: "p.3, sec. 2.1.3"
+        quote: "The recombinant protein fermentation is a fed-batch process"
+        grade: B
+      - key: sugar_feed_concentration
+        value: 200
+        unit: g/L
+        scope: case
+        locator: "p.3, sec. 2.1.3"
+        quote: "the initial sugar concentration in the recombinant protein fed-batch fermentation was 200 g/L"
+        grade: B
+        note: >-
+          The hydrolysate (67.7 g/L) is concentrated to 200 g/L. The SI flowchart shows no
+          evaporator and the paper does not say how this step was costed. The implied water
+          removal is roughly 150,000 t/yr (derived, approx.).
+      - key: fermentable_sugar_fraction
+        value: 90
+        unit: "% of sugars utilised"
+        scope: case
+        locator: "SI 'Process assumptions'!C38"
+        also: "p.6, sec. 3.3"
+        quote: "Utilization of 90% of total sugars was assumed for simplicity"
+        grade: B
+        note: "The SI cell holds the text '90 ' and is labelled 'Assumption'."
+      - key: yield_protein_on_sugar
+        value: 0.2
+        unit: g protein/g sugar
+        scope: case
+        locator: "SI 'Process assumptions'!C37"
+        also: "p.3, sec. 2.1.3"
+        quote: "The biomass and protein conversions from sugars were assumed to be equal, 0.2 for the recombinant protein process"
+        grade: B
+        note: "The SI source is 'Simo Ellilä. Interview 22/4/2020'. Balance equation: m_p = m_s * Y_PS (SI 'Balance calculation equations'!B30)."
+      - key: yield_biomass_on_sugar
+        value: 0.2
+        unit: g DCW/g sugar
+        scope: case
+        locator: "p.3, sec. 2.1.3"
+        quote: "The biomass and protein conversions from sugars were assumed to be equal, 0.2 for the recombinant protein process"
+        grade: B
+        note: "Total dry mass formed is 0.4 g/g sugar. Sanity check: that is about 0.2 g C out of 0.4 g C in the sugar, so roughly half the carbon goes to CO2."
+      - key: volumetric_productivity
+        value: 0.2
+        unit: g protein/L/h
+        scope: case
+        locator: "SI 'Process assumptions'!C39"
+        grade: B
+        note: "SI source: 'Simo Ellilä. Interview 22/4/2020'. Not stated in the paper text."
+      - key: fermentation_temperature
+        value: 28
+        unit: degC
+        scope: case
+        locator: "SI 'Process assumptions'!C40"
+        grade: B
+        note: "SI source: Humbird et al., 2011."
+      - key: aeration_rate
+        value: 0.5
+        unit: vvm
+        scope: case
+        locator: "SI 'Process assumptions'!C41"
+        grade: B
+        note: "SI source: Hardy et al., 2018. No OTR, kLa or O2 demand is given anywhere."
+      - key: agitation_energy
+        value: 3.9
+        unit: kWh/kg protein
+        scope: case
+        locator: "SI 'Process assumptions'!C42"
+        grade: B
+        note: "SI source: Humbird et al., 2011. The basis may be protein only or biomass + protein; see ambiguities."
+      - key: aeration_energy
+        value: 2.4
+        unit: kWh/kg protein
+        scope: case
+        locator: "SI 'Process assumptions'!C43"
+        grade: B
+        note: "SI source: Humbird et al., 2011."
+      - key: other_electricity_allowance
+        value: 20
+        unit: "% on top of agitation + aeration electricity"
+        scope: shared
+        locator: "p.3, sec. 2.2"
+        quote: "Electricity consumption was calculated from the agitation and aeration demands, and an additional 20% was included to cover the other electricity needs."
+        grade: B
+      - key: antifoam_use
+        value: 0.021
+        unit: t antifoam/t DM protein (as labelled)
+        scope: case
+        locator: "SI 'Process assumptions'!C44"
+        also: "p.3: 'Antifoam solution is fed continuously during the recombinant protein process'"
+        grade: B
+        note: "Fig. 4B shows 117 t/yr, which is 0.021 x (biomass + protein formed) = 0.021 x 5550. So the basis is total dry mass formed, not protein alone."
+      - key: nitrogen_source
+        value: "NH4OH (supplies N and pH control)"
+        unit: "-"
+        scope: case
+        locator: "p.3, sec. 2.1.3; SI 'Balance calculation equations'!B37 (equation image)"
+        quote: "dividing the protein content in biomass and extracellular protein by 6.25"
+        grade: B
+        note: "m_N = (m_B*c_p + m_p)/6.25 and m_NH3 = m_N*M_NH3/M_N. Fig. 4B gives 1,084 t/yr of ammonia, which implies c_p of about 1 (see ambiguities)."
+      - key: main_fermenter_volume
+        value: 300
+        unit: m3 (total vessel volume)
+        scope: case
+        locator: "p.3, sec. 2.1.3"
+        quote: "a seed train with three seed fermenters 0.3, 3, and 30 m3, which provides seed for 300 m3 main fermenters"
+        grade: B
+        note: "The number of main fermenters is not stated; see derived.main_fermenters."
+      - key: seed_train_volumes
+        value: [0.3, 3, 30]
+        unit: m3
+        scope: case
+        locator: "p.3, sec. 2.1.3"
+        quote: "a seed train with three seed fermenters 0.3, 3, and 30 m3, which provides seed for 300 m3 main fermenters"
+        grade: B
+      - key: degree_of_filling
+        value: 70
+        unit: "% of vessel volume"
+        scope: shared
+        locator: "SI 'Process assumptions'!C6"
+        also: "p.3, sec. 2.2"
+        quote: "All reactors were designed assuming a 70% degree of filling"
+        grade: B
+      - key: titer
+        value: null
+        unit: g/L
+        scope: case
+        locator: "not stated in paper or SI"
+        note: "Derived 36 g/L; see derived.titer."
+      - key: batch_time
+        value: null
+        unit: h
+        scope: case
+        locator: "not stated in paper or SI (no turnaround time either)"
+        note: "Derived 180 h; see derived.batch_time."
+
+      # ---------------- downstream (recombinant) ----------------
+      - key: dsp_train
+        value: "pressure filtration (cell removal) -> sheet filtration -> ultrafiltration to 28% -> spray drying to 90% DM"
+        unit: "-"
+        scope: case
+        locator: "p.3, sec. 2.1.3"
+        also: "SI 'Process flow charts'!O43:AF71 (image52.png): media prep tank, 3 seed fermenters, compressor, main fermenter, pressure filter, filter press, ultrafilter, spray dryer"
+        quote: "The recombinant protein DSP includes two filtrations; the first is a pressure filtration that removes the cells, and the second is a sheet filtration"
+        grade: B
+        note: "p.8 says the sheet filtration 'removes all remaining GMO cells'. There is no chromatography or precipitation step, and no purity spec."
+      - key: filtration_yield
+        value: null
+        low: 0.93
+        high: 0.95
+        unit: fraction (per filtration)
+        scope: case
+        locator: "p.3, sec. 2.1.3"
+        quote: "The yield from filtrations were 0.93–0.95"
+        grade: B
+        note: "The published protein output is reproduced by 2% loss per step instead (see derived.protein_output_check). It is unclear whether 0.93-0.95 was applied."
+      - key: uf_concentrate_solids
+        value: 28
+        unit: "% (protein concentration after UF)"
+        scope: case
+        locator: "p.3, sec. 2.1.3"
+        quote: "the protein is concentrated to 28% (Kujanpää, 2020) using ultrafiltration and finally dried to 90% DM using spray drying"
+        grade: B
+      - key: product_dry_matter
+        value: 90
+        unit: "% DM (spray-dried powder)"
+        scope: case
+        locator: "p.3, sec. 2.1.3"
+        quote: "the protein is concentrated to 28% (Kujanpää, 2020) using ultrafiltration and finally dried to 90% DM using spray drying"
+        grade: B
+        note: "This is moisture, not purity. GFI 2025 calls it '90% purity'."
+      - key: product_purity
+        value: null
+        unit: "% protein of DM"
+        scope: case
+        locator: "not stated"
+        note: "The model treats all product DM as protein. Costs are per DM t of protein, and Fig. 4B lists 'Protein' separately from 'Biomass'."
+      - key: material_loss_per_step
+        value: 2
+        unit: "% per process step"
+        scope: shared
+        locator: "p.3, sec. 2.2"
+        quote: "A material loss of 2% was assumed for each process step."
+        grade: B
+
+      # ---------------- design basis and utilities (shared) ----------------
+      - key: lp_steam_pressure
+        value: 5.5
+        unit: bar
+        scope: shared
+        locator: "p.3, sec. 2.2"
+        quote: "The heating was provided as 5.5 bar low-pressure steam"
+        grade: B
+      - key: process_water_recycle
+        value: 80
+        unit: "%"
+        scope: shared
+        locator: "p.3, sec. 2.2"
+        quote: "A major part, 80%, of the process water was recycled from wastewater streams"
+        grade: B
+      - key: chemical_storage
+        value: 30
+        unit: days
+        scope: shared
+        locator: "p.3, sec. 2.2"
+        quote: "the chemical storages were designed to store chemicals for 30 days use"
+        grade: B
+      - key: unit_prices
+        value:
+          straw_EUR_per_t_DM: 42.57        # J12
+          enzymes_EUR_per_t: 10000         # J13
+          process_water_EUR_per_t: 0.5     # J14
+          cooling_water_EUR_per_t: 0.05    # J15
+          ammonia_EUR_per_t: 700           # J16
+          sulfuric_acid_EUR_per_t: 250     # J17
+          sodium_hydroxide_EUR_per_t: 300  # J18
+          lp_steam_EUR_per_MWh: 10         # J19
+          hp_steam_EUR_per_MWh: 20         # J20
+          electricity_EUR_per_MWh: 45.9    # J21
+          nutrients_EUR_per_t_product: 100 # J22
+          antifoam_EUR_per_t: 1000         # J23
+        unit: as named
+        scope: shared
+        locator: "SI 'Operating costs'!J12:J23"
+        grade: B
+        note: >-
+          SI sources (K12:K23): Pihlajaniemi 2020, Towler & Sinnott 2012, Alibaba, Peters &
+          Timmerhaus 1991, Energiamarkkinavirasto (the Finnish energy authority) for
+          electricity, and Ellilä interview (nutrients). No consumption quantities are given,
+          only annual costs.
+
+      # ---------------- CAPEX ----------------
+      - key: cepci_2019
+        value: 607.5
+        unit: "-"
+        scope: shared
+        locator: "p.4, sec. 2.4"
+        quote: "converted to 2019 prices using the chemical engineering plant cost index (CEPCI) that was on average 607.5"
+        grade: B
+      - key: usd_to_eur_factor
+        value: null
+        unit: EUR/USD
+        scope: shared
+        locator: "SI 'Capital costs'!C42 (label only) with the equation image at B37: c2 = c1 * I * e"
+        note: "The factor e used to convert equipment costs from USD to EUR is not reported."
+      - key: purchased_equipment_cost
+        value: 31.4927
+        unit: M EUR (2019)
+        scope: case
+        locator: "SI 'Capital costs'!M7"
+        grade: B
+        note: >-
+          Whole plant, including the sugar section and the +20% for unlisted equipment. No
+          itemised equipment list exists in the paper or SI. The equipment types are listed on
+          p.3: 'The purchased equipment was identified as reactors, tanks, centrifuges,
+          filtration systems, dryers, agitators, compressors, and process, cooling, and
+          wastewater systems.'
+      - key: other_equipment_allowance
+        value: 20
+        unit: "% of estimated purchased equipment"
+        scope: shared
+        locator: "p.3, sec. 2.4"
+        quote: "An additional 20% was added to the estimated purchased equipment costs for other equipment, such as pumps and conveyors."
+        grade: B
+      - key: factorial_method
+        value: "Peters & Timmerhaus ratio factors on purchased equipment cost"
+        unit: "-"
+        scope: shared
+        locator: "SI 'Capital costs'!H5:I21"
+        also: "p.3, sec. 2.4"
+        quote: "Capital investment was estimated using the factorial method (Peters and Timmerhaus, 1991)"
+        grade: B
+      - key: capex_factors
+        value:
+          purchased_equipment: 1.00          # I7
+          installation: 0.39                 # I8
+          instrumentation_and_control: 0.13  # I9
+          piping: 0.31                       # I10
+          electrical: 0.10                   # I11
+          buildings: 0.29                    # I12
+          yard_improvements: 0.10            # I13
+          service_facilities: 0.55           # I14
+          engineering_and_supervision: 0.32  # I16
+          construction_expenses: 0.34        # I17
+          contractors_fee: 0.18              # I18
+          contingency: 0.36                  # I19
+          working_capital_of_FCI: 0.05       # I21
+        unit: "multiple of purchased equipment cost (working capital: fraction of FCI)"
+        scope: shared
+        locator: "SI 'Capital costs'!I7:I21"
+        grade: B
+        note: "Direct costs sum to 2.87 x PEC and indirect to 1.20 x PEC, so FCI = 4.07 x PEC and TCI = 4.2735 x PEC. There is no separate legal-expenses line."
+      - key: direct_costs
+        value: 90.3841
+        unit: M EUR
+        scope: case
+        locator: "SI 'Capital costs'!M6"
+        grade: B
+      - key: indirect_costs
+        value: 37.7913
+        unit: M EUR
+        scope: case
+        locator: "SI 'Capital costs'!M15"
+        grade: B
+      - key: fixed_capital_investment
+        value: 128.1753
+        unit: M EUR (2019)
+        scope: case
+        locator: "SI 'Capital costs'!M20"
+        grade: B
+        note: "Includes the sugar section (see sugar_section_fci). Items: installation 12.28 (M8), I&C 4.09 (M9), piping 9.76 (M10), electrical 3.15 (M11), buildings 9.13 (M12), yard 3.15 (M13), service facilities 17.32 (M14), engineering 10.08 (M16), construction 10.71 (M17), contractor 5.67 (M18), contingency 11.34 (M19)."
+      - key: working_capital
+        value: 6.4088
+        unit: M EUR
+        scope: case
+        locator: "SI 'Capital costs'!M21"
+        also: "p.4: 'Working capital was set to 5% of fixed capital investment'"
+        grade: B
+      - key: total_capital_investment
+        value: 134.5841
+        unit: M EUR (2019)
+        scope: case
+        locator: "SI 'Capital costs'!M22"
+        grade: B
+      - key: sugar_section_fci
+        value: 30.4996
+        unit: M EUR
+        scope: shared
+        locator: "SI 'Capital costs'!J28 (table headed 'Capital costs and cost components in lignocellulosic sugar production', column 'SE')"
+        grade: B
+        note: >-
+          Working capital 1.5250 (J29), TCI 32.0246 (J30). This is part of each product's FCI,
+          not added on top. Three checks: 1.5% x M20 reproduces the maintenance cost; the DCF
+          equity CAPEX is 0.4 x M20; and 30.50/63.96 = 47.7% matches the '27–48%' on p.6 for
+          Pekilo. For the recombinant case the share is 23.8%, below the stated 27%
+          (see ambiguities).
+      - key: equity_capex_timing
+        value: {construction_year_1: 30, construction_year_2: 70}
+        unit: "% of FCI"
+        scope: shared
+        locator: "p.4, sec. 2.5"
+        quote: "First-year, 30% of the FCI was invested, and the rest 70% during the second year."
+        grade: B
+
+      # ---------------- OPEX ----------------
+      - key: labour_staffing
+        value: 3
+        unit: workers per process section per shift, 3 shifts (fed-batch; SCP uses 2)
+        scope: case
+        locator: "p.3, sec. 2.4"
+        quote: "two workers per process section in continuous processes and three workers in fed-batch operation, working in three shifts"
+        grade: B
+        note: "Source: Seider et al., 2009. 3.15 M EUR / 70,000 = 45 persons = 3 x 3 x 5 sections (derived; the SCP cases give 2 x 3 x 5 = 30)."
+      - key: labour_cost_per_worker
+        value: 70000
+        unit: EUR/yr (total employer cost)
+        scope: shared
+        locator: "p.3, sec. 2.4"
+        quote: "total-cost salaries of 70,000 €/a including all employee fees"
+        grade: B
+      - key: maintenance_rate
+        value: 1.5
+        unit: "% per yr"
+        scope: shared
+        locator: "p.3, sec. 2.4"
+        quote: "Maintenance costs were assumed as 1.5% of the total capital investment"
+        grade: B
+        note: "The SI numbers apply it to FCI, not TCI: 0.015 x 128.18 = 1.92 = G21. Using TCI would give 2.02."
+      - key: fixed_costs_scope
+        value: "labour + maintenance only"
+        unit: "-"
+        scope: shared
+        locator: "p.3, sec. 2.4"
+        quote: "Fixed costs include labor and maintenance costs."
+        grade: B
+      - key: opex_annual
+        value:
+          total: 11.93              # G12
+          variable_total: 6.86      # G13
+          raw_material: 1.70        # G14 = 40,000 t x 42.57
+          enzymes: 1.54             # G15 (~154 t at 10 EUR/kg; Fig. 4B shows 150 t)
+          water: 0.30               # G16
+          chemicals: 1.31           # G17
+          energy_and_electricity: 2.01  # G18
+          fixed_total: 5.07         # G19
+          labour: 3.15              # G20
+          maintenance: 1.92         # G21
+        unit: M EUR/yr
+        scope: case
+        locator: "SI 'Operating costs'!G12:G21 (column 'Recombinant protein')"
+        grade: B
+        note: >-
+          The cells are text strings such as '11.93 M€'. Chemicals are reproduced from Fig. 4B
+          flows and SI unit prices: 392 t H2SO4 x 250 + 320 t NaOH x 300 + 1084 t NH3 x 700 +
+          117 t antifoam x 1000 + 2508 t x 100 nutrients = 1.32 M EUR. The DCF uses a lower
+          year-1 opex (11.02); see ambiguities.
+
+      # ---------------- financial (shared) ----------------
+      - key: project_life
+        value: 20
+        unit: operating years
+        scope: shared
+        locator: "SI 'DCF'!H4"
+        also: "p.4, sec. 2.5"
+        quote: "Discounted cash flows to the firm were calculated using 20-year amortization."
+        grade: B
+        note: "DCF calendar: construction 2019-2020, start-up 2021 (year 0), operation 2022-2041 (years 1-20)."
+      - key: equity_share
+        value: 40
+        unit: "% (debt 60%)"
+        scope: shared
+        locator: "SI 'DCF'!H5"
+        also: "p.4, sec. 2.5"
+        quote: "The plant was financed with 40% equity and 60% debt assuming an average 5% interest rate."
+        grade: B
+      - key: interest_on_debt
+        value: 5
+        low: 1
+        high: 7
+        unit: "%/yr"
+        scope: shared
+        locator: "SI 'DCF'!H6"
+        also: "p.4, sec. 2.5; Table 1 'Interest, %' uniform 1/5/7"
+        quote: "The plant was financed with 40% equity and 60% debt assuming an average 5% interest rate."
+        grade: B
+      - key: discount_rate
+        value: 5
+        unit: "%/yr"
+        scope: shared
+        locator: "SI 'DCF'!J60:AK76 (image100.emf), row 'Discount factor' = 1.05^-t"
+        grade: B
+        note: "Not stated separately. The DCF discounts at the debt interest rate."
+      - key: income_tax
+        value: 20
+        unit: "%"
+        scope: shared
+        locator: "SI 'DCF'!H7"
+        grade: B
+        note: "Not mentioned in the paper. The DCF tables apply it to (revenue - operating expenses) with no depreciation and no interest deduction (tax/(rev - opex) = 0.200 in every year)."
+      - key: inflation
+        value: 1
+        unit: "%/yr"
+        scope: shared
+        locator: "SI 'DCF'!H8"
+        grade: B
+        note: "Applied to the protein price from year 1."
+      - key: energy_price_escalation
+        value: 2
+        unit: "%/yr"
+        scope: shared
+        locator: "SI 'DCF'!H9"
+        grade: B
+      - key: startup_year
+        value: {revenue: 50, variable_costs: 50, fixed_costs: 100}
+        unit: "% of full-year values in year 0"
+        scope: shared
+        locator: "p.4, sec. 2.5"
+        quote: "A one-year start-up period was assumed, during which a 50% revenue was achieved, requiring 50% variable costs and 100% fixed costs."
+        grade: B
+      - key: byproduct_credit_method
+        value: "net energy content by combustion (hydrolysis solids, technical loss, cell waste)"
+        unit: "-"
+        scope: shared
+        locator: "p.4, sec. 2.5"
+        quote: "Waste utilization value was evaluated based on the material’s net energy content by combustion."
+        grade: B
+        note: "p.7 puts this at 1.5-2.4% of revenue. The recombinant DCF implies about 0.34 M EUR/yr, flat (1.5%)."
+      - key: mpsp_solution_method
+        value: "zero NPV of discounted cash flows, Excel Goal Seek (VBA)"
+        unit: "-"
+        scope: shared
+        locator: "p.4, sec. 2.5"
+        quote: "The price was determined by calculating zero net present value based on the discounted cash flows."
+        grade: B
+      - key: monte_carlo_distributions
+        value:
+          enzyme_price_EUR_per_t: {dist: triangular, min: 3000, base: 10000, max: 20000}
+          interest_pct: {dist: uniform, min: 1, base: 5, max: 7}
+          investment_pct_of_base: {dist: uniform, min: 75, base: 100, max: 125}
+          capacity_t_DM_per_yr: {dist: uniform, min: 20000, base: 40000, max: 60000}
+          raw_material_cost_pct: {dist: uniform, min: 50, base: 100, max: 150}
+          byproduct_valorisation_pct: {dist: uniform, min: 50, base: 100, max: 150}
+          energy_and_electricity_pct: {dist: uniform, min: 50, base: 100, max: 150}
+        unit: as named
+        scope: shared
+        locator: "Table 1, p.4"
+        quote: "Interest, % Uniform 1 5 7"
+        grade: B
+        note: "1000 runs per process. The hydrolysis is re-optimised in each run."
+
+    outputs:
+      - key: mpsp
+        value: 9007
+        low: 7956
+        high: 10049
+        unit: EUR/t DM protein (2019 EUR)
+        locator: "p.4, sec. 3.2"
+        also: "p.1 abstract: 'The minimum protein selling prices were 5160–9007 €/ton'; Fig. 3A"
+        quote: "the minimum protein selling prices for Pekilo, Fusarium, Torula and recombinant protein were 5160 (4317–5949), 6549 (5561–7439), 7311 (6246–8354), and 9007 (7956–10,049) €/ton, respectively"
+        grade: B
+        note: "The paper does not say what the 7956-10,049 range is (Fig. 3A error bars, from the Monte Carlo). Per kg: 9.007 EUR/kg protein."
+      - key: mpsp_interquartile
+        value: null
+        low: 8613
+        high: 9910
+        unit: EUR/t DM protein
+        locator: "p.7, sec. 3.4; Fig. 5C"
+        quote: "Recombinant protein 8613–9910"
+        grade: B
+        note: "25th-75th percentile of 1000 Monte Carlo runs. The top driver is capacity, then interest and investment."
+      - key: protein_output
+        value: 2508
+        unit: t DM protein/yr
+        locator: "p.6, sec. 3.3"
+        quote: "the protein mass yield of Pekilo, Torula, Fusarium, and recombinant protein were 2444, 1779, 1972, 2508 DM tons/a, respectively"
+        grade: B
+        note: "Fig. 4B shows 'Protein: 2,507 ton/a', which is the volume GFI uses."
+      - key: mass_flows_fig4b
+        value:
+          straw: 40000
+          enzymes: 150
+          sulfuric_acid: 392
+          sodium_hydroxide: 320
+          antifoam: 117
+          ammonia: 1084
+          total_in: 42063
+          biomass_cell_waste: 2734
+          protein: 2507
+          technical_waste: 800
+          solid_hydrolysis_waste: 13233
+          losses_and_wastes: 22789
+        unit: t/yr
+        locator: "Fig. 4B, p.6 (PDF p.7)"
+        read: figure
+        grade: B
+      - key: cost_shares_all_products
+        value: {capital: [39, 46], fixed: [20, 23], variable: [31, 41], sugar_related: [35.1, 62.8]}
+        unit: "% of total production cost (range across the four products)"
+        locator: "p.6, sec. 3.2"
+        quote: "the residual 39–46% comes from the capital costs"
+        grade: B
+        note: "Fig. 3B shows the recombinant bar at the top of the capital range (about 46%). The derived values below reproduce 46.3% capital and 35.0% sugar-related."
+      - key: commercial_price_benchmarks
+        value:
+          egg_white_powder: {price_EUR_per_t: 10000, protein_pct: 78, EUR_per_t_protein: 12820.5}
+          whey_isolate: {price_EUR_per_t: 7500, protein_pct: 80, EUR_per_t_protein: 9375}
+          casein_powder: {price_EUR_per_t: 14900, protein_pct: 80, EUR_per_t_protein: 18625}
+        unit: EUR (2020 retail/wholesale web prices)
+        locator: "SI 'Commercial protein prices'!C8:E10"
+        grade: C
+        note: "Alibaba and Finnish web shops, accessed 25 June 2020. Context only."
+
+    dcf_table:        # SI 'DCF'!J60:AK76, EMF picture xl/media/image100.emf, label 'Recombinant protein' at J59
+      locator: "SI 'DCF'!J60:AK76 (image100.emf)"
+      unit: M EUR (nominal)
+      years: {t_minus_2: 2019, t_minus_1: 2020, t0_startup: 2021, t1: 2022, t20: 2041}
+      revenue: {t0: 11.46, t1: 22.93, t2: 23.15, t20: 27.62}
+      operating_expenses: {t0: 8.05, t1: 11.02, t2: 11.12, t20: 13.10}
+      taxes: {t0: 0.68, t1: 2.38, t20: 2.91}
+      interest_on_debt: {t0: 3.85, t1: 3.65, t19: 0.19, t20: 0.00}
+      capex_row: {t_minus_2: -15.38, t_minus_1: -35.89, t0: -6.41, t20: 6.41}
+      free_cash_flow: {t_minus_2: -15.38, t_minus_1: -35.89, t0: -4.96, t1: 2.02, t2: 2.32, t20: 11.62}
+      discount_factor: {t_minus_2: 1.103, t_minus_1: 1.050, t0: 1.000, t1: 0.952, t20: 0.377}
+      note: >-
+        The 'Gross profit' row (t1 = 16.97) equals revenue minus variable cost from t1 onward,
+        and is not used for tax. The t0 'CAPEX' entry is working capital (-6.41 = 5% of FCI),
+        recovered at t20. The FCF row excludes it.
+
+    dcf_reconstruction:
+      method: >-
+        Checked against all four SI DCF tables, to within 0.02 M EUR. Equity CAPEX:
+        -0.4*FCI*0.3 at t=-2 and -0.4*FCI*0.7 at t=-1. Debt = 0.6*FCI at 5%, repaid in 20 equal
+        principal instalments (t=0..19), with interest on the opening balance. Revenue_t =
+        MPSP*Q*1.01^(t-1) + B for t>=1, where B is a flat by-product credit; revenue_0 = 0.5
+        x revenue_1. Tax_t = 0.2*(revenue_t - opex_t). FCF_t = revenue - opex - tax -
+        interest - principal. NPV = sum_{t=0..20} FCF_t/1.05^t - 0.4*FCI = 0. In words: the
+        equity CAPEX enters undiscounted, although the table prints compounding factors 1.103
+        and 1.050, and working capital is excluded. Summing the printed discounted-cash-flow row
+        gives -3.39 M EUR, not 0. The convention above gives between -0.02 and +0.01 M EUR in
+        all four cases.
+      derived: true
+      equivalent_unlevered_form:
+        statement: "sum_{t=0..20} 0.8*(revenue_t - opex_t)/1.05^t = 1.03*FCI"
+        reproduces: 9007.3
+        why: >-
+          The discount rate equals the debt rate. The loan behaves as if drawn at t=-1 and
+          repaid over t=0..19, so its debt service has a present value of 1.05 x 0.6 FCI at
+          t=0. Interest is not tax-deductible here, so leverage changes nothing else. The
+          result is an unlevered DCF at 5% with capital of 0.4 FCI + 1.05 x 0.6 FCI =
+          1.03 FCI at t=0, tax at 20% of EBITDA, and no depreciation or working capital.
+      byproduct_credit_B: {value: 0.336, unit: M EUR/yr, note: "Fitted with MPSP fixed at 9007 and Q at 2508; max residual 0.006 across 20 years. That is 1.5% of revenue, matching p.7."}
+      reproduced_mpsp: {value: 9007, unit: EUR/t, note: "Uses the table's own opex series. NPV at 9007 is -0.008 M EUR."}
+      sensitivity_to_conventions:     # EUR/t, same inputs, one convention changed
+        equity_capex_compounded_to_t0: 9127
+        working_capital_in_npv: 9149
+        both: 9269
+        opex_from_operating_costs_sheet_11.93: 9370
+      note: "The spread shows how much DCF conventions alone move the target (about 1-4%)."
+
+    derived:        # NOT in the source. Arithmetic on sourced values. Check before use.
+      - key: titer
+        value: 36
+        unit: g protein/L
+        formula: "sugar_feed_concentration x fermentable_fraction x Y_PS = 200 x 0.9 x 0.2"
+        confidence: medium
+        note: >-
+          This assumes '200 g/L initial sugar' means total sugar per litre of final broth. For
+          its SCP entries GFI computes titer as sugar x yield (Table 1: Torula 18.5 = 50 x
+          0.37), which would give 40 g/L here. GFI's '0.03 to 54 g/L' range and its claim that
+          this paper has the highest published titer do not say which value GFI assigned.
+      - key: batch_time
+        value: 180
+        unit: h
+        formula: "titer / volumetric_productivity = 36 / 0.2"
+        confidence: medium
+        note: "Turnaround time is not stated."
+      - key: main_fermenters
+        value: 8.3
+        unit: "number of 300 m3 vessels (round up to 9 or more)"
+        formula: "V = m_dot*t/(r*rho) (SI eq. image 'Balance calculation equations'!I42): (15,417 t/yr / 0.2 t/m3) x 180 h / 8000 h / 0.7 / 300 m3"
+        confidence: low
+        note: "About 1,734 m3 of working volume. No turnaround time. The paper never states the number."
+      - key: sugar_per_protein
+        value: 6.15
+        unit: kg sugar/kg protein
+        formula: "15,417 / 2,508"
+        confidence: high
+      - key: straw_per_protein
+        value: 15.9
+        unit: kg DM straw/kg protein
+        formula: "40,000 / 2,508"
+        confidence: high
+      - key: protein_output_check
+        value: 2508.4
+        unit: t/yr
+        formula: "15,417 x 0.9 x 0.2 x 0.98^5 (2% loss in each of fermentation, two filtrations, UF, drying)"
+        confidence: medium
+        note: "Using filtration yields of 0.95 x 0.95 with no 2% losses gives 2504.5, so both readings fit to within 0.2%."
+      - key: lang_factor
+        value: {fci_over_pec: 4.07, tci_over_pec: 4.2735}
+        unit: "-"
+        formula: "M20/M7, M22/M7"
+        confidence: high
+      - key: protein_section_capex
+        value: {pec: 24.0, fci: 97.68}
+        unit: M EUR
+        formula: "PEC: M7 - J28/4.07. FCI: M20 - J28"
+        confidence: medium
+        note: "Assumes the sugar section uses the same 4.07 factor. Use this if the model buys sugar at the sugar_production_cost instead of making it."
+      - key: capital_charge
+        value: 10.285
+        unit: M EUR/yr
+        formula: "f_a x FCI, with f_a = CRF(5%, 20 yr) = 0.08024 (inferred; f_a is not reported)"
+        confidence: medium
+        note: "With the SI opex this gives shares of 46.3% capital, 22.8% fixed and 30.9% variable, matching the p.6 ranges and Fig. 3B."
+      - key: production_cost_capital_charge_basis
+        value: 8858
+        unit: EUR/t protein
+        formula: "(11.93 + 10.285) M EUR / 2508 t"
+        confidence: medium
+        note: "This is the Fig. 3B-style unit cost, not the MPSP. Of it: opex 4757 (sheet), capital charge 4101."
+      - key: opex_per_t
+        value: {sheet: 4757, dcf_year1: 4394}
+        unit: EUR/t protein
+        formula: "11.93 or 11.02 M EUR / 2508 t"
+        confidence: high
+      - key: sugar_cost_per_t_protein
+        value: 3098
+        unit: EUR/t protein
+        formula: "504 EUR/t sugar x 15,417 / 2,508"
+        confidence: medium
+        note: "35.0% of 8858, consistent with the lower bound of '35.1–62.8%' on p.6 and with the dark bar in Fig. 3A (about 3,100)."
+      - key: fermentation_electricity
+        value: 0.87
+        unit: M EUR/yr
+        formula: "(3.9 + 2.4) kWh/kg x 1.2 x 2,508 t x 45.9 EUR/MWh"
+        confidence: low
+        note: "About 19 GWh/yr. The other ~1.14 M EUR of 'Energy and electricity' (2.01) would be steam for explosion, evaporation and drying. Not itemised."
+      - key: labour_headcount
+        value: 45
+        unit: persons
+        formula: "3.15 M EUR / 70,000 EUR"
+        confidence: high
+
+    pftea_input_map:   # keys as in data/pf/base.yaml (2026-09-26); D = derived above
+      note: >-
+        Honesty protocol: override only this anchor's process inputs, prices, cost year and
+        financing. Their structural choices are listed for comparison, not to be copied. Work
+        in 2019 EUR, or convert inputs and output with the same FX so no FX enters the
+        comparison.
+      overrides_process:
+        plant.product: "ova (SI label 'Ovalbumin'; 'generalized' egg protein)"
+        plant.spec: "their train: pressure filter + sheet filter + UF + spray dryer; no precipitation, no DF; purity not stated"
+        plant.annual_target_protein_t: 2508
+        plant.operating_days: 333.3            # 8000 h / 24
+        strain.host: treesei
+        strain.titer_g_L: 36                   # D
+        strain.X_prod_g_L: 36                  # D: Y_XS = Y_PS = 0.2, same derivation
+        strain.Y_ps_g_g: 0.2                   # overall, on sugar consumed; 90% of sugar consumed
+        strain.t_prod_h: 180                   # D: 36 g/L / 0.2 g/L/h; the whole fed-batch, phases not split
+        fermenter.volume_m3: 300
+        fermenter.fill_max: 0.70
+        fermenter.turnaround_h: null           # not stated
+        dsp.recovery_per_step: 0.98            # 2% loss per step; the text also gives 0.93-0.95 per filtration
+        dsp.powder_dry_matter: 0.90
+      overrides_prices_2019_EUR:
+        sugar: "504 EUR/t (their own sugar cost) with protein-section FCI 97.7 M EUR (D), or model straw-to-protein with FCI 128.2"
+        electricity_per_MWh: 45.9
+        lp_steam_per_MWh: 10
+        hp_steam_per_MWh: 20
+        ammonia_per_t: 700
+        process_water_per_t: 0.5
+        cooling_water_per_t: 0.05
+        antifoam_per_t: 1000
+        nutrients_per_t_product: 100
+        operator_cost_per_yr: 70000            # total employer cost; their headcount method is structural
+      overrides_finance:
+        dcf_rate: 0.05
+        dcf_life_y: 20
+        tax_rate: 0.20                          # on EBITDA; they take no depreciation
+        depreciation_years: none
+        construction: "2 yr, 30/70; see equivalent_unlevered_form (capital 1.03 x FCI at t=0)"
+        working_capital_frac_fci: "0.05, but excluded from their NPV"
+        equity_frac: "0.4 in their model; equivalent to 1.0 at 5% (see dcf_reconstruction)"
+        inflation: "1%/yr on protein price; opex about 0.9%/yr"
+      their_structure_compare_only:
+        lang_factor_fci_over_pec: 4.07
+        maintenance: "1.5% of FCI/yr"
+        insurance_overheads: 0
+        labour_headcount: 45
+        equipment_scaling: "literature exponents, no itemised list"
+      expected_result: "9007 EUR/t with their DCF. A capital-charge unit cost (CRF 5%, 20 yr) gives about 8858."
+
+    ambiguities:
+      - "No titer, batch time, turnaround, number of main fermenters, OTR, kLa or O2 demand are given. All are derived above."
+      - "Purity is not stated. '90%' is dry matter after spray drying. GFI reports it as '90% purity'."
+      - "The hydrolysate is concentrated from 67.7 to 200 g/L (about 150 kt/yr of water to remove), but neither the equipment nor the steam for this step appears separately. The SI flowchart shows no evaporator."
+      - "Operating costs sheet total 11.93 M EUR/yr vs DCF year-1 opex 11.02 (variable 5.95 vs 6.86; fixed 5.07 in both). The DCF reproduces 9007. With 11.93 the same DCF gives about 9370 (+4%). Source of the 0.91 gap unknown."
+      - "Maintenance: the text says 1.5% of TCI; the numbers use FCI (1.92 vs 2.02 M EUR/yr)."
+      - "Printed DCF compounding factors (1.103, 1.050) are not used in the solved NPV, and working capital is outside it. See dcf_reconstruction."
+      - "The text calls it 'discounted cash flows to the firm', but the table is an equity cash flow (principal and interest deducted, 40% equity CAPEX only)."
+      - "Tax: 20% on revenue minus opex, with no depreciation. This is harsher than a standard DCF and raises the MPSP."
+      - "Sugar section share of equipment: 30.50/128.18 = 23.8% for this case, vs '27–48%' on p.6. Possibly the concentration step was booked in the sugar section for this case; unresolved."
+      - "The filtration yields of 0.93-0.95 in the text are not needed to reproduce 2508 t/yr. 2% per step does it."
+      - "Ammonia 1,084 t/yr (Fig. 4B) implies N = (biomass + protein)/6.25, i.e. biomass counted as about 100% protein, whereas p.7 cites 49.5% crude protein for Trichoderma cell waste."
+      - "It is unclear whether agitation and aeration energy (kWh/kg 'protein') are applied per kg protein or per kg biomass + protein, as antifoam evidently is. Per protein is more plausible given the 2.01 M EUR energy total."
+      - "USD-to-EUR factor e for equipment costs is not reported. No equipment is itemised, so capital cannot be checked bottom-up."
+      - "Location is unspecified (Finnish and global cost sources, p.4). Straw, electricity and labour are Finnish."
+
+  # ======================================================================================
+  # SCP cases: brief. Shared parameters (straw, sugar section, design basis, CAPEX factors,
+  # labour rate, unit prices, financing) are as in recombinant_protein with scope: shared.
+  # Differences: continuous fermentation, sugar diluted to 50 g/L, 2 workers per section per
+  # shift, +10% equipment for the RNA-reduction reactor, and 30% biomass loss for RNA reduction.
+  # Items common to the three SCP cases only are in the top-level block scp_shared.
+  pekilo:
+    organism: "Paecilomyces variotii (filamentous fungus)"
+    parameters:
+      - {key: conversion_from_sugar, value: 0.5, unit: g biomass/g sugar, locator: "SI 'Process assumptions'!C17"}
+      - {key: protein_content, value: 60, unit: "% of biomass", locator: "SI 'Process assumptions'!C18"}
+      - {key: fermentable_sugars, value: 80, unit: "%", locator: "SI 'Process assumptions'!C19", note: "The paper says 90% utilisation for all SCPs (p.3); the SI says 80 for Pekilo."}
+      - {key: temperature, value: 37, unit: degC, locator: "SI 'Process assumptions'!C20"}
+      - {key: dilution_rate, value: 0.2, unit: 1/h, locator: "SI 'Process assumptions'!C21"}
+      - {key: aeration, value: 0.35, unit: vvm, locator: "SI 'Process assumptions'!C22"}
+      - {key: purchased_equipment_cost, value: 15.7160, unit: M EUR, locator: "SI 'Capital costs'!J7"}
+      - {key: fci, value: 63.9641, unit: M EUR, locator: "SI 'Capital costs'!J20"}
+      - {key: tci, value: 67.1624, unit: M EUR, locator: "SI 'Capital costs'!J22"}
+      - {key: opex_total, value: 8.11, unit: M EUR/yr, locator: "SI 'Operating costs'!D12", note: "Variable 5.15 (D13). Fixed 2.96 (D19), but labour 2.10 (D20) + maintenance 0.96 (D21) = 3.06, so D19 looks like a typo. The DCF implies about 3.07."}
+    outputs:
+      - {key: mpsp, value: 5160, low: 4317, high: 5949, unit: EUR/t DM protein, locator: "p.4, sec. 3.2", quote: "5160 (4317–5949)"}
+      - {key: mpsp_interquartile, low: 4760, high: 5687, unit: EUR/t, locator: "p.7, sec. 3.4", quote: "Pekilo 4760–5687, Fusarium 6321–7536"}
+      - {key: protein_output, value: 2444, unit: t DM protein/yr, locator: "p.6, sec. 3.3"}
+      - {key: product_output_sankey, value: 6190, unit: "t/yr product (60% protein)", locator: "SI 'Mass flows'!A8:M19 (image53.png)", read: figure, note: "6190 x 0.6 = 3714 t protein, not 2444. The SI Sankey is inconsistent with the text."}
+    notes: "DCF: SI 'DCF'!I4:AI20 (image97.emf). Year-1 revenue is 13.59 M EUR, of which about 13.31 is protein once a flat by-product credit is fitted. At 2444 t that is 5446 EUR/t, 5.5% above 5160; see scp_shared.dcf_note."
+
+  fusarium:
+    organism: "Fusarium venenatum (filamentous fungus)"
+    parameters:
+      - {key: conversion_from_sugar, value: 0.31, unit: g biomass/g sugar, locator: "SI 'Process assumptions'!C24"}
+      - {key: protein_content, value: 44, unit: "% of biomass", locator: "SI 'Process assumptions'!C25"}
+      - {key: temperature, value: 30, unit: degC, locator: "SI 'Process assumptions'!C26"}
+      - {key: dilution_rate, value: 0.19, unit: 1/h, locator: "SI 'Process assumptions'!C27"}
+      - {key: aeration, value: 0.7, unit: vvm, locator: "SI 'Process assumptions'!C28"}
+      - {key: purchased_equipment_cost, value: 16.0699, unit: M EUR, locator: "SI 'Capital costs'!K7"}
+      - {key: fci, value: 65.4046, unit: M EUR, locator: "SI 'Capital costs'!K20"}
+      - {key: tci, value: 68.6749, unit: M EUR, locator: "SI 'Capital costs'!K22"}
+      - {key: opex_total, value: 8.25, unit: M EUR/yr, locator: "SI 'Operating costs'!F12", note: "Variable 5.17 (F13), fixed 3.08 (F19). The column order on this sheet is Pekilo, Torula, Fusarium."}
+    outputs:
+      - {key: mpsp, value: 6549, low: 5561, high: 7439, unit: EUR/t DM protein, locator: "p.4, sec. 3.2", quote: "6549 (5561–7439)"}
+      - {key: mpsp_interquartile, low: 6321, high: 7536, unit: EUR/t, locator: "p.7, sec. 3.4", quote: "Pekilo 4760–5687, Fusarium 6321–7536"}
+      - {key: protein_output, value: 1972, unit: t DM protein/yr, locator: "p.6, sec. 3.3"}
+      - {key: product_output_sankey, value: 4495, unit: "t/yr product (44% protein)", locator: "SI 'Mass flows'!M8:U20 (image54.png)", read: figure, note: "4495 x 0.44 = 1978, consistent with 1972."}
+    notes: "DCF: SI 'DCF'!J41:AK57 (image99.emf). Year-1 revenue is 13.76 M EUR, about 13.45 of it protein. At 1972 t that is 6823 EUR/t, 4.2% above 6549."
+
+  torula:
+    organism: "Candida utilis (yeast)"
+    parameters:
+      - {key: conversion_from_sugar, value: 0.37, unit: g biomass/g sugar, locator: "SI 'Process assumptions'!C30"}
+      - {key: protein_content, value: 53, unit: "% of biomass", locator: "SI 'Process assumptions'!C31"}
+      - {key: fermentable_sugars, value: 91, unit: "%", locator: "SI 'Process assumptions'!C32"}
+      - {key: temperature, value: 38, unit: degC, locator: "SI 'Process assumptions'!C33"}
+      - {key: dilution_rate, value: 0.18, unit: 1/h, locator: "SI 'Process assumptions'!C34"}
+      - {key: aeration, value: 0.5, unit: vvm, locator: "SI 'Process assumptions'!C35"}
+      - {key: dsp, value: "two centrifuges to 25% DM, then fluidised-bed dryer to 90% DM", unit: "-", locator: "p.3, sec. 2.1.2; SI 'Process flow charts'!O20:AF42 (image51.png)"}
+      - {key: purchased_equipment_cost, value: 16.4188, unit: M EUR, locator: "SI 'Capital costs'!L7"}
+      - {key: fci, value: 66.8246, unit: M EUR, locator: "SI 'Capital costs'!L20"}
+      - {key: tci, value: 70.1658, unit: M EUR, locator: "SI 'Capital costs'!L22"}
+      - {key: opex_total, value: 8.24, unit: M EUR/yr, locator: "SI 'Operating costs'!E12", note: "Variable 5.14 (E13), fixed 3.1 (E19)."}
+    outputs:
+      - {key: mpsp, value: 7311, low: 6246, high: 8354, unit: EUR/t DM protein, locator: "p.4, sec. 3.2", quote: "7311 (6246–8354)"}
+      - {key: mpsp_interquartile, low: 7043, high: 8439, unit: EUR/t, locator: "p.7, sec. 3.4", quote: "Torula 7043–8439 €/ton DM protein"}
+      - {key: protein_output, value: 1779, unit: t DM protein/yr, locator: "p.6, sec. 3.3"}
+      - {key: product_output_sankey, value: 3434, unit: "t/yr product (53% protein)", locator: "Fig. 4A, p.6", read: figure, note: "3434 x 0.53 = 1820, 2.3% above 1779. Ammonia 537 t/yr."}
+    notes: "DCF: SI 'DCF'!J22:AK38 (image98.emf). Year-1 revenue is 13.86 M EUR, about 13.60 of it protein. At 1779 t that is 7644 EUR/t, 4.6% above 7311."
+
+# ========================================================================================
+scp_shared:        # common to the three SCP cases (moved out of `cases` so loaders see 4 cases)
+  parameters:
+    - {key: sugar_concentration, value: 50, unit: g/L, locator: "p.3, sec. 2.1.2", quote: "The sugar concentration was set at 50 g/L"}
+    - {key: operation, value: continuous, unit: "-", locator: "p.3, sec. 2.1.2", quote: "All SCP processes are working under continuous operation"}
+    - {key: rna_reduction_biomass_loss, value: 30, unit: "%", locator: "p.3, sec. 2.1.2", quote: "The conversion to Fusarium included 30% biomass loss due to the RNA reduction", note: "The same 30% loss is applied to Pekilo and Torula."}
+    - {key: dewatered_dm, value: 25, unit: "% DM after pressure filtration or centrifugation", locator: "p.3, sec. 2.1.2", quote: "The final DM after pressure filtration and centrifugation were set to 0.25"}
+    - {key: dried_dm, value: 90, unit: "% DM, fluidised-bed dryer", locator: "p.3, sec. 2.1.2", quote: "All SCPs are dried to 90% DM by a fluidized bed dryer."}
+    - {key: scp_agitator_power, value: 2, unit: kW/m3, locator: "SI 'Process assumptions'!C15"}
+    - {key: rna_reactor_capex_adder, value: 10, unit: "% of purchased equipment", locator: "p.3, sec. 2.4", quote: "For SCP process an additional 10% cost was assumed as an extra reactor is needed for RNA removal."}
+    - {key: labour, value: 2.10, unit: M EUR/yr (2 workers x 3 shifts x 5 sections x 70 kEUR), locator: "SI 'Operating costs'!D20:F20"}
+
+  dcf_note: >-
+    The SCP DCF tables follow the same method as the recombinant one (FCF and NPV reconstruct
+    to within 0.02 M EUR). Their revenue rows, however, imply protein revenue 4-6% above
+    MPSP x the protein output on p.6. The recombinant table matches its MPSP exactly. The SCP
+    tables may come from a slightly different model version. Use the SCP numbers only as
+    secondary checks.
+
+# ========================================================================================
+usd_figure_check:            # task: where does GFI's "$11.2/kg" come from?
+  claim:
+    value: 11.2
+    unit: USD/kg
+    source: gfi2025costs
+    locator: "GFI 2025 p.28"
+    quote: "The lowest reported COP, $11.2/kg for spray-dried protein (90% purity)"
+    also: "p.34: 'A single PF-protein TEM reporting $11.2/kg for a 90% protein powder'"
+  gfi_appendix_row:
+    locator: "GFI 2025 Appendix 2, p.71, publication 49, row 'Specific protein / Recombinant protein / Aerobic / Filamentous fungi'"
+    production_volume_t_per_yr: 2507       # = Fig. 4B 'Protein: 2,507 ton/a'
+    cop_usd2024_per_kg: 11.16
+    opex_musd2024_per_yr: 19.68
+    capex_musd2024: 165.56
+    gfi_method: "GFI p.69: costs converted to USD, then 'adjusted to 2024 dollars using year-by-year inflation and Chemical Engineering Plant Cost Index rates'. No rates or base year are given."
+  which_case: "recombinant_protein. Its MPSP is 9007 EUR/t DM protein (2019 EUR); volume 2507 t/yr matches Fig. 4B."
+  is_it_a_currency_conversion: >-
+    Yes, and also a change of basis. 11.16/9.007 = 1.239 USD per EUR if taken per kg of protein;
+    no standard combination of exchange rate and deflator gives that. Taken per kg of 90%-DM
+    powder instead, 9.007 x 0.9 = 8.106 EUR/kg and 11.16/8.106 = 1.3767. That factor is about
+    the 2019 exchange rate (~1.12 USD/EUR) times US CPI inflation 2019->2024 (~1.23), which is
+    about 1.374. Independent check: the same factor reproduces GFI's Torula entry, 7311 EUR/t
+    x 0.53 protein x 1.3765 = 5.33 USD/kg (Appendix 2 row with 5.33; Table 1 'Yeast (1)
+    Continuous $5.3'). The recombinant and Torula rows share a factor window of 1.3761-1.3768.
+  conclusion: >-
+    $11.2/kg is 9007 EUR/t (2019 EUR per t DM protein) re-expressed by GFI per kg of spray-dried
+    powder at 90% DM and moved to 2024 USD. Per kg of protein it is about 12.4 USD/kg (2024
+    USD); in 2019 USD it is about 10.1 USD/kg protein (x1.12). Confidence in the per-powder
+    reading: about 70%. Fallback: an undocumented factor of 1.239 per kg protein.
+  external_values_used:
+    note: "Recalled, not from files on disk. Check against ECB and BLS before citing."
+    eur_usd_2019_average: 1.1195
+    us_cpi_u_2024_over_2019: 1.227
+  gfi_row_issues: >-
+    GFI's OpEx (19.68) and CapEx (165.56) cannot be reproduced from the SI with one factor.
+    165.56/134.58 TCI = 1.230, 19.68/11.93 = 1.650. They do satisfy COP x volume = OpEx +
+    CapEx/20 to within 0.1%, so one was probably back-calculated. For the SCP rows of this
+    paper, GFI's volumes are the SI/Fig. 4 product tonnages (3434 Torula, 6190 Pekilo, 4495
+    Fusarium), with the yeast and fungus labels swapped between the 3434 and 4495 rows. The
+    Pekilo and Fusarium COPs are about 2% off the factor above. Do not use GFI's OpEx or CapEx
+    for this paper.
+
+# ========================================================================================
+equations:        # transcribed from the SI equation pictures (drawing anchors in brackets)
+  sugar_yield: "Y_s = m_c*y_h/x + m_h*y_p/z  (cellulose, hexose conversion, anhydro corr.; hemicellulose, pentose conv., anhydro corr.)  ['Balance calculation equations'!B5]"
+  scp_protein: "m_p = m_s * Y_XS * x_p * R_s  [B19]"
+  recombinant_protein: "m_p = m_s * Y_PS  [B30]"
+  nitrogen: "m_N = (m_B*c_p + m_p)/6.25 ; m_NH3 = m_N*M_NH3/M_N  [B37, B46]"
+  metabolic_heat: "dH_rxn = M_g*dh_g*Y_s - M_b*dh_b - M_p*dh_p  (heats of combustion)  [B55]"
+  heating_cooling: "Q = c_p*m*dT + m*H  [H7]"
+  heat_exchanger: "T_m = (dT1 - dT2)/ln(dT1/dT2) ; A = Q/(k*T_m*F)  [I20, I30]"
+  reactor_volume: "V = m_dot*t/(r*rho)  (r = degree of filling; the image prints rho beside the fraction)  [I42]"
+  byproduct_value: "LHV = HHV*m_b - m_H2O*H_vap  [I55]"
+  equipment_scaling: "c1 = c0*(m2/m1)^n ; c1 = a + b*S^n ; c1 = M*a*m2^n  ['Capital costs'!B3, A12, B20]"
+  cost_index: "I = I2/I1 ; c2 = c1*I*e  (e = USD->EUR, value not given)  ['Capital costs'!B29, B37]"
+  capital_charge: "C_CO = f_a*C_FCI ; C_COP = C_CO/m_p  ['Capital costs'!B44, B50]"
+  opex: "OPEX = CV + CF  ['Operating costs'!B4]"
+  dcf: "Operating profit = sales - costs ; FCF = CFO + Int - CAPEX ; f_D = 1/(1+r)^m ; C_d = C_n*f_D  ['DCF'!B3, B5, B11, B17]"
+  dcf_note: "The FCF equation adds interest back (a firm view), but the SI tables deduct interest and principal (an equity view). The tables reproduce the MPSP; the equation does not describe them."

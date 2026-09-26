@@ -1,0 +1,39 @@
+# Calibration anchor 4: Voutilainen et al. 2021, recombinant ('Ovalbumin') case. Model inputs only;
+# the sourced extraction (every value with Sheet!Cell or page+quote) is voutilainen2021.yaml.
+# Worked in 2019 US$ with EUR converted at FX 1.12 both ways, so FX cancels in the comparison.
+source: "voutilainen2021 (Bioresour Technol Rep 14:100683) SI workbook; see voutilainen2021.yaml"
+fx_usd_per_eur: 1.12
+target:
+  eur_per_t_protein_dcf: {value: 9007, loc: "voutilainen2021.yaml calibration_target (their DCF, reproduced exactly)"}
+  eur_per_t_protein_capital_charge: {value: 8858, loc: "voutilainen2021.yaml derived: (11.93 + 10.285) M EUR / 2508 t"}
+  sugar_kg_per_kg_protein: {value: 6.15, loc: "15,417 t sugar / 2,508 t protein"}
+  fci_eur: {value: 128180000, loc: "SI M20 (incl. sugar section); protein section alone ~97.7 M EUR"}
+  tolerance: 0.30
+sugar_per_kg_protein_in_broth: 5.556     # 1 / (0.2 g/g x 0.9 utilisation): matched by solving Y_ps
+overrides:
+  plant.product: ova
+  plant.spec: concentrate
+  plant.annual_target_protein_t: 2508
+  plant.operating_days: 333.3            # 8,000 h
+  strain.host: treesei
+  strain.titer_g_L: 36
+  strain.X_prod_g_L: 30                  # 0.2 g biomass/g sugar -> ~36 g/L at harvest
+  strain.t_prod_h: 156                   # ~180 h batch (36 g/L / 0.2 g/L/h) incl. ~24 h growth
+  strain.mu_prod_per_h: 0.0
+  hosts.treesei.maint_factor: 0.0        # their stoichiometry is yield-based
+  fermenter.volume_m3: 300
+  fermenter.fill_max: 0.7
+  dsp.recovery_cell_removal: 0.9604      # pressure filter + sheet filter, 2% each
+  dsp.mf_recovery: 1.0
+  dsp.uf_rejection: 0.9999               # UF step loss applied through dryer recovery below
+  dsp.diafiltration_volumes: 0
+  dsp.dryer_recovery: 0.9412             # UF 2% x drying 2% x fermentation 2%
+  dsp.powder_moisture: 0.10              # 90% dry matter
+  utilities.glucose_usd_kg: 0.5645       # 504 EUR/t x 1.12
+  utilities.electricity_usd_kWh: 0.0514  # 45.9 EUR/MWh
+  utilities.ammonia_usd_kg: 0.784        # 700 EUR/t
+  utilities.water_usd_m3: 0.56
+  media.antifoam_price_usd_kg: 1.12
+  labour.operator_salary_usd: 78400      # 70 kEUR
+  capital.cost_index_2018_to_2025: 1.007  # to 2019: CEPCI 607.5/603.1 (prices.yaml)
+finance: {rate: 0.05, life: 20, tax: 0.20, construction: [1.03], depreciation: [], wc_frac: 0.0}

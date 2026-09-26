@@ -1,0 +1,18 @@
+# 'academic': only peer-reviewed or patent-example evidence (grades A/B), per product.
+# Titers are the best public numbers (docs/LITERATURE.md; data/titers.csv). Where no product-specific
+# value exists (yield, cell density, batch time) the base-case analogues (grade B/D) are kept.
+description: "Best public academic strain performance, 10 kt/yr, food-grade plant"
+blg:
+  strain.titer_g_L: 5.14          # Li 2026 Metab Eng (K. phaffii, glucose, bioreactor; abstract only, grade A, unverified)
+  strain.t_prod_h: 96
+ova:
+  strain.host: treesei
+  strain.titer_g_L: 2.0           # Aro 2023 Food Res Int (T. reesei; abstract, grade A, unverified)
+  strain.X_prod_g_L: 35           # T. reesei harvest 20-50 g DCW/L (PerfectDay2023-hypo [0248], grade B)
+  strain.t_prod_h: 120            # >=120 h (same patent)
+mc_paths: [strain.Y_ps_g_g, strain.X_prod_g_L, strain.mu_prod_per_h, hosts.kphaffii.maint_factor,
+  fermenter.otr_cap_mol_m3_h, fermenter.turnaround_h, dsp.recovery_cell_removal, dsp.uf_flux_LMH,
+  dsp.membrane_price_usd_m2, dsp.membrane_skid_usd_m2, dsp.dryer_MJ_per_kg_water, utilities.glucose_usd_kg,
+  capital.cost_index_2018_to_2025, dsp.concentrate_target_frac_dry]
+mc_ranges:
+  strain.titer_g_L: {low: 5.14, high: 5.14}

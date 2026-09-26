@@ -1,0 +1,15 @@
+# Hen ovalbumin (egg white). Sequence: UniProt P01012 (OVAL_CHICK), chain 2-386 (initiator Met removed),
+# retrieved 2026-09-26 from https://rest.uniprot.org/uniprotkb/P01012.fasta.
+# UniProt features: N-acetylglycine at 2; phosphoserine at 69 and 345; N-linked glycan at Asn293; disulfide 74-121.
+name: ovalbumin
+key: ova
+uniprot: P01012
+mature_sequence: >-
+  GSIGAASMEFCFDVFKELKVHHANENIFYCPIAIMSALAMVYLGAKDSTRTQINKVVRFDKLPGFGDSIEAQCGTSVNVHSSLRDILNQITKPNDVYSFSLASRLYAEERYPILPEYLQCVKELYRGGLEPINFQTAADQARELINSWVESQTNGIIRNVLQPSSVDSQTAMVLVNAIVFKGLWEKAFKDEDTQAMPFRVTEQESKPVQMMYQIGLFRVASMASEKMKILELPFASGTMSMLVLLPDEVSGLEQLESIINFEKLTEWTSSNVMEERKIKVYLPRMKMEEKYNLTSVLMAMGITDVFSSSANLSGISSAESLKISQAVHAAHAEINEAGREVVGSAEAGVDAASVSEEFRADHPFLFCIKHIATNAVLFFGRCVSP
+disulfides: 1
+post_translational: "glycan and phosphates ignored in the elemental formula (<2% of mass); recombinant OVA from K. phaffii is hyperglycosylated (Ito 2005), which the spec treats as part of the protein"
+spec:                       # no OVA GRAS spec on disk yet: base = BLG concentrate spec by analogy
+  protein_min_frac_powder: {value: 0.70, grade: D, source: "analogy with FDA-GRN1056 (BLG)"}
+  target_min_frac_protein: {value: 0.80, grade: D, source: "analogy with FDA-GRN1056 (BLG)"}
+  moisture_max: {value: 0.07, grade: D, source: "analogy with FDA-GRN1056 (BLG)"}
+solubility_practical_g_L: {value: 50, grade: B, source: "intelligen_ovalbumin2025 p.8: 'target concentration was set to 50 g/L of rOvalbumin, which corresponds to its practical solubility limit'"}
