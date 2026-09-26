@@ -4,7 +4,8 @@ Run:  .venv/bin/python docs/primer_numbers.py
 
 Every input is either QUOTED from a source on disk (key from references/INDEX.md plus a
 page) or marked ILLUSTRATIVE: a textbook-typical value used only to teach. Illustrative
-values are not model inputs and must never be copied into data/assumptions.yaml.
+values are not model inputs and must never be copied into data/pf/base.yaml.
+Section 2b is the exception: it calls the model's own functions (src/pftea/product.py).
 Page numbers are the printed page numbers of each document.
 """
 import math
@@ -14,8 +15,9 @@ MW = {"C": 12.011, "H": 1.008, "O": 15.999, "N": 14.007, "S": 32.06}  # g/mol
 # Degree of reduction per atom with CO2, H2O and NH3 as the reference state.
 # Sulfur (0.005-0.01 per C) is ignored: it moves gamma by <2%.
 GAMMA = {"C": 4, "H": 1, "O": -2, "N": -3}
-HEAT_PER_MOL_O2_MJ = 0.46   # ILLUSTRATIVE textbook rule: Doran (2013) ~460 kJ/mol O2;
-                            # Cooney et al. (1969) 0.12 kcal/mmol ~ 0.50 MJ/mol. Verify in B.
+HEAT_PER_MOL_O2_MJ = 0.46   # sourced, grade A (data/evidence/engineering.yaml): Roels (1983), quoted
+                            # by Almeida Benalcazar et al. (2025). Cooney et al. (1969), as generalised
+                            # by Shuler & Kargi: 0.12 kcal/mmol ~ 0.50 MJ/mol.
 P_ATM = 101325.0            # Pa
 
 
@@ -65,7 +67,7 @@ print(f"NREL's own figure: 8.4 kmol/h / {12000 / 120:.0f} kg/h = {o2_nrel:.0f} m
 # upper bound on yield: every electron of glucose ends up in protein, no energy cost
 y_electron_max = gamma(GLUCOSE) * cmol_mass(PROTEIN) / (gamma(PROTEIN) * cmol_mass(GLUCOSE))
 print(f"electron-limited ceiling (no ATP cost): {y_electron_max:.2f} g/g")
-# rough ATP correction (ILLUSTRATIVE, to be redone properly in Phase C2):
+# rough ATP correction (ILLUSTRATIVE teaching version; the model's version is section 2b):
 atp_per_residue = 4.3          # ATP equivalents per peptide bond (textbook)
 residue_mass = 110.0           # g/mol, mean amino-acid residue
 atp_per_g_protein = atp_per_residue / residue_mass            # mol ATP / g protein
@@ -73,6 +75,24 @@ for po, atp_per_glc in [(1.0, 16.0), (1.5, 22.0)]:            # ATP per glucose 
     glc_for_atp = atp_per_g_protein / atp_per_glc * 180.16    # g glucose / g protein
     y = 1 / (1 / y_electron_max + glc_for_atp)
     print(f"  with polymerisation cost only, P/O~{po}: ~{y:.2f} g/g")
+
+header("2b. The model's ceilings for BLG and OVA (src/pftea/product.py)")
+# Same electron balance, with the per-C-mole formulas the model builds from each mature
+# sequence. The energetic ceiling charges 4 ATP per peptide bond (data/evidence/hosts.yaml)
+# and takes ATP per glucose from the K. phaffii P/O ratio of 1.48 (Chung et al. 2010):
+# 4 ATP from glycolysis and the TCA cycle, plus 1.48 ATP per O atom for the 12 O atoms that
+# accept glucose's 24 electrons. Amino-acid synthesis is not charged: an upper bound.
+ATP_PER_GLC = 4 + 12 * 1.48
+try:
+    from pftea import product as pr, thermo as th
+    glc = th.get("Glucose (s)")
+    for key in ("cellulase", "blg", "ova"):
+        p = pr.protein(key)
+        print(f"{key:10s} electron ceiling {pr.electron_ceiling(p, glc):.2f} g/g; energetic "
+              f"ceiling (4 ATP/bond, {ATP_PER_GLC:.1f} ATP/glucose) "
+              f"{pr.energetic_ceiling(p, glc, 4.0, ATP_PER_GLC):.2f} g/g")
+except ImportError:
+    print("pftea is not importable: install the package (README, Run) to reproduce this section")
 
 header("3. Heat released per kg protein (NREL basis)")
 heat_mj = o2_nrel * HEAT_PER_MOL_O2_MJ
@@ -91,9 +111,22 @@ our_max = 8.4e3 / (v_total * v_frac_start)                 # mol/m3/h == mmol/L/
 print(f"peak OUR at 50% fill = 8.4 kmol/h / {v_total * v_frac_start:.0f} m3 = {our_max:.0f} mmol/L/h")
 print(f"peak production rate = {our_max:.0f} / {o2_nrel:.0f} mol/kg = {our_max / o2_nrel:.2f} g/L/h "
       f"(vs {prod:.2f} averaged over the whole 168 h cycle)")
-otr_ceiling = 150  # ILLUSTRATIVE OTR ceiling, mmol/L/h (Phase B will source the range)
+otr_ceiling = 150  # ILLUSTRATIVE here, mmol/L/h. The model's sourced cap is also 150 (range
+                   # 100-200, grade B): data/pf/base.yaml, fermenter.otr_cap_mol_m3_h
 print(f"O2-limited ceiling at an illustrative OTR of {otr_ceiling} mmol/L/h: "
       f"{otr_ceiling / o2_nrel:.2f} g/L/h")
+
+header("4b. NREL output: the hydrolysis demand vs the basis of $4.24/kg and 9 kWh/kg")
+hours = 8410          # humbird2011 Table 34 (p.69): on-line time 8,410 h/yr
+demand = 490          # p.37: protein demand of hydrolysis, kg/h; 10% more is made for media prep
+print(f"hydrolysis demand {demand} kg/h x {hours:,} h/yr = {demand * hours / 1e6:.1f} kt/yr; "
+      f"with the 10% slipstream {1.1 * demand:.0f} kg/h = {1.1 * demand * hours / 1e6:.1f} kt/yr")
+# p.41: $4.24/kg is backed out from the $0.34/gal enzyme contribution "by multiplying by the
+# ethanol production rate and dividing by the enzyme flow rate"; ethanol 61.0 MMgal/yr (Table 34).
+flow = 0.34 * 61.0e6 / 4.24 / hours
+print(f"enzyme flow behind $4.24/kg: 0.34 $/gal x 61.0 MMgal/yr / 4.24 $/kg / {hours:,} h = "
+      f"{flow:.0f} kg/h = {flow * hours / 1e6:.1f} kt/yr")
+print(f"flow behind 9 kWh/kg (Table 21): 5,340 kW / 9 kWh/kg = {5340 / 9:.0f} kg/h")
 
 header("5. Dissolved O2: solubility and the kLa needed")
 # ILLUSTRATIVE: O2 solubility in air-saturated fresh water at 30 C, 1 atm ~7.56 mg/L.
@@ -159,6 +192,11 @@ heat_per_reactor_mw = q_reactor_mw * online + 0.26    # metabolic (time-averaged
 heat_total = 9 * heat_per_reactor_mw
 print(f"heat to remove ~ 9 x ({q_reactor_mw:.2f} x {online:.2f} + 0.26) = {heat_total:.1f} MW "
       f"-> implied chiller COP ~ {heat_total / 1.587:.1f} (seed reactors ignored)")
+# humbird2011 p.55: "the compressor electricity demand for the chiller was estimated at
+# 0.56 kW/ton of refrigeration". One ton of refrigeration = 12,000 BTU/h = 3.517 kW of heat.
+cop_stated = 3.517 / 0.56
+print(f"NREL's stated rating, 0.56 kW per ton of refrigeration (p.55): COP = 3.517 / 0.56 = "
+      f"{cop_stated:.1f}; at that COP, 1,587 kW removes {1.587 * cop_stated:.1f} MW")
 
 header("9. Why big vessels run out of cooling: jacket-limited OUR vs size")
 # ILLUSTRATIVE: H/D = 2 (NREL geometry), 80% fill, jacket on the wetted wall only,

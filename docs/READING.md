@@ -24,11 +24,11 @@ File: `references/reports/NREL_2011_Humbird_TP-5100-47764_biochemical_ethanol.pd
 (PDF page = printed + 10). Same first author as the cultivated-meat TEA. This is the
 field's reference for a transparent design report.
 
-- **§3.4 Area 400, cellulase enzyme production**, printed pp. 36–42 (PDF 46–52), 35 min.
-  A complete secreted-protein fermentation in seven pages: design basis (Table 18),
+- **§3.4 Area 400, cellulase enzyme production**, printed pp. 36–43 (PDF 46–53), 35 min.
+  A complete secreted-protein fermentation in eight pages: design basis (Table 18),
   stoichiometry, oxygen transfer, vessel specifications, nutrients, electricity (Table
   21), cost breakdown (Figure 10). The primer's running example.
-- **§4 Process economics**, printed pp. 57–68 (PDF 67–78), 50 min. Focus on:
+- **§4 Process economics**, printed pp. 57–69 (PDF 67–79), 50 min. Focus on:
   - how purchased cost becomes total capital investment (Tables 27–28);
   - variable vs fixed operating costs (Tables 30–31);
   - the discounted cash flow parameters (Table 33).
@@ -85,7 +85,8 @@ cultivated meat. Skip the animal-cell biology and read for **method**.
   write conclusions a sceptical reader will accept.
 - Optional: open the SI workbook (`references/papers/Humbird2021_cultured_meat_SI.xlsm`)
   and look at sheets `A.1` (his yeast simulator) and `Equip` (equipment costs by facility
-  class). Phase C1 ports these to Python.
+  class). Phase C1 ported them to Python (`src/pftea/humbird_yeast.py`,
+  `src/pftea/equipment.py`).
 
 Questions:
 1. Why does the cost per kg of O₂ transferred fall with both vessel size and OUR
@@ -172,9 +173,9 @@ Questions:
 
 | When | Item | Why |
 |---|---|---|
-| Phase B | Garcia-Ochoa & Gomez 2009; Crater & Lievense 2018; Doran 2013 (mass transfer) | Sources for OTR ceilings, maximum vessel sizes and the heat-per-O₂ rule. On the fetch list. |
+| Phase B (done) | `data/evidence/engineering.yaml`: Crater & Lievense 2018, Maskow et al. 2010, Humbird 2021 and others | OTR ceilings, vessel sizes and the heat per O₂ (460 kJ/mol, grade A). Garcia-Ochoa & Gomez 2009 and Doran 2013 could not be read and are recorded as unsourced. |
 | Phase B | Towler & Sinnott 2013, ch. 7 | Cost curves, cost indices, Lang factors |
-| Phase C | Humbird SI workbook, sheets `A.1`–`A.3`, `Equip`, `RawUtil`, `Phys` | The simulator and cost database we port |
+| Phase C | Humbird SI workbook, sheets `A.1`–`A.3`, `Equip`, `RawUtil`, `Phys` | The simulator and cost database we ported |
 | Phase D | Voutilainen et al. 2021 (+ SI workbook) | Calibration anchor 4 |
 | Phase D | BioSTEAM documentation (Cortés-Peña 2020) | Cross-check of cost correlations only |
 

@@ -15,6 +15,6 @@ One row per reported number. Columns:
 - verified: yes | no  — yes once the quote has been checked against the full text on
   disk (not just an abstract). Nothing enters the base case with "no".
 
-## assumptions.yaml — every model parameter
-Fields: value, low, high, unit, source, note. `source` must be a citation key
-or "guess". Add `grade: A-E` (same scale as above) to every block in Phase 1.
+## pf/base.yaml — every model parameter
+Fields: value, low, high, unit, grade (A-E, same scale as above), source, and an optional
+note. `source` must be a citation key or "guess". Scenario overrides are in pf/scenarios/.

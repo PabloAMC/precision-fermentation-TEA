@@ -1,23 +1,26 @@
 # 'physical-limit': the cost floor set by physics and stoichiometry, not by any strain that exists.
-# Yield at ~82% of the energetic ceiling (4 ATP/peptide bond, high P/O); lowest measured maintenance;
-# production rate limited only by O2 transfer and heat removal in the largest practical vessel; minimal
-# DSP for the concentrate spec; contract sugar; 100 kt/yr. Capital stays on the Humbird basis (the
-# NREL basis is shown as a separate structural sensitivity). The optimiser picks cell density,
-# production time and titer (within q_p <= q_p_max and solubility) to minimise MSP_CCF.
+# Product-reaction yield at ~0.95 of the energetic ceiling (4 ATP/peptide bond, P/O 1.48; the ceiling
+# omits amino-acid synthesis, so this is near the true limit); the lowest measured maintenance in both
+# phases; no growth in production; production limited only by O2 transfer, heat removal, the specific
+# productivity ceiling and the vessel (volume, minimum initial fill); minimal DSP for the concentrate
+# spec; contract sugar; 100 kt/yr. Capital stays on the Humbird basis (the NREL basis is shown
+# separately). The search picks cell density and production time; the titer sits at its feasibility
+# ceiling, because cost falls with titer until a limit binds (scenarios.physical_limit).
 description: "Physical and stoichiometric limits, 100 kt/yr, food-grade plant"
 common:
   plant.annual_target_protein_t: 100000
-  strain.Y_ps_g_g: 0.50           # 0.81-0.83 x energetic ceiling (BLG 0.605, OVA 0.614 g/g; product.energetic_ceiling, 4 ATP/bond, 28 ATP/glucose)
-  hosts.kphaffii.maint_factor: 0.2   # lowest measured m_s (~0.0035 g/g/h; hosts.yaml)
+  strain.Y_ps_g_g: 0.55                  # ~0.95 x the energetic ceiling (BLG 0.582, OVA 0.590 g/g); base.yaml high end
+  hosts.kphaffii.maint_factor: 0.57      # growth phase: lowest measured chemostat m_s, 0.0100 g/g/h (Rebnegger 2016) / Tijhuis 0.0174
+  hosts.kphaffii.m_s_prod_g_g_h: 0.0023  # production: lowest measured producing-strain m_s (Nieto-Taype 2020, 1-copy clone)
   strain.mu_prod_per_h: 0.0
-  fermenter.volume_m3: 400
-  fermenter.otr_cap_mol_m3_h: 250  # air ceiling ~200 (Humbird 2021, B) + head pressure: +59% OUR from 1.2 to 1.9 bar in P. pastoris (Liu 2016, A); grade D
-  fermenter.heat_removal_max_kW_m3: 40  # OTR 250 x 460 kJ/mol = 32 kW/m3 + agitation; external exchangers (grade D)
-  fermenter.turnaround_h: 8
-  utilities.glucose_usd_kg: 0.25  # contract dextrose (humbird2021 p.40, 2018; flat to 2025)
+  fermenter.volume_m3: 400               # beyond Humbird's quotes: capital.fermenter_exponent_above_table applies
+  fermenter.otr_cap_mol_m3_h: 250        # air ceiling ~200 (Humbird 2021, B) + head pressure: +59% OUR from 1.2 to 1.9 bar in P. pastoris (Liu 2016, A); grade D
+  fermenter.heat_removal_max_kW_m3: 40   # OTR 250 x 460 kJ/mol = 32 kW/m3 + agitation; external exchangers; 42 claimed at pilot scale (US 4,670,397); grade D
+  fermenter.turnaround_h: 8              # Humbird A.1
+  utilities.glucose_usd_kg: 0.31         # contract dextrose $0.25/kg (humbird2021 p.40, 2019$) x CPI-U 1.2593 (audit R5-3)
   dsp.concentrate_target_frac_dry: 0.90
-q_p_max_mg_g_h: 40                # physiological cap on specific productivity (grade D; NREL assumed 118 for cellulase)
+# The specific-productivity ceiling (strain.q_p_max_mg_g_h, 40 mg/g/h, grade D) is a base.yaml
+# feasibility limit; run_analyses shows the floor at 20 and 120 mg/g/h because it binds here.
 search:
-  X_prod_g_L: [30, 45, 60, 80, 100, 130]
-  t_prod_h: [36, 48, 72, 96, 120]
-  titer_g_L: [40, 50, 60, 80, 100, 120, 130, 160, 200]
+  X_prod_g_L: [20, 30, 45, 60, 80, 100, 130]
+  t_prod_h: [12, 24, 36, 48, 72, 96]

@@ -28,7 +28,8 @@ LIGHT = {"capital.basis": "nrel"}   # NREL-style capital basis and fixed costs
 
 def voutilainen_conventions(capital_basis: str) -> dict:
     """Voutilainen's fixed costs (maintenance 1.5% of FCI, no insurance) on either capital basis."""
-    nb = dict(params.load()["capital"]["nrel_basis"]["value"], maintenance_frac_isbl=0.015, insurance_frac_fci=0.0)
+    nb = dict(params.load()["capital"]["nrel_basis"]["value"], maintenance_frac_isbl=0.0, maintenance_frac_fci=0.015,
+              insurance_frac_fci=0.0)
     if capital_basis == "nrel":
         return {"capital.basis": "nrel", "capital.nrel_basis": {"value": nb}}
     return {"finance.maintenance_frac_tci": 0.015, "finance.insurance_tax_frac_tci": 0.0}
@@ -87,8 +88,10 @@ def run(name: str, extra: dict | None = None) -> dict:
                        if k not in ("labour", "maintenance", "insurance & tax", "capital charge"))
         fixed = r.annual["labour"] + r.annual["maintenance"] + r.annual["insurance & tax"]
         kg = v(p, "plant.annual_target_protein_t") * 1000
-        msp = fin.msp_dcf(r.tci, variable, fixed, kg, irr=f["rate"], life=f["life"], tax=f["tax"],
-                          wc_frac=f["wc_frac"], construction=f["construction"], depreciation=f["depreciation"])
+        msp = fin.msp_dcf_voutilainen(r.tci, variable, fixed, kg, rate=f["rate"], life=f["life"], tax=f["tax"],
+                                      capital_factor=f["capital_factor"], inflation=f["inflation"],
+                                      opex_growth=f["opex_growth"], startup_revenue=f["startup_revenue"],
+                                      startup_variable=f["startup_variable"], byproduct=f["byproduct"])
         tg = case["target"]
         out["compare"] = {
             "EUR_per_t_protein (their DCF)": (msp / fx * 1000, tg["eur_per_t_protein_dcf"]["value"]),

@@ -42,30 +42,33 @@ Findings from the port:
 ## Anchor 2: NREL 2011 on-site cellulase (consistency check)
 
 Case file: `data/calibration/nrel2011_cellulase.yaml`, in 2007$, with NREL financing: 60%
-debt at 8%, 35% tax, 10% IRR, 30 years. Our 2018$ equipment costs are deflated to 2007 with
-CEPCI (525.4/603.1 = 0.871), the index NREL itself uses.
+debt at 8% (drawn during construction, with construction interest), 35% tax, 10% IRR, 30
+years. Our 2018$ equipment costs are deflated to 2007 with CEPCI (525.4/603.1 = 0.871), the
+index NREL itself uses. NREL's own prices are used where NREL states them (ammonia, operator
+salary, 90% labour burden, Area 400 nutrients). NREL's $4.24/kg is per kg of protein
+*produced* (audit R4-3), so no delivered-fraction correction is applied.
 
 | Quantity | Ours | NREL | Difference |
 |---|---|---|---|
-| Glucose, kg/kg protein | 4.26 | 4.17 | +2.2% |
-| O₂, mol/kg protein | 83.1 | 84 | −1.1% |
-| Electricity, kWh/kg | 5.5 | 9 | −38% |
-| **Cost, $/kg protein delivered** | **11.61** | **4.24** | **+174%, miss** |
-| Cost with NREL's own capital convention | 6.05 | 4.24 | +43% |
+| Glucose, kg/kg protein | 3.87 | 4.17 | −7.1% |
+| O₂, mol/kg protein | 83.1 | 84 | −1.0% |
+| Electricity, kWh/kg | 5.4 | 9 | −40% |
+| **Cost, $/kg protein, price-anchored (Humbird) capital** | **10.78** | **4.24** | **+154%, miss** |
+| Cost with NREL's own (design-report) capital convention | 5.75 | 4.24 | +36% |
 
-**Diagnosis.** The stoichiometry and mass balance agree within 3%. The whole miss is
+**Diagnosis.** Sugar and O₂ agree within 7%; electricity does not (below). The cost miss is
 capital structure:
-- **Fermenter purchase cost.** Our fermenter cost curve (Humbird's ACCE STRFERM quotes)
-  prices a 300 m³ vessel at about $3.3M (2007$). NREL's vendor quotes (Appendix A) are
-  $400,500 for the vessel plus $580,000 for its 800 hp agitator, about $0.9M in 2007$. That is
-  **~3.5× lower**.
-- **Installation and indirect factors.** Humbird's factors for the least expensive
-  (outdoor) class give an effective Lang factor of 4.4. NREL's installation factors plus
-  Table 27 indirects give about 2.7.
-- **Maintenance plus insurance.** 9% of TCI per year in Humbird's convention, against
-  about 2% for NREL (3% of ISBL maintenance, 0.7% of FCI insurance).
-- **Result.** Our capital-related cost is $8.1/kg against NREL's ~$1.1/kg ($2.6/kg with
-  NREL's convention; the rest of the +43% is our higher labour and building costs).
+- **Fermenter purchase cost.** Humbird's ACCE STRFERM quotes, extrapolated above 196 m³ with
+  their own power-fit exponent 0.69, price a 300 m³ vessel with agitator at $2.9M (2007$).
+  NREL's vendor quotes (App. A, F-400 + A-400) are $0.99M: **2.9× lower**.
+- **Installation and indirect factors.** Humbird's least expensive (outdoor) class gives an
+  effective Lang factor of 4.4; NREL's installation factors plus Table 27 indirects give ~3.1
+  (our light convention, which keeps Humbird's buildings and missing-capital allowance, 3.8).
+- **Maintenance plus insurance.** 9% of TCI per year in Humbird's convention, against about
+  2% for NREL (3% of ISBL maintenance, 0.7% of FCI insurance).
+- **Result.** Capital-related cost is $7.6/kg (Humbird convention) against $2.5/kg with
+  NREL's convention; the rest of the +36% is labour ($0.45/kg), buildings and our cleaning
+  (CIP) cost, which NREL does not itemise.
 
 Electricity is lower because our aeration is power-optimal (about 0.3–0.5 vvm, 1–2 kW/m³);
 NREL's 800 hp agitators are sized for peak.
@@ -73,41 +76,47 @@ NREL's 800 hp agitators are sized for peak.
 **What this means.** We do not tune. NREL is a design report, not a price. NREL itself
 reports that Genencor and Novozymes quoted enzyme costs ~47% above its figure ($0.50 vs
 $0.34 per gallon of ethanol, i.e. ~$6.2/kg). Humbird's method is the one anchored to a real
-price (anchor 1).
+price (anchor 1), although that anchor rests on one product and an assumed 33% margin.
 
-The gap does show that **capital conventions alone move the cost of a crude secreted
-protein by a factor of ~2**. The results therefore carry a named structural sensitivity,
-*capital basis*:
-- Humbird/ACCE (base);
-- NREL-style: vendor-quote fermenters, lighter factors, 2% fixed costs.
+The gap shows that **capital conventions alone move the cost of a crude secreted protein by
+a factor of ~2**. The results therefore carry a named structural sensitivity, *capital
+convention*:
+- price-anchored (Humbird/ACCE; base);
+- design-report (NREL-style): vendor-quote fermenters, lighter factors, ~2% fixed costs.
 
-It appears in the tornado and the cost bridge.
+It appears as a bar in the tornado and as a step in the cost bridge.
 
 ## Anchor 3: Intelligen 2025 ovalbumin (consistency check)
 
 Case file: `data/calibration/intelligen2025_ova.yaml`, in 2025$. Intelligen's own result,
 recast into Humbird's capital convention, is $43.52/kg powder (exercise A1, step 1.4).
+Caution: the base product yield and production-phase maintenance are *derived from this
+anchor's* Eq. 2 (base.yaml, audit R2-Q2/R6-C2), so its expression-phase glucose matches by
+construction; the growth phase, downstream and costs are independent.
 
 | Quantity | Ours | Intelligen | Difference |
 |---|---|---|---|
-| **Cost, $/kg powder (Humbird convention)** | **47.82** | **43.52** | **+9.9%, pass (±30%)** |
+| **Cost, $/kg powder (Humbird convention)** | **49.47** | **43.52** | **+13.7%** |
 | Total capital investment | $147M | $92M | +60% |
-| Glucose, kg/kg powder | 9.4 | 13.0 (syrup) | −28% |
-| Electricity, kWh/kg powder | 11.3 | 27.1 | −58% |
+| Glucose, kg/kg powder | 10.5 | 13.0 (syrup) | −19% |
+| Electricity, kWh/kg powder | 10.1 | 27.1 | −63% |
 
-**Diagnosis.** The total agrees partly through **compensating differences**, so it is a
-weak pass:
-- **Capital.** Ours is higher: Humbird's facility factors give an effective Lang factor
-  of ~5 against Intelligen's 4. Intelligen does not state its microfiltration flux; ours is
-  10 L/m²/h (EVERY patent, grade B), which needs a large membrane area.
-- **Glucose.** Ours is lower, because our thermodynamic growth yield (0.52 g/g, which
-  matches the measured K. phaffii 0.50–0.58 in `data/evidence/hosts.yaml`) is higher than
-  Intelligen's assumed 0.40 g/g. Also, Intelligen's "glucose syrup" may not be pure glucose.
+**Diagnosis.** The differences trace to stated assumptions on one side or the other:
+- **Whole fermenters.** Our downstream recovers 0.82 of the protein against Intelligen's
+  0.86 (we keep Behm's 97.5% MF recovery and a 2% dryer loss), so the plant needs 5.07
+  vessel-equivalents: 6 whole fermenters against Intelligen's 5. With 5 (4.6 more operating
+  days per year) the miss is +6.8%.
+- **Capital.** Ours is higher: Humbird's facility factors give an effective Lang factor of ~5
+  against Intelligen's 4.
+- **Glucose.** Ours is lower in the growth phase: our thermodynamic growth yield (0.57 g/g
+  maximum, ~0.53 effective with maintenance; the measured *K. phaffii* value is 0.50–0.56) beats
+  Intelligen's assumed 0.40 g/g (Eq. 1). Intelligen's "glucose syrup" may also not be pure
+  glucose.
 - **Electricity.** Ours is lower. Intelligen aerates at 1.2–1.6 vvm and runs a fertiliser
   section (evaporator plus rotary dryer). SuperPro's standard power also excludes chilled
   water, which Intelligen prices separately, whereas ours includes chiller electricity.
 
-Each difference traces to a stated assumption on one side or the other; none is a bug.
+This is a consistency check with compensating differences, not a validation of the cost.
 
 ## Anchor 4: Voutilainen 2021, recombinant case (consistency check)
 
@@ -118,42 +127,50 @@ Sources:
 
 Basis and method:
 - Money is 2019 €, converted at FX 1.12 in both directions, so FX cancels.
-- Finance is theirs: 5%, 20 years, 20% tax, no depreciation.
+- Finance is theirs (audit R4-6): 5% on after-tax (revenue − opex), no depreciation, capital
+  1.03 × FCI, a start-up year at 50% revenue and variable cost, revenue +1%/yr, opex rising
+  from 11.02 to 13.10 M€.
 - Their sugar use (a process input) is matched by solving for the product yield: Y_ps = 0.217.
+  The sugar row therefore agrees by construction.
+- Their UF concentrates to 28% dry matter before the spray dryer.
 
 | Quantity | Ours | Voutilainen | Difference |
 |---|---|---|---|
-| Sugar, kg/kg protein | 6.37 | 6.15 | +3.6% |
-| Capital (ours TCI vs their FCI incl. sugar section) | 236 M€ | 128 M€ | +84% |
-| **Cost, €/t protein (their DCF)** | **25,400** | **9,007** | **+182%, miss** |
+| Sugar, kg/kg protein | 6.37 | 6.15 | +3.7% (by construction) |
+| Capital (ours TCI vs their FCI incl. sugar section) | 204 M€ | 128 M€ | +59% |
+| **Cost, €/t protein (their DCF)** | **21,880** | **9,007** | **+143%, miss** |
 
-**Diagnosis.** It is the same as NREL: the mass balance agrees, and the conventions differ.
+**Diagnosis.** As for NREL, the conventions differ:
 
 | Convention change | Result (€/t) |
 |---|---|
-| Our model as is | 25,400 |
-| Their fixed costs instead of Humbird's 9% of TCI (maintenance 1.5% of FCI, no insurance) | 18,200 |
-| Plus the NREL-style capital basis | **12,400 (+37%)** |
+| Our model as is | 21,880 |
+| Their fixed costs instead of Humbird's 9% of TCI (maintenance 1.5% of FCI, no insurance) | 15,610 |
+| Plus the NREL-style capital basis | **11,100 (+23%)** |
 
-The remaining gap is mostly labour: 5.4 M€ in our Humbird attention model against their
+The remaining gap is mostly labour: 5.6 M€ in our Humbird attention model against their
 3.15 M€ (45 people). A further difference is their unitemised equipment list: 31.5 M€,
 multiplied by 4.07.
 
 ## Summary: what the four anchors say
 
 1. **Our method is exactly Humbird's.** It reproduces his baker's-yeast cost to 0.004%, and
-   that cost sits on the market-implied price (anchor 1).
-2. **Our mass and energy balances agree with all three published PF/enzyme designs.**
-   Sugar is within 4%, and O₂ within 1% of NREL.
-3. **Published PF costs are 2.7–2.8× lower than our base on the same process.** The reason is
-   lighter capital and fixed-cost conventions (vendor-quote fermenters, Lang ~2.7–4, fixed
-   costs of 1.5–2% of capital), not different biology. With the light conventions our model
-   still lands above theirs, by +37% (Voutilainen) and +43% (NREL): the rest is our labour
-   model and buildings. We are within 10% of Intelligen's total, which uses Lang 4 and heavy
-   SuperPro overheads.
+   that cost sits on the market-implied price (anchor 1; one product, and the margin is his
+   assumption).
+2. **Sugar and O₂ agree with the two designs that state them independently** (NREL within
+   7% and 1%; Voutilainen's sugar is matched by construction; Intelligen's expression phase is
+   matched by construction and its growth phase differs by design). **Electricity does not**:
+   ours is 40–63% lower, for the reasons given under each anchor. These are consistency
+   checks, not calibration fits (audit R7-M6).
+3. **Published PF costs are 2.3–2.5× lower than our base on the same process.** The reason is
+   lighter capital and fixed-cost conventions (vendor-quote fermenters, Lang ~3–4, fixed costs
+   of 1.5–2% of capital), not different biology. With the light conventions our model still
+   lands above theirs, by +23% (Voutilainen) and +36% (NREL): the rest is our labour model,
+   buildings and cleaning. We are within 14% of Intelligen's total (7% with its five whole
+   fermenters), which uses Lang 4 and heavy SuperPro overheads.
 4. **We therefore report two capital conventions throughout.**
-   - *Humbird (base)*: anchored to a real product price.
-   - *Light (NREL-style)*: the convention of the published PF and enzyme TEAs.
+   - *Price-anchored capital (Humbird method, base)*: anchored to one real product price.
+   - *Design-report capital (NREL-style)*: the convention of the published PF and enzyme TEAs.
 
    Their spread is the largest structural uncertainty in PF protein economics.
 
@@ -181,3 +198,16 @@ with an O₂ cap above ~180 mol/m³/h, the growth phase broke the 25 kW/m³ cool
 design was flagged infeasible. Growth is now also slowed to the cooling cap. The base case, all
 four anchors and all tests are unchanged, because at the 150 cap heat never binds. The change
 affects the tornado's high O₂-cap end and Monte Carlo draws with high caps.
+
+**2026-09-27, audit batch 2 (docs/AUDIT.md).** Model structure changed by the audit decisions;
+anchors re-run, misses re-recorded, test bands tightened to ±5 points.
+
+| Anchor | Before | After | Cause |
+|---|---|---|---|
+| NREL, Humbird convention | +174% | +154% | Per kg produced, not delivered (R4-3, −25 points); construction interest on the loan (R4-5, +); NREL's own prices (ammonia, salary, burden, nutrients); CIP; fermenter exponent 0.69 above 196 m³ (R3-F3) |
+| NREL, light convention | +43% | +36% | Same, plus NREL's own 2007$ fermenter quote (R4-17) |
+| NREL, glucose | +2.2% | −7.1% | Per-produced basis (R4-8) |
+| Intelligen, total | +9.9% | +13.7% | Isolate dryer fed the cake (R3-F4, −); two-stage centrifuge wash (R3-F1, +); whole fermenters, 6 vs 5 (R3-F8, ~+7 points); spent-cell disposal (+2.5 points); CIP; production stoichiometry derived from this anchor |
+| Intelligen, glucose | −28% | −19% | Production-phase stoichiometry now reproduces Eq. 2 |
+| Voutilainen, Humbird convention | +182% | +143% | Their own DCF conventions (R4-6); membranes and skid from sourced dairy costs (P-1); UF to their 28% dry matter |
+| Voutilainen, light convention | +37% | +23% | Same, plus maintenance on FCI rather than ISBL (R4-7) |

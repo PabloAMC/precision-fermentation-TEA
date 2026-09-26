@@ -28,7 +28,7 @@ INPUTS = [
     ("Fermentation", None, None, None, None),
     ("I7", "Production fermenter vessel volume", 136, "m3", "0", f"{SRC}, p.5"),
     ("I8", "Number of production fermenters", 5, "-", "0", f"{SRC}, p.11"),
-    ("I9", "Working volume at start of growth", 41.523, "m3", "0.000", f"{SRC}, p.5"),
+    ("I9", "Working volume at start of growth", 41.523, "m3", "0.000", f"{SRC}, p.6"),
     ("I10", "Broth volume at harvest", 107, "m3", "0", f"{SRC}, p.7"),
     ("I11", "OVA titer at harvest", 30, "g/L = kg/m3", "0", f"{SRC}, p.7"),
     ("I12", "Cell density at harvest (dry)", 92, "g/L = kg/m3", "0", f"{SRC}, p.7"),
@@ -153,14 +153,15 @@ STEPS = [
 
 PART3 = [
     ("3.1", "Titer doubles to 60 g/L at the same batch time and the same overall yield. First: "
-            "is that physically possible? (O2 uptake per m3 vs PRIMER sec. 5.3-5.4; ovalbumin "
-            "solubility, paper p.8.) Then: which slices of Figure 6 move, and roughly how much? "
-            "Estimate the new $/kg."),
+            "is that physically possible? (O2 uptake per m3 in each phase, growth and expression, "
+            "vs PRIMER sec. 5.3-5.4; ovalbumin solubility, paper p.8.) Then: which slices of "
+            "Figure 6 move, and roughly how much? Estimate the new $/kg."),
     ("3.2", "The plant is 10x larger (10,000 t/yr). Same questions. Remember the fermenters are "
             "already 136 m3: do you scale up or number up?"),
     ("3.3", "NREL's crude on-site cellulase costs $4.24/kg protein (2007$); Intelligen's purified "
-            "ovalbumin $38.99/kg powder (2025$). List every difference between the two plants and "
-            "rank them by how much of the ~9x gap you think each explains."),
+            "ovalbumin $38.99/kg powder (2025$), which step 1.5 puts per kg of protein. List every "
+            "difference between the two plants and rank them by how much of the ~9.8x gap per kg "
+            "of protein you think each explains."),
     ("3.4", "Which three input numbers would you most want to verify before trusting $39/kg, and why?"),
 ]
 
@@ -301,6 +302,9 @@ for i, (label, mine, paper, tol) in enumerate(checks, start=2):
     v.font = font()
 wc.cell(row=7, column=1, value="Tolerances: 2% for pure bookkeeping identities, 20% for "
         "reconstructions.").font = font(italic=True, color=GREY)
+wc.cell(row=8, column=1, value="The unit-cost check passes for almost any maintenance rate or "
+        "glucose figure, because R1-R4 reuse the paper's totals. The glucose check is the "
+        "diagnostic one.").font = font(italic=True, color=GREY)
 
 # ------------------------------------------------------------------ Part 3
 w3 = wb.create_sheet("Part3")

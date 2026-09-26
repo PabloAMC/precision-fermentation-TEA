@@ -2,35 +2,48 @@
 
 Built on Humbird's methods (SI sheets A.1 and Fig1.3) with a secreted product added.
 
-Vessel (STR, as Humbird's Fig1.3 microbial fermenters):
-    geometry from volume and H/D; impeller diameter D/3; n Rushton impellers, power
-    number Np; ungassed agitator power P = Np rho N^3 D_i^5 n.
+Vessel (STR, as Humbird's Fig1.3 microbial fermenters): geometry from volume and H/D.
     kLa = a (P/V)^b Us^c k^(T-20)   (van 't Riet, non-coalescing; Fig1.3!C11:F11)
-    dC_LM between bottom (C* at p_btm, inlet air) and top (C* at p_back, exit gas
-    x_O2), with DO held at a setpoint (A.1 method, gas-side O2 depletion included).
-Aeration optimum (Humbird Fig1.3 solves the same two unknowns): for a demanded OUR,
-    choose air rate D; Us follows; the kLa needed fixes P/V. Minimise
+    with P/V the gassed agitator power per m3 of broth [W/m3], Us the superficial gas velocity
+    [m/s] (mean of bottom and top), kLa in 1/s. The agitator power drawn is that P/V times the
+    broth volume (no motor-efficiency loss, as in Fig1.3).
+    dC_LM between bottom (C* at p_btm, inlet air) and top (C* at p_back, exit gas x_O2), with
+    DO held at a setpoint (A.1 method, gas-side O2 depletion included).
+Aeration optimum (Humbird Fig1.3 solves the same two unknowns): for a demanded OUR, choose the
+    air rate D; Us follows; the kLa needed fixes P/V. Minimise
         compressor(D) + (1 + rt) agitator(P/V)
-    (agitator power becomes heat that the chillers must remove), subject to
-    P/V <= PV_max and Us_top <= Us_max. OTR_max(vessel) is the largest OUR that satisfies
-    the constraints. A literature cap otr_cap (if given) also applies:
-        OTR_max = min(physics, cap).
+    (agitator power becomes heat that the chillers must remove), subject to P/V <= PV_max and
+    Us_top <= Us_max. The physical OTR_max is the largest OUR that satisfies the constraints and
+    the heat-removal limit.
+O2-transfer cap: a literature design cap otr_cap also applies, OTR_max = min(physics, cap).
+    OUR and the cap are per m3 of BROTH (the usual industrial basis). Humbird's A.1 applies its
+    150 mol/m3/h per m3 of cell-free liquid, OUR = -qO2 / (W (1 - phi)), phi = X / (1000 x 0.3)
+    [A.1!C66:C67]; otr_cap_basis = "cell_free_liquid" reproduces that basis as a sensitivity.
+Heat per mol O2: the OTR_max heat check budgets `heat_per_o2_kJ` (Roels, 460 kJ/mol O2); the
+    batch itself computes heat from formation enthalpies of the dissolved species, which gives
+    about 480-510 kJ/mol O2, so growth is also slowed directly to the heat-removal limit.
 Kinetics (per C-mol biomass per hour; thermo and product modules):
-    growth + maintenance: Herbert-Pirt with Heijnen/Tijhuis thermodynamics (as A.1);
-    product: q_p [g product/g DCW/h] through the product reaction at yield Y_ps.
+    growth + maintenance: Herbert-Pirt with Heijnen/Tijhuis thermodynamics (as A.1). In the
+    production phase (mu ~ 0) the maintenance can instead be set to a measured m_s_prod
+    [g glucose/g DCW/h]: maintenance falls at near-zero growth (Rebnegger 2016: 3x below the
+    chemostat estimate), so a chemostat-level Tijhuis value overstates it there;
+    product: q_p [g product / g DCW / h] through the product reaction at yield Y_ps (the yield of
+    the product-forming reaction alone; maintenance and growth are added separately).
 Two phases:
-    1. Growth at mu_max (reduced so OUR <= OTR_max and net heat <= heat_max) until X = X_prod [g DCW/L].
-    2. Production for t_prod hours at mu_prod with q_p constant.
-    The initial fill W0 is solved so the broth ends exactly at fill_max. In titer mode q_p
-    is solved so the final titer equals the target.
+    1. Growth at mu_max, slowed so that OUR <= OTR_max and net heat <= heat_max, until
+       X = X_prod [g DCW/L] (the last step is shortened to land on X_prod).
+    2. Production for t_prod hours at mu_prod with q_p constant. No product is made during
+       growth (a simplification for constitutive promoters; stated in the report).
+    The initial fill W0 is solved so the broth ends exactly at fill_max. In titer mode q_p is
+    solved so the final titer equals the target. A design whose W0 is below the minimum
+    working fill is flagged.
 Mass balance (liquid ~1 kg/L):
     dM/dt = glucose feed/w_s + NH3 feed/w_N + O2 absorbed - CO2 released - water evaporated
-Heat: -sum r_i dHf_i + agitation - evaporation; chiller electricity = rt x heat. Cooney's
-    rule (0.46 MJ/mol O2) is reported alongside as a check.
+Heat: -sum r_i dHf_i + agitation - evaporation; chiller electricity = rt x heat.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from functools import lru_cache
 
 import numpy as np
@@ -41,6 +54,7 @@ from . import thermo as th
 
 RHO = 1000.0            # kg/m3 broth
 MW = {"glc": 180.1572, "O2": 31.9988, "CO2": 44.0098, "NH3": 17.0304, "H2O": 18.0152}
+CELL_DRY_FRAC = fm.Broth().cell_dry_frac   # 0.3 g dry / g wet cells [A.1!C67]
 
 
 @dataclass(frozen=True)
@@ -48,19 +62,19 @@ class STR:
     volume_m3: float
     h_to_d: float = 2.0              # STRFERM geometry (Equip Table10: 196 m3, D 5 m)
     fill_max: float = 0.8            # [Fig1.3!C8]
-    impeller_ratio: float = 3.0      # tank:impeller [Fig1.3!G17]
-    power_number: float = 5.0        # Rushton [A.1!C78]
-    n_impellers: int = 2             # [Fig1.3 column AC]
     kla_a: float = 0.002             # van 't Riet non-coalescing [Fig1.3!C11:F11]
     kla_b: float = 0.7
     kla_c: float = 0.2
     kla_k: float = 1.025
     kla_factor: float = 1.0          # <1 for viscous (fungal) broths
-    pv_max: float = 3000.0           # W/m3 liquid
+    pv_max: float = 3000.0           # W/m3 broth
     us_max: float = 0.10             # m/s at top
     p_back_bar: float = 1.33         # [A.1!C81]
-    otr_cap: float | None = None     # mol/m3/h literature cap, None = physics only
-    heat_max_kW_m3: float | None = None  # max heat removal (jacket + coils), None = unlimited
+    otr_cap: float | None = None     # mol/m3/h design cap, None = physics only
+    otr_cap_basis: str = "broth"     # "broth" or "cell_free_liquid" (Humbird A.1)
+    heat_max_kW_m3: float | None = None  # max heat removal, None = unlimited
+    heat_per_o2_kJ: float = 460.0    # kJ/mol O2 for the OTR_max heat check (Roels)
+    min_fill: float | None = None    # minimum initial working fill (fraction of volume)
 
     @property
     def diameter(self) -> float:
@@ -80,9 +94,13 @@ class STR:
     def kla(self, pv: float, us: float, T_C: float) -> float:
         return self.kla_factor * self.kla_a * pv ** self.kla_b * us ** self.kla_c * self.kla_k ** (T_C - 20)
 
-    def agitator_kW(self, rpm: float, liquid_m3: float) -> float:
-        di = self.diameter / self.impeller_ratio
-        return self.power_number * RHO * (rpm / 60) ** 3 * di ** 5 * self.n_impellers / 1000
+    def cap_per_broth(self, X_gL: float) -> float | None:
+        """The design cap expressed per m3 of broth at cell density X."""
+        if not self.otr_cap:
+            return None
+        if self.otr_cap_basis == "cell_free_liquid":
+            return self.otr_cap * max(0.0, 1.0 - X_gL / (1000 * CELL_DRY_FRAC))
+        return self.otr_cap
 
 
 @dataclass(frozen=True)
@@ -127,7 +145,7 @@ def aerate(v: STR, c: Conditions, our: float, liquid_m3: float, co2_per_o2: floa
 
     # air must at least carry the O2 plus the DO driving force; search above that
     D_lo = qO2 / 0.21 * 1.02
-    # largest D allowed by the superficial-velocity limit
+    # largest D allowed by the superficial-velocity limit: expand, then solve us_top = us_max
     D_hi = D_lo
     while True:
         s = state(D_hi * 1.5)
@@ -136,6 +154,15 @@ def aerate(v: STR, c: Conditions, our: float, liquid_m3: float, co2_per_o2: floa
         D_hi *= 1.5
         if D_hi > 1e7:
             break
+    a_, b_ = D_hi, D_hi * 1.5
+    for _ in range(40):
+        m_ = 0.5 * (a_ + b_)
+        s = state(m_)
+        if s is not None and s["us"] <= v.us_max:
+            a_ = m_
+        else:
+            b_ = m_
+    D_hi = max(D_hi, a_)
     grid = np.geomspace(D_lo, max(D_hi, D_lo * 1.0001), 40)
     best = None
     for D in grid:
@@ -151,11 +178,12 @@ def aerate(v: STR, c: Conditions, our: float, liquid_m3: float, co2_per_o2: floa
 
 
 @lru_cache(maxsize=256)
-def otr_max(v: STR, c: Conditions) -> float:
-    """Largest feasible OUR [mol/m3/h] at max fill: aeration and (if set) heat removal.
+def otr_physical(v: STR, c: Conditions) -> float:
+    """Largest OUR [mol/m3 broth/h] at max fill allowed by aeration and (if set) heat removal.
 
-    Heat per mol O2 is taken as 0.46 MJ (Cooney's rule, PRIMER sec. 3.3); agitation heat adds
-    P/V. The heat limit binds when OUR x 0.46/3600 + P/V > heat_max_kW_m3.
+    Heat is budgeted at heat_per_o2_kJ per mol O2 plus the agitation power; the heat limit binds
+    when OUR x heat_per_o2/3600 + P/V > heat_max_kW_m3. The batch checks heat again with
+    formation enthalpies (see simulate).
     """
     liq = v.fill_max * v.volume_m3
 
@@ -164,7 +192,7 @@ def otr_max(v: STR, c: Conditions) -> float:
         if a is None:
             return False
         if v.heat_max_kW_m3 is not None:
-            heat = our * 460.0 / 3600 + a["agit_kW"] / liq
+            heat = our * v.heat_per_o2_kJ / 3600 + a["agit_kW"] / liq
             return heat <= v.heat_max_kW_m3
         return True
 
@@ -175,8 +203,14 @@ def otr_max(v: STR, c: Conditions) -> float:
             lo = mid
         else:
             hi = mid
-    phys = lo
-    return min(phys, v.otr_cap) if v.otr_cap else phys
+    return lo
+
+
+def otr_max(v: STR, c: Conditions, X_gL: float = 0.0) -> float:
+    """OTR_max [mol/m3 broth/h] = min(physics, design cap expressed per m3 of broth at X)."""
+    phys = otr_physical(v, c)
+    cap = v.cap_per_broth(X_gL)
+    return min(phys, cap) if cap else phys
 
 
 @lru_cache(maxsize=256)
@@ -199,11 +233,24 @@ class Host:
     bio: th.Species
     mu_max: float
     T_C: float = 30.0
-    maint_factor: float = 1.0        # multiplies Tijhuis maintenance
+    maint_factor: float = 1.0        # multiplies Tijhuis maintenance (growth phase; both phases if m_s_prod is None)
+    m_s_prod: float | None = None    # g glucose/g DCW/h in the production phase (measured, near-zero growth)
 
     @property
     def growth(self) -> th.GrowthModel:
         return _growth_model(self.bio, self.T_C)
+
+    @property
+    def m_s_tijhuis(self) -> float:
+        """Tijhuis maintenance at T [g glucose/g DCW/h]."""
+        g = self.growth
+        return -g.maint.of("Glucose (s)") * MW["glc"] / g.bio.mw
+
+    def maint(self, prod: bool) -> float:
+        """Multiplier on the Tijhuis maintenance reaction in the given phase."""
+        if prod and self.m_s_prod is not None:
+            return self.m_s_prod / self.m_s_tijhuis
+        return self.maint_factor
 
 
 @lru_cache(maxsize=16)
@@ -236,6 +283,7 @@ class Batch:
     product_kg: float
     cells_kg: float
     glucose_kg: float
+    glucose_prod_kg: float           # glucose used in the production phase
     nh3_kg: float
     o2_kmol: float
     co2_kmol: float
@@ -244,22 +292,24 @@ class Batch:
     comp_kWh: float
     agit_kWh: float
     heat_kWh: float                  # heat removed by chillers (thermal)
-    heat_cooney_kWh: float
+    heat_ref_kWh: float              # heat at heat_per_o2_kJ per mol O2, for comparison
     our_max: float
     heat_max_kW_m3: float
+    heat_max_kW: float               # peak total heat load of one fermenter
     comp_max_kW: float
     air_max_kmol_h: float
     series: dict = field(default_factory=dict)
 
 
-def _rates(host: Host, strain: Strain, mu: float, qp: float, F: float):
+def _rates(host: Host, strain: Strain, mu: float, qp: float, F: float, prod: bool = False):
     """kmol/h of glucose, O2, CO2, NH3, H2O and the heat [kW] for cells F kg."""
     g = host.growth
     cmol = F / g.bio.mw
     glc = th.get("Glucose (s)")
     out = {}
+    km = host.maint(prod)
     for name in ("Glucose (s)", "O2 (aq)", "CO2 (aq)", "NH3 (aq)", "H2O (l)"):
-        out[name] = (g.growth.of(name) * mu + host.maint_factor * g.maint.of(name)) * cmol
+        out[name] = (g.growth.of(name) * mu + km * g.maint.of(name)) * cmol
     heat = -(sum(out[n] * th.get(n).dHf for n in out) + mu * cmol * g.bio.dHf) * 1000 / 3600
     if qp > 0:
         p = strain.product
@@ -286,11 +336,10 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
              keep_series: bool = False) -> Batch:
     """Run one batch from initial broth W0 [m3] at X0 [g/L]."""
     b = fm.Broth(T_C=c.T_C, p_back_bar=v.p_back_bar)
-    omax = otr_max(v, c)
     ours_tab, comp_tab, agit_tab, air_tab = aeration_table(v, c)
     t, F, P, M = 0.0, W0 * X0, 0.0, W0 * RHO
-    acc = dict(glc=0.0, nh3=0.0, o2=0.0, co2=0.0, evap=0.0, feedw=0.0, comp=0.0, agit=0.0, heat=0.0, cooney=0.0)
-    our_peak = heat_peak = comp_peak = air_peak = 0.0
+    acc = dict(glc=0.0, glc_p=0.0, nh3=0.0, o2=0.0, co2=0.0, evap=0.0, feedw=0.0, comp=0.0, agit=0.0, heat=0.0, ref=0.0)
+    our_peak = heat_peak = heat_peak_kW = comp_peak = air_peak = 0.0
     phase, t_growth = 1, None
     ser = {k: [] for k in ("t", "X", "titer", "our", "W")} if keep_series else {}
     t_end_prod = None
@@ -301,7 +350,7 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
             ok, reason = False, "broth volume collapsed"
             break
         X = F / W
-        if phase == 1 and X >= strain.X_prod:
+        if phase == 1 and X >= strain.X_prod * (1 - 1e-9):
             phase, t_growth = 2, t
             t_end_prod = t + strain.t_prod
         if phase == 2 and t >= t_end_prod - 1e-9:
@@ -309,49 +358,46 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
         if t > 1000:
             ok, reason = False, "growth phase did not reach X_prod"
             break
+        omax = otr_max(v, c, X)
         dt = dt_g if phase == 1 else min(dt_p, t_end_prod - t)
         if phase == 1:
             mu, q = host.mu_max, 0.0
             r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2))
             our = -r["O2 (aq)"] / W * 1000
             if our > omax:
-                # O2-limited growth: scale mu so OUR = OTR_max (maintenance still paid)
+                # O2-limited growth: OUR is linear in mu at fixed cells; two fixed-point passes
+                # on the midpoint cell mass put OUR on the cap (maintenance still paid)
                 r0, _ = _rates(host, strain, 0.0, 0.0, F)
                 our0 = -r0["O2 (aq)"] / W * 1000
-                mu = max(0.0, host.mu_max * (omax - our0) / max(our - our0, 1e-12))
+                for _ in range(2):
+                    Fm = F * np.exp(mu * dt / 2)
+                    r1, _ = _rates(host, strain, 1.0, 0.0, Fm)
+                    r0m, _ = _rates(host, strain, 0.0, 0.0, Fm)
+                    slope = (-r1["O2 (aq)"] + r0m["O2 (aq)"]) / W * 1000          # OUR per unit mu
+                    base = -r0m["O2 (aq)"] / W * 1000
+                    mu = max(0.0, min(host.mu_max, (omax - base) / max(slope, 1e-12)))
+                if our0 >= omax:
+                    mu = 0.0
                 r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2))
                 our = -r["O2 (aq)"] / W * 1000
             if v.heat_max_kW_m3 and _heat_density(host, strain, b, mu, F, W, dt, omax, ours_tab, agit_tab,
                                                    air_tab) > v.heat_max_kW_m3:
-                # heat-limited growth: otr_max budgets 460 kJ/mol O2, but growth releases a little more
-                # (formation enthalpies), so the cooling cap can bind first. Heat is nearly linear in mu:
-                # secant steps from (0, h0), kept on the safe side of the cap
-                hd = lambda m_: _heat_density(host, strain, b, m_, F, W, dt, omax, ours_tab, agit_tab,  # noqa: E731
-                                              air_tab) - v.heat_max_kW_m3
-                m0, h0, m1, h1 = 0.0, hd(0.0), mu, hd(mu)
-                for _ in range(6):
-                    if h0 >= 0:            # even maintenance alone breaks the cap: no growth
-                        m1 = 0.0
-                        break
-                    m2 = m0 + (m1 - m0) * (-h0) / (h1 - h0) if h1 != h0 else m0
-                    h2 = hd(m2)
-                    if abs(h2) < 1e-4 * v.heat_max_kW_m3:
-                        m1 = m2
-                        break
-                    if h2 > 0:
-                        m1, h1 = m2, h2
-                    else:
-                        m0, h0 = m2, h2
-                mu = min(m0, m1) if hd(m1) > 0 else m1
+                # heat-limited growth: formation-enthalpy heat can bind before the OTR_max heat
+                # budget; heat rises with mu, so solve for the limit (Illinois false position)
+                mu = _bisect(lambda m_: _heat_density(host, strain, b, m_, F, W, dt, omax, ours_tab, agit_tab,
+                                                      air_tab) - v.heat_max_kW_m3, 0.0, mu, n=60, rtol=1e-7)
                 r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2))
                 our = -r["O2 (aq)"] / W * 1000
+            if mu > 1e-12 and X * np.exp(mu * dt) > strain.X_prod:
+                # land the last growth step on X_prod (feed dilution ignored within the step)
+                dt = max(np.log(strain.X_prod / X) / mu, 1e-6)
         else:
             mu, q = (strain.mu_prod if X < strain.X_max else 0.0), qp
-            r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2))
+            r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2), prod=True)
             our = -r["O2 (aq)"] / W * 1000
             if our > omax * 1.0001:
                 ok, reason = False, f"production OUR {our:.0f} > OTR_max {omax:.0f} mol/m3/h"
-        # aeration power per m3 from the precomputed optimum (at max fill: conservative)
+        # aeration power per m3 from the precomputed optimum (at max fill)
         comp = np.interp(min(our, omax), ours_tab, comp_tab) * W
         agit = np.interp(min(our, omax), ours_tab, agit_tab) * W
         air = np.interp(min(our, omax), ours_tab, air_tab) * W
@@ -362,6 +408,8 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
         dM = (glc_kg_h / w_s + nh3_kg_h / w_nh3 + (-r["O2 (aq)"]) * MW["O2"]
               - r["CO2 (aq)"] * MW["CO2"] - evap)
         acc["glc"] += glc_kg_h * dt
+        if phase == 2:
+            acc["glc_p"] += glc_kg_h * dt
         acc["nh3"] += nh3_kg_h * dt
         acc["o2"] += -r["O2 (aq)"] * dt
         acc["co2"] += r["CO2 (aq)"] * dt
@@ -370,9 +418,10 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
         acc["comp"] += comp * dt
         acc["agit"] += agit * dt
         acc["heat"] += heat_total * dt
-        acc["cooney"] += (-r["O2 (aq)"]) * 460.0 * 1000 / 3600 * dt
+        acc["ref"] += (-r["O2 (aq)"]) * v.heat_per_o2_kJ * 1000 / 3600 * dt
         our_peak = max(our_peak, our)
         heat_peak = max(heat_peak, heat_total / W)
+        heat_peak_kW = max(heat_peak_kW, heat_total)
         comp_peak = max(comp_peak, comp)
         air_peak = max(air_peak, air)
         if keep_series:
@@ -384,24 +433,12 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
         t += dt
     W = M / RHO
     return Batch(ok=ok, reason=reason, t_growth=t_growth or t, t_total=t, W0=W0, W_end=W, titer=P / W,
-                 X_end=F / W, q_p=qp, product_kg=P, cells_kg=F, glucose_kg=acc["glc"],
+                 X_end=F / W, q_p=qp, product_kg=P, cells_kg=F, glucose_kg=acc["glc"], glucose_prod_kg=acc["glc_p"],
                  nh3_kg=acc["nh3"], o2_kmol=acc["o2"], co2_kmol=acc["co2"], evap_kg=acc["evap"],
                  feed_water_kg=acc["feedw"], comp_kWh=acc["comp"], agit_kWh=acc["agit"],
-                 heat_kWh=acc["heat"], heat_cooney_kWh=acc["cooney"], our_max=our_peak,
-                 heat_max_kW_m3=heat_peak, comp_max_kW=comp_peak, air_max_kmol_h=air_peak, series=ser)
-
-
-def secant(f, x0, x1, tol=1e-6, maxit=40):
-    f0, f1 = f(x0), f(x1)
-    for _ in range(maxit):
-        if abs(f1 - f0) < 1e-15:
-            break
-        x2 = x1 - f1 * (x1 - x0) / (f1 - f0)
-        x0, f0 = x1, f1
-        x1, f1 = x2, f(x2)
-        if abs(f1) < tol:
-            break
-    return x1
+                 heat_kWh=acc["heat"], heat_ref_kWh=acc["ref"], our_max=our_peak,
+                 heat_max_kW_m3=heat_peak, heat_max_kW=heat_peak_kW, comp_max_kW=comp_peak,
+                 air_max_kmol_h=air_peak, series=ser)
 
 
 def _bisect(f, lo, hi, n=40, log=False, rtol=1e-4):
@@ -415,6 +452,7 @@ def _bisect(f, lo, hi, n=40, log=False, rtol=1e-4):
     if f1 <= 0:
         return hi
     side = 0
+    x = x0
     for _ in range(n):
         x = (x0 * f1 - x1 * f0) / (f1 - f0)
         fx = g(x)
@@ -434,33 +472,35 @@ def _bisect(f, lo, hi, n=40, log=False, rtol=1e-4):
 
 
 def run_batch(v: STR, c: Conditions, host: Host, strain: Strain, X0: float, titer: float | None = None,
-              w_s: float = 0.5, keep_series: bool = False) -> Batch:
+              w_s: float = 0.5, w_nh3: float = 0.25, keep_series: bool = False) -> Batch:
     """Solve W0 (end exactly at fill_max) and, in titer mode, q_p (end at the target titer).
 
-    Both unknowns enter monotonically, so bracketed bisection is used: W_end rises with W0,
-    and titer rises with q_p. If a target cannot be met inside the brackets, the batch comes
-    back with ok=False and the reason.
+    Both unknowns enter monotonically, so bracketed root finding is used: W_end rises with W0,
+    and titer rises with q_p. If a target cannot be met inside the brackets, or the initial
+    fill is below the minimum working fill, the batch comes back with ok=False and the reason.
     """
     V_end = v.fill_max * v.volume_m3
 
-    def w_end(w0, qp):
-        return simulate(v, c, host, strain, w0, X0, qp, w_s).W_end - V_end
+    def sim(w0, qp, keep=False):
+        return simulate(v, c, host, strain, w0, X0, qp, w_s, w_nh3, keep_series=keep)
 
     def solve_W0(qp):
-        return _bisect(lambda w0: w_end(w0, qp), 0.02 * V_end, 0.98 * V_end, n=40, rtol=1e-5)
+        return _bisect(lambda w0: sim(w0, qp).W_end - V_end, 0.02 * V_end, 0.98 * V_end, n=40, rtol=1e-5)
 
     if titer is None:
         qp = strain.q_p
-        b = simulate(v, c, host, strain, solve_W0(qp), X0, qp, w_s, keep_series=keep_series)
+        b = sim(solve_W0(qp), qp, keep_series)
     else:
-        def h(qp):
-            return simulate(v, c, host, strain, solve_W0(qp), X0, qp, w_s).titer - titer
-        qp = _bisect(h, 1e-6, 1.0, n=40, log=True, rtol=1e-5)
-        b = simulate(v, c, host, strain, solve_W0(qp), X0, qp, w_s, keep_series=keep_series)
+        qp = _bisect(lambda q: sim(solve_W0(q), q).titer - titer, 1e-6, 1.0, n=40, log=True, rtol=1e-5)
+        b = sim(solve_W0(qp), qp, keep_series)
         if abs(b.titer - titer) > 0.02 * titer:
             b.ok = False
             b.reason = (b.reason + "; " if b.reason else "") + f"titer {titer} g/L not reachable (got {b.titer:.1f})"
     if abs(b.W_end - V_end) > 0.03 * V_end:
         b.ok = False
         b.reason = (b.reason + "; " if b.reason else "") + "broth volume does not close at max fill"
+    if v.min_fill and b.W0 < v.min_fill * v.volume_m3 * 0.999:
+        b.ok = False
+        b.reason = (b.reason + "; " if b.reason else "") + (
+            f"initial fill {b.W0 / v.volume_m3:.0%} below minimum working fill {v.min_fill:.0%}")
     return b
