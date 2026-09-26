@@ -1,0 +1,1397 @@
+# Downstream processing (DSP) evidence: design and cost data per unit operation.
+# Phase B research output, 2026-09-26. Format and grades: see README.md in this folder.
+#
+# Conventions used in this file (read before using any value):
+# - quote: verbatim text. Where the source is a table or spreadsheet, the needed cell or
+#   column texts are joined with " | " in reading order (other cells may be omitted);
+#   nothing inside a cell is changed. Superscript footnote markers and printed page
+#   numbers at page breaks are dropped. PDF ligatures (fi, fl) are written as plain letters.
+# - value: the number stated by the source. Where the source gives only a range, value is
+#   the midpoint and the note says so. Where it gives only a bound ("under", "more than"),
+#   value is that bound and the note says which kind.
+# - Cost year: stated in unit or note. No escalation has been applied anywhere.
+# - Any number in a note that is not in the quote is either a conversion or derivation
+#   done here (marked "derived"), or is quoted in the note itself.
+# - Grade D is used when the source is sound but the parameter depends on the product or
+#   organism and the source studies a different one (dairy whey, microalgae, E. coli).
+
+# ---------------------------------------------------------------------------------------
+# 1. Cell removal: disk-stack centrifuges
+# ---------------------------------------------------------------------------------------
+
+- key: centrifuge_disk_stack_cost_coeff_2018usd
+  value: 68407.88
+  unit: "USD2018 purchased; cost = value x (feed flow in gpm)^0.52"
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet Equip, cells AB1, AB2, AB3:AC3, AB19:AD21"
+  quote: "Centrifuge, disk stack | From Couper et al 3rd ed. | max capacity (gpm) | 150 | Power fit, 2018$ | Exponent | 0.52 | A | 68407.87631591759"
+  read: fulltext
+  note: >-
+    Power-law fit (exponent 0.52) to Couper et al. data points of 10 to 150 gpm (2.3 to
+    34 m3/h; 1 gpm = 0.2271 m3/h). Check against the data: cell AE6 gives "226519.7680273211"
+    (2018$) at 10 gpm, which the fit reproduces. Cell AB15: "Factor of 2.2 applied to scale
+    Couper from CS (presumably) to 316". Bare purchased cost; installation is applied
+    separately. A plant larger than 150 gpm per machine needs parallel units.
+
+- key: centrifuge_disk_stack_power_kwh_per_m3
+  value: 1.35
+  unit: kWh per m3 feed
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet Equip, cells AB40, AD40, AE40"
+  quote: "Power demand | 1.35 | kWh/m3"
+  read: fulltext
+  note: >-
+    Humbird's design value for disk-stack centrifuge electricity. BioSTEAM's SolidsCentrifuge
+    (a solids-discharge centrifuge, not a disk stack) sets "kWhr_per_m3 = 1.40" without
+    stating its source; its capital cost cites Seider et al. 2017. Milledge & Heaven report
+    about 1.4 kWh/m3 for a Westfalia disk clarifier (key
+    centrifuge_disk_specific_energy_hsb400).
+
+- key: centrifuge_disk_stack_flow_per_machine_yeast
+  value: 131.27
+  unit: gpm per machine (derived 29.8 m3/h)
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet A.1 (baker's yeast), row 169 (A169:K169); sizing in row 149"
+  quote: "Centrifuge, disk stack | 2 | 2 | 131.27231958371843 | gpm | 864000 | 1728000 | Couper"
+  read: fulltext
+  note: >-
+    Baker's yeast broth (Humbird's calibration case), 2 machines per train. Row 149 reads
+    "Centrifuge: prod volume in | 2 | h/train | 59623.887554924906 | kg/h capacity | 2 |
+    req/train | 0.2 | solids", i.e. each production batch is dewatered in 2 h to 20% solids.
+    Unit conversion here: 131.27 gpm x 0.2271 = 29.8 m3/h.
+
+- key: centrifuge_disk_stack_cost_each_yeast_plant
+  value: 864000
+  unit: USD2018 purchased, per machine (131 gpm)
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Appendix A, Table A.1, p.93 (printed)"
+  quote: "Centrifuge 2 $864,000 $1,728,000"
+  read: fulltext
+  note: >-
+    Two disk-stack centrifuges for a 6 x 200 m3 baker's yeast plant. The value comes from
+    the Couper fit in key centrifuge_disk_stack_cost_coeff_2018usd evaluated at 131 gpm.
+    The same table lists "RVF 2 $326,000 $652,000". Humbird applies a Lang factor of 4.5 to
+    the total purchased equipment cost.
+
+- key: centrifuge_disk_max_hydraulic_capacity_hsb400
+  value: 95
+  low: 35
+  unit: m3/h per machine
+  grade: C
+  source: "Milledge JJ, Heaven S. Disc stack centrifugation separation and cell disruption of microalgae: a technical note. Environ Nat Resour Res 1(1):17 (2011)"
+  doi_or_url: 10.5539/enrr.v1n1p17
+  locator: "p.18"
+  quote: "a Westfalia HSB400 disc-bowl centrifuge with intermittent self-cleaning bowl centrifugal clarifier has a maximum capacity of 95 m3 h-1, but is limited to 35 m3 h-1 for algae harvesting"
+  read: fulltext
+  note: >-
+    Vendor figure (GEA Westfalia personal communication, reported in the paper). The
+    usable throughput depends on the feed: small cells or high solids reduce it (35 m3/h
+    for algae). High-density yeast broth is also solids-limited, so plan below the
+    hydraulic maximum.
+
+- key: centrifuge_disk_specific_energy_hsb400
+  value: 1.4
+  unit: kWh per m3 feed
+  grade: C
+  source: "Milledge JJ, Heaven S. Disc stack centrifugation separation and cell disruption of microalgae: a technical note. Environ Nat Resour Res 1(1):17 (2011)"
+  doi_or_url: 10.5539/enrr.v1n1p17
+  locator: "p.18"
+  quote: "The maximum power of the motor is 75 kW, but normal operating demand is probably around 50 kW, giving an energy cost for separation of 1.4 kWh m-3"
+  read: fulltext
+  note: "Vendor estimate (GEA Westfalia, personal communication, 2009). Consistent with Humbird's 1.35 kWh/m3."
+
+- key: centrifuge_cell_loss_fraction
+  value: 0.03
+  low: 0.01
+  high: 0.05
+  unit: fraction of cells lost to the centrate
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison RG, Todd PW, Rudge SR, Petrides DP. Bioseparations Science and Engineering, 2nd ed., Oxford University Press (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.3.1, Cell harvesting, p.11-8"
+  quote: "Cell loss during centrifugation is typically 1 to 5%."
+  read: fulltext
+  note: >-
+    value is the midpoint of the stated range. This is solids that escape to the liquid
+    phase, so it matters for clarification (MF load) rather than product loss when the
+    product is secreted. Product loss comes from liquid trapped in the paste (next key).
+
+- key: centrifuge_paste_liquid_fraction
+  value: 0.5
+  low: 0.4
+  high: 0.6
+  unit: volume fraction of extracellular liquid in centrifuge paste
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.3.1, Recovery of extracellular products, Centrifugation, p.11-11"
+  quote: "In general, the centrifuge paste contains 40 to 60% v/v extracellular liquid. To recover the product dissolved in that liquid, the paste is usually washed and re-centrifuged."
+  read: fulltext
+  note: >-
+    value is the midpoint. This is the physical basis for dilution and two-stage
+    centrifugation. At 92 g/L dry cells (Intelligen OVA) the wet cell volume is a large
+    share of the broth, so the product trapped in an unwashed paste is a first-order loss.
+
+- key: centrifuge_feed_biomass_dilution_intelligen
+  value: 45
+  unit: g/L dry biomass in centrifuge feed (after in-line dilution)
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Clarification section, p.7 (printed)"
+  quote: "the broth is in-line diluted to 45 g/L biomass using a custom mixer (P-27 / MX-202) and subjected to two sequential centrifugation steps"
+  read: fulltext
+  note: >-
+    The harvest broth holds 92 g/L dry cells, so dilution roughly doubles the centrifuge
+    hydraulic load. The first-stage underflow is re-diluted to 45 g/L and centrifuged again.
+    The MF retentate is recycled to the start of clarification. Design assumption, not a
+    measurement.
+
+- key: centrifuge_feed_pcv_dilution_every
+  value: 25
+  unit: "% v/v packed cell volume in centrifuge feed"
+  grade: B
+  source: "Kale A, Patnaik R (Clara Foods Co. / The EVERY Co.). Purified protein compositions and methods of production. US 2024/0083940 A1 (2024)"
+  doi_or_url: https://patents.google.com/patent/US20240083940A1/en
+  locator: "Example 8, para [0717], p.33-34"
+  quote: "Prior to centrifugation, the broth was diluted to reach a packed cell volume of 25% v/v."
+  read: fulltext
+  note: >-
+    K. phaffii, large-scale preparation. The same paragraph specifies a disc-stack
+    centrifuge and a supernatant OD600 "preferably <0.9 AU", with the broth chilled to 8 C.
+    Patent example (company process description).
+
+- key: centrifuge_underflow_solids_yeast
+  value: 0.20
+  unit: mass fraction solids in centrifuge underflow (cream yeast)
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Appendix A (baker's yeast analysis), p.90 (printed)"
+  quote: "centrifuged to a cream yeast consistency of 20% solids. To make compressed yeast, the solids are further dewatered by rotary vacuum filter (RVF) to ~33%."
+  read: fulltext
+  note: "Baker's yeast. The RVF cake value (~33% solids) comes from the same quote."
+
+- key: installation_factor_solids_handling_nrel
+  value: 1.7
+  unit: installed cost / purchased cost
+  grade: B
+  source: "Humbird D, Davis R, Tao L, et al. Process design and economics for biochemical conversion of lignocellulosic biomass to ethanol. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Table 25, p.59"
+  quote: "Skidded equipment 1.8 Solids handling equipment (incl. filters) 1.7"
+  read: fulltext
+  note: >-
+    NREL's individual installation factors. Solids handling and filters use 1.7. Skidded
+    equipment (a candidate for membrane skids) uses 1.8. Only needed if the model uses
+    item-by-item installation factors instead of a Lang factor.
+
+# ---------------------------------------------------------------------------------------
+# 2. Cell removal: pressure filter and rotary vacuum filter (fungal host variant)
+# ---------------------------------------------------------------------------------------
+
+- key: pressure_filter_purchase_cost_nrel
+  value: 3294700
+  unit: "USD2010 purchased for 2 filters x 384 m2; scaling basis 31,815 kg/h; exponent 0.80"
+  grade: B
+  source: "Humbird D, Davis R, Tao L, et al. Process design and economics for biochemical conversion of lignocellulosic biomass to ethanol. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Appendix A, Area 500 equipment list, item S-505, p.100"
+  quote: "S- 505 Pressure Filter Larox 384 sq. m fitration area ea incl packing SS316 2 $3,294,700 2010 strm.a500.evap.571 31815 kg/hr 0.80 1.7"
+  read: fulltext
+  note: >-
+    Row fields: vendor Larox, 384 m2 of filtration area each including packing, SS316,
+    2 units, $3,294,700 quoted in 2010, scaled on stream flow 31,815 kg/h with exponent
+    0.80, installation factor 1.7. This filter presses lignin-rich stillage, not fungal
+    broth. The price per m2 of area should transfer to a T. reesei filter press. The
+    filtration rate per m2 must come from fungal data. The auxiliary compressors (M-505,
+    M-507) are costed separately in the report.
+
+- key: rvf_purchase_cost_coeff_humbird
+  value: 6631.88
+  unit: "USD2018 purchased; cost = value x (solids in kg/h)^0.4217"
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet Equip, cells AG1, AG2, AG3:AI3, AG19:AI21"
+  quote: "Rotary vacuum filter | From ACCE V10 (2016$) | max capacity | 12000 | kg/h | Power fit, 2018$ | Exponent | 0.4216808506848345 | A | 6631.875973155951"
+  read: fulltext
+  note: >-
+    Fit to Aspen Capital Cost Estimator (ACCE) points from 1,000 to 12,000 kg/h of solids
+    (cells AG6 to AG13; for example "1000 | 111600" in 2016$). Filter area scales with
+    solids (next key). Baker's-yeast basis. A filamentous-fungus cake may need a larger
+    area per kg.
+
+- key: rvf_specific_area_humbird
+  value: 0.0082
+  unit: m2 filter area per (kg/h solids)
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet Equip, cells AG15:AI15"
+  quote: "Area | 0.0082 | m2-h/kg"
+  read: fulltext
+  note: "Derived: this equals about 122 kg solids per m2 per hour. Yeast cake."
+
+- key: rvf_filtrate_flux_petrides
+  value: 200
+  high: 1000
+  unit: L/m2/h filtrate
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.3.1, Rotary vacuum filtration, p.11-11"
+  quote: "the filtrate flux in these units is usually higher than 200 L m−2 h−1 and may reach 1000 L m−2 h−1."
+  read: fulltext
+  note: "value is the stated usual minimum; mycelial broths (the classical RVF duty) with precoat."
+
+- key: rvf_filter_aid_to_biomass_ratio
+  value: 1.0
+  unit: kg filter aid per kg biomass (lower bound)
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.3.1, Rotary vacuum filtration, p.11-11"
+  quote: "Filter aid is added in equal or higher amounts than biomass."
+  read: fulltext
+  note: >-
+    value is the stated lower bound. This is a consumable and a disposal cost, and the
+    filter aid lowers the feed value of the spent biomass. It matters for a precoat RVF
+    on T. reesei. A filter press without precoat avoids it.
+
+- key: filter_press_cake_dry_matter_fungal
+  value: 0.40
+  unit: mass fraction dry matter in filter-press cake
+  grade: B
+  source: "Behm K, Nappa M, Aro N, et al. Comparison of carbon footprint and water scarcity footprint of milk protein produced by cellular agriculture and the dairy industry. Int J Life Cycle Assess 27:1017-1034 (2022)"
+  doi_or_url: 10.1007/s11367-022-02087-0
+  locator: "Section 2 (process inventory), p.1023"
+  quote: "After cultivation, the fungal cells are separated by a filter press from the proteins (filtrate), assuming a dry content of fungal biomass of 40% (Voutilainen et al. 2021)."
+  read: fulltext
+  note: >-
+    T. reesei BLG process (VTT). Design assumption taken from Voutilainen 2021. The
+    Järviö 2021 SI inventory lists "reject fungus mass at 58.3% moisture level", i.e.
+    about 42% dry matter, which agrees.
+
+- key: mf_permeate_recovery_fungal_behm
+  value: 0.975
+  unit: fraction of liquid (and product) recovered in MF permeate
+  grade: B
+  source: "Behm K, Nappa M, Aro N, et al. Comparison of carbon footprint and water scarcity footprint of milk protein produced by cellular agriculture and the dairy industry. Int J Life Cycle Assess 27:1017-1034 (2022)"
+  doi_or_url: 10.1007/s11367-022-02087-0
+  locator: "Section 2 (process inventory), p.1023"
+  quote: "Filtrate from the filter press continues to the downstream processing, including microfiltration assuming 100% fungus rejection and 97.5% permeate recovery"
+  read: fulltext
+  note: "T. reesei BLG. LCA design assumption."
+
+# ---------------------------------------------------------------------------------------
+# 3. Microfiltration, ultrafiltration, diafiltration
+# ---------------------------------------------------------------------------------------
+
+- key: uf_flux_intelligen
+  value: 30
+  unit: L/m2/h (average over the concentration step)
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Purification & Drying section, p.8 (printed)"
+  quote: "the average filtrate flux was assumed to be 30 L/m2/h"
+  read: fulltext
+  note: >-
+    UF of the clarified, diluted K. phaffii harvest, concentrated to 50 g/L. Derived: at
+    about 5x, the UF feed is about 10 g/L OVA, well below the 30 g/L titer, because of the
+    centrifuge dilution and MF recycle. This is an assumption. Compare the DF flux of 5 +/- 2 LMH at 50 g/L in EVERY's scale-up example
+    (key df_flux_10kda_at_50gpl_every). UF membrane area in the model is very sensitive
+    to this choice.
+
+- key: uf_rejection_ova_intelligen
+  value: 0.995
+  unit: rejection coefficient (ovalbumin)
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Purification & Drying section, p.8 (printed)"
+  quote: "the membrane rejection coefficient was assumed to be 0.995 for rOvalbumin; 0.60 for HCP; and 0.80 for nucleic acids."
+  read: fulltext
+  note: >-
+    Assumed values. HCP rejection of 0.60 means UF alone removes only part of the host
+    protein. OVA is 45 kDa. BLG is an 18 kDa monomer and a 36 kDa dimer, so it needs a
+    tighter cut-off (5 to 10 kDa in the patents).
+
+- key: uf_final_protein_conc_intelligen
+  value: 50
+  unit: g/L protein in UF retentate
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Purification & Drying section, p.8 (printed)"
+  quote: "the target concentration was set to 50 g/L of rOvalbumin, which corresponds to its practical solubility limit. This setting is equivalent to a concentration factor of approximately 5×."
+  read: fulltext
+  note: >-
+    EVERY also concentrates to about 50 g/L. Whey UF reaches much higher solids (27 to 32%
+    for WPC80, key uf_retentate_solids_wpc80). The 50 g/L limit is specific to OVA
+    precipitation feed or solubility and should not be applied to BLG without checking.
+
+- key: uf_flux_range_petrides
+  value: 35
+  low: 20
+  high: 50
+  unit: L/m2/h
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.3.2, Product concentration, Ultrafiltration, p.11-12"
+  quote: "The typical operating transmembrane pressure is 2 to 5 bar and the average flux is 20 to 50 L m−2 h−1."
+  read: fulltext
+  note: "value is the midpoint. General protein UF heuristic from a textbook chapter."
+
+- key: df_flux_10kda_at_50gpl_every
+  value: 5
+  low: 3
+  high: 7
+  unit: L/m2/h
+  grade: B
+  source: "Kale A (Clara Foods Co. / The EVERY Co.). Recombinant protein recovery methods and uses thereof. US 2025/0134130 A1 (2025)"
+  doi_or_url: https://patents.google.com/patent/US20250134130A1/en
+  locator: "Example 6 (illustrative process scale-up), Table 8 '10 kDa parameters', p.20"
+  quote: "Concentration | At 50 g/L | Average Flux | 5 ± 2 LMH"
+  read: fulltext
+  note: >-
+    Diafiltration of resuspended rOVA precipitate at 50 g/L. The same table gives a PES
+    hollow-fibre or spiral-wound membrane, "10° C. ± 5", a TMP of "Up to 2 bar" and
+    retentate conductivity "<1 mS/cm". low and high are 5 -/+ 2. This is the most specific
+    public flux for a PF egg protein at high concentration, and it is 6x below the 30 LMH
+    Intelligen assumes for the dilute concentration step. The on-disk OCR renders it
+    "5 = 2 LMH"; the Google Patents text reads "5 ± 2 LMH".
+
+- key: mf_polishing_flux_every
+  value: 10
+  low: 8
+  high: 12
+  unit: L/m2/h (expected)
+  grade: B
+  source: "Kale A (Clara Foods Co. / The EVERY Co.). Recombinant protein recovery methods and uses thereof. US 2025/0134130 A1 (2025)"
+  doi_or_url: https://patents.google.com/patent/US20250134130A1/en
+  locator: "Example 6, Table 9 '0.2 um Tangential Flow Filtration parameters', p.21"
+  quote: "Average flux (expected) | 10 ± 2 LMH"
+  read: fulltext
+  note: >-
+    Final 0.2 um bioburden-reduction TFF of the diafiltered 50 g/L retentate before spray
+    drying (PES, 10 C, TMP up to 2 bar). This is not the primary clarification MF. No
+    public flux for primary MF of centrifuged K. phaffii broth was found.
+
+- key: mf_clarification_volume_reduction_every
+  value: 7.5
+  low: 6
+  high: 9
+  unit: volume concentration factor of the 0.2 um MF retentate (x)
+  grade: B
+  source: "Kale A, Patnaik R (Clara Foods Co. / The EVERY Co.). Purified protein compositions and methods of production. US 2024/0083940 A1 (2024)"
+  doi_or_url: https://patents.google.com/patent/US20240083940A1/en
+  locator: "Example 8, para [0717], p.34"
+  quote: "During the concentration step, the retentate volume is reduced by about 6-9×. To achieve higher yields the retentate is continuously diafiltered with ten diavolumes of water."
+  read: fulltext
+  note: >-
+    value is the midpoint. Centrate clarification by 0.2 um TFF, run in concentration mode
+    and then diafiltration mode. The ten diavolumes (same quote) wash product out of the
+    MF retentate, and they set the dilution the UF step has to remove.
+
+- key: uf_concentration_factor_every
+  value: 7
+  low: 6
+  high: 8
+  unit: volume concentration factor (x) to about 50 g/L protein
+  grade: B
+  source: "Kale A, Patnaik R (Clara Foods Co. / The EVERY Co.). Purified protein compositions and methods of production. US 2024/0083940 A1 (2024)"
+  doi_or_url: https://patents.google.com/patent/US20240083940A1/en
+  locator: "Example 8, para [0717], p.34"
+  quote: "The permeate from the 0.2 μm TFF is concentrated 6-8x from its initial volume to around 50 g/L protein concentration."
+  read: fulltext
+  note: "value is the midpoint. The UF feed here is the MF permeate diluted by 10 DV of wash, so the concentration factor is not simply 50 g/L divided by the titer."
+
+- key: df_diavolumes_every
+  value: 7
+  low: 6
+  high: 8
+  unit: diavolumes of DI water
+  grade: B
+  source: "Kale A, Patnaik R (Clara Foods Co. / The EVERY Co.). Purified protein compositions and methods of production. US 2024/0083940 A1 (2024)"
+  doi_or_url: https://patents.google.com/patent/US20240083940A1/en
+  locator: "Example 8, para [0717], p.34"
+  quote: "This retentate was then diafiltered with 6-8 DVs of DI water."
+  read: fulltext
+  note: >-
+    value is the midpoint. EVERY's precipitation route (US 2025/0134130 A1 para [0231])
+    also says "Typically, this would mean diafiltering around 6-8 DVs" to reach below
+    900 uS/cm at about 50 g/L.
+
+- key: mf_flux_microalgae_slegers
+  value: 50
+  low: 20
+  high: 100
+  unit: L/m2/h
+  grade: D
+  source: "Slegers PM, Olivieri G, Breitmayer E, Sijtsma L, Eppink MHM, Wijffels RH, et al. Design of value chains for microalgal biorefinery at industrial scale: process integration and techno-economic analysis. Front Bioeng Biotechnol 8:550758 (2020)"
+  doi_or_url: 10.3389/fbioe.2020.550758
+  locator: "Table 1, Microfiltration row"
+  quote: "Microfiltration | Filtrate flux rate | 50 | 20–100 L m–2 h–1"
+  read: fulltext
+  note: >-
+    Microalgae harvesting MF (benchmark 50, sensitivity range 20-100). Same table: power
+    0.02 kW/m2 and concentration factor 10. This is an analogy for primary MF of yeast
+    broth; no public K. phaffii number was found.
+
+- key: uf_flux_protein_concentration_slegers
+  value: 80
+  low: 60
+  high: 100
+  unit: L/m2/h
+  grade: D
+  source: "Slegers PM, Olivieri G, Breitmayer E, Sijtsma L, Eppink MHM, Wijffels RH, et al. Design of value chains for microalgal biorefinery at industrial scale: process integration and techno-economic analysis. Front Bioeng Biotechnol 8:550758 (2020)"
+  doi_or_url: 10.3389/fbioe.2020.550758
+  locator: "Table 1, Ultrafiltration (protein concentration) row"
+  quote: "Ultrafiltration (protein concentration) | Permeate flux rate | 80 L m–2 h–1 | 60–100 L m–2 h–1"
+  read: fulltext
+  note: >-
+    Algal soluble protein, 8 kDa cut-off, concentration factor 20. The same table uses 30
+    (10-50) L/m2/h for the preceding 300 kDa UF/DF step. Design assumptions.
+
+- key: uf_power_per_area_slegers
+  value: 0.2
+  unit: kW per m2 membrane
+  grade: B
+  source: "Slegers PM, Olivieri G, Breitmayer E, Sijtsma L, Eppink MHM, Wijffels RH, et al. Design of value chains for microalgal biorefinery at industrial scale: process integration and techno-economic analysis. Front Bioeng Biotechnol 8:550758 (2020)"
+  doi_or_url: 10.3389/fbioe.2020.550758
+  locator: "Table 1, Ultrafiltration rows"
+  quote: "Power input | 0.2 kW m–2 | n.a."
+  read: fulltext
+  note: "Derived: at 80 L/m2/h this is 2.5 kWh/m3 of permeate; at 30 L/m2/h it is 6.7 kWh/m3. Recirculation pumping dominates."
+
+- key: uf_specific_energy_chamberland
+  value: 13.31
+  unit: Wh per kg permeate removed
+  grade: A
+  source: "Chamberland J, Mercier-Bouchard D, Dussault-Chouinard I, Benoit S, Doyen A, Britten M, Pouliot Y. On the use of ultrafiltration or microfiltration polymeric spiral-wound membranes for cheesemilk standardization: impact on process efficiency. Foods 8(6):198 (2019)"
+  doi_or_url: 10.3390/foods8060198
+  locator: "Section 3.4 and Table 2"
+  quote: "Considering the whole process, UF had a SEC of 13.31 ± 0.23 Wh per kilogram of permeate that is removed, whereas that of MF was of 8.59 ± 0.50 Wh per kilogram of permeate removed"
+  read: fulltext
+  note: >-
+    Measured on pilot spiral-wound 10 kDa UF and 0.1 um MF membranes, skim milk at 50 C,
+    feed and recirculation pumps (Table 2). Equals 13.3 kWh/m3 of permeate. Dairy feed,
+    but pump energy per m3 should transfer to protein UF roughly.
+
+- key: membrane_concentration_energy_ramirez
+  value: 0.025
+  low: 0.014
+  high: 0.036
+  unit: MJ per kg water removed
+  grade: A
+  source: "Ramírez CA, Patel M, Blok K. From fluid milk to milk powder: energy use and energy efficiency in the European dairy industry. Energy 31(12):1984-2004 (2006)"
+  doi_or_url: 10.1016/j.energy.2005.10.014
+  locator: "Section 5.2 Concentration, p.1993"
+  quote: "Compared with evaporation, concentration by membrane filtration demands significantly smaller amounts of energy (0.014–0.036 MJ/kg water removed [13])."
+  read: fulltext
+  note: >-
+    value is the midpoint. Derived: 3.9 to 10 kWh/m3, somewhat below Chamberland's 13 kWh/m3.
+    Dairy membrane concentration, cited from their ref [13].
+
+- key: membrane_price_industrial_petrides
+  value: 200
+  unit: USD per m2 (upper bound); cost year not stated (chapter dated 2015)
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.5 (operating cost), Consumables, p.11-33"
+  quote: "The unit cost of related membranes used in industrial biotechnology (e.g., for production of industrial enzymes) is considerably lower (under $200/m2) and the expected life is more than 2000 h of operation."
+  read: fulltext
+  note: >-
+    value is the stated upper bound. The same passage gives $300 to $800/m2 for
+    biopharmaceutical cassettes (10-50 cycles) and under $50/m2 with at least 6000 h for
+    water-treatment membranes. Food-grade spiral-wound UF likely lies between the
+    industrial and water figures.
+
+- key: membrane_life_industrial_petrides
+  value: 2000
+  unit: operating hours (lower bound)
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.5, Consumables, p.11-33"
+  quote: "The unit cost of related membranes used in industrial biotechnology (e.g., for production of industrial enzymes) is considerably lower (under $200/m2) and the expected life is more than 2000 h of operation."
+  read: fulltext
+  note: "value is the stated lower bound. Derived: 2000 h is about 3 months of continuous operation. Chamberland et al. assume replacement once a year in a dairy simulation (key membrane_replacement_cost_chamberland)."
+
+- key: membrane_replacement_cost_chamberland
+  value: 0.23
+  unit: CAD per m2 per day (cost year not stated, paper 2019)
+  grade: B
+  source: "Chamberland J, Mercier-Bouchard D, Dussault-Chouinard I, Benoit S, Doyen A, Britten M, Pouliot Y. On the use of ultrafiltration or microfiltration polymeric spiral-wound membranes for cheesemilk standardization: impact on process efficiency. Foods 8(6):198 (2019)"
+  doi_or_url: 10.3390/foods8060198
+  locator: "Table 6 (economic assessment) and its footnote 2"
+  quote: "Membrane replacement 2 | 0.23 Can$ m −2 day −1"
+  read: fulltext
+  note: >-
+    Footnote 2: "Membrane replacement cost considers a replacement once per year.
+    Filtration processes were operated 8 h per day, 265 days per year, in a three-stage
+    system." Derived: about 61 CAD/m2 per replacement if charged per operating day, or 84
+    if per calendar day; the paper does not say which. Assumption in a dairy simulation.
+
+- key: membrane_system_cost_food_vs_biopharma
+  value: 0.1
+  unit: ratio of food-industry to biopharma membrane-system cost (upper bound)
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.5.1 Capital cost estimation, p.11-26"
+  quote: "The cost of membrane filtration systems used in the food, bio-fuel and water purification industries is more than an order of magnitude lower compared to the biopharmaceutical industry."
+  read: fulltext
+  note: >-
+    The chapter's Figure 11.8 gives membrane-system purchase cost vs area (2012 prices,
+    biopharma specification), but only as an image, so no $/m2 of skid could be quoted.
+    Use this ratio only as a warning against applying biopharma skid costs.
+
+- key: uf_retentate_solids_wpc80
+  value: 0.295
+  low: 0.27
+  high: 0.32
+  unit: mass fraction total solids in UF retentate (WPC80)
+  grade: D
+  source: "Tetra Pak. Dairy Processing Handbook (online), chapter 18 Milk and whey fractionation"
+  doi_or_url: https://dairyprocessinghandbook.tetrapak.com/chapter/milk-and-whey-fractionation
+  locator: "Section on whey protein concentrates (WPC)"
+  quote: "To achieve a protein concentrate exceeding 80%, the liquid milk and whey undergo ultrafiltration to reach a solids content of 12 – 18% for MPC85, MCC85 (milk protein/micellar casein concentrates) and 27 – 32% for WPC80 (whey protein concentrates)."
+  read: html
+  note: >-
+    value is the midpoint. Vendor handbook, whey analogue. It shows whey proteins
+    (mostly BLG) can be concentrated by UF well beyond 50 g/L before viscosity limits.
+    The same chapter says "most of the true protein, typically > 99%, is retained".
+
+- key: uf_protein_concentration_treesei_vtt
+  value: 0.28
+  unit: mass fraction (protein concentrated to 28% before spray drying)
+  grade: B
+  source: "Voutilainen E, Pihlajaniemi V, Parviainen T. Economic comparison of food protein production with single-cell organisms from lignocellulose side-streams. Bioresour Technol Rep 14:100683 (2021)"
+  doi_or_url: 10.1016/j.biteb.2021.100683
+  locator: "Section 2.1.3, p.3"
+  quote: "Next, the protein is concentrated to 28% (Kujanpää, 2020) using ultrafiltration and finally dried to 90% DM using spray drying"
+  read: fulltext
+  note: "T. reesei generalized egg-protein process (VTT). Design value from a personal source (Kujanpää 2020). The same sentence sets the product at 90% DM."
+
+- key: uf_retentate_mass_blg_vivici
+  value: 2967
+  unit: g retentate from 16,669 g clarified supernatant (5 kDa UF/DF)
+  grade: B
+  source: "Vivici B.V. Method for the purification of a recombinant milk protein. WO 2025/046004 A1 (2025)"
+  doi_or_url: https://patents.google.com/patent/WO2025046004A1/en
+  locator: "Example 2 (BLG-A purification by CEX)"
+  quote: "The amounts of retentate and permeate were 2967 g and 14704 g, respectively."
+  read: fulltext
+  note: >-
+    The preceding sentence reads "A total amount of 16669 g of clarified supernatant was
+    obtained". Derived mass concentration factor: 5.6x before CEX, to 8-10 mS/cm. The
+    feed was 10 kg of BLG broth after 7 days at 30 C. Getting 16.7 kg of supernatant from
+    10 kg of broth implies added water, which Example 2 does not describe; Example 1
+    diluted with about 80% water. Example 4 of the same patent reports that 10 kDa UF
+    retained both BLG and the yeast sugars, so UF alone did not purify.
+
+# ---------------------------------------------------------------------------------------
+# 4. Cleaning in place and process water
+# ---------------------------------------------------------------------------------------
+
+- key: cip_chemicals_price_intelligen
+  value: 0.023
+  unit: USD2025 per kg CIP solution
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Table 3 (raw material cost breakdown), p.18 (printed)"
+  quote: "CIP-Acid 0.023 3,430,444 kg 78,694 0.97 CIP-Caustic 0.023 3,901,202 kg 89,494 1.10"
+  read: fulltext
+  note: >-
+    Columns: unit cost ($), annual amount, annual cost ($), % of raw materials. Derived:
+    7.3 kt/yr of CIP solutions for 1,000 t/yr of product (7.3 kg per kg), costing about
+    $0.17 per kg of product.
+
+- key: cip_water_per_m3_tank_jarvio
+  value: 366
+  unit: L water per CIP of 1 m3 tank volume
+  grade: B
+  source: "Järviö N, Parviainen T, Maljanen NL, et al. Ovalbumin production using Trichoderma reesei culture and low-carbon energy could mitigate the environmental impacts of chicken-egg-derived ovalbumin. Nature Food 2:1005-1013 (2021), Supplementary Information"
+  doi_or_url: 10.1038/s43016-021-00418-2
+  locator: "SI section 1, Bioreactor cleaning-in-place (CIP), p.3"
+  quote: "This means that one CIP operation for a 1m3 tank requires 366 litres of water and 0.67 litres of cleaning detergent."
+  read: fulltext
+  note: >-
+    Partial-reuse CIP system (from a WRAP case study). The same section estimates CIP
+    electricity at 0.11 kWh per litre of water (from Eide et al. 2003, dairy).
+    Bioreactors, not membranes.
+
+- key: purified_water_price_intelligen
+  value: 5.0
+  unit: USD2025 per tonne purified water
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Table 3, p.18 (printed)"
+  quote: "Purified Water 5.000 27,317 MT 136,585 1.68"
+  read: fulltext
+  note: >-
+    Purified water is used for cake washing. Plain process water is listed at "3.000" $/MT
+    in the same table. Diafiltration water volume (6-10 DV) times this price gives the DF
+    water cost. Petrides Table 11.6 (2012 prices) gives RO water at $0.005-0.01/kg.
+
+# ---------------------------------------------------------------------------------------
+# 5. Precipitation (ammonium sulfate, acid) and crystallisation
+# ---------------------------------------------------------------------------------------
+
+- key: as_concentration_intelligen
+  value: 350
+  unit: g/L ammonium sulfate in precipitation step
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Purification & Drying section, p.8 (printed)"
+  quote: "ammonium sulfate is added to a concentration of 350 g/L, and the mixture is incubated at 15 °C in a stirred-tank reactor."
+  read: fulltext
+  note: "Preceded by acidification to pH 4.5 with phosphoric acid. EVERY's own data show acid lowers recovery (key acid_plus_salt_precipitation_recovery_every)."
+
+- key: as_precipitated_fraction_ova_intelligen
+  value: 0.90
+  unit: fraction of OVA precipitated (HCP 0.15)
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Purification & Drying section, eqs. (4)-(5), p.8 (printed)"
+  quote: "Conversion rates of 90% and 15% were assumed for reactions (4) and (5), respectively. Additionally, a residence time of 2 h was considered in the CSTR."
+  read: fulltext
+  note: "Reaction (4) is OVA to solid and (5) is HCP to solid. Assumed values. EVERY measured 84% in the pellet at 400 g/L (key as_pellet_fraction_400gpl_every)."
+
+- key: precipitate_cake_retention_intelligen
+  value: 0.99
+  unit: fraction of precipitated OVA retained by basket-centrifuge cloth
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Purification & Drying section, p.8-9 (printed)"
+  quote: "It is assumed that 99% of the precipitated rOvalbumin and 90% of the precipitated HCP are retained by the cloth, forming a soft cake with a moisture content of approximately 80%"
+  read: fulltext
+  note: >-
+    Three staggered basket centrifuges. The filtrate flux was set to "400 L/m2/h", with 10
+    min filtration per cycle. The cake (80% moisture) feeds the spray dryer directly.
+    EVERY warns that disk-stack recovery of this precipitate "can be challenging" and
+    suggests a Sedicanter.
+
+- key: precipitate_wash_volumes_intelligen
+  value: 6
+  unit: cake volumes of purified water
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Purification & Drying section, p.9 (printed)"
+  quote: "The protein cake is then washed with 6 volumes of purified water, at a flux of 500 L/m2/h, for approximately 8 minutes."
+  read: fulltext
+  note: "The wash is needed to strip ammonium sulfate to food-grade levels. EVERY instead resolubilises and diafilters (6-8 DV)."
+
+- key: as_price_intelligen
+  value: 0.18
+  unit: USD2025 per kg ammonium sulfate
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Table 3 (raw material cost breakdown), p.18 (printed)"
+  quote: "Amm. Sulfate 0.180 9,221,148 kg 1,659,807 20.43"
+  read: fulltext
+  note: "Ammonium sulfate is 20% of raw-material cost in the Intelligen OVA case; most of it leaves in the fertilizer co-product."
+
+- key: as_consumption_intelligen
+  value: 9221148
+  unit: kg ammonium sulfate per year for 1,000 t/yr OVA powder
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Table 3, p.18 (printed)"
+  quote: "Amm. Sulfate 0.180 9,221,148 kg 1,659,807 20.43"
+  read: fulltext
+  note: >-
+    Derived: 9.2 kg ammonium sulfate per kg of powder, about $1.66 per kg of product before
+    the fertilizer credit. No salt recycle is modelled; the salt leaves as fertilizer
+    (key fertilizer_coproduct_credit_intelligen).
+
+- key: as_price_petrides
+  value: 0.21
+  low: 0.17
+  high: 0.25
+  unit: USD2012 per kg (technical grade)
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Table 11.6 Common Bioprocessing Raw Materials (Year 2012 Prices)"
+  quote: "Ammonium sulfate Technical 0.17–0.25"
+  read: fulltext
+  note: "value is the midpoint. Technical grade. A food-contact grade may cost more."
+
+- key: as_pellet_fraction_400gpl_every
+  value: 0.84
+  unit: fraction of protein of interest in pellet at 400 g/L AS
+  grade: B
+  source: "Kale A (Clara Foods Co. / The EVERY Co.). Recombinant protein recovery methods and uses thereof. US 2025/0134130 A1 (2025)"
+  doi_or_url: https://patents.google.com/patent/US20250134130A1/en
+  locator: "Example 2, Table 2 (NES-002) and the text after it, p.18"
+  quote: "Ammonium sulfate at 400 g/L performed best, yielding 84% protein of interest in pellet and 16% in supernatant (NES-002)."
+  read: fulltext
+  note: "rOVA from a fungal (Pichia) platform. 100-400 g/L AS tested. Bench scale."
+
+- key: as_precipitation_recovery_ph6_every
+  value: 0.91
+  low: 0.77
+  unit: overall recovery of protein of interest, salt-precipitation route
+  grade: B
+  source: "Kale A (Clara Foods Co. / The EVERY Co.). Recombinant protein recovery methods and uses thereof. US 2025/0134130 A1 (2025)"
+  doi_or_url: https://patents.google.com/patent/US20250134130A1/en
+  locator: "Example 5, Table 5 and para [0217], p.19"
+  quote: "At pH 6, approximately 91% POI was recovered overall. In comparison, at pH4.5, approximately 77% POI was recovered overall."
+  read: fulltext
+  note: >-
+    Glycosylated rOVA strain SP008. For the non-glycosylated strain SP100, para [0218]
+    reads "At pH6, approximately 65.6% POI was recovered overall", so recovery depends on
+    the strain.
+
+- key: as_target_concentration_scaleup_every
+  value: 400
+  unit: g/L (40% w/v) ammonium sulfate
+  grade: B
+  source: "Kale A (Clara Foods Co. / The EVERY Co.). Recombinant protein recovery methods and uses thereof. US 2025/0134130 A1 (2025)"
+  doi_or_url: https://patents.google.com/patent/US20250134130A1/en
+  locator: "Example 6, Table 6 and the text after it, p.20"
+  quote: "First, ammonium sulfate is added to the retentate from the 10 kDa Ultrafiltration step to create a 40% w/v ammonium sulfate solution."
+  read: fulltext
+  note: >-
+    Scale-up recipe. Table 6 gives 20-25 C, pH 4.5-6.5 and gentle stirring. The feed is
+    a 6-8x 10 kDa UF retentate. After recovery the precipitate is resuspended to 40-50 g/L
+    at pH 6 (Table 7).
+
+- key: as_precipitation_time_every
+  value: 8
+  low: 4
+  high: 12
+  unit: h
+  grade: B
+  source: "Kale A (Clara Foods Co. / The EVERY Co.). Recombinant protein recovery methods and uses thereof. US 2025/0134130 A1 (2025)"
+  doi_or_url: https://patents.google.com/patent/US20250134130A1/en
+  locator: "Example 6, para [0225], p.20"
+  quote: "Precipitation continues for about four hours to about twelve depending on mixing and rate of precipitation."
+  read: fulltext
+  note: "value is the midpoint. Intelligen assumes a 2 h CSTR residence time. The difference sets precipitation tank volume."
+
+- key: acid_plus_salt_precipitation_recovery_every
+  value: 0.10
+  unit: overall recovery (upper bound) when acid is added during salt precipitation
+  grade: B
+  source: "Kale A (Clara Foods Co. / The EVERY Co.). Recombinant protein recovery methods and uses thereof. US 2025/0134130 A1 (2025)"
+  doi_or_url: https://patents.google.com/patent/US20250134130A1/en
+  locator: "Example 5, para [0217], p.19"
+  quote: "Adding an acid to lower the pH during salt precipitation yielded very low recoveries (under 10% recovery)."
+  read: fulltext
+  note: >-
+    value is the stated upper bound. This contradicts the pH 4.5 acidification in the
+    Intelligen design (key as_concentration_intelligen). Pure acid (isoelectric)
+    precipitation at pH 3.25-3.5 left "17.5% and 17.3%" of POI in the supernatant
+    (NES-001, Example 2). Table 5 also lists pH precipitation alone as "Very low" in
+    recovery.
+
+- key: blg_crystallisation_yield_arla
+  value: 0.703
+  unit: fraction of BLG in feed recovered as crystals (single pass)
+  grade: B
+  source: "Arla Foods amba. Production of novel beta-lactoglobulin preparations and related methods, uses, and food products. WO 2018/115520 A1 (2018)"
+  doi_or_url: https://patents.google.com/patent/WO2018115520A1/en
+  locator: "Example 3, feed 3 (WPC from acid whey)"
+  quote: "It is evident that a large portion of BLG was isolated (a calculated yield of 70.3% relative to the total amount of BLG in the feed)."
+  read: fulltext
+  note: >-
+    Salting-in crystallisation of BLG near its isoelectric point at low conductivity
+    (conductivity reduced by diafiltration), crystals separated by centrifugation. Other
+    examples report "64.5% (w/w)" and "65% relative to the total amount of BLG in the
+    feed". A chromatography-free route to a BLG isolate, developed on dairy streams. Not
+    demonstrated on fermentation broth, where yeast sugars and host proteins may
+    interfere with crystallisation.
+
+- key: fertilizer_coproduct_credit_intelligen
+  value: 2662212
+  unit: USD2025 per year (1,000 t/yr OVA plant)
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Table 2 (Executive Summary), p.16 (printed)"
+  quote: "Credits 2,662,212 $/yr"
+  read: fulltext
+  note: >-
+    Derived: $2.66 per kg of OVA powder. The fertilizer is spent yeast plus ammonium
+    sulfate, evaporated in 4 effects and rotary-dried. p.10 reads "The dried fertilizer
+    product has a moisture content of 10% and contains approximately 71% ammonium sulfate
+    and 26% biomass on a dry basis." The fertilizer price per tonne is not given in the
+    ReadMe.
+
+# ---------------------------------------------------------------------------------------
+# 6. Ion-exchange chromatography
+# ---------------------------------------------------------------------------------------
+
+- key: iex_binding_capacity_cex_every
+  value: 75
+  low: 50
+  high: 100
+  unit: g protein per L resin
+  grade: B
+  source: "Kale A, Patnaik R (Clara Foods Co. / The EVERY Co.). Purified protein compositions and methods of production. US 2024/0083940 A1 (2024)"
+  doi_or_url: https://patents.google.com/patent/US20240083940A1/en
+  locator: "paras [0700] (Example 1) and [0707] (Example 2), p.32"
+  quote: "The backbone is typically a nonprotein binding material such as methacrylate or cellulose with typical particle size between 50-200 um. The ligand density would accommodate protein binding capacity between 50-100 g protein/L resin."
+  read: fulltext
+  note: >-
+    value is the midpoint. Sulfopropyl or sulfonate CEX (Mitsubishi SP400, Sepragen S),
+    feed at pH 3.5 in citrate. This is a design statement, not a measured dynamic binding
+    capacity.
+
+- key: iex_column_volumes_per_cycle_every
+  value: 16
+  unit: column volumes of buffer per cycle, excluding load (derived)
+  grade: B
+  source: "Kale A, Patnaik R (Clara Foods Co. / The EVERY Co.). Purified protein compositions and methods of production. US 2024/0083940 A1 (2024)"
+  doi_or_url: https://patents.google.com/patent/US20240083940A1/en
+  locator: "Example 2, Table 4 'List of buffers and the column volumes required in a typical process', p.32"
+  quote: "Equilibration | 4 | Sample | 1-2 | Column Wash | 2-3 | Elution | 3-4 | CIP | 3 | Regeneration | 3"
+  read: fulltext
+  note: >-
+    Buffers (same table): citrate for equilibration and wash, "25 mM Citrate buffer with
+    1M NaCl" for elution, "1M NaOH" for CIP, "20% EtOH and 150 mM NaCl" for regeneration.
+    Derived: 4 + 2.5 + 3.5 + 3 + 3 = 16 CV per cycle using range midpoints. At 75 g/L
+    capacity that is about 0.21 L buffer per g of protein, before buffer recycling. The
+    elution step (3-4 CV at 1 M NaCl) sets the salt load that a following DF step must
+    remove.
+
+- key: iex_resin_price_protein_petrides
+  value: 1250
+  low: 500
+  high: 2000
+  unit: USD per L resin (cost year not stated, chapter 2015)
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.5.2 Operating cost estimation, Consumables, p.11-33"
+  quote: "The unit cost of typical ion exchange and hydrophobic interaction chromatography resins used for the purification of proteins is in the range of $500 to $2,000 per liter of resin."
+  read: fulltext
+  note: "value is the midpoint. These are protein-grade (largely biopharma) resins. Food-grade polymeric resins are cheaper (key iex_resin_price_polymeric_petrides)."
+
+- key: iex_resin_replacement_cycles_petrides
+  value: 125
+  low: 50
+  high: 200
+  unit: cycles
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.5, Consumables, p.11-33"
+  quote: "The replacement frequency of such resins is in the range of 50 to 200 cycles of usage (the high-end resins have a longer useful life)."
+  read: fulltext
+  note: >-
+    value is the midpoint. "such resins" follows sentences on protein IEX/HIC resins and
+    protein-A resins, so it is biopharma practice. Industrial lactoferrin columns last
+    over 1000 cycles (key iex_resin_lifetime_industrial_lactoferrin).
+
+- key: iex_resin_price_polymeric_petrides
+  value: 100
+  unit: USD per L resin (upper bound); life 1000-2000 h
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.5, Consumables, p.11-33"
+  quote: "In contrast, the unit cost of polymeric chromatography resins used for the purification of small bio-molecules (e.g., amino acids) is substantially lower (under $100 per liter of resin) and their life is longer (1000 to 2000 h of operation)."
+  read: fulltext
+  note: >-
+    value is the stated upper bound. Resins for small molecules. Macroporous polymeric
+    protein CEX resins (e.g. methacrylate SP400 in the EVERY patent) plausibly fall
+    between this and the protein-resin range. No public price for them was found.
+
+- key: iex_resin_lifetime_industrial_lactoferrin
+  value: 1000
+  unit: cycles before column replacement (lower bound)
+  grade: A
+  source: "Pires MC, Jungbauer A, Lau D, Young C, Hoffmann P, de Pádua TF, Gerstweiler L. Column ageing of agarose-based chromatography in industrial lactoferrin purification. J Chromatogr A 1760:466274 (2025)"
+  doi_or_url: 10.1016/j.chroma.2025.466274
+  locator: "abstract"
+  quote: "Commercial lactoferrin is extracted from bovine milk using cation exchange chromatography with agarose-based Sepharose SP Big Beads. After over a thousand cycles, the column must be replaced due to backpressure exceeding operational limits."
+  read: abstract
+  note: >-
+    value is the stated lower bound. Industrial food-dairy CEX. Degradation comes from
+    CIP chemicals (NaOH, acetic acid, NaClO) breaking down the agarose. Dynamic binding
+    capacity rose by 31% with age. The best public food-scale resin lifetime found.
+
+- key: iex_cex_step_recovery_every
+  value: 0.832
+  unit: fraction of protein of interest recovered across the CEX step
+  grade: B
+  source: "Kale A (Clara Foods Co. / The EVERY Co.). Recombinant protein recovery methods and uses thereof. US 2025/0134130 A1 (2025)"
+  doi_or_url: https://patents.google.com/patent/US20250134130A1/en
+  locator: "Example 5, para [0218] and Table 5, p.19-20"
+  quote: "Chromatography purification recovered about 83.2% POI, and an overall POI recovery of about 40% in the product."
+  read: fulltext
+  note: >-
+    Non-glycosylated rOVA (SP100). Example 2 of the same patent says CEX "was deemed to be
+    not a viable separation method" for the Pichia OVA process (NES-003). Overall
+    recovery with CEX was 40%.
+
+- key: iex_lactoferrin_output_with_cex_intelligen
+  value: 213
+  unit: t/yr lactoferrin powder with CEX (case b); 249 t/yr without (case a)
+  grade: B
+  source: "Intelligen Inc. SuperPro Designer Download Center, Example Process Files (web page), entry 'Lectoferrin' [sic]"
+  doi_or_url: https://www.intelligen.com/static/SPDDownloadCenter/Latest/Example_Process_Files.htm
+  locator: "Nutraceuticals examples, lactoferrin entry, cases a and b"
+  quote: "A total of 213 tons of lactoferrin powder is produced per year in this scenario."
+  read: html
+  note: >-
+    Case a (UF/DF only) reads "A total of 249 tons of lactoferrin powder is produced per
+    year in this scenario." Both cases use the same fermentation (engineered yeast, 10 g/L
+    in 5 days). Derived: adding the CEX step cuts powder output to 0.855 of case a. The
+    output is powder mass, so the ratio mixes CEX yield with removal of impurities (the
+    case b powder is purer). The full ReadMe (ResearchGate 382686507) was not read.
+
+- key: dsp_yield_alac_gfieurope
+  value: 0.87
+  low: 0.70
+  unit: overall DSP yield (food grade vs high purity with chromatography)
+  grade: C
+  source: "GFI Europe & Arthur D. Little. Pathfinding towards precision fermentation viability (Jul 2025)"
+  doi_or_url: https://gfieurope.org
+  locator: "Alpha-lactalbumin case study, base-case assumptions table, p.30"
+  quote: "DSP yield 87% 70%"
+  read: fulltext
+  note: >-
+    Columns: food-grade purity (~95% +/- 10%), with DSP of microfiltration, ultra/
+    diafiltration and spray drying, gives 87%. High purity (>99%), which adds
+    chromatography, gives 70%. Basis column: "Industry interviews / triangulation;" and
+    "GFI technical team". Yeast host, extracellular product, 20 g/L.
+
+# ---------------------------------------------------------------------------------------
+# 7. Spray drying and evaporation
+# ---------------------------------------------------------------------------------------
+
+- key: spray_dryer_sec_survey
+  value: 4.87
+  low: 3
+  high: 20
+  unit: GJ per t water evaporated
+  grade: A
+  source: "Baker CGJ, McKenzie KA. Energy consumption of industrial spray dryers. Drying Technol 23(1-2):365-386 (2005)"
+  doi_or_url: 10.1081/drt-200047665
+  locator: "abstract"
+  quote: "revealed values of the specific energy consumption E s varying from around 3 to 20 GJ/t water evaporated. The average for all dryers included in the survey was 4.87 GJ/t."
+  read: abstract
+  note: >-
+    UK survey (2000) of spray dryers in chemicals, foods and ceramics, with evaporation
+    rates of 0.1-12 t/h. Fuel to electricity ratio about 27. The abstract says about 29% of
+    the energy supplied was wasted. Derived (physics, not from the source): latent heat
+    alone is about 2.4 GJ/t, so the average dryer uses about twice the thermodynamic
+    minimum.
+
+- key: spray_dryer_sec_by_stages
+  value: 4.3
+  low: 3.4
+  high: 4.9
+  unit: MJ per kg water evaporated
+  grade: A
+  source: "Ramírez CA, Patel M, Blok K. From fluid milk to milk powder: energy use and energy efficiency in the European dairy industry. Energy 31(12):1984-2004 (2006)"
+  doi_or_url: 10.1016/j.energy.2005.10.014
+  locator: "Section 5.3 Drying, p.1994"
+  quote: "The impact of the choice of the spray drier system on energy consumption can be seen in the following figures [13]: 1-stage: 4.9 MJ/kg water evaporated; 2-stage: 4.3 MJ/kg; 3-stage: 3.4 MJ/kg."
+  read: fulltext
+  note: >-
+    value is the 2-stage figure; low and high are the 3-stage and 1-stage figures. Dairy.
+    The same section says spray drying uses "10–20 times" more energy per kg water than
+    evaporation, which is why feeds are pre-concentrated. Cited from their ref [13].
+
+- key: spray_dryer_purchase_cost_biosteam
+  value: 8.5133
+  unit: "ln(purchase cost, USD at CEPCI 567) = 8.5133 + 0.9847 ln W - 0.0561 (ln W)^2, W = water evaporated in lb/h"
+  grade: B
+  source: "BioSTEAM (Cortés-Peña Y et al.), open-source biorefinery simulator, module biosteam/units/drying.py, class SprayDryer (GitHub master, accessed 2026-09-26)"
+  doi_or_url: https://github.com/BioSTEAMDevelopmentGroup/biosteam/blob/master/biosteam/units/drying.py
+  locator: "SprayDryer cost decorator"
+  quote: "BM=2.06, f=lambda W: exp(8.5133 + 0.9847*(logW:=log(W)) - 0.0561 * logW * logW)"
+  read: fulltext
+  note: >-
+    The decorator line reads "@cost('Evaporation rate', CE=567, units='lb/hr', # lb=30,
+    ub=3000,", so the base year is CEPCI 567 (2013), the bare-module factor is 2.06, and
+    the commented valid range is 30-3,000 lb/h (14-1,360 kg/h). The file cites no source
+    for this correlation; its form is Seider-style, but that is unverified. Derived: at
+    3,000 lb/h it gives about $0.36M. A 10 kt/yr protein plant evaporates several t/h, so
+    this is an extrapolation. No large-scale spray-dryer cost was found.
+
+- key: spray_dryer_product_moisture_intelligen
+  value: 0.05
+  unit: mass fraction moisture in powder
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Purification & Drying section, p.9 (printed)"
+  quote: "The product has a moisture content of 5% and a purity of 99% on a dry basis."
+  read: fulltext
+  note: "The dryer feed here is an 80%-moisture precipitate cake (20% solids), not a UF retentate."
+
+- key: spray_dryer_feed_solids_wpc
+  value: 0.36
+  high: 0.45
+  unit: mass fraction total solids in spray-dryer feed (WPC80; WPC35 high)
+  grade: D
+  source: "Tetra Pak. Dairy Processing Handbook (online), chapter 19 Milk and whey powdered ingredients"
+  doi_or_url: https://dairyprocessinghandbook.tetrapak.com/chapter/milk-and-whey-powdered-ingredients
+  locator: "Section Whey protein concentrate and isolate (WPC, WPI)"
+  quote: "As an indication, depending on the upstream process and required product quality, the concentrate total solids of the different WPCs range from ~45% for WPC35 and ~36% for WPC80."
+  read: html
+  note: >-
+    Whey analogue, vendor handbook. Contrast EVERY, which sprays a 50 g/L (about 5%
+    solids) retentate. Derived: at 5% solids about 19 kg water is evaporated per kg
+    solids; at 36% about 1.8 kg. That is a 10x difference in drying energy, so feed solids
+    are the key spray-drying design choice.
+
+- key: spray_dryer_steam_per_water_slegers
+  value: 1.4
+  unit: kg steam per kg water evaporated
+  grade: B
+  source: "Slegers PM, Olivieri G, Breitmayer E, Sijtsma L, Eppink MHM, Wijffels RH, et al. Design of value chains for microalgal biorefinery at industrial scale: process integration and techno-economic analysis. Front Bioeng Biotechnol 8:550758 (2020)"
+  doi_or_url: 10.3389/fbioe.2020.550758
+  locator: "Table 1, Spray drying rows"
+  quote: "Steam/water ratio | 1.4 kg kg–1 | n.a."
+  read: fulltext
+  note: >-
+    Steam at 160 C. The same rows give "Air/water ratio | 35 kg kg–1" and final water
+    content 5%. Derived: about 2.9 MJ of steam heat per kg water, below the 3.4-4.9 MJ/kg
+    survey values. Design assumption.
+
+- key: spray_drying_water_evaporated_per_kg_ova
+  value: 7.6
+  unit: kg water evaporated per kg Tr-OVA product (92% dm)
+  grade: B
+  source: "Järviö N, Parviainen T, Maljanen NL, et al. Ovalbumin production using Trichoderma reesei culture and low-carbon energy could mitigate the environmental impacts of chicken-egg-derived ovalbumin. Nature Food 2:1005-1013 (2021), Supplementary Information"
+  doi_or_url: 10.1038/s43016-021-00418-2
+  locator: "SI Supplementary Table 2 (inventory per kg Tr-OVA), Spray drying outputs"
+  quote: "Evaporated water 7.6 kg"
+  read: fulltext
+  note: >-
+    Implies a dryer feed of about 11% solids (derived). Warning: the same table lists the
+    spray-dryer fuel as "Natural gasf 0.57 kWhb". That is 0.075 kWh (0.27 MJ) per kg of
+    water, about one tenth of the latent heat of evaporation. It is physically implausible
+    and must not be used as a drying-energy value (probably a unit error; the footnote
+    mentions 11.15 kWh/m3).
+
+- key: evaporator_steam_per_kg_water_tvr
+  value: 0.11
+  low: 0.08
+  high: 0.25
+  unit: kg steam per kg water evaporated (value = 4 effects; low = 6; high = 1)
+  grade: C
+  source: "Tetra Pak. Dairy Processing Handbook (online), chapter 7.6 Evaporators"
+  doi_or_url: https://dairyprocessinghandbook.tetrapak.com/chapter/evaporators
+  locator: "Table 7.6.2"
+  quote: "1-effect | 0.25 kg steam | 2-effect | 0.20 kg steam | 3-effect | 0.13 kg steam | 4-effect | 0.11 kg steam | 5-effect | 0.09 kg steam | 6-effect | 0.08 kg steam"
+  read: html
+  note: >-
+    Table title: "Typical consumptions per kg evaporated water for falling-film tubular
+    evaporators with thermal recompression in the dairy industry (excluding heat
+    treatment)". The 4-effect value matches Intelligen's four-effect evaporator. Vendor
+    handbook.
+
+- key: evaporator_mvr_electricity
+  value: 0.012
+  unit: kWh electricity per kg water evaporated (1-effect MVR)
+  grade: C
+  source: "Tetra Pak. Dairy Processing Handbook (online), chapter 7.6 Evaporators"
+  doi_or_url: https://dairyprocessinghandbook.tetrapak.com/chapter/evaporators
+  locator: "Table 7.6.2"
+  quote: "1-effect MVR | 0.012 kWh"
+  read: html
+  note: >-
+    Derived: 12 kWh per t of water. MVR compresses the vapour by only 3-7 C (same chapter),
+    so it suits pre-concentration of dilute streams. Evaporating a protein concentrate is
+    limited by heat damage and viscosity (WPC 35-48% solids after evaporation, Table
+    7.6.1).
+
+- key: evaporator_mvr_purchase_cost_nrel
+  value: 3801095
+  unit: "USD2010, installed (inst. factor 1.0); scaled on total WWT flow 393,100 kg/h, exponent 0.60"
+  grade: B
+  source: "Humbird D, Davis R, Tao L, et al. Process design and economics for biochemical conversion of lignocellulosic biomass to ethanol. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Appendix A, Area 600 equipment list, item M-640, p.101; duty in section 3.6.2, p.49"
+  quote: "M-640 Evaporator System $3,801,095 2010 strm.a600.601 393100 kg/hr 0.60 1.0"
+  read: fulltext
+  note: >-
+    MVR evaporator on reverse-osmosis brine. p.49: "Approximately 80,000 L/hr (350 gpm) of
+    water is rejected from RO as a 7% brine", concentrated "to 50% solids". Derived: about
+    69 t/h of water evaporated, or about $55 per (kg/h) of capacity (2010$). A wastewater
+    brine duty in a design by Brown and Caldwell; the scaling basis is total WWT flow, not
+    evaporation rate.
+
+# ---------------------------------------------------------------------------------------
+# 8. Wastewater treatment and spent biomass
+# ---------------------------------------------------------------------------------------
+
+- key: wwt_cost_humbird
+  value: 0.40
+  low: 0.20
+  high: 0.50
+  unit: USD per m3 wastewater (cost year not stated in cells)
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet RawUtil, cells BQ1:BU4; used in Appendix A, Table A.2, p.94"
+  quote: "Waste disposal | Wastewater | $0.20 - 0.50 per m3 | Petrides | Cost used | 0.4 | /m3 | USD_m3_wwt"
+  read: fulltext
+  note: >-
+    The range comes from Petrides and applies to low-BOD municipal treatment (next key).
+    PF permeates carry sugar, salts and protein, so this probably understates the cost for
+    high-strength streams (see the MWRD tariff keys).
+
+- key: wwt_cost_low_bod_petrides
+  value: 0.35
+  low: 0.2
+  high: 0.5
+  unit: USD per m3 (cost year not stated, chapter 2015)
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Section 11.5, Waste Treatment and Disposal, p.11-34"
+  quote: "Treatment of low biological oxygen demand (BOD) wastewater (<1000 mg/L) by a municipal wastewater treatment facility usually costs $0.2 to $0.5/m3."
+  read: fulltext
+  note: "value is the midpoint. Only valid below 1 g/L BOD."
+
+- key: wwt_tariff_bod_mwrd
+  value: 0.19103
+  unit: USD per lb BOD5 (derived 0.421 USD/kg)
+  grade: A
+  source: "Metropolitan Water Reclamation District of Greater Chicago. 2025 RD-925 Form, Instructions and Worksheets (User Charge Annual Certified Statement)"
+  doi_or_url: https://mwrd.org/sites/default/files/2025-12/2025_RD-925_Form_Instructions_and_Worksheets.pdf
+  locator: "RD-925 form, line 10; rate box '2024 User Charge Rates'"
+  quote: "10. Total Annual 5-Day BOD Charge: Multiply Line 7 by $0.19103"
+  read: fulltext
+  note: >-
+    Official Chicago (US Midwest) industrial sewer user charge. The rate box reads "5-Day
+    BOD: $191.03 per thousand pounds", and suspended solids are charged "$0.1264" per lb.
+    The rates are labelled "2024 User Charge Rates" on the 2025 reporting form. This is a
+    discharge tariff, not an on-site treatment cost, and ad valorem tax credits apply.
+    Derived: a permeate at 10 g/L BOD would cost about $4.2/m3 in BOD charges alone,
+    about 8-20x the Humbird/Petrides value.
+
+- key: wwt_tariff_volume_mwrd
+  value: 0.00029273
+  unit: USD per gallon (derived 0.077 USD/m3)
+  grade: A
+  source: "Metropolitan Water Reclamation District of Greater Chicago. 2025 RD-925 Form, Instructions and Worksheets (User Charge Annual Certified Statement)"
+  doi_or_url: https://mwrd.org/sites/default/files/2025-12/2025_RD-925_Form_Instructions_and_Worksheets.pdf
+  locator: "RD-925 form, line 9; rate box 'Volume: $292.73 per million gallons'"
+  quote: "9. Total Annual Volume Charge: Multiply Line 6 by $0.00029273"
+  read: fulltext
+  note: "The volume component is small. The total charge = volume + BOD + SS components (see wwt_tariff_bod_mwrd)."
+
+- key: wwt_installed_cost_nrel
+  value: 49400000
+  unit: "USD2007 installed, for 2.15 MMgal/d (derived about 8,100 m3/d) at 87 g/L COD"
+  grade: B
+  source: "Humbird D, Davis R, Tao L, et al. Process design and economics for biochemical conversion of lignocellulosic biomass to ethanol. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Table 28, p.62; design basis Table 22, p.48"
+  quote: "Area 600: Wastewater $ 49,300,000 $ 49,400,000"
+  read: fulltext
+  note: >-
+    Columns are purchased cost and installed cost (2007$). The design basis (Table 22) is
+    "Hydraulic load 2.15 MMgal/d" and "Total COD 87 g/L". The train is anaerobic
+    digestion, aerobic lagoons with nitrification, a membrane bioreactor, RO and an MVR
+    brine evaporator. Much stronger than PF effluent, so treat as an upper-bound
+    on-site option.
+
+- key: spent_biomass_value_voutilainen
+  value: 500
+  unit: EUR2019 per t cell waste (upper bound, rough estimate)
+  grade: D
+  source: "Voutilainen E, Pihlajaniemi V, Parviainen T. Economic comparison of food protein production with single-cell organisms from lignocellulose side-streams. Bioresour Technol Rep 14:100683 (2021)"
+  doi_or_url: 10.1016/j.biteb.2021.100683
+  locator: "Section 3.3, p.7"
+  quote: "Thus, one ton of the cell waste could have value up to 500 € on a rough estimate."
+  read: fulltext
+  note: >-
+    T. reesei cell waste, up to 49.5% crude protein, valued against soy meal ("feed which
+    value can be even up to 1000 €/ton protein"). The paper's base case credits only the
+    combustion energy of the by-product (1.5-2.4% of revenue). A GM biomass would need
+    feed approval before earning a feed price.
+
+- key: dried_brewers_yeast_price_petrides
+  value: 1.325
+  low: 1.25
+  high: 1.40
+  unit: USD2012 per kg (dried, debittered brewer's yeast)
+  grade: D
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Table 11.6 Common Bioprocessing Raw Materials (Year 2012 Prices)"
+  quote: "Yeast Brewers, debittered 1.25–1.40"
+  read: fulltext
+  note: >-
+    value is the midpoint. This is the purchase price of a finished, dried food or feed
+    yeast product. It is a ceiling on spent K. phaffii biomass value, since drying costs
+    and GM status would need to be subtracted first.
+
+- key: biomass_drying_energy_behm
+  value: 747
+  unit: kWh fuel per t water evaporated (plus 90 kWh electricity)
+  grade: B
+  source: "Behm K, Nappa M, Aro N, et al. Comparison of carbon footprint and water scarcity footprint of milk protein produced by cellular agriculture and the dairy industry. Int J Life Cycle Assess 27:1017-1034 (2022)"
+  doi_or_url: 10.1007/s11367-022-02087-0
+  locator: "Section 2 (process inventory), p.1023"
+  quote: "The electricity consumption of 90 kWh/t of evaporated water and the fuel consumption of 747 kWh/t of evaporated water are estimated according to Beal et al. (2015)."
+  read: fulltext
+  note: >-
+    Ring dryer taking fungal biomass to 90% dry content for animal feed, after
+    sterilisation at 140 C. Derived: 2.7 MJ fuel per kg water, the cost of turning spent
+    biomass into saleable feed.
+
+# ---------------------------------------------------------------------------------------
+# 9. Whole-DSP benchmarks: cost shares and overall recoveries
+# ---------------------------------------------------------------------------------------
+
+- key: dsp_capex_share_lynch
+  value: 0.50
+  low: 0.20
+  high: 0.70
+  unit: fraction of total capital cost attributable to DSP (default heuristic)
+  grade: D
+  source: "Lynch MD. The Bioprocess TEA Calculator: an online technoeconomic analysis tool to evaluate the commercial competitiveness of potential bioprocesses. bioRxiv 2020.10.08.331272 (2020)"
+  doi_or_url: 10.1101/2020.10.08.331272
+  locator: "Section 2.3 Downstream Purification and Discussion"
+  quote: "Values for DSP of 20% of OPEX and 50% of CAPEX are recommended when the user does not have a specific downstream in mind"
+  read: html
+  note: >-
+    Heuristic for bulk chemicals. The same section reads "Simple distillation, such as is
+    used for ethanol, may be on the lower end (∼ 20%), whereas DSPs requiring
+    chromatographic separations or electrodialysis would be anticipated to account for
+    50-70% of total capital costs.", which gives low and high. Built on Straathof (2011),
+    which could not be read (see the summary).
+
+- key: dsp_opex_share_lynch
+  value: 0.20
+  low: 0.20
+  high: 0.50
+  unit: fraction of total operating cost attributable to DSP
+  grade: D
+  source: "Lynch MD. The Bioprocess TEA Calculator: an online technoeconomic analysis tool to evaluate the commercial competitiveness of potential bioprocesses. bioRxiv 2020.10.08.331272 (2020)"
+  doi_or_url: 10.1101/2020.10.08.331272
+  locator: "Section 2.3 Downstream Purification"
+  quote: "Operating costs for DSP are often a smaller fraction of the total percentage of OPEX, and I recommend from 20% at the low end to 50% at the high end."
+  read: html
+  note: "Heuristic for bulk chemicals, not proteins."
+
+- key: consumables_share_petrides
+  value: 0.255
+  low: 0.01
+  high: 0.50
+  unit: fraction of total operating cost (range across bioprocesses)
+  grade: B
+  source: "Petrides D. Bioprocess Design and Economics. Intelligen web version (Mar 2015) of ch.11 in Harrison et al., Bioseparations Science and Engineering, 2nd ed. (2015)"
+  doi_or_url: https://www.intelligen.com/wp-content/uploads/2020/05/BioProcessDesignAndEconomics_March_2015.pdf
+  locator: "Table 11.5 Operating Cost Items and Ranges"
+  quote: "Consumables Direct 1–50"
+  read: fulltext
+  note: >-
+    value is the midpoint and has little meaning given the width. Consumables are membranes,
+    resins and filters, so this is almost all DSP. The same table gives "Waste disposal
+    Direct 1–20".
+
+- key: consumables_share_enzyme_ferreira
+  value: 0.23
+  unit: fraction of unit production cost (consumables; 80% of which is UF membranes)
+  grade: D
+  source: "Ferreira RG, Azzoni AR, Freitas S. Techno-economic analysis of the industrial production of a low-cost enzyme using E. coli: the case of recombinant β-glucosidase. Biotechnol Biofuels 11:81 (2018)"
+  doi_or_url: 10.1186/s13068-018-1077-0
+  locator: "Results, cost composition (Fig. 2 discussion)"
+  quote: "Additionally, the cost of consumables, which is quite significant (23%), is mainly due to the cost of the ultrafiltration membranes (80%) used in the diafiltration system and also the cost of the dead-end microfiltration cartridges (20%)."
+  read: fulltext
+  note: >-
+    SuperPro model of an intracellular E. coli enzyme (US$316/kg) with default membrane
+    prices. It shows how biopharma-style membrane pricing can dominate cost. The same
+    paper uses disk-stack centrifuges of "36 L/min" throughput removing "70% of the
+    debris" (E. coli lysate).
+
+- key: overall_recovery_validated_every
+  value: 0.85
+  unit: overall recovery of protein of interest (AS precipitation, UF, MF route)
+  grade: B
+  source: "Kale A (Clara Foods Co. / The EVERY Co.). Recombinant protein recovery methods and uses thereof. US 2025/0134130 A1 (2025)"
+  doi_or_url: https://patents.google.com/patent/US20250134130A1/en
+  locator: "Example 4 (NES-016), para [0213], p.19"
+  quote: "The process yielded about 85% overall POI recovery."
+  read: fulltext
+  note: >-
+    The V1 route (salt precipitation, UF, MF) validated "at an independent facility" on
+    "approximately, 14.5 L of medium". Recovery is measured from the post-cell-removal
+    medium, so cell-separation losses may be excluded. The same patent reports 78.1%
+    (NES-019) and 53.1% (NES-005) for variants.
+
+- key: overall_recovery_v1_every
+  value: 0.531
+  unit: overall recovery of protein of interest (first V1 trial)
+  grade: B
+  source: "Kale A (Clara Foods Co. / The EVERY Co.). Recombinant protein recovery methods and uses thereof. US 2025/0134130 A1 (2025)"
+  doi_or_url: https://patents.google.com/patent/US20250134130A1/en
+  locator: "Example 2 (NES-005), text after Table 2, p.18"
+  quote: "However, combining, in sequence, salt precipitation, ultrafiltration, and twice microfiltration yielded 53.1% of protein of interest overall recovery."
+  read: fulltext
+  note: "Early development run. Together with the 85% validated run, this brackets realistic recoveries while a PF DSP is still immature."
+
+- key: dsp_material_loss_per_step_voutilainen
+  value: 0.02
+  unit: fraction of material lost per process step
+  grade: B
+  source: "Voutilainen E, Pihlajaniemi V, Parviainen T. Economic comparison of food protein production with single-cell organisms from lignocellulose side-streams. Bioresour Technol Rep 14:100683 (2021)"
+  doi_or_url: 10.1016/j.biteb.2021.100683
+  locator: "Section 2.2 Design basis, p.3"
+  quote: "A material loss of 2% was assumed for each process step."
+  read: fulltext
+  note: "Generic TEA assumption, applied across all steps."
+
+- key: filtration_yield_voutilainen
+  value: 0.94
+  low: 0.93
+  high: 0.95
+  unit: yield per filtration step
+  grade: B
+  source: "Voutilainen E, Pihlajaniemi V, Parviainen T. Economic comparison of food protein production with single-cell organisms from lignocellulose side-streams. Bioresour Technol Rep 14:100683 (2021)"
+  doi_or_url: 10.1016/j.biteb.2021.100683
+  locator: "Section 2.1.3, p.3"
+  quote: "The yield from filtrations were 0.93–0.95 (Ellilä, 2020; Kujanpää, 2020)."
+  read: fulltext
+  note: >-
+    value is the midpoint. T. reesei recombinant protein: pressure filtration for cells,
+    then sheet filtration. Sourced from VTT personal communications.
+
+- key: intelligen_batch_powder_output
+  value: 2923.98
+  unit: kg OVA powder per batch (107 m3 harvest at 30 g/L)
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and cost analysis using SuperPro Designer. Intelligen Inc. (Sep 2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Table 2 (Executive Summary), p.16; broth basis p.7 (printed)"
+  quote: "Batch Size 2,923.98 kg MP"
+  read: fulltext
+  note: >-
+    p.7 reads "the broth volume is approximately 107 m3 and the rOvalbumin concentration
+    is 30 g/L". Derived (check): 107 x 30 = 3,210 kg OVA in broth. Powder at 5% moisture
+    and 99% purity holds about 2,750 kg OVA, so the implied overall DSP recovery is about
+    0.86, including MF-retentate recycle and 90% precipitation.

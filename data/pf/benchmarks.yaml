@@ -1,0 +1,51 @@
+# Incumbent prices and literature titers shown next to the model results (Figs 1, 4; report sec. 5).
+# No numbers are copied here: prices are read from data/evidence/prices.yaml by key, titers
+# from data/titers.csv by (product, source_key, host). Only the protein fractions are
+# assumptions, graded like any parameter. Computed by src/pftea/benchmarks.py.
+
+incumbents:
+  whey:
+    label: "whey protein concentrate/isolate (WPC80/WPI)"
+    compare_to: blg
+    trade_series:          # annual unit values, per kg product
+      - {key: whey_protein_gt80_us_export_unit_value, currency: USD}
+      - {key: whey_protein_gt80_eu_export_unit_value, currency: EUR}
+    protein_frac: {value: 0.80, low: 0.76, high: 0.88, grade: D,
+      source: "HS 3502.20 / CN 3502 20 91 cover products with >80% whey protein on dry matter (WPC80 and WPI mixed); 0.80 as traded assumed; WPI is >=90% dry basis"}
+    spot:                  # 2026 USDA Dairy Market News narrative quotes, per lb product
+      - {key: wpc80_regular_us_dmn_2026, protein_frac: 0.80, label: "WPC80 spot 2026"}
+      - {key: wpi_us_dmn_2026, protein_frac: 0.90, label: "WPI spot 2026"}
+  egg:
+    label: "dried egg white (egg albumin)"
+    compare_to: ova
+    trade_series:
+      - {key: egg_albumin_dried_eu_export_unit_value, currency: EUR}
+    protein_frac: {value: 0.78, grade: B,
+      source: "Voutilainen 2021 SI sheet 'Commercial protein prices': egg white powder 78% protein (prices.yaml note)"}
+    spot: []
+  years: [2015, 2025]      # window for the trade-value band
+
+titer_markers:             # (product in titers.csv, source_key, host) -> max titer of matching rows
+  blg:
+    - {product: blg, source_key: Li2026, host: K. phaffii, label: "best published BLG (Li 2026, abstract)"}
+    - {product: "other:PF-average-published", source_key: gfi2025costs, host: various, label: "published-TEA average (GFI 2025)"}
+    - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "private average (GFI 2025 survey)"}
+    - {product: blg, source_key: behm2022, host: T. reesei, label: "design titer (Behm 2022; NREL cellulase)"}
+  ova:
+    - {product: ova, source_key: Beck2025, host: E. coli EcN, label: "best published OVA (Beck 2025, 3 L)"}
+    - {product: ova, source_key: intelligen_ovalbumin2025, host: K. phaffii, label: "Intelligen design; EVERY ovomucoid patent"}
+    - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "private average (GFI 2025 survey)"}
+    - {product: ova, source_key: intelligen_ovalbumin2025, host: T. reesei, label: "Onego claim (press, grade C)"}
+
+claims:                    # Q5: is the claimed titer reachable within O2/heat limits, and in how long?
+  # model: the host and cell density we run it with (T. reesei at the academic OVA scenario's density)
+  - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, model_host: kphaffii, model_product: blg,
+     label: "GFI 2025 private-sector average"}
+  - {product: "other:PF-average-published", source_key: gfi2025costs, host: various, model_host: kphaffii, model_product: blg,
+     label: "GFI 2025 published-TEA average"}
+  - {product: blg, source_key: behm2022, host: T. reesei, model_host: treesei, model_product: blg,
+     label: "Behm 2022 BLG design titer (T. reesei)"}
+  - {product: "other:homologous-secreted-protein", source_key: behm2022, host: T. reesei, model_host: treesei, model_product: blg,
+     label: "T. reesei homologous secreted protein (Behm 2022, grade C)"}
+  - {product: ova, source_key: intelligen_ovalbumin2025, host: T. reesei, model_host: treesei, model_product: ova,
+     label: "Onego ovalbumin claim (press, grade C)"}

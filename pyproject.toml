@@ -5,7 +5,7 @@ requires-python = ">=3.10"
 dependencies = ["numpy", "pandas", "pyyaml", "matplotlib"]
 
 [project.optional-dependencies]
-dev = ["pytest", "jupyter"]
+dev = ["pytest", "jupyter", "openpyxl"]
 
 [build-system]
 requires = ["setuptools>=61"]

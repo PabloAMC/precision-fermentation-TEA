@@ -1,0 +1,92 @@
+# Calibration anchor 1: Humbird (2021) Appendix A, baker's yeast (SI sheet A.1, "standard" case).
+# Every value is copied from the SI workbook; `loc` gives sheet!cell. Cost year 2018 US$.
+# Reality check: Humbird estimates the actual production cost of dry baker's yeast at
+# ~$1.90/kg from a $2.20-2.80/kg wholesale price and a 33% margin (humbird2021, App. A p.89).
+source: "Humbird D (2021) Scale-up economics for cultured meat, SI workbook sheet A.1"
+cost_year: 2018
+market_implied_cost_usd_kg: {value: 1.90, loc: "humbird2021 App. A, printed p.89",
+  quote: "assuming a total margin of 33% (profit + taxes), the actual cost of baker's yeast production should be around $1.90/kg"}
+
+biology:
+  biomass_formula: {C: 1, H: 1.703, O: 0.459, N: 0.171, loc: "A.1!D3:G3"}
+  carbon_source: "Glucose (s)"        # molasses priced on a glucose-equivalent basis
+  temperature_C: {value: 30, loc: "A.1!C80"}
+  doubling_time_h: {value: 3.5, loc: "A.1!C65"}
+  cell_wet_mass_pg: {value: 60, loc: "A.1!C66"}
+  cell_dry_fraction: {value: 0.3, loc: "A.1!C67"}
+
+fermenter:
+  type: bubble_column
+  vessel_item: "BCR 200,000"
+  volume_L: {value: 198733, loc: "Equip!BN6 (Table10) x 1000"}
+  diameter_m: {value: 3.7, loc: "Equip!BW6"}
+  length_to_diameter: {value: 5, loc: "A.1!C76"}
+  back_pressure_bar: {value: 1.33, loc: "A.1!C81"}
+  start_volume_L: {value: 78000, loc: "A.1!C72"}
+  start_density_gL: {value: 15, loc: "A.1!C73"}
+  max_working_volume: {value: 0.6, loc: "A.1!C87"}
+  substrate_wt_frac: {value: 0.3, loc: "A.1!C84"}
+  DO_top_frac_of_air_sat: {value: 0.1258, loc: "A.1!C92"}
+  otr_max_mol_m3_h: {value: 150, loc: "A.1!C93"}
+  kla_consts: {a: 0.32, b: 0.7, c: 1.025, d: -0.84, loc: "A.1!C95:F95"}
+  bcr_quote_2018usd: {value: 779226.6566828901, loc: "Equip!BT6"}
+
+plant:
+  operating_days: {value: 350, loc: "A.1!D101"}
+  production_fermenters: {value: 6, loc: "A.1!D102"}
+  turnaround_h: {value: 8, loc: "A.1!N107"}
+  seed_splits: {value: [3, 2], loc: "A.1!J108:J109 (1 thereafter)"}
+  large_seed_min_L: {value: 5000, loc: "A.1!C136"}
+  small_seed_min_L: {value: 100, loc: "A.1!C137"}
+  lab_min_kg: {value: 0.001, loc: "A.1!C138"}
+  train_threshold_batches_per_shift: {value: 2, loc: "A.1!C135"}
+  shift_h: {value: 8, loc: "A.1!C223"}
+  prep_residence_h: {value: 8, loc: "A.1!C145"}
+  centrifuge_h_per_batch: {value: 2, loc: "A.1!C149"}
+  centrifuge_solids: {value: 0.2, loc: "A.1!I149"}
+  rvf_solids: {value: 0.33, loc: "A.1!I150"}
+  pasteurizer_dT_C: {value: 105, loc: "A.1!C152"}
+  cooling_water_dT_C: {value: 8, loc: "A.1!C158"}
+  wash_water_frac: {value: 0.5, loc: "A.1!E179"}
+  blowdown_frac: {value: 0.01, loc: "A.1!C184"}
+  missing_capital_frac: {value: 0.2, loc: "A.1!D172"}
+  lang_factor: {value: 4.5, loc: "A.1!D160"}
+
+equipment:            # purchased cost regressions, 2018$ (Equip sheet)
+  bcr_seed: {A: 2301.043148820124, n: 0.47027235324689615, basis: "vessel L", loc: "Equip!BO51, BM51"}
+  sparger: {a: 16328, b: 2.4526, basis: "max SCFM", loc: "A.1!M164"}
+  pasteurizer: {A: 712.0575456258753, n: 0.5914644208211489, max: 100000, basis: "L/h", loc: "Equip!P21, N21, M3"}
+  tank: {A: 56820.52633840857, n: 0.48121713530163496, basis: "m3", loc: "Equip!CJ21, CH21"}
+  compressor: {slope: 29.50373779419718, intercept: 207444.11060818314, max: 52500, basis: "ACMH", loc: "Equip!U20, U21, S3"}
+  centrifuge: {A: 68407.87631591759, n: 0.52, max_kg_h: 34065, basis: "gpm", loc: "Equip!AD21, AB21, AD3"}
+  centrifuge_kWh_m3: {value: 1.35, loc: "Equip!AD40"}
+  rvf: {A: 6631.875973155951, n: 0.4216808506848345, max_kg_h: 12000, area_m2_h_kg: 0.0082, loc: "Equip!AI21, AG21, AH3, AH15"}
+  rvf_power: {A: 1.72998594475143, n: -0.3007254515259088, basis: "kW/m2 vs m2", loc: "Equip!AI51, AG51"}
+  chiller_max_kW: {value: 12000, loc: "Equip!AM3"}
+  boiler_max_kg_h: {value: 360000, loc: "Equip!AR3"}
+  steam_per_L_vessel_kg: {value: 0.015184926543637378, loc: "Phys!J74 (thermo_stmpb)"}
+
+prices_2018:          # RawUtil sheet
+  molasses_glc_equiv_usd_kg: {value: 0.3324223085460599, loc: "RawUtil!D4"}
+  ammonia_usd_kg: {value: 0.2981, loc: "RawUtil!S6"}
+  well_water_usd_kg: {value: 0.0002642, loc: "RawUtil!BM36"}
+  electricity_usd_kWh: {value: 0.0472, loc: "RawUtil!BM5"}
+  lp_steam_usd_t: {value: 9.7, loc: "RawUtil!BM23"}
+  wastewater_usd_m3: {value: 0.4, loc: "RawUtil!BS4"}
+  rt_refrig_kW_per_kW: {value: 0.2629248030187212, loc: "RawUtil!BY4 (1.24 hp/ton, Couper)"}
+
+labour:
+  operator_salary: {value: 50000, loc: "RawUtil!BG23"}
+  supervisor_salary: {value: 70000, loc: "RawUtil!BG24"}
+  worker_efficiency: {value: 0.8, loc: "A.1!C224"}
+  shifts_per_position: {value: 4.5, loc: "A.1!C225"}
+  employees_per_supervisor: {value: 10, loc: "A.1!E242"}
+  burden: {value: 1.0, loc: "A.1!C246"}
+  attention: {lab_min_per_step: 60, small_seed: 0.25, large_seed: 0.1, production: 0.1, loc: "A.1!C228:C231"}
+  continuous_fte: {media_prep_per_train: 0.5, centrifuge_per_train: 0.25, rvf_each: 0.25, boiler_each: 1, maintenance_per_train: 0.5, loc: "A.1!E235:E239"}
+
+finance:
+  maintenance_frac_tci: {value: 0.04, loc: "A.1!C249"}
+  insurance_tax_frac_tci: {value: 0.05, loc: "A.1!C250"}
+  lifetime_y: {value: 20, loc: "A.1!B256"}
+  irr: {value: 0.10, loc: "A.1!B257"}

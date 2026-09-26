@@ -14,8 +14,8 @@ confirm online during the sweep; if the search turns up nothing, skip them and s
 
 | P | key | citation | DOI / where | folder / filename |
 |---|---|---|---|---|
-| P1 | intelligen_ovalbumin2025 | Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and techno-economic assessment using SuperPro Designer. Intelligen Inc., 2025 | 10.13140/RG.2.2.29080.87048 (ResearchGate) | reports/Intelligen_2025_ovalbumin_TEA.pdf |
-| P1 | intelligen_lactoferrin2024 | Da Gama Ferreira R, Misailidis N, Petrides D. Lactoferrin production via precision fermentation: process modeling and techno-economic assessment using SuperPro Designer. Intelligen Inc., 2024 | researchgate.net/publication/382686507 | reports/Intelligen_2024_lactoferrin_TEA.pdf |
+| ✅ done 2026-09-26 | intelligen_ovalbumin2025 | Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and techno-economic assessment using SuperPro Designer. Intelligen Inc., 2025 | 10.13140/RG.2.2.29080.87048 (ResearchGate) | reports/Intelligen_2025_ovalbumin_TEA.pdf |
+| P2 (was P1; plan v2 makes it optional) | intelligen_lactoferrin2024 | Da Gama Ferreira R, Misailidis N, Petrides D. Lactoferrin production via precision fermentation: process modeling and techno-economic assessment using SuperPro Designer. Intelligen Inc., 2024 | researchgate.net/publication/382686507 | reports/Intelligen_2024_lactoferrin_TEA.pdf |
 | P2 | intelligen_collagen2024 | Da Gama Ferreira R, Misailidis N, Petrides D. Production of human collagen via fermentation (bio-collagen): techno-economic assessment using SuperPro Designer. Intelligen Inc., 2024 | researchgate.net/publication/380458369 | reports/Intelligen_2024_collagen_TEA.pdf |
 | P1 | ellila2017 | Ellilä S, Fonseca L, Uchima C, et al. Development of a low-cost cellulase production process using Trichoderma reesei for Brazilian biorefineries. Biotechnol Biofuels 10:30 (2017) | 10.1186/s13068-017-0717-0 | papers/Ellila2017_lowcost_cellulase_treesei.pdf |
 | P2 | johnson2016 *(verify)* | Johnson E. Integrated enzyme production lowers the cost of cellulosic ethanol. Biofuels Bioprod Bioref 10(2):164-174 (2016) | 10.1002/bbb.1634 | papers/Johnson2016_integrated_enzyme_cost.pdf |
@@ -106,11 +106,25 @@ for these; numbers are from memory *(verify)*. Save the full notice PDF, not jus
 | P1 | DSM2022 | WO 2022/269549 A2, DSM IP Assets, extended/recombinant β-lactoglobulin fermentation (the process Vivici's WO2025046004 cross-references, Example 1) | patents.google.com or Espacenet | patents/DSM_WO2022269549_blg-fermentation.pdf |
 | P2 | Onego | Any Onego Bio / VTT ovalbumin patent (search assignees "Onego Bio", "Teknologian tutkimuskeskus VTT" with "ovalbumin") | Espacenet | patents/Onego_<number>_ovalbumin.pdf |
 
+## J. After the v1 build (2026-09-26): what would most change the results
+
+| P | item | why |
+|---|---|---|
+| P1 | Full texts of the unverified titer sources: Aro2023, Kim1997, Li2026, Yao2026, Rocha1996, Totsuka1990, Nouaille2005, Invernizzi2008, Nielsen2025, Jin2024, Yang2009, Shao2022, Liu2026 | 15 titers.csv rows rest on abstracts; Li 2026 (5.14 g/L BLG) and Aro 2023 (2 g/L OVA) set the academic scenario |
+| P1 | Any BLG or OVA fed-batch with titer, productivity and sugar yield reported together | none exists in public; strain parameters are grade C |
+| P1 | Jarvio 2021 SI (T. reesei OVA inventory, yield 0.39 derived) | the only public OVA yield-like number; check how it was derived |
+| P2 | Garcia-Ochoa & Gomez 2009 tables; Humbird 2017 (bubble column vs STR) full text | kLa and max-OTR cross-checks (engineering.yaml has them as quote: null) |
+| P2 | A heat-transfer coefficient for large fermenter jackets and coils | the 25 kW/m3 heat cap is grade D |
+| P2 | Construction location factor, NW Europe vs US Midwest | EU capital is assumed equal to the US |
+| P2 | Capital cost of a recent PF plant (e.g. Liberation Labs, 600 m3) | would settle the Humbird vs light convention question |
+| P2 | Ovalbumin solubility at production conditions | the 50 g/L cap sets the OVA floor |
+| P2 | USDA ERS dextrose price table (XLSX); USDA dried-albumen prices (PDF); CEPCI 2024-2025 (paywalled) | price evidence gaps listed in prices.yaml |
+
 ## I. Market and price data (not papers; CSV or PDF, into references/reports/)
 
 | P | item | source | filename |
 |---|---|---|---|
-| P1 | WPC80 and WPI price series, US and EU, monthly, 2015-2026 | USDA AMS Dairy Market News; CLAL.it; EU Milk Market Observatory | reports/prices_whey_protein.csv |
+| done | WPC80 and WPI price series, US and EU | trade unit values 2015-2025 + USDA 2026 narratives in data/evidence/prices.yaml, data/prices/ | - |
 | P1 | Dried egg white (albumen powder) price series, 2015-2026 | Urner Barry (paywalled) or USDA AMS Egg Market News weekly | reports/prices_egg_white_powder.csv |
 | P1 | Dextrose / corn syrup (DE95) industrial price, US Midwest, and EU glucose syrup | USDA ERS Sugar and Sweeteners Yearbook, Table 8/9 | reports/prices_glucose.csv |
-| P2 | Industrial electricity and natural gas, US and EU | EIA; Eurostat | reports/prices_energy.csv |
+| done | Industrial electricity and natural gas, US and EU | EIA and Eurostat in data/evidence/prices.yaml | - |

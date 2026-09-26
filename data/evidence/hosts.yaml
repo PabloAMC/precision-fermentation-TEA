@@ -1,0 +1,1648 @@
+# data/evidence/hosts.yaml — Phase B evidence: HOST PHYSIOLOGY, KINETICS AND YIELDS
+#
+# Topic: stoichiometric / kinetic inputs for K. phaffii (glucose, glycerol, methanol)
+# and T. reesei (glucose, lactose, cellulosic sugars), plus BLG/OVA-specific numbers.
+# Format and grades: see data/evidence/README.md.
+#
+# Extra key `host:` on every entry (kphaffii | treesei | scerevisiae | aoryzae | generic).
+# `read:` values: fulltext (file on disk in references/text/), html (open-access HTML or
+# Europe PMC full-text XML read online), abstract (only the abstract was readable).
+#
+# HONESTY NOTES (read before using any of these):
+#
+# - HOW THE QUOTES WERE NORMALISED. Every quote is the source's own words in reading
+#   order, but two mechanical changes were made so the YAML stays ASCII and readable:
+#     (1) Unicode transliterated: mu for the Greek letter, +/- for the plus-minus sign,
+#         - for en/em dashes and minus signs, -> for the reaction arrow, . for the centre
+#         dot, deg for the degree sign, and superscripts written inline (h-1, gDCW-1).
+#     (2) Line breaks, page headers, equation numbers and two-column interleaving removed.
+#   Consequence: a literal `grep` of a quote against references/text/*.txt WILL often fail
+#   even though the quote is correct, because those .txt files are PDF dumps in which the
+#   two columns are interleaved line by line. Example, the Every patent on disk reads
+#   "...cell densities of up to / medium. In some cases, the medium is BSGY medium. In /
+#   100 g dry cell weight/L, 150 g dry cell weight/L or 200 g dry / cell weight/L." - the
+#   quoted sentence is exact once the other column is dropped. 27 of the 42 on-disk quotes
+#   match after punctuation-insensitive normalisation; the other 15 fail only for this
+#   reason and each was read in context before being recorded. When auditing, read around
+#   the locator rather than grepping.
+#
+# - Quotes marked "table cell" or "TABLE ROW" in the note were read from a table (in the
+#   Europe PMC full-text XML, or a PDF dump) rather than from running prose. They are the
+#   most likely to contain an OCR/encoding slip and should be re-checked against the
+#   publisher PDF before entering data/assumptions.yaml.
+# - Several high-profile numbers could NOT be sourced and are recorded with quote: null
+#   at the bottom of this file. Do not fill them in from memory.
+
+# ---------------------------------------------------------------------------
+# 1. K. phaffii — biomass yield on substrate, mu_max, maintenance
+# ---------------------------------------------------------------------------
+
+- key: kphaffii_yxs_glucose_chemostat_maurer2006
+  value: 0.559
+  unit: g DCW/g glucose
+  grade: A
+  host: kphaffii
+  source: "Maurer M, Kuhleitner M, Gasser B, Mattanovich D. Microb Cell Fact 5:37 (2006)"
+  doi_or_url: 10.1186/1475-2859-5-37
+  locator: "Results, chemostat section"
+  quote: "Y_XS = 0.559 and m_S = 0.0161 h-1 were derived according to eq (26)."
+  read: html
+  note: >
+    K. phaffii (P. pastoris) X-33-derived Fab-secreting strain, glucose-limited chemostat,
+    Pichia-Salts-Medium. Y_XS here is the MAXIMUM (maintenance-corrected) yield from a
+    Pirt plot, not an observed batch yield. The paper writes the unit of m_S as h-1; it is
+    dimensionally g glucose / (g DCW . h). Read via PMC1712348.
+
+- key: kphaffii_ms_glucose_chemostat_maurer2006
+  value: 0.0161
+  unit: g glucose/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Maurer M, Kuhleitner M, Gasser B, Mattanovich D. Microb Cell Fact 5:37 (2006)"
+  doi_or_url: 10.1186/1475-2859-5-37
+  locator: "Results, chemostat section"
+  quote: "Y_XS = 0.559 and m_S = 0.0161 h-1 were derived according to eq (26)."
+  read: html
+  note: >
+    Same Pirt fit as the yield entry above. This is the high end of the published K. phaffii
+    maintenance range (cf. Rebnegger 2016: 0.0100 chemostat, 0.0031 retentostat).
+
+- key: kphaffii_mumax_glucose_maurer2006
+  value: 0.2
+  unit: 1/h
+  grade: A
+  host: kphaffii
+  source: "Maurer M, Kuhleitner M, Gasser B, Mattanovich D. Microb Cell Fact 5:37 (2006)"
+  doi_or_url: 10.1186/1475-2859-5-37
+  locator: "Optimization constraints section"
+  quote: "Here mu_max = 0.2 h-1 is the maximum specific growth rate at just below washout in chemostat cultures."
+  read: html
+  note: >
+    Glucose, defined medium, 25 degC. Used as the upper constraint in their fed-batch feed
+    optimisation. Good default mu_max for K. phaffii on sugar.
+
+- key: kphaffii_yxs_max_glucose_rebnegger2016
+  value: 0.584
+  unit: g DCW/g glucose
+  grade: A
+  host: kphaffii
+  source: "Rebnegger C, Vos T, Graf AB, et al. Appl Environ Microbiol 82:4570-4583 (2016)"
+  doi_or_url: 10.1128/AEM.00638-16
+  locator: "Results: Maintenance energy requirement in glucose-limited chemostat cultures"
+  quote: "YX/S max was calculated to be 0.584 g g-1"
+  read: html
+  note: >
+    Non-producing K. phaffii CBS7435 Dflo8, glucose-limited aerobic chemostats. This is the
+    maintenance-corrected maximum yield; observed yields at industrial mu are lower.
+    Read via PMC4984280.
+
+- key: kphaffii_ms_chemostat_rebnegger2016
+  value: 0.0100
+  low: 0.0077
+  high: 0.0123
+  unit: g glucose/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Rebnegger C, Vos T, Graf AB, et al. Appl Environ Microbiol 82:4570-4583 (2016)"
+  doi_or_url: 10.1128/AEM.00638-16
+  locator: "Results: Maintenance energy requirement in glucose-limited chemostat cultures"
+  quote: "estimated mS (+/- standard deviation) of 0.0100 +/- 0.0023 g S g X-1 h-1"
+  read: html
+  note: >
+    Non-producing strain, chemostat-derived Pirt fit. low/high are +/- 1 SD. Same paper notes
+    this is about 50% below values for producing strains (0.0147-0.0161 g/g/h).
+
+- key: kphaffii_ms_retentostat_rebnegger2016
+  value: 0.0031
+  unit: g glucose/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Rebnegger C, Vos T, Graf AB, et al. Appl Environ Microbiol 82:4570-4583 (2016)"
+  doi_or_url: 10.1128/AEM.00638-16
+  locator: "Abstract; Results (retentostat)"
+  quote: "The value of mS at near-zero growth rates was 3.1 +/- 0.1 mg glucose per g biomass and h"
+  read: html
+  note: >
+    Measured at mu < 0.001 1/h in retentostats; 3-fold lower than the chemostat estimate.
+    Relevant if the TEA models a long, near-zero-growth production phase: maintenance is NOT
+    constant, it falls as growth slows. Viability stayed >=97% at these growth rates.
+
+- key: kphaffii_yxs_max_glucose_rebnegger2024
+  value: 0.544
+  unit: g DCW/g glucose
+  grade: A
+  host: kphaffii
+  source: "Rebnegger C, et al. Microb Cell Fact 23:44 (2024)"
+  doi_or_url: 10.1186/s12934-024-02314-3
+  locator: "Results (retentostat growth predictions)"
+  quote: "retentostat growth predictions were made using estimates of mS (4.37 +/- 0.27 mg g-1 h-1) and YXS max (0.544 +/- 0.002 g g-1)"
+  read: html
+  note: >
+    Recombinant VHH-secreting K. phaffii Dflo8, glucose-limited. Independent replication of
+    the 2016 numbers for a PRODUCING strain: Y_XS max 0.544 g/g, m_S 0.00437 g/g/h.
+    Read via PMC10851509.
+
+- key: kphaffii_ms_chemostat_rebnegger2024
+  value: 0.00437
+  unit: g glucose/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Rebnegger C, et al. Microb Cell Fact 23:44 (2024)"
+  doi_or_url: 10.1186/s12934-024-02314-3
+  locator: "Results (retentostat growth predictions)"
+  quote: "estimates of mS (4.37 +/- 0.27 mg g-1 h-1) and YXS max (0.544 +/- 0.002 g g-1)"
+  read: html
+  note: "Converted from 4.37 mg/g/h. Producing (VHH-secreting) strain, glucose."
+
+- key: kphaffii_yxs_glycerol_chemostat_tomasgamisans2018
+  value: 0.67
+  low: 0.63
+  high: 0.71
+  unit: g DCW/g glycerol
+  grade: A
+  host: kphaffii
+  source: "Tomas-Gamisans M, Ferrer P, Albiol J. Microb Biotechnol 11:224-237 (2018)"
+  doi_or_url: 10.1111/1751-7915.12871
+  locator: "Results and discussion: Physiological macroscopic parameters"
+  quote: "This value is considerably lower than 0.67 gX . gS-1, the average Yxs for glycerol."
+  read: html
+  note: >
+    Glycerol-limited chemostats, D = 0.035-0.160 1/h. low/high are the stated +/- 0.04.
+    Highest of the three carbon sources - consistent with Shemesh 2024 fed-batch (0.62-0.65).
+    Read via PMC5743807.
+
+- key: kphaffii_yxs_methanol_chemostat_tomasgamisans2018
+  value: 0.40
+  unit: g DCW/g methanol
+  grade: A
+  host: kphaffii
+  source: "Tomas-Gamisans M, Ferrer P, Albiol J. Microb Biotechnol 11:224-237 (2018)"
+  doi_or_url: 10.1111/1751-7915.12871
+  locator: "Results and discussion: Physiological macroscopic parameters"
+  quote: "Average YXS in methanol is 0.40 gX . gS-1 and is in accordance with yields previously reported."
+  read: html
+  note: >
+    Methanol-limited chemostats, D = 0.035-0.130 1/h. Central number for costing a methanol
+    induction phase: 1 g DCW needs 2.5 g methanol vs 1.5 g glycerol vs ~1.8-2.0 g glucose.
+
+- key: kphaffii_mumax_methanol_tomasgamisans2018
+  value: 0.115
+  low: 0.11
+  high: 0.12
+  unit: 1/h
+  grade: A
+  host: kphaffii
+  source: "Tomas-Gamisans M, Ferrer P, Albiol J. Microb Biotechnol 11:224-237 (2018)"
+  doi_or_url: 10.1111/1751-7915.12871
+  locator: "Results and discussion: Physiological macroscopic parameters"
+  quote: "maximum growth rate on methanol was estimated to be between 0.11 and 0.12 h-1, which is in agreement with previously reported values."
+  read: html
+  note: >
+    Washout kinetics. About half the mu_max on sugar (0.2 1/h), which is one reason methanol
+    processes are long. Glycerol chemostats in the same paper ran to D = 0.160 1/h without
+    washout, so mu_max on glycerol is >= 0.16 1/h.
+
+- key: kphaffii_dilution_rates_tested_tomasgamisans2018
+  value: null
+  unit: 1/h
+  grade: A
+  host: kphaffii
+  source: "Tomas-Gamisans M, Ferrer P, Albiol J. Microb Biotechnol 11:224-237 (2018)"
+  doi_or_url: 10.1111/1751-7915.12871
+  locator: "Materials and methods (chemostat cultivations)"
+  quote: "Glycerol cultivations were carried out at different dilution rates (D): 0.035, 0.050, 0.065, 0.100, 0.130 and 0.160 h-1"
+  read: html
+  note: >
+    Context entry (no single value): defines the growth-rate window over which the yields and
+    elemental compositions in this paper are valid. Methanol chemostats ran at 0.035-0.130 1/h.
+
+- key: kphaffii_ngam_glycerol_tomasgamisans2018
+  value: 2.51
+  unit: mmol ATP/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Tomas-Gamisans M, Ferrer P, Albiol J. Microb Biotechnol 11:224-237 (2018)"
+  doi_or_url: 10.1111/1751-7915.12871
+  locator: "Results and discussion: Energetic parameters estimation"
+  quote: "On the one hand, growth on glycerol showed a NGAME of 2.51 mmol ATP . gDCW-1 . h-1"
+  read: html
+  note: >
+    Non-growth-associated maintenance energy, fitted for the iMT1026 v3.0 genome-scale model.
+    Use with the GAM entry below if the process model is ATP-based rather than yield-based.
+
+- key: kphaffii_ngam_methanol_tomasgamisans2018
+  value: 0.44
+  unit: mmol ATP/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Tomas-Gamisans M, Ferrer P, Albiol J. Microb Biotechnol 11:224-237 (2018)"
+  doi_or_url: 10.1111/1751-7915.12871
+  locator: "Results and discussion: Energetic parameters estimation"
+  quote: "NGAME calculated for methanol growth is 0.44 mmol ATP . gDCW-1 . h-1."
+  read: html
+  note: >
+    Much lower NGAM on methanol than glycerol, because on methanol the growth-associated cost
+    (GAM) absorbs most of the energy burden - see the GAM entry.
+
+- key: kphaffii_gam_glycerol_vs_methanol_tomasgamisans2018
+  value: 70.66
+  high: 166.77
+  unit: mmol ATP/g DCW
+  grade: A
+  host: kphaffii
+  source: "Tomas-Gamisans M, Ferrer P, Albiol J. Microb Biotechnol 11:224-237 (2018)"
+  doi_or_url: 10.1111/1751-7915.12871
+  locator: "Results and discussion: Energetic parameters estimation"
+  quote: "GAME for glycerol was estimated to be 70.66 mmol ATP . gDCW-1, that is, 2.4-fold lower than for methanol (166.77 mmol ATP . gDCW-1)."
+  read: html
+  note: >
+    value = glycerol, high = methanol. The 2.4x higher growth-associated ATP demand on methanol
+    is the energetic reason methanol processes run hotter and need more O2 per g of biomass.
+
+- key: kphaffii_qo2_methanol_vs_glycerol_tomasgamisans2018
+  value: 8.22
+  high: 2.04
+  unit: mmol O2/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Tomas-Gamisans M, Ferrer P, Albiol J. Microb Biotechnol 11:224-237 (2018)"
+  doi_or_url: 10.1111/1751-7915.12871
+  locator: "Table 1 (D = 0.100 1/h rows)"
+  quote: "-8.22 +/- 0.37 mmol . gDCW-1 . h-1"
+  read: html
+  note: >
+    TABLE CELL - re-check against the publisher PDF before use. value = methanol, high (mis-named,
+    it is the glycerol comparator) = 2.04 +/- 0.11 mmol/gDCW/h, both at D = 0.100 1/h. Implies
+    roughly 4x the specific oxygen uptake on methanol at equal growth rate; with an oxycaloric
+    equivalent of ~455 kJ/mol O2 that is also ~4x the specific heat load.
+
+# ---------------------------------------------------------------------------
+# 2. K. phaffii — elemental and macromolecular biomass composition
+# ---------------------------------------------------------------------------
+
+- key: kphaffii_elemental_formula_carnicer2009
+  value: null
+  unit: C-mol formula
+  grade: A
+  host: kphaffii
+  source: "Carnicer M, Baumann K, Toplitz I, et al. Microb Cell Fact 8:65 (2009)"
+  doi_or_url: 10.1186/1475-2859-8-65
+  locator: "Table 4 (control strain, 21% O2 inlet)"
+  quote: "C H1.761 N0.143 O0.636 S0.0018"
+  read: html
+  note: >
+    Non-producing K. phaffii X-33, glucose-limited chemostat, D = 0.1 1/h, normoxic. TABLE CELL -
+    re-check against the PDF. The Fab-producing strain at 21% O2 is given as
+    C H1.665 N0.134 O0.602 S0.0039. Compare the generic CH1.8O0.5N0.2 used for Z. mobilis in
+    NREL 2011: K. phaffii is slightly more oxidised and lower in N. Reduction degree gamma
+    reported in the range ~4.08-4.22. Read via PMC2799386.
+
+- key: kphaffii_ash_content_carnicer2009
+  value: 7.1
+  unit: "% of dry weight"
+  grade: A
+  host: kphaffii
+  source: "Carnicer M, Baumann K, Toplitz I, et al. Microb Cell Fact 8:65 (2009)"
+  doi_or_url: 10.1186/1475-2859-8-65
+  locator: "Table 3 (row 'Ashes'); Methods (combustion at 550 degC for 12 h)"
+  quote: "Ashes 7.1 0.4"
+  read: html
+  note: >
+    TABLE CELL (value then SD) - re-check against the PDF. Reported as 7.1 +/- 0.4 % across all
+    six conditions (three oxygenation levels x producing/non-producing), i.e. ash is insensitive
+    to oxygen availability. Determined by combustion of pre-dried biomass at 550 degC for 12 h.
+    Use ~7% ash when converting between DCW and ash-free organic biomass.
+
+- key: kphaffii_ash_glycerol_methanol_tomasgamisans2018
+  value: 7.8
+  low: 7.0
+  high: 7.8
+  unit: "% of dry weight"
+  grade: A
+  host: kphaffii
+  source: "Tomas-Gamisans M, Ferrer P, Albiol J. Microb Biotechnol 11:224-237 (2018)"
+  doi_or_url: 10.1111/1751-7915.12871
+  locator: "Table 2 (elemental composition, averages)"
+  quote: "C: 41.98 +/- 0.27; H: 6.24 +/- 0.06; N: 8.58 +/- 0.31; O: 35.11 +/- 0.58; S: 0.30 +/- 0.03; Ashes: 7.8 +/- 0.6"
+  read: html
+  note: >
+    TABLE CELL - re-check against the PDF. These are the glycerol-grown averages (value = 7.8%
+    ash). Methanol-grown averages: C 42.28, H 6.43, N 10.06, O 33.83, S 0.41, ashes 7.0 +/- 0.6.
+    Independent confirmation of Carnicer's ~7% ash. Note the markedly higher N on methanol
+    (10.1% vs 8.6%), i.e. more protein-rich biomass, which raises the ammonia demand.
+
+- key: kphaffii_macromolecular_composition_carnicer2009
+  value: null
+  unit: "% w/w"
+  grade: E
+  host: kphaffii
+  source: "Carnicer M, Baumann K, Toplitz I, et al. Microb Cell Fact 8:65 (2009)"
+  doi_or_url: 10.1186/1475-2859-8-65
+  locator: "Table 3"
+  quote: null
+  note: >
+    NO USABLE QUOTE. The summariser reported approximate ranges (protein ~35-40%, carbohydrate
+    ~30-42%, lipid ~6-10%, RNA ~5-7% w/w) but would not return the table rows verbatim, so the
+    individual numbers are not traceable and must not be used. Re-read the PDF to extract
+    Table 3 properly. The ash row (7.1%) WAS obtained verbatim and is recorded separately.
+  read: html
+
+# ---------------------------------------------------------------------------
+# 3. K. phaffii — cell densities, fed-batch structure and durations
+# ---------------------------------------------------------------------------
+
+- key: kphaffii_max_dcw_fedbatch_glycerol_shemesh2024
+  value: 244
+  unit: g DCW/L
+  grade: A
+  host: kphaffii
+  source: "Shemesh P, Fishman A. Curr Res Food Sci 9:100840 (2024)"
+  doi_or_url: Shemesh2024_pichia_glycerol_glucose.fulltext.txt
+  locator: "Section 3.4, Determination of growth rates in the fermenter; Table 2"
+  quote: "Strain Y-7556 reached a biomass concentration of 244 g DCW/L after 48 h using glycerol and 169 g DCW/L after 41 h using dextrose."
+  read: fulltext
+  note: >
+    3.7 L fermenter, 30 degC, pH 5, ~1200 rpm, 4.5-6 L air/min, 60% w/v glycerol feed, wild-type
+    NRRL Y-7556 (no recombinant protein). The paper claims this is the highest DCW reported for
+    P. pastoris. Treat 244 g/L as an upper physical bound for cell density, NOT a production
+    condition: the mCherry-producing runs in the same paper only reached 122 g DCW/L before the
+    methanol switch.
+
+- key: kphaffii_max_dcw_fedbatch_glucose_shemesh2024
+  value: 169
+  low: 93
+  high: 169
+  unit: g DCW/L
+  grade: A
+  host: kphaffii
+  source: "Shemesh P, Fishman A. Curr Res Food Sci 9:100840 (2024)"
+  doi_or_url: Shemesh2024_pichia_glycerol_glucose.fulltext.txt
+  locator: "Table 2"
+  quote: "Y-7556 Dextrose 126 254 0.50 41 169"
+  read: fulltext
+  note: >
+    TABLE ROW: strain, carbon source, biomass at 23 h (126 g/L), substrate consumed (254 g/L),
+    Y_sx (0.50 g/g), total duration (41 h), final biomass (169 g/L). Across the three wild-type
+    strains, glucose fed-batch gave 93-169 g DCW/L in 35-61 h. Relevant because a methanol-free
+    (glucose) process is the base case for food protein.
+
+- key: kphaffii_yxs_glucose_fedbatch_shemesh2024
+  value: 0.46
+  low: 0.37
+  high: 0.50
+  unit: g DCW/g glucose
+  grade: A
+  host: kphaffii
+  source: "Shemesh P, Fishman A. Curr Res Food Sci 9:100840 (2024)"
+  doi_or_url: Shemesh2024_pichia_glycerol_glucose.fulltext.txt
+  locator: "Section 3.4; Table 2"
+  quote: "the yield on dextrose is higher for Y-7556 (0.5 g/g) and Y-11430 (0.46 g/g) than for X-33 (0.37 g/g)."
+  read: fulltext
+  note: >
+    Observed (not maintenance-corrected) yield over the first 23 h of fed-batch, three wild-type
+    strains. Sits just below the chemostat Y_XS max of 0.544-0.584 g/g, as expected once
+    maintenance is included. Strain choice alone moves the yield by 35%.
+
+- key: kphaffii_yxs_glycerol_fedbatch_shemesh2024
+  value: 0.62
+  low: 0.62
+  high: 0.65
+  unit: g DCW/g glycerol
+  grade: A
+  host: kphaffii
+  source: "Shemesh P, Fishman A. Curr Res Food Sci 9:100840 (2024)"
+  doi_or_url: Shemesh2024_pichia_glycerol_glucose.fulltext.txt
+  locator: "Section 3.4; Table 2"
+  quote: "Higher biomass yield was obtained for all strains on glycerol as a carbon source by more than 40% as compared to dextrose."
+  read: fulltext
+  note: >
+    Table 2 Y_sx values on glycerol: 0.62 (Y-7556), 0.65 (Y-11430), 0.62 (X-33) g/g. Matches the
+    chemostat value of Tomas-Gamisans (0.67 g/g). The paper attributes the glycerol advantage to
+    avoiding the Crabtree effect (ethanol formation on glucose was measured by HPLC).
+
+- key: kphaffii_fedbatch_phase_structure_shemesh2024
+  value: 3
+  unit: phases
+  grade: A
+  host: kphaffii
+  source: "Shemesh P, Fishman A. Curr Res Food Sci 9:100840 (2024)"
+  doi_or_url: Shemesh2024_pichia_glycerol_glucose.fulltext.txt
+  locator: "Section 3.8, mCherry fermentation"
+  quote: "Typically, AOX1-regulated cultivation of P. pastoris is divided into 3 phases: batch, fed-batch, and methanol induction phases"
+  read: fulltext
+  note: >
+    The canonical three-phase structure the process model should use for an AOX1/methanol
+    process. A methanol-free (GAP or ESPRIT) process collapses phases 2 and 3.
+
+- key: kphaffii_induction_switch_biomass_shemesh2024
+  value: 122
+  unit: g DCW/L
+  grade: A
+  host: kphaffii
+  source: "Shemesh P, Fishman A. Curr Res Food Sci 9:100840 (2024)"
+  doi_or_url: Shemesh2024_pichia_glycerol_glucose.fulltext.txt
+  locator: "Section 3.8, mCherry fermentation"
+  quote: "the fed-batch phase lasted until the biomass reached 50-60% of the maximum biomass observed in the WT strains (Y-11430_mC4 - 122 g DCW/L after 29 h"
+  read: fulltext
+  note: >
+    Design heuristic for when to switch from growth to induction: at 50-60% of the strain's
+    maximum attainable DCW, here 122 g DCW/L at 29 h. After the switch to slow methanol feeding
+    the biomass no longer reached wild-type levels.
+
+- key: kphaffii_secreted_protein_mcherry_shemesh2024
+  value: 5.945
+  unit: g/L total secreted protein
+  grade: A
+  host: kphaffii
+  source: "Shemesh P, Fishman A. Curr Res Food Sci 9:100840 (2024)"
+  doi_or_url: Shemesh2024_pichia_glycerol_glucose.fulltext.txt
+  locator: "Section 3.8"
+  quote: "diploid Y-11430_mC4_MAT7 continued to produce mCherry, reaching approximately 5945 +/- 0 mg/L of secreted protein as measured by Bradford after 134 h"
+  read: fulltext
+  note: >
+    Bradford TOTAL secreted protein, not mCherry specifically. Purified mCherry from the same
+    broth at 123 h was 1245 mg/L (haploid) and 1784 mg/L (diploid). Useful as a realistic ratio
+    of target protein to total secreted protein in K. phaffii: roughly 30%.
+
+- key: kphaffii_typical_hcd_and_scale_lv2025
+  value: 150
+  unit: g DCW/L
+  grade: A
+  host: kphaffii
+  source: "Lv W, Cai M. FEMS Yeast Res 25:foaf010 (2025)"
+  doi_or_url: Lv2025_kphaffii_review.fulltext.txt
+  locator: "Section: Industrial application potentiality"
+  quote: "Its cell dry weight can even reach up to 150 g/l and the fermentation scale can be expanded to 80 000 l, making it applicable for large-scale industrial production"
+  read: fulltext
+  note: >
+    REVIEW restating Mattanovich et al. 2012. Two decision-relevant numbers at once: a typical
+    industrial DCW ceiling of 150 g/L and a demonstrated 80 m3 fermenter scale for K. phaffii.
+    Secondary source - grade A only because the review is peer-reviewed; the primary is not read.
+
+- key: kphaffii_substrate_uptake_rates_lv2025
+  value: 0.37
+  high: 0.35
+  unit: 1/h
+  grade: A
+  host: kphaffii
+  source: "Lv W, Cai M. FEMS Yeast Res 25:foaf010 (2025)"
+  doi_or_url: Lv2025_kphaffii_review.fulltext.txt
+  locator: "Section: Industrial application potentiality (carbon sources)"
+  quote: "It reached a maximum glycerol utilization rate (qSmax) of 0.37 h-1. ... whereas K. phaffii achieved only 0.35 h-1."
+  read: fulltext
+  note: >
+    value = max glycerol uptake, high (mis-named; it is the comparator) = max glucose uptake,
+    both in the review's stated units of h-1 (they are specific rates, g/gDCW/h). S. cerevisiae
+    is quoted at 2.88 h-1 on glucose, i.e. ~8x faster: K. phaffii is a slow but non-fermenting
+    (Crabtree-negative) sugar consumer.
+
+- key: kphaffii_promoter_titer_range_lv2025
+  value: 30.7
+  low: 1.05
+  high: 30.7
+  unit: g/L
+  grade: A
+  host: kphaffii
+  source: "Lv W, Cai M. FEMS Yeast Res 25:foaf010 (2025)"
+  doi_or_url: Lv2025_kphaffii_review.fulltext.txt
+  locator: "Table 1, Promoters used to express recombinant protein in K. phaffii"
+  quote: "P AOX1 glucose oxidase 30.7 g/l (Zhou et al. 2024)   P AOX1 phytase 9.58 g/l (Li et al. 2015)"
+  read: fulltext
+  note: >
+    TABLE ROWS. Envelope of secreted titers achieved in K. phaffii across promoters: 1.05 g/L
+    (insulin precursor) to 30.7 g/L (glucose oxidase), with rHSA 17.47 g/L, phytase 9.58 g/L,
+    A33scFv 8 g/L, soy leghemoglobin 3.5 g/L. Methanol-free P_GAP entry in the same table is only
+    2.49 g/L and P_GTH1 4.2 g/L - the methanol-free route is still behind on titer. A separate
+    sentence in the review reports a 20 g/L nanobody at large scale.
+
+- key: kphaffii_scp_from_methanol_gao2023_via_shemesh2024
+  value: 0.43
+  unit: g DCW/g methanol
+  grade: A
+  host: kphaffii
+  source: "Shemesh P, Fishman A. Curr Res Food Sci 9:100840 (2024), citing Gao et al. 2023 / Meng et al. 2023"
+  doi_or_url: Shemesh2024_pichia_glycerol_glucose.fulltext.txt
+  locator: "Introduction"
+  quote: "a pilot-scale fed-batch culture resulting in a biomass of 63.37 g DCW/L, methanol conversion rate of 0.43 g DCW/g, and protein content of 0.506 g/g DCW"
+  read: fulltext
+  note: >
+    Engineered K. phaffii single-cell-protein strain on methanol at pilot scale. Cross-checks the
+    chemostat Y_XS on methanol of 0.40 g/g (Tomas-Gamisans). Also gives a biomass protein content
+    of 50.6% w/w DCW, useful for the ammonia balance and for any SCP by-product credit.
+    SECONDARY (cited in Shemesh's introduction); primary not read.
+
+- key: kphaffii_our_methanol_induction_universal2026
+  value: 250
+  low: 200
+  high: 300
+  unit: mmol O2/L/h
+  grade: A
+  host: kphaffii
+  source: "Liu H, Du W, Chang X, et al. Front Microbiol 17:1854154 (2026), citing Yu et al. 2010"
+  doi_or_url: Universal2026_pichia-shakeflask-fermenter-medium.txt
+  locator: "Discussion (shake-flask vs bioreactor oxygen transfer)"
+  quote: "in stirred bioreactors with active aeration, P. pastoris can achieve a high and stable oxygen uptake rate (OUR) of 200-300 mmoL/L/h during the methanol induction phase"
+  read: fulltext
+  note: >
+    CRITICAL for vessel sizing: 200-300 mmol O2/L/h is far above what a large fermenter can
+    transfer (NREL's 300 m3 cellulase vessel is designed around 56 mmol/L/h). Methanol induction
+    at lab scale is oxygen-hungry in a way that does not scale. SECONDARY (citing Yu et al. 2010);
+    the same discussion states shake flasks are limited to well below 20 mmol/L/h.
+
+- key: kphaffii_fedbatch_biomass_30L_universal2026
+  value: 163.3
+  low: 147.2
+  high: 163.3
+  unit: g DCW/L
+  grade: A
+  host: kphaffii
+  source: "Liu H, Du W, Chang X, et al. Front Microbiol 17:1854154 (2026)"
+  doi_or_url: Universal2026_pichia-shakeflask-fermenter-medium.txt
+  locator: "Section 3.3, Scale-up validation: shake flasks to 30 L fermenter"
+  quote: "Biomass reached 163.30 +/- 0.31 g/L in FM4CSP, compared with 147.24 +/- 0.60 g/L and 148.87 +/- 0.70 g/L in FM22 and FM22 + CSP, respectively."
+  read: fulltext
+  note: >
+    30 L fermenter, glycerol batch + glycerol fed-batch + methanol induction, ZEN lactonase.
+    Independent support for ~150-165 g DCW/L as the practical high-cell-density range with a
+    real product. Biomass accumulated mainly in the batch and glycerol fed-batch phases.
+
+- key: kphaffii_phase_durations_universal2026
+  value: 16
+  unit: h (batch phase)
+  grade: A
+  host: kphaffii
+  source: "Liu H, Du W, Chang X, et al. Front Microbiol 17:1854154 (2026)"
+  doi_or_url: Universal2026_pichia-shakeflask-fermenter-medium.txt
+  locator: "Materials and methods (fermenter cultivation)"
+  quote: "During the batch growth phase, cells were cultured until complete glycerol depletion at approximately 16 h, as indicated by a sharp increase in DO."
+  read: fulltext
+  note: >
+    Full schedule: ~16 h glycerol batch, DO-stat glycerol fed-batch, then methanol induction
+    sampled at ~24, 48, 72 and 96 h (M1-M4), i.e. ~96 h of induction. Methanol held at 10 g/L by
+    an online sensor; pH 6.0 growth / 6.5 induction; 25% ammonium hydroxide for pH and nitrogen.
+
+- key: kphaffii_qp_zen_lactonase_universal2026
+  value: 40.91
+  low: 26.69
+  high: 40.91
+  unit: U/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Liu H, Du W, Chang X, et al. Front Microbiol 17:1854154 (2026)"
+  doi_or_url: Universal2026_pichia-shakeflask-fermenter-medium.txt
+  locator: "Section 3.3 (Figure 7B)"
+  quote: "The maximum qp values were 26.69 +/- 0.83 U.g-1.h-1 in FM22, 35.86 +/- 0.59 in FM22 + CSP, and 40.91 +/- 0.83 in FM4CSP"
+  read: fulltext
+  note: >
+    Specific productivity in ACTIVITY units, not mass - cannot be converted to mg/gDCW/h without
+    the specific activity of the enzyme. Recorded because it shows a 1.5x spread in q_p from
+    medium composition alone at constant host and promoter.
+
+- key: kphaffii_steady_state_dcw_continuous_yamanie2026
+  value: 100
+  low: 80
+  high: 100
+  unit: g DCW/L
+  grade: A
+  host: kphaffii
+  source: "Yamanie A, de Sa Magalhaes S, Wijayadikusumah AR, et al. Fermentation 12:97 (2026)"
+  doi_or_url: Yamanie2026_Kphaffii_fedbatch_vs_continuous_TEA.txt
+  locator: "Section 3.1 (Figure 2A,B)"
+  quote: "continuous cultivation maintained steady-state biomass at approximately 100 g DCW.L-1 under mixed induction, compared to 80 g DCW.L-1 with pure methanol"
+  read: fulltext
+  note: >
+    5 L scale, KEX2 protease, AOX1. Steady-state cell density in CONTINUOUS mode is roughly half
+    the fed-batch peak - relevant if the TEA considers continuous operation (this paper's whole
+    point is that 40 L continuous can match 2 x 400 L fed-batch runs).
+
+- key: kphaffii_fedbatch_schedule_yamanie2026
+  value: null
+  unit: h
+  grade: A
+  host: kphaffii
+  source: "Yamanie A, de Sa Magalhaes S, Wijayadikusumah AR, et al. Fermentation 12:97 (2026)"
+  doi_or_url: Yamanie2026_Kphaffii_fedbatch_vs_continuous_TEA.txt
+  locator: "Section 2.4 (cultivation)"
+  quote: "After 17-24 h, a spike in dissolved oxygen indicated glycerol depletion, triggering the glycerol fed-batch phase."
+  read: fulltext
+  note: >
+    Full schedule, BSM medium, 30 degC, pH 5.0 (12.5% NH4OH), DO > 30%: 17-24 h glycerol batch;
+    50% w/v glycerol + PTM1 fed at 18 mL/h/L until WCW 180-220 g/L; 15-30 min starvation; then
+    induction ramped to 8.4 mL/h/L pure methanol (or 10.8 mL/h/L mixed). A fed-batch KEX2 batch
+    is stated elsewhere in the paper as 5 days.
+
+- key: kphaffii_methanol_sorbitol_o2_and_heat_yamanie2026
+  value: 30
+  unit: "% reduction in oxygen consumption"
+  grade: A
+  host: kphaffii
+  source: "Yamanie A, de Sa Magalhaes S, Wijayadikusumah AR, et al. Fermentation 12:97 (2026)"
+  doi_or_url: Yamanie2026_Kphaffii_fedbatch_vs_continuous_TEA.txt
+  locator: "Introduction"
+  quote: "methanol/sorbitol co-feeding can lower oxygen consumption by up to 30%, decrease heat output, and significantly reduce the release of host cell proteins"
+  read: fulltext
+  note: >
+    SECONDARY (citing ref [4] of that paper). The best quantitative handle found on the oxygen
+    and heat penalty of methanol induction, but it is a relative figure, not an absolute
+    O2-per-g-methanol. The same paper's introduction names "excessive oxygen demand, substantial
+    heat generation" as the core engineering constraints of methanol induction.
+
+- key: kphaffii_max_dcw_patent_every2024
+  value: 200
+  low: 100
+  high: 200
+  unit: g DCW/L
+  grade: B
+  host: kphaffii
+  source: "Every Co. US20240209383A1, Systems and Methods for High-Yielding Recombinant Microorganisms (2024)"
+  doi_or_url: Every_US20240209383_high-yielding-microorganisms.txt
+  locator: "Specification, fermentation methods paragraph"
+  quote: "from engineered host cells reaching cell densities of up to 100 g dry cell weight/L, 150 g dry cell weight/L or 200 g dry cell weight/L."
+  read: fulltext
+  note: >
+    Patent claim language (a stepped range, not a measurement), from the egg-protein company
+    whose ovomucoid bioreactor titers (30.19 g/L) are already in data/titers.csv. Confirms that
+    commercial K. phaffii food-protein processes target 100-200 g DCW/L.
+
+- key: kphaffii_methanol_feed_rate_patent_every2024
+  value: 5.0
+  low: 0.5
+  high: 5.0
+  unit: g methanol/L/h
+  grade: B
+  host: kphaffii
+  source: "Every Co. US20240209383A1 (2024)"
+  doi_or_url: Every_US20240209383_high-yielding-microorganisms.txt
+  locator: "Specification, methanol feeding paragraph"
+  quote: "the methanol feed rate can be up to 0.5 g/L/h, up to 0.7 g/L/h, ... 4.5 g/L/h or 5.0 g/L/h."
+  read: fulltext
+  note: >
+    Stepped patent range. At 5 g methanol/L/h and full oxidation (1.5 mol O2 per mol CH3OH), the
+    oxygen demand would be ~234 mmol O2/L/h, consistent with the 200-300 mmol/L/h OUR quoted by
+    Liu 2026 and far above large-scale OTR. The same patent gives an equal glucose co-feed range.
+
+- key: kphaffii_glycerol_feed_rate_patent_perfectday2025
+  value: 6
+  unit: g glycerol/L/h
+  grade: B
+  host: kphaffii
+  source: "Perfect Day US20230106635A1, hypoallergenic beta-lactoglobulin (2023)"
+  doi_or_url: PerfectDay_US20230106635_hypoallergenic-blg.txt
+  locator: "Example, paragraph [0249]"
+  quote: "Once batch glycerol is depleted, glycerol is added via a programmed feed recipe at a rate of 6 g/L/h."
+  read: fulltext
+  note: >
+    K. phaffii BLG process: minimal basal medium, 80% glycerol starting feedstock, 30 degC,
+    1 vvm, pH 5 with ammonium hydroxide; DO held by agitation, then pure O2 sparging when
+    agitation saturates. The oxygen-enrichment detail matters for the utility cost model.
+
+- key: kphaffii_specific_feed_rate_patent_perfectday2025
+  value: 0.2
+  low: 0.01
+  high: 0.2
+  unit: g glucose equivalent/g DCW/h
+  grade: B
+  host: kphaffii
+  source: "Perfect Day US20230106635A1 (2023)"
+  doi_or_url: PerfectDay_US20230106635_hypoallergenic-blg.txt
+  locator: "Specification, paragraph [0161]"
+  quote: "A suitable feed rate can be a feed rate of between 0.01 g and 0.2 g glucose equivalent per g dry cell weight (DCW) per hour."
+  read: fulltext
+  note: >
+    This is the specific substrate uptake rate q_S, the variable that sets mu in a fed-batch.
+    With Y_XS ~ 0.5 g/g, q_S = 0.01-0.2 g/g/h corresponds to mu of roughly 0.005-0.10 1/h - i.e.
+    industrial food-protein fed-batches are run well below mu_max.
+
+# ---------------------------------------------------------------------------
+# 4. K. phaffii — specific productivity q_p and its dependence on growth rate
+# ---------------------------------------------------------------------------
+
+- key: kphaffii_qp_mu_monod_model_maurer2006
+  value: 0.0735
+  unit: mg/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Maurer M, Kuhleitner M, Gasser B, Mattanovich D. Microb Cell Fact 5:37 (2006)"
+  doi_or_url: 10.1186/1475-2859-5-37
+  locator: "Results, chemostat section; eq (22)"
+  quote: "qPmax = 0.0735 mg g-1 h-1 and kq = 0.116 h-1."
+  read: html
+  note: >
+    THE functional form to use for a growth-coupled product: q_P = q_Pmax * mu / (k_q + mu), a
+    saturating (Monod-like) dependence on mu, fitted to chemostat data for a secreted Fab. Note
+    the absolute q_P is tiny (0.07 mg/gDCW/h) because a Fab is a hard product; the SHAPE is the
+    transferable result. At mu = 0.1 1/h this gives q_P = 0.034 mg/gDCW/h.
+
+- key: kphaffii_fedbatch_fab_result_maurer2006
+  value: 46
+  unit: mg/L
+  grade: A
+  host: kphaffii
+  source: "Maurer M, Kuhleitner M, Gasser B, Mattanovich D. Microb Cell Fact 5:37 (2006)"
+  doi_or_url: 10.1186/1475-2859-5-37
+  locator: "Results, standard fed batch"
+  quote: "The final Fab titer was p = 46 mg L-1, and the final biomass concentration x = 96 g L-1."
+  read: html
+  note: >
+    Standard fed-batch, 117 h total (92 h feed), volumetric productivity max 0.31 mg/L/h. Their
+    optimised feed profile (exponential at mu_max then linearly increasing) reached 0.67 mg/L/h,
+    a 2.2x improvement at the same titer - the value of feed-profile optimisation alone.
+
+- key: kphaffii_qp_bellshaped_aox1_garrigos2019
+  value: 0.08
+  unit: 1/h (optimal mu)
+  grade: A
+  host: kphaffii
+  source: "Garrigos-Martinez J, Nieto-Taype MA, Gasset-Franch A, et al. Microb Cell Fact 18:187 (2019)"
+  doi_or_url: 10.1186/s12934-019-1240-8
+  locator: "Results (production kinetics)"
+  quote: "both chemostat and FB cultivations exhibited a bell-shaped trend in both clones, production being optimal at D = 0.08 h-1 in chemostat cultivations"
+  read: html
+  note: >
+    THE bell-shaped q_P(mu) result for the AOX1/methanol system: q_P rises with mu, peaks near
+    mu = 0.08 1/h in chemostat (and near mu = 0.045 1/h in fed-batch), then falls. Candida rugosa
+    lipase 1, single- and multi-copy clones, 2 L chemostat / 5 L fed-batch. This is why methanol
+    processes are run at low, controlled mu rather than at mu_max. Read via PMC6824138.
+
+- key: kphaffii_ysx_methanol_garrigos2019
+  value: 2.2
+  unit: g methanol/g DCW
+  grade: A
+  host: kphaffii
+  source: "Garrigos-Martinez J, Nieto-Taype MA, Gasset-Franch A, et al. Microb Cell Fact 18:187 (2019)"
+  doi_or_url: 10.1186/s12934-019-1240-8
+  locator: "Results (strain physiological characterisation)"
+  quote: "Y_S/X values around 2.2 g_MetOH/g_X. This value is similar to the yield for the wild-type strain"
+  read: html
+  note: >
+    Inverse yield: 2.2 g methanol per g DCW equals Y_XS = 0.45 g/g, bracketing the 0.40 g/g of
+    Tomas-Gamisans. Recombinant protein production did not measurably degrade the methanol yield.
+
+- key: kphaffii_qp_mu_gap_linear_nietotaype2020
+  value: 292
+  unit: AU/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Nieto-Taype MA, Garcia-Ortega X, Garrigos-Martinez J, et al. Microb Biotechnol 13:315-327 (2020)"
+  doi_or_url: 10.1111/1751-7915.13498
+  locator: "Results (fed-batch, single-copy clone)"
+  quote: "q_P increased linearly with increasing mu"
+  read: html
+  note: >
+    METHANOL-FREE (constitutive P_GAP on glucose), K. phaffii X-33, Candida rugosa lipase 1.
+    Contrast with AOX1: on GAP the single-copy clone's q_P rises LINEARLY with mu (77 AU/gX/h at
+    mu = 0.05 to 292 AU/gX/h at mu = 0.15 1/h), i.e. a GAP process wants to run FAST, whereas an
+    AOX1 process has an interior optimum. Activity units, not mass. Read via PMC7017824.
+
+- key: kphaffii_qp_saturation_gap_multicopy_nietotaype2020
+  value: 390
+  unit: AU/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Nieto-Taype MA, Garcia-Ortega X, Garrigos-Martinez J, et al. Microb Biotechnol 13:315-327 (2020)"
+  doi_or_url: 10.1111/1751-7915.13498
+  locator: "Results (fed-batch, multicopy clone)"
+  quote: "a saturation effect was observed at mu > 0.10 h-1, from which the q_P reaches a rather constant value at about 390 UA.g_X-1 h-1."
+  read: html
+  note: >
+    The multicopy clone saturates above mu = 0.10 1/h - secretion capacity, not transcription,
+    becomes limiting. Practical consequence: above ~0.1 1/h extra gene copies buy nothing.
+
+- key: kphaffii_yxs_glucose_gap_nietotaype2020
+  value: 0.5
+  unit: g DCW/g glucose
+  grade: A
+  host: kphaffii
+  source: "Nieto-Taype MA, Garcia-Ortega X, Garrigos-Martinez J, et al. Microb Biotechnol 13:315-327 (2020)"
+  doi_or_url: 10.1111/1751-7915.13498
+  locator: "Results: Strain characterization in chemostat cultures > Cell growth"
+  quote: "the overall biomass substrate yield (Y_X/S) remained fairly constant with a value of about 0.5 g_X g_S-1, which is consistent with most reported values"
+  read: html
+  note: >
+    Glucose-limited chemostats over mu = 0.025-0.15 1/h. Y_X/S ~ 0.5 g/g is the best single
+    default for K. phaffii on glucose across a producing strain and a wide mu range.
+
+- key: kphaffii_ms_gene_dosage_nietotaype2020
+  value: 0.029
+  low: 0.0023
+  high: 0.029
+  unit: g glucose/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Nieto-Taype MA, Garcia-Ortega X, Garrigos-Martinez J, et al. Microb Biotechnol 13:315-327 (2020)"
+  doi_or_url: 10.1111/1751-7915.13498
+  locator: "Results: Strain characterization in chemostat cultures > Cell growth"
+  quote: "possibly due to requirement of more energy for maintenance (m_s) than the single-copy strain (0.029 vs. 0.0023 g_S g_X-1 h-1)."
+  read: html
+  note: >
+    IMPORTANT SPREAD: the multicopy clone's maintenance is 13x the single-copy clone's
+    (0.029 vs 0.0023 g/g/h). Maintenance is therefore a STRAIN property, not a species constant;
+    the published K. phaffii range spans 0.0023-0.029 g glucose/gDCW/h, an order of magnitude.
+    A high-expressing food-protein strain probably sits at the high end.
+
+- key: kphaffii_qp_vhh_vs_mu_rebnegger2024
+  value: 0.64
+  low: 0.019
+  high: 0.64
+  unit: mg/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Rebnegger C, et al. Microb Cell Fact 23:44 (2024)"
+  doi_or_url: 10.1186/s12934-024-02314-3
+  locator: "Results (chemostat and retentostat q_P)"
+  quote: "In these chemostat cultures, the highest q_P of 0.64 mg g-1 h-1 was measured at the fastest D-setpoint of 0.17 h-1."
+  read: html
+  note: >
+    Bivalent VHH under the glucose-limit-induced P_G1-3 promoter (methanol-free). q_P INCREASES
+    monotonically with mu over D = 0.015-0.17 1/h; at near-zero growth (mu = 0.00047 1/h) it
+    collapses to 0.019 mg/gDCW/h, about fivefold below the chemostat extrapolation. Decoupling
+    production from growth does NOT work for this system.
+
+- key: kphaffii_qp_betagal_aox1_bechtel2024
+  value: 1.53
+  unit: ukat/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Bechtel A, et al. Microb Cell Fact 23:266 (2024)"
+  doi_or_url: 10.1186/s12934-024-02544-5
+  locator: "Results (bioreactor cultivations, P_AOX1)"
+  quote: "Specific productivity q_p of 1.53 +/- 0.03 ukat/g_DCW/h achieved with P_AOX1"
+  read: html
+  note: >
+    Paenibacillus wynnii beta-galactosidase, glycerol batch then methanol feed, 1.4 L bioreactor.
+    Reached 132 +/- 4 g DCW/L after 120 h. Activity units. Recorded mainly for the DCW and the
+    120 h duration: another data point for "K. phaffii methanol fed-batch = ~5 days, ~130 g/L".
+    Read via PMC11452983.
+
+# ---------------------------------------------------------------------------
+# 5. Design-basis stoichiometry for an OVA process (third-party TEA)
+# ---------------------------------------------------------------------------
+
+- key: ova_growth_phase_stoichiometry_intelligen2025
+  value: 0.40
+  unit: g biomass/g glucose
+  grade: B
+  host: kphaffii
+  source: "Intelligen Inc., Production of Recombinant Ovalbumin (SuperPro Designer example), 2025"
+  doi_or_url: Intelligen_2025_ovalbumin_TEA.txt
+  locator: "Fermentation section, reaction (1)"
+  quote: "100 Glucose + 4.28 Ammonia +1.87 H3PO4 + 54.56 Oxygen -> 40 Biomass + 76.53 Carb. Dioxide + 44.18 Water"
+  read: fulltext
+  note: >
+    MASS stoichiometry. Growth phase and all seed stages. Implies Y_X/S = 0.40 g/g and an oxygen
+    demand of 0.546 g O2 per g glucose (17.1 mmol O2 per g glucose), i.e. 1.36 g O2 per g biomass.
+    Conversion 99% in the main fermenter, 90% in seeds. Note their Y_X/S (0.40) is LOWER than the
+    academic consensus of ~0.5 g/g - a conservative design choice worth flagging in calibration.
+
+- key: ova_expression_phase_stoichiometry_intelligen2025
+  value: 0.28
+  unit: g ovalbumin/g glucose
+  grade: B
+  host: kphaffii
+  source: "Intelligen Inc., Production of Recombinant Ovalbumin (SuperPro Designer example), 2025"
+  doi_or_url: Intelligen_2025_ovalbumin_TEA.txt
+  locator: "Fermentation section, reaction (2)"
+  quote: "100 Glucose + 8.19 Ammonia + 0.37 H3PO4 + 53.51 Oxygen -> 8 Biomass + 28 rOvalbumin + 4 HCP + 73.01 Carb. Dioxide + 49.06 Water"
+  read: fulltext
+  note: >
+    THE single most decision-relevant design assumption found: 0.28 g of recombinant ovalbumin
+    per g of glucose during the expression phase (0.32 g/g counting HCP), with 0.08 g/g still
+    going to biomass. Oxygen demand 0.535 g O2/g glucose. Compare the thermodynamic ceiling and
+    NREL's cellulase yield of 0.24 g/g. Protein assumed 100% secreted; a separate 2% cell-death
+    reaction converts biomass to debris/HCP/nucleic acids.
+
+- key: ova_fedbatch_phase_durations_intelligen2025
+  value: 108
+  unit: h (36 growth + 72 expression)
+  grade: B
+  host: kphaffii
+  source: "Intelligen Inc., Production of Recombinant Ovalbumin (SuperPro Designer example), 2025"
+  doi_or_url: Intelligen_2025_ovalbumin_TEA.txt
+  locator: "Fermentation section"
+  quote: "During the growth phase, which lasts 36 h, the yeast grows on a defined medium based on glucose"
+  read: fulltext
+  note: >
+    36 h growth (1.2 VVM) + 72 h methanol-induced expression (1.6 VVM) = 108 h fermentation;
+    overall plant batch time 196 h (8.2 days). 30 degC, pH 5, 30% w/w aqueous ammonia for pH and
+    nitrogen, 136 m3 stirred-tank fermentors starting at 41,523 L working volume. Glucose is
+    co-fed during induction; methanol is only the inducer.
+
+- key: ova_final_broth_state_intelligen2025
+  value: 92
+  unit: g DCW/L
+  grade: B
+  host: kphaffii
+  source: "Intelligen Inc., Production of Recombinant Ovalbumin (SuperPro Designer example), 2025"
+  doi_or_url: Intelligen_2025_ovalbumin_TEA.txt
+  locator: "Fermentation section (end of main fermentation)"
+  quote: "the rOvalbumin concentration is 30 g/L. A large amount of biomass is also produced-92 g/L on a dry basis."
+  read: fulltext
+  note: >
+    Design-basis endpoint: 30 g/L OVA and 92 g DCW/L in 107 m3 of broth, i.e. 0.33 g product per
+    g biomass. The report notes the 30 g/L titer is "relatively modest" and is a main cost driver;
+    it cites an EVERY patent for up to 30 g/L and an Onego Bio claim of up to 120 g/L in
+    250,000 L fermentors (both company claims, grade C).
+
+- key: ova_onego_titer_claim_via_intelligen2025
+  value: 120
+  unit: g/L
+  grade: C
+  host: kphaffii
+  source: "Intelligen Inc. 2025, citing Onego Bio company material"
+  doi_or_url: Intelligen_2025_ovalbumin_TEA.txt
+  locator: "Background section, reference [26]"
+  quote: "Onego Bio, on the other hand, reports that their platform can reach titers of up to 120 g/L in 250,000 L fermentors, also using glucose as the main carbon source"
+  read: fulltext
+  note: >
+    COMPANY CLAIM, unverified, reported second-hand. Onego's OVA is made in T. reesei (VTT
+    lineage, cf. Aro 2023), so if true this is a T. reesei number, not K. phaffii. A 120 g/L
+    secreted food protein would be at the level of industrial cellulase titers. Use only in the
+    `industry` scenario and never in `academic`.
+
+# ---------------------------------------------------------------------------
+# 6. T. reesei — yields, productivity, composition
+# ---------------------------------------------------------------------------
+
+- key: treesei_native_protein_titer_100gL_cherry2003
+  value: 100
+  unit: g/L
+  grade: A
+  host: treesei
+  source: "Nevalainen H, Peterson R. Front Microbiol 5:75 (2014), citing Cherry & Fidantsef, Curr Opin Biotechnol 14:438-443 (2003)"
+  doi_or_url: 10.3389/fmicb.2014.00075
+  locator: "Introduction"
+  quote: "current industrial production strains are well capable of secreting of the order of 100 g/L homologous proteins into the cultivation medium under optimized fermentation conditions."
+  read: html
+  note: >
+    THE canonical 100 g/L claim, traced. Cherry & Fidantsef 2003 is the primary and is paywalled
+    (no open copy found); three independent secondary sources restate it - this one, Landowski
+    2015 ("over 100 g per liter"), and Ellila 2017 ("in excess of 100 g/l"), all citing Cherry &
+    Fidantsef. HOMOLOGOUS (native cellulase) protein only. Read via PMC3936196.
+
+- key: treesei_heterologous_titer_gap_nevalainen2014
+  value: 0.15
+  unit: g/L
+  grade: A
+  host: treesei
+  source: "Nevalainen H, Peterson R. Front Microbiol 5:75 (2014)"
+  doi_or_url: 10.3389/fmicb.2014.00075
+  locator: "Introduction"
+  quote: "published yields for antibodies produced in filamentous fungi are of the order of 0.15 g/L of a CBHI-Fab fusion antibody for T. reesei."
+  read: html
+  note: >
+    THE key caveat on the 100 g/L number: heterologous (non-fungal) proteins are 2-3 orders of
+    magnitude below native cellulases. BLG and OVA are heterologous. Aro 2023's 1-2 g/L is an
+    order of magnitude above this 1993-era antibody figure but still ~50x below native cellulase.
+
+- key: treesei_optimal_mu_for_secretion_pakula2005
+  value: 0.031
+  low: 0.022
+  high: 0.033
+  unit: 1/h
+  grade: A
+  host: treesei
+  source: "Pakula TM, Salonen K, Uusitalo J, Penttila M. Microbiology 151:135-143 (2005)"
+  doi_or_url: 10.1099/mic.0.27458-0
+  locator: "Abstract"
+  quote: "Secreted proteins were produced most efficiently at low specific growth rates, 0.022-0.033 h(-1), the highest specific rate of total protein production being 4.1 mg g(-1) h(-1) at the specific growth rate 0.031 h(-1)."
+  read: abstract
+  note: >
+    THE T. reesei analogue of the K. phaffii bell-shaped q_P(mu): secretion is best at LOW mu,
+    with an optimum near 0.03 1/h. Lactose-limited chemostats. Gives an explicit, mass-based
+    q_P of 4.1 mg total protein per g biomass per hour - roughly 6x the best K. phaffii q_P found
+    (0.64 mg/g/h, Rebnegger 2024), consistent with T. reesei being the better secretor.
+
+- key: treesei_extracellular_protein_fraction_pakula2005
+  value: 29
+  low: 6
+  high: 29
+  unit: "% of protein produced that is extracellular"
+  grade: A
+  host: treesei
+  source: "Pakula TM, Salonen K, Uusitalo J, Penttila M. Microbiology 151:135-143 (2005)"
+  doi_or_url: 10.1099/mic.0.27458-0
+  locator: "Abstract"
+  quote: "At low specific growth rates, up to 29 % of the proteins produced were extracellular, in comparison to only 6-8 % at high specific growth rates, 0.045-0.066 h(-1)."
+  read: abstract
+  note: >
+    Quantifies the growth/secretion trade-off: running fast wastes 90%+ of synthesised protein on
+    biomass. Also shows secretion capacity (not synthesis) becomes limiting at low mu, with UPR
+    genes pdi1, bip1 and hac1 induced.
+
+- key: treesei_highest_sppr_at_low_D_arvas2011
+  value: 0.03
+  unit: 1/h
+  grade: A
+  host: treesei
+  source: "Arvas M, Haiminen N, Smit B, et al. BMC Genomics 12:616 (2011)"
+  doi_or_url: 10.1186/1471-2164-12-616
+  locator: "Background"
+  quote: "highest specific extracellular protein production rates for T.reesei have been detected at a relatively low specific growth rate of D = 0.03 h-1"
+  read: html
+  note: >
+    Independent confirmation of Pakula's optimum. Their own chemostats ran Rut-C30 at D = 0.03 and
+    0.06 1/h on 10 g/L lactose, plus 0.03 1/h on 40 g/L lactose (high density); the high-density
+    run had the highest dry weight and the LOWEST specific protein production rate - a caution
+    that cell density and specific productivity trade off. Read via PMC3266662.
+
+- key: treesei_total_protein_9day_fermentation_landowski2015
+  value: 23
+  unit: g/L
+  grade: A
+  host: treesei
+  source: "Landowski CP, Huuskonen A, Wahl R, et al. PLoS ONE 10:e0134723 (2015)"
+  doi_or_url: 10.1371/journal.pone.0134723
+  locator: "Results (M44 fed-batch characterisation)"
+  quote: "The supernatant from 9 days of cultivation contained 23 g/L total protein."
+  read: html
+  note: >
+    10 L fermenter, Trichoderma minimal medium + 20 g/L spent grain extract + 60 g/L lactose,
+    pH 5.5, 28 degC, 9 days. A realistic academic-scale T. reesei total secreted protein and
+    batch time (216 h). Protease deletion (up to 7 proteases) cut protease activity to 4% of the
+    parent and raised total protein ~22% - relevant to whether BLG/OVA survive in the broth.
+    Read via PMC4550459.
+
+- key: treesei_enzyme_yield_on_sugar_ellila2017
+  value: 0.21
+  unit: g enzyme protein/g carbon source
+  grade: A
+  host: treesei
+  source: "Ellila S, Fonseca L, Uchima C, et al. Biotechnol Biofuels 10:30 (2017)"
+  doi_or_url: 10.1186/s13068-017-0717-0
+  locator: "Table 1, row 'This study'"
+  quote: "83% Soybean hulls, 17% sugarcane molasses ... Enzyme yield from C-source (g/g) ... 0.21"
+  read: html
+  note: >
+    TABLE ROW. Table 1 compares three processes on identical metrics: Humbird/NREL 2011 (glucose,
+    0.24 g/g, 50 g/L, 0.42 g/L/h), Klein-Marcuschamer 2012 (steam-exploded poplar, 0.13 g/g,
+    46 g/L, 0.24 g/L/h) and this study (0.21 g/g, 30.6 g/L, 0.26 g/L/h). This is the best
+    like-for-like protein-on-sugar yield comparison found. Read via PMC5289010.
+
+- key: treesei_highest_titer_ellila2017
+  value: 37.3
+  unit: g/L
+  grade: A
+  host: treesei
+  source: "Ellila S, Fonseca L, Uchima C, et al. Biotechnol Biofuels 10:30 (2017)"
+  doi_or_url: 10.1186/s13068-017-0717-0
+  locator: "Results (strain VTT-BR-C0022), Fig. 9b"
+  quote: "37.3 g/l in 183 h (0.20 g/l h) when combined with soybean hulls"
+  read: html
+  note: >
+    3.0 L water-jacketed vessels, molasses fed 72-168 h at 0.5 g/L/h. Alternative run: 34.1 g/L in
+    214 h (0.16 g/L/h) on molasses alone. Academic-scale cellulase titers are 30-37 g/L over
+    7-9 days, an order of magnitude below the "100 g/L" industrial claim.
+
+- key: treesei_enzyme_design_basis_nrel2011
+  value: 0.24
+  unit: kg enzyme protein/kg glucose
+  grade: B
+  host: treesei
+  source: "Humbird D, Davis R, Tao L, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: NREL_2011_Humbird_TP-5100-47764_biochemical_ethanol.txt
+  locator: "Table 18, Area 400 Guiding Design Basis Assumptions"
+  quote: "Enzyme titer at harvest 50 g/L   Mass yield of enzyme from glucose 0.24 kg enzyme/kg glucose   Enzyme production cycle time 120 h online, 48 h offline, 168 h total"
+  read: fulltext
+  note: >
+    THE design-basis anchor for a T. reesei-analogue protein process at commercial scale. 300 m3
+    vessels (H/D 2, 11.5 m x 5.75 m, 316SS, 28 degC, 1 atm, 800 hp agitator), fed-batch from 50%
+    to 80% working volume, 24 h growth + 96 h production + 48 h turnaround per week. NOTE the
+    yield is an OUTPUT of their stoichiometry, not an input.
+
+- key: treesei_carbon_selectivity_nrel2011
+  value: 31
+  unit: "% molar selectivity of glucose to protein"
+  grade: B
+  host: treesei
+  source: "Humbird D, Davis R, Tao L, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: NREL_2011_Humbird_TP-5100-47764_biochemical_ethanol.txt
+  locator: "Section 3.4.2, Design Basis"
+  quote: "This represents an overall molar selectivity of glucose to 31% protein, 4% cell mass, and 65% CO2, yielding 0.24 kg enzyme protein/kg glucose."
+  read: fulltext
+  note: >
+    The full carbon split. Two-thirds of the glucose carbon is burned to CO2 to pay for the
+    protein synthesis - the single most important stoichiometric fact for a PF cost model. In the
+    production bioreactors 90% of the carbon goes via the protein reaction and 10% via cell mass;
+    in the seed reactors 85% via cell mass and 5% via protein.
+
+- key: treesei_cellmass_and_protein_formulas_nrel2011
+  value: null
+  unit: elemental formula
+  grade: B
+  host: treesei
+  source: "Humbird D, Davis R, Tao L, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: NREL_2011_Humbird_TP-5100-47764_biochemical_ethanol.txt
+  locator: "Section 3.4.2 (p.37-38); component property table (p.110-111)"
+  quote: "Cellulase protein: CH1.59N0.24O0.42S0.01   T. reesei cell mass: CH1.645O0.445N0.205S0.005"
+  read: fulltext
+  note: >
+    Cellulase composition supplied by Novozymes; T. reesei cell mass taken as the average of a
+    generic cell mass and the enzyme composition (MW 23.8204, dHf -23200 cal/mol). For comparison
+    the same table gives Z. mobilis cell mass as the textbook CH1.8O0.5N0.2 (MW 24.6264) and
+    wheat-gliadin PROTEIN as CH1.57O0.31N0.29S0.007. Use the enzyme formula for a secreted food
+    protein only as an approximation - BLG and OVA have their own sequences.
+
+- key: treesei_our_design_nrel2011
+  value: 56
+  unit: mmol O2/L/h
+  grade: B
+  host: treesei
+  source: "Humbird D, Davis R, Tao L, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: NREL_2011_Humbird_TP-5100-47764_biochemical_ethanol.txt
+  locator: "Section 3.4.2, Design Basis"
+  quote: "The total oxygen demand for one bioreactor producing 12,000 kg protein in 120 hours online is 8.4 kmol/h. At its maximum (i.e., at the initial working volume of 50%), the OUR is 56 mmol/L-h."
+  read: fulltext
+  note: >
+    THE reality check on scale: a 300 m3 commercial protein fermenter is designed around
+    56 mmol O2/L/h, versus the 200-300 mmol/L/h measured in small K. phaffii methanol inductions.
+    OTR was set equal to OUR, with kLa from a non-Newtonian fungal correlation (kLa = 8.42
+    (P/V)^0.4 vg^0.5, valid to 30 m3 - NREL notes their vessels exceed that range). DO held at
+    30% of saturation; Henry's coefficient taken as 1 atm/(mmol/L).
+
+- key: treesei_volumetric_productivity_nrel2011
+  value: 0.30
+  unit: g protein/L/h
+  grade: B
+  host: treesei
+  source: "Humbird D, Davis R, Tao L, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: NREL_2011_Humbird_TP-5100-47764_biochemical_ethanol.txt
+  locator: "Section 3.4.2, Design Basis"
+  quote: "one bioreactor is capable of producing 12,000 kg of protein in a week, or 71.4 kg/h (157 lb/h). The equivalent enzyme volumetric productivity is 0.30 g protein/L-h."
+  read: fulltext
+  note: >
+    0.30 g/L/h INCLUDING the 48 h turnaround (0.42 g/L/h on the 120 h online basis, as quoted in
+    Ellila's Table 1). Nine 300 m3 reactors plus four seed trains (0.3/3/30 m3) deliver 490 kg/h
+    of protein. Nutrients: ammonia ~7 g/L, SO2 ~0.6 g/L, CSL 1% w/w, corn oil antifoam.
+    Electricity 5,340 kW for Area 400 (1,408 air compressor, 2,326 agitators, 1,587 chiller).
+
+- key: treesei_biomass_macromolecular_composition_castillo2016
+  value: 5.1
+  unit: "% ash of dry weight"
+  grade: A
+  host: treesei
+  source: "Castillo S, Barth D, Arvas M, et al. Biotechnol Biofuels 9:252 (2016)"
+  doi_or_url: 10.1186/s13068-016-0665-0
+  locator: "Table 2, The macromolecular composition of T. reesei"
+  quote: "Proteins: 45.100% (w/w) ... Carbohydrates: 23.190% ... RNA: 6.122% ... DNA: 0.912% ... Lipids: 4.176% ... Ash: 5.100%"
+  read: html
+  note: >
+    TABLE ROWS - re-check against the PDF. Biomass equation of the whole-genome T. reesei metabolic
+    model. Ash 5.1% (vs ~7% for K. phaffii); protein 45.1% w/w, higher than K. phaffii's ~35-40%.
+    Components sum to ~84.6%, so the table is incomplete as quoted. Read via PMC5117618.
+
+- key: treesei_po_ratio_castillo2016
+  value: 1
+  unit: mol ATP/mol O (assumed)
+  grade: B
+  host: treesei
+  source: "Castillo S, Barth D, Arvas M, et al. Biotechnol Biofuels 9:252 (2016)"
+  doi_or_url: 10.1186/s13068-016-0665-0
+  locator: "Methods: Reconstruction of T. reesei metabolic model"
+  quote: "Finally, the P/O ratio was set to 1 by coupling ATP production to the reduction of oxygen in the electron transport chain adding two reactions."
+  read: html
+  note: >
+    MODELLING ASSUMPTION, not a measurement - hence grade B. A P/O of 1 is low (textbook
+    mitochondrial values are 2-3); the authors set it as a constraint. Do not use this as a
+    physiological P/O for T. reesei; it is the model's coupling parameter.
+
+- key: treesei_blg_ova_titers_aro2023
+  value: 2
+  low: 1
+  high: 2
+  unit: g/L
+  grade: A
+  host: treesei
+  source: "Aro N, Ercili-Cura D, Andberg M, et al. Food Res Int 163:112131 (2023)"
+  doi_or_url: 10.1016/j.foodres.2022.112131
+  locator: "Abstract"
+  quote: "The production level of TrBLG and TrOVA were 1 g/L and 2 g/L, respectively."
+  read: abstract
+  note: >
+    value = OVA (2 g/L), low = BLG (1 g/L). VTT/Onego lineage, T. reesei, two promoter systems,
+    24-well plate and bioreactor scale. The abstract gives NO bioreactor scale, duration, carbon
+    source, biomass concentration or yield on sugar - none of those could be obtained (the VTT
+    CRIS PDF and ScienceDirect both return 403). Both proteins were N-glycosylated (mostly Man5).
+    This is the most defensible academic BLG/OVA number for T. reesei and is already in
+    data/titers.csv; repeated here because it anchors the host comparison.
+
+- key: treesei_blg_harvest_dcw_and_time_perfectday2023
+  value: 35
+  low: 20
+  high: 50
+  unit: g DCW/L
+  grade: B
+  host: treesei
+  source: "Perfect Day US20230106635A1, hypoallergenic beta-lactoglobulin (2023)"
+  doi_or_url: PerfectDay_US20230106635_hypoallergenic-blg.txt
+  locator: "Example, paragraph [0248]"
+  quote: "Fermentations are harvested after at least 120 h, at biomass concentrations of between 20 g and 50 g dry cell weight (DCW) per L."
+  read: fulltext
+  note: >
+    T. reesei BLG process. DCW of 20-50 g/L is 3-5x LOWER than K. phaffii (100-200 g/L) - the
+    filamentous morphology and broth viscosity cap the cell density. Conditions: minimal salts,
+    carbohydrate feedstock, 25-34 degC, 0.2-1 vvm, pH 3.0-5.5 with ammonium hydroxide.
+    Batch time >= 120 h.
+
+- key: treesei_specific_feed_rate_perfectday2023
+  value: 0.1
+  low: 0.01
+  high: 0.1
+  unit: g dry substrate/g DCW/h
+  grade: B
+  host: treesei
+  source: "Perfect Day US20230106635A1 (2023)"
+  doi_or_url: PerfectDay_US20230106635_hypoallergenic-blg.txt
+  locator: "Example, paragraph [0248]"
+  quote: "a solution containing glucose or lactose is added at specific feed rates ranging from 0.01 through 0.1 g dry substrate per gram dry cell mass (DCM) per hour."
+  read: fulltext
+  note: >
+    q_S for the T. reesei BLG process, half the upper bound of the K. phaffii range in the same
+    patent family (0.01-0.2 g/gDCW/h). At Y_XS ~ 0.4-0.5 this corresponds to mu of roughly
+    0.004-0.05 1/h, which brackets Pakula's secretion optimum of 0.03 1/h. Either glucose or
+    lactose is claimed.
+
+# ---------------------------------------------------------------------------
+# 7. Cross-cutting bioenergetics and generic yeast reference values
+# ---------------------------------------------------------------------------
+
+- key: yeast_biomass_formula_humbird2021
+  value: null
+  unit: elemental formula
+  grade: D
+  host: scerevisiae
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021), Appendix A (baker's yeast analysis)"
+  doi_or_url: Humbird2021_cultured_meat.txt
+  locator: "Appendix A"
+  quote: "Yeast cell mass (DCMm , microbial dry cell matter) has a CHON formula of CH1.7 O0.46 N0.17"
+  read: fulltext
+  note: >
+    S. cerevisiae, not K. phaffii - grade D by analogy, but it is the formula used by the model
+    this TEA is calibrating against. Close to Carnicer's measured K. phaffii CH1.761N0.143O0.636.
+    dHf estimated -96.5 kJ/mol (Burnham correlation), dGf -52.7 kJ/mol.
+
+- key: yeast_growth_stoichiometry_humbird2021
+  value: 0.50
+  unit: g DCW/g glucose
+  grade: D
+  host: scerevisiae
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021), Appendix A"
+  doi_or_url: Humbird2021_cultured_meat.txt
+  locator: "Appendix A, reaction (A.6)"
+  quote: "0.26 Glc + 0.51 O2 + 0.17 NH3 -> 1 DCMm + 0.58 CO2 + 0.98 H2O ... This reaction predicts a yield of yeast from glucose of 0.50 g/g."
+  read: fulltext
+  note: >
+    The overall growth+maintenance reaction at mu = 0.2 1/h, derived from a Gibbs-energy
+    dissipation correlation rather than fitted. dH = -265.1 kJ/mol DCMm over 0.51 mol O2 implies
+    ~520 kJ per mol O2 - somewhat above the measured oxycaloric range of 430-480 kJ/mol O2.
+    Humbird notes Reed & Nagodawithana report a best aerobic yield of 0.54 g/g. This is the
+    METHOD the Phase C model is meant to port.
+
+- key: yeast_maintenance_energy_humbird2021
+  value: 7.1
+  unit: kJ/mol DCMm/h
+  grade: D
+  host: scerevisiae
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021), Appendix A"
+  doi_or_url: Humbird2021_cultured_meat.txt
+  locator: "Appendix A, equation (A.5)"
+  quote: "the maintenance energy (m E , kJ/mol DCMm -h) at 30 degC is 7.1 kJ/mol DCMm -h, requiring respiration of 0.0024 mol glucose/mol DCMm -h"
+  read: fulltext
+  note: >
+    From the Tijhuis/Heijnen correlation, with an Arrhenius temperature dependence. Converting:
+    0.0024 mol glucose per mol DCMm per h, at MW(DCMm) = 24.6 g/mol and 180 g/mol glucose, is
+    0.0176 g glucose/g DCW/h - close to Maurer's measured K. phaffii m_S of 0.0161 g/g/h and at
+    the top of the Rebnegger range. Reassuring cross-check between correlation and measurement.
+
+- key: yeast_mu_commercial_limit_humbird2021
+  value: 0.2
+  unit: 1/h
+  grade: D
+  host: scerevisiae
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021), Appendix A"
+  doi_or_url: Humbird2021_cultured_meat.txt
+  locator: "Appendix A"
+  quote: "The native growth rate of S. cerevisiae is mu=0.46/h (90 min doubling time) but in commercial yeast production the growth rate is typically limited to 0.2/h (3.5 h doubling time) to avoid excessive ethanol production"
+  read: fulltext
+  note: >
+    Crabtree constraint for S. cerevisiae. K. phaffii is Crabtree-NEGATIVE (Lv 2025: "avoids
+    high-sugar fermentation and by-product formation under aerobic conditions"), so this
+    particular constraint does not bind for K. phaffii - but its mu_max is only 0.2 1/h anyway,
+    so the practical growth rate ends up similar.
+
+- key: atp_per_peptide_bond
+  value: 4
+  unit: ATP/peptide bond
+  grade: A
+  host: generic
+  source: "Martin WF, et al. Biochim Biophys Acta Bioenerg (2025), 'ATP requirements for growth reveal the bioenergetic impact of mitochondrial symbiosis'"
+  doi_or_url: 10.1016/j.bbabio.2025.149530
+  locator: "Section 1.1, The cost of synthesizing proteins"
+  quote: "The cost assumed for protein synthesis at the ribosome is uncontested, 4 ATP per peptide bond."
+  read: html
+  note: >
+    Breakdown given in the same section: 2 ATP-equivalents from PPi release at aminoacyl-tRNA
+    charging plus 1 GTP each for the two elongation factors. The commonly cited 4.3 ATP/peptide
+    bond (Stouthamer 1973) adds mRNA turnover and proofreading; I could NOT read Stouthamer 1973
+    (only a scanned PDF was available), so 4.3 is NOT sourced here - use 4 and flag the
+    difference, or re-read Stouthamer. The same paper states peptide-bond synthesis is 61% of
+    the cell's total ATP expenditure. Read via PMC7617979.
+
+- key: oxycaloric_equivalent
+  value: 455
+  low: 430
+  high: 480
+  unit: kJ/mol O2
+  grade: A
+  host: generic
+  source: "von Stockar U, Maskow T, Liu J, et al. Microb Biotechnol 3:...(2010), 'What heat is telling us about microbial conversions'"
+  doi_or_url: 10.1111/j.1751-7915.2009.00121.x
+  locator: "p.278, section 'The additional benefit of calorespirometric ratios'"
+  quote: "This ratio (rq/rO2) is called the oxycaloric equivalent ... and usually attains values between -430 and -480 kJ mol-O2-1 with an averaged value of -455 +/- 15 kJ mol-O2-1"
+  read: html
+  note: >
+    THE conversion from oxygen uptake to cooling duty: metabolic heat ~= 455 kJ per mol O2
+    consumed, nearly independent of substrate. Combined with an OUR, this gives the cooling load
+    directly. Sanity check: at NREL's design OUR of 56 mmol O2/L/h this is 7.1 W per litre of
+    broth, i.e. ~2.1 MW of cooling for a 300 m3 vessel. Read via PMC3815370.
+
+- key: kphaffii_po_ratio_chung2010
+  value: 1.48
+  unit: mol ATP/mol O
+  grade: B
+  host: kphaffii
+  source: "Chung BKS, Selvarasu S, Andrea C, et al. Microb Cell Fact 9:50 (2010)"
+  doi_or_url: 10.1186/1475-2859-9-50
+  locator: "Methods (model constraints)"
+  quote: "P/O ratio (1.48 mol ATP/mol O) based on previous studies"
+  read: html
+  note: >
+    MODEL PARAMETER taken from earlier work, not measured here - hence grade B. K. phaffii does
+    possess a proton-pumping Complex I (unlike S. cerevisiae), which is why a P/O near 1.5 rather
+    than ~1.0 is plausible. Same paper gives NGAM 2.3 mmol ATP/gDCW/h on glucose (vs
+    Tomas-Gamisans' 2.51 on glycerol). I could NOT find a directly MEASURED P/O ratio for either
+    K. phaffii or T. reesei. Read via PMC2908565.
+
+# ---------------------------------------------------------------------------
+# 8. Industry / third-party TEA benchmarks (grade B-C)
+# ---------------------------------------------------------------------------
+
+- key: pf_titer_yield_benchmarks_gfi2025
+  value: 24
+  unit: g/L (public-model average titer)
+  grade: C
+  host: generic
+  source: "Good Food Institute, Driving down costs of fermentation-enabled products (June 2025)"
+  doi_or_url: GFI_2025_driving_down_costs_fermentation.txt
+  locator: "Table 2, Comparing PF production volume and process metrics between public and private data"
+  quote: "Titer g/L 24 (average) 42 (average)   Yield on feedstock g/g 0.01-0.20 0.03-0.17"
+  read: fulltext
+  note: >
+    TABLE ROWS. Precision fermentation only. Public TEA models average 24 g/L and 0.01-0.20 g/g
+    on feedstock; private-sector models average 42 g/L and 0.03-0.17 g/g. Both are fed-batch.
+    The Intelligen OVA design basis (30 g/L, 0.28 g/g) sits above the public titer average and
+    ABOVE the top of both yield ranges - a discrepancy worth resolving in calibration.
+
+- key: scp_yeast_benchmark_gfi2025_hawkwood
+  value: 0.47
+  low: 0.45
+  high: 0.50
+  unit: g biomass/g glucose
+  grade: C
+  host: scerevisiae
+  source: "Good Food Institute, Driving down costs (June 2025), Hawkwood FEL-1 TEMs"
+  doi_or_url: GFI_2025_driving_down_costs_fermentation.txt
+  locator: "Table 4, Modeled production and fermentation metrics from Hawkwood FEL-1 TEMs"
+  quote: "Yield g/g 0.45 0.50 0.47   Titer g/L 100 150 142"
+  read: fulltext
+  note: >
+    TABLE ROWS: lower bound / upper bound / hypothetical commercial case. SINGLE-CELL PROTEIN
+    (biomass), budding yeast or microalgae on corn glucose (DE95), Midwest USA, aerobic fed-batch,
+    18,000-48,000 MTa. Not precision fermentation - the "titer" is biomass, not secreted protein.
+    Recorded because it independently brackets yeast Y_X/S at 0.45-0.50 g/g and cell density at
+    100-150 g/L, matching the academic K. phaffii values. Their sensitivity table gives a base
+    batch time of 57 h (swept 43-71 h) and protein content 50-57% of dry weight.
+
+- key: recombinant_protein_conversion_voutilainen2021
+  value: 0.2
+  unit: g/g (each of biomass and protein on sugar)
+  grade: B
+  host: treesei
+  source: "Voutilainen E, Pihlajaniemi V, Parviainen T. Bioresour Technol Rep 14:100683 (2021)"
+  doi_or_url: Voutilainen2021_scp_lignocellulose_economics.txt
+  locator: "Section 2.1.3, Recombinant protein production"
+  quote: "The biomass and protein conversions from sugars were assumed to be equal, 0.2 for the recombinant protein process and the initial sugar concentration in the recombinant protein fed-batch fermentation was 200 g/L"
+  read: fulltext
+  note: >
+    DESIGN ASSUMPTION for a "microbial egg protein" process built on VTT data and NREL's Area 400
+    cellulase process, explicitly because "the production host is the same and the product
+    similar". 0.2 g protein/g sugar is below NREL's 0.24 and Ellila's 0.21. Seed train
+    0.3/3/30 m3 into 300 m3 main fermenters; continuous antifoam; NH4OH for nitrogen and pH, with
+    nitrogen demand computed as protein/6.25. This is calibration anchor 4 in PLAN.md.
+
+- key: scp_biomass_conversions_voutilainen2021
+  value: 0.5
+  low: 0.31
+  high: 0.5
+  unit: g biomass/g sugar
+  grade: B
+  host: generic
+  source: "Voutilainen E, Pihlajaniemi V, Parviainen T. Bioresour Technol Rep 14:100683 (2021)"
+  doi_or_url: Voutilainen2021_scp_lignocellulose_economics.txt
+  locator: "Section 2.1.2, SCP production"
+  quote: "assuming 90% utilization of the whole sugar content in the broth, with biomass conversions of 0.5 (Forss et al., 1986), 0.31 (Angenent and Molitor, 2019), 0.37 (Harris, 1949) for Pekilo, Fusarium, and Torula, respectively."
+  read: fulltext
+  note: >
+    Three single-cell-protein organisms on lignocellulosic hydrolysate: Paecilomyces (Pekilo) 0.5,
+    Fusarium 0.31, Candida utilis (Torula) 0.37 g/g. Sugar in the SCP fermentations set at 50 g/L,
+    90% utilisation, plus a 30% biomass loss for RNA reduction to reach food grade. Useful only as
+    a cross-organism sanity band on Y_X/S; different organisms and substrates - grade B/D.
+
+# ---------------------------------------------------------------------------
+# 9. BLG- and OVA-specific host numbers
+# ---------------------------------------------------------------------------
+
+- key: blg_titer_esprit_methanol_free_li2026
+  value: 5.14
+  unit: g/L
+  grade: A
+  host: kphaffii
+  source: "Li Y, Yang J, Tao L, Liu Q, Zheng Y, Cai M. Metab Eng (2026)"
+  doi_or_url: 10.1016/j.ymben.2026.102555
+  locator: "abstract"
+  quote: "In the bioreactor, the ESPRIT system produced 5.14 g/L beta-lactoglobulin and 1.95 g/L brazzein on glucose, achieving 3.0-fold and 1.9-fold as compared to the commercial methanol-dependent PAOX1 system"
+  read: abstract
+  note: >
+    Highest verifiable ACADEMIC BLG titer in K. phaffii, and it is METHANOL-FREE (glucose). The
+    3.0x factor means the same strain under P_AOX1/methanol gave ~1.7 g/L - direct evidence that
+    methanol-free is no longer a titer penalty for BLG. The abstract gives no bioreactor scale,
+    duration, DCW or yield on glucose: those could not be obtained (no open full text found).
+    Abstract retrieved via Europe PMC (core result for DOI 10.1016/j.ymben.2026.102555).
+
+- key: blg_titer_highest_yao2026
+  value: 13.88
+  unit: g/L
+  grade: A
+  host: kphaffii
+  source: "Yao C, Zhu H, An Q, Zhang M, Zheng Y, Cai M. Food Biosci 82:109383 (2026)"
+  doi_or_url: 10.1016/j.fbio.2026.109383
+  locator: "bibliographic record only"
+  quote: null
+  read: abstract
+  note: >
+    NO QUOTE OBTAINED - do not use the 13.88 g/L number yet. Crossref, OpenAlex and Semantic
+    Scholar all return the record (title "Omics-guided global rewiring of yeast metabolism enables
+    high-level production of beta-lactoglobulin", Food Bioscience 82:109383, published 2026-06-30,
+    authors Yao, Zhu, An, Zhang, Zheng, Cai) but NONE carries an abstract, and ScienceDirect
+    returns 403. The 13.88 g/L figure circulating in web summaries is therefore UNVERIFIED here.
+    Same group as Li 2026 (Cai M, ECUST). Needs institutional access.
+
+- key: blg_carbon_yield_aoryzae_nielsen2025
+  value: 70
+  unit: "% carbon yield"
+  grade: A
+  host: aoryzae
+  source: "Nielsen MB, Meyer AS, Hansen K, Arnau J. Ind Biotechnol (2025)"
+  doi_or_url: 10.1177/15509087251398318
+  locator: "abstract, as displayed on the DTU Orbit record"
+  quote: "The optimal production yield, representing a protein production increase of almost 80% and a carbon yield above 70%, was achieved at pH 6.9, 36 degC, and a carbon-input of 1.23x."
+  read: abstract
+  note: >
+    Aspergillus oryzae (21st.BIO / Novonesis industrial host), NOT one of this TEA's two hosts -
+    so grade A but off-host. A ">70% carbon yield" for BLG is far above any titer-based yield in
+    this file and is the most optimistic protein-on-carbon number found; it is a CARBON yield
+    (C in product / C in feed), not a mass yield, so it is not directly comparable to 0.21-0.28
+    g/g. No titer, duration or biomass is given in the abstract; the Sage full text returns 403.
+    The strain is stated to have made registration batches for a US FDA GRAS notice.
+
+- key: blg_ova_host_comparison_summary
+  value: null
+  unit: null
+  grade: E
+  host: generic
+  source: "this file (cross-entry synthesis), not a source"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html
+  note: >
+    NAVIGATION ENTRY, not evidence - grade E deliberately so it can never be promoted. Best
+    current BLG/OVA titers by host, from the entries above and data/titers.csv:
+    K. phaffii BLG 5.14 g/L (Li 2026, glucose, methanol-free, quoted) and possibly 13.88 g/L
+    (Yao 2026, UNQUOTED); T. reesei BLG 1 g/L and OVA 2 g/L (Aro 2023, quoted);
+    K. phaffii ovomucoid 30.19 g/L (Every patent, in titers.csv); design basis 30 g/L OVA
+    (Intelligen); company claim 120 g/L OVA (Onego, via Intelligen).
+    NO published paper found reports g product per g sugar, q_p, cell density or batch time for
+    BLG or OVA specifically in either host. Every protein-on-sugar yield in this file is for
+    cellulase (0.21-0.24 g/g), a generic egg protein design basis (0.2-0.28 g/g), or a carbon
+    yield for A. oryzae (>70% C). That gap is the single largest evidence hole for Phase C.
+
+# ---------------------------------------------------------------------------
+# 10. Sought but NOT found (recorded so the gap is explicit)
+# ---------------------------------------------------------------------------
+
+- key: gap_treesei_mumax
+  value: null
+  unit: 1/h
+  grade: E
+  host: treesei
+  source: null
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html
+  note: >
+    NOT FOUND with a quotable primary source. Chemostats in Pakula 2005 and Arvas 2011 ran only to
+    D = 0.066 1/h without reporting washout, so those give a LOWER BOUND of mu_max >= 0.066 1/h on
+    lactose, not mu_max itself. A web summary reported 0.10 1/h on excess glucose but I could not
+    open the underlying paper, so it is not recorded. Castillo 2016's model SIMULATED 0.09 1/h on
+    glucose, which is a model output, not a measurement. Get a primary batch-culture mu_max before
+    Phase C uses one.
+
+- key: gap_treesei_maintenance_coefficient
+  value: null
+  unit: g substrate/g DCW/h
+  grade: E
+  host: treesei
+  source: null
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html
+  note: >
+    NOT FOUND. No m_s or m_O2 value for T. reesei could be sourced with a quote. Arvas 2011
+    describes yields qualitatively only ("D06 cultivations had ... on average the highest yield of
+    biomass") and gives no absolute g/g or g/g/h numbers in the text I could read. Options: derive
+    from the NREL stoichiometry, or use the K. phaffii range (0.002-0.029 g/g/h) as a grade-D
+    analogy and say so.
+
+- key: gap_treesei_biomass_yield_on_sugar
+  value: null
+  unit: g DCW/g sugar
+  grade: E
+  host: treesei
+  source: null
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html
+  note: >
+    NOT FOUND as a measured value. The only handles are indirect: NREL assumes 4% molar carbon
+    selectivity to cell mass in the production stage, and the Perfect Day patent implies a
+    harvest density of 20-50 g DCW/L. Voutilainen assumes 0.2 g/g for BOTH biomass and protein.
+    A measured Y_X/S for T. reesei on glucose or lactose is still missing.
+
+- key: gap_o2_and_heat_per_g_methanol
+  value: null
+  unit: g O2/g methanol
+  grade: E
+  host: kphaffii
+  source: null
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html
+  note: >
+    NOT FOUND as a directly quoted number. Available surrogates in this file: (a) the specific
+    oxygen uptake ratio methanol:glycerol of 8.22:2.04 mmol/gDCW/h at D = 0.1 1/h
+    (Tomas-Gamisans, table cell); (b) Y_XS methanol = 0.40 g/g, which with an elemental balance
+    gives the O2 demand but requires a derivation Pablo should check; (c) the relative statement
+    that methanol/sorbitol co-feeding cuts O2 use by up to 30%. Full oxidation of methanol is
+    1.5 mol O2/mol = 1.5 g O2/g, so the true value lies between ~0.9 and 1.5 g O2/g methanol
+    depending on how much carbon goes to biomass. DERIVE IT EXPLICITLY in Phase C rather than
+    quoting a number here.
+
+- key: gap_atp_per_peptide_bond_4point3
+  value: null
+  unit: ATP/peptide bond
+  grade: E
+  host: generic
+  source: "Stouthamer AH. Antonie van Leeuwenhoek 39:545-565 (1973)"
+  doi_or_url: 10.1007/BF02578899
+  locator: null
+  quote: null
+  read: html
+  note: >
+    NOT READ. The widely quoted 4.3 ATP per peptide bond traces to Stouthamer 1973, which is
+    available only as a scanned PDF whose text layer could not be extracted (JBIG2 artefacts), and
+    the task forbids downloading files. The uncontested ribosomal cost of 4 ATP per peptide bond
+    IS sourced (see atp_per_peptide_bond). Use 4, or obtain Stouthamer 1973 through the library
+    before using 4.3.
+
+- key: gap_kphaffii_measured_po_ratio
+  value: null
+  unit: mol ATP/mol O
+  grade: E
+  host: kphaffii
+  source: null
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html
+  note: >
+    NOT FOUND as a measurement. Only model parameters exist: 1.48 mol ATP/mol O (Chung 2010,
+    "based on previous studies") for K. phaffii and 1 (Castillo 2016, set as a constraint) for
+    T. reesei. Neither the iMT1026 v3.0 paper nor the K. phaffii reviews read here state a
+    measured P/O. The claim that K. phaffii has a proton-pumping Complex I (and so a higher P/O
+    than S. cerevisiae) was NOT verified against a source in this pass - do not assert it without
+    one. A measured Complex-I P/O exists for the related methylotroph Ogataea parapolymorpha
+    (Appl Environ Microbiol 2020, PMC7376551) and would be the best grade-D analogy.

@@ -1,0 +1,48 @@
+# Calibration anchor 2: NREL 2011 on-site cellulase (humbird2011, Area 400, printed pp.36-42).
+# Only the anchor's own PROCESS inputs, prices, cost year and financing are set here. The
+# model's structure (equipment cost curves, installation factors, labour model, maintenance and
+# insurance fractions) stays as in data/pf/base.yaml. Money in 2007 US$.
+source: "Humbird D, Davis R, Tao L, et al. NREL/TP-5100-47764 (2011)"
+cost_year: 2007
+target:
+  usd_per_kg_protein: {value: 4.24, loc: "p.41: 'works out to $4.24/kg protein'"}
+  glucose_kg_per_kg: {value: 4.17, loc: "Table 18: 0.24 kg enzyme/kg glucose (1/0.24)"}
+  electricity_kWh_per_kg: {value: 9, loc: "Table 21: 9 kWh/kg"}
+  o2_mol_per_kg: {value: 84, loc: "p.38: 8.4 kmol/h for 12,000 kg in 120 h online"}
+  area400_installed_2007usd: {value: 18300000, loc: "Table 28 (p.61) Area 400 installed cost"}
+  tolerance: 0.20
+delivered_fraction: {value: 0.909, loc: "p.37: 10% extra produced for the sophorose slipstream; $/kg is per kg delivered"}
+overrides:
+  plant.product: cellulase
+  plant.spec: crude
+  plant.annual_target_protein_t: 4533      # 490 kg/h x 1.1 x 8,410 h (p.37; Table 33 on-stream)
+  plant.operating_days: 350.4              # 8,410 h
+  strain.host: treesei
+  strain.titer_g_L: 50                     # Table 18
+  strain.t_prod_h: 96                      # p.37: 96 h production period
+  strain.X_prod_g_L: 6.6                   # 4% of glucose carbon to cells (p.38) -> ~6.6 g/L
+  strain.mu_prod_per_h: 0.0
+  strain.Y_ps_g_g: 0.27                    # 90% of carbon via the protein reaction, 0.24 overall
+  strain.X0_g_L: 0.6                       # 24 h growth period (p.37)
+  hosts.treesei.maint_factor: 0.0          # NREL stoichiometry has no maintenance term
+  fermenter.volume_m3: 300                 # Table 19
+  fermenter.turnaround_h: 48               # Table 18
+  fermenter.seed_time_h: 24
+  media.salts_kg_per_m3: 14.3              # Table 20: CSL 1% + salts ~4.3 g/L
+  media.salts_price_usd_kg: 0.10
+  media.antifoam_kg_per_m3: 0.9            # corn oil 0.1% v/v
+  media.antifoam_price_usd_kg: 0.60
+  utilities.glucose_usd_kg: 0.569          # Table 29: $0.2579/lb
+  utilities.electricity_usd_kWh: 0.0572    # p.66: 5.71675 cents/kWh (2007)
+  utilities.ammonia_usd_kg: 0.40
+  utilities.natural_gas_usd_GJ: 6.5
+  utilities.steam_usd_t: 10.0
+  utilities.water_usd_m3: 0.25
+  utilities.wastewater_usd_m3: 0.40
+  labour.operator_salary_usd: 41000        # Humbird $50k (2018) deflated by CPI
+  capital.cost_index_2018_to_2025: 0.8712  # to 2007 on the base index family: CEPCI 525.4/603.1 (prices.yaml; NREL itself uses CEPCI). Humbird's PPI would give 0.7006
+  capital.facility_class: commodity_anaerobic   # outdoor section of an ethanol plant
+  finance.tax_rate: 0.35                   # Table 33
+  finance.dcf_life_y: 30
+  finance.dcf_irr: 0.10
+finance_debt: {debt_frac: 0.6, loan_rate: 0.08, loan_years: 10, loc: "Table 33"}

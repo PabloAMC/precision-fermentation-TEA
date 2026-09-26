@@ -1,0 +1,42 @@
+# Calibration anchor 3: Intelligen 2025 ovalbumin (intelligen_ovalbumin2025; exercise A1).
+# Anchor PROCESS inputs, prices and scale only; model structure unchanged. Money in 2025 US$.
+# Comparison basis: Intelligen's $38.99/kg powder recast into Humbird's capital convention,
+# $43.52/kg powder (docs/exercises/A1_SOLUTION.md step 1.4). Also compared: glucose, electricity, TCI.
+source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Intelligen (2025)"
+cost_year: 2025
+target:
+  usd_per_kg_powder_humbird_convention: {value: 43.52, loc: "A1_SOLUTION 1.4 from Table 2 + Figure 6"}
+  usd_per_kg_powder_superpro: {value: 38.99, loc: "Table 2"}
+  tci_usd: {value: 91996000, loc: "Table 2"}
+  glucose_kg_per_kg_powder: {value: 13.02, loc: "Table 3: 13,021,171 kg glucose syrup / 1,000,000 kg"}
+  electricity_kWh_per_kg_powder: {value: 27.1, loc: "Table 4: 27,077 MWh / 1,000 t"}
+  tolerance: 0.30
+overrides:
+  plant.product: ova
+  plant.spec: isolate
+  plant.annual_target_protein_t: 940.5     # 1,000 t powder x 0.95 dry x 0.99 purity
+  plant.operating_days: 342                # 342 batches x 24 h cycle
+  strain.host: kphaffii
+  strain.titer_g_L: 30                     # p.5
+  strain.t_prod_h: 72                      # p.6 expression phase
+  strain.X_prod_g_L: 83.4                  # 92 g/L at harvest minus cells made during expression
+  strain.mu_prod_per_h: 0.0013             # 917 kg cells made in 72 h on ~8,900 kg (Eq. 2)
+  strain.Y_ps_g_g: 0.28                    # Eq. (2)
+  strain.X0_g_L: 2.0                       # 5% inoculum (p.6)
+  hosts.kphaffii.maint_factor: 0.2         # Eq. (2) lumps maintenance into 0.28 g/g: lowest measured m_s
+  fermenter.volume_m3: 136                 # p.5
+  fermenter.fill_max: 0.787                # 107 m3 of 136 m3 at harvest (p.7)
+  fermenter.turnaround_h: 12               # 5 fermenters, 24 h cycle, 108 h culture
+  fermenter.seed_time_h: 15                # p.6
+  dsp.uf_end_g_L: 50                       # p.8
+  dsp.diafiltration_volumes: 0             # no DF step in the Intelligen train (precipitation instead)
+  dsp.isolate_target_frac_dry: 0.99        # p.9
+  media.salts_kg_per_m3: 38.0              # Table 1
+  media.salts_price_usd_kg: 0.20           # Table 3
+  media.methanol_kg_per_kg_product: 0.30   # Table 3: 280 t per 940 t OVA
+  utilities.glucose_usd_kg: 0.36           # Table 3
+  utilities.electricity_usd_kWh: 0.090     # Table 4
+  utilities.ammonia_usd_kg: 0.507          # Table 3: NH3 (30%) $0.152/kg
+  utilities.steam_usd_t: 20.0              # Table 4
+  utilities.water_usd_m3: 3.0              # Table 3 'Water' $3/t
+  capital.cost_index_2018_to_2025: 1.33    # our base index (Intelligen reports 2025 prices)

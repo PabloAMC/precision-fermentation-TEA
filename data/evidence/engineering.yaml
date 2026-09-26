@@ -1,0 +1,1365 @@
+# data/evidence/engineering.yaml — Phase B evidence: FERMENTER TRANSPORT PHYSICS AND SCALE LIMITS
+# (oxygen transfer, vessel size, heat of fermentation, heat removal, kLa correlations,
+#  aeration power and cost, O2 solubility, K. phaffii at scale).
+# Research output 2026-09-26. Format and grades: see README.md in this folder.
+#
+# CONVENTIONS (read before using any value):
+# - read: fulltext = PDF or SI workbook on disk (references/papers|reports, text dumps in
+#   references/text/); html = open-access full text read online (Europe PMC full-text XML,
+#   OUP HTML, Gale Academic OneFile HTML, publisher HTML); abstract = only the abstract was
+#   readable (Europe PMC REST or Semantic Scholar API). No PDF was downloaded for this file.
+# - quote: the source's own words. Normalisations: line breaks, end-of-line hyphenation and
+#   the spaces that pdftotext inserts around sub/superscripts were removed ("O2 /m3 -h" is
+#   written "O2/m3-h"); superscripts lost in the PDF dump are written with ^ (4×10^9).
+#   For tables and spreadsheets the needed cells are joined with " | " in reading order
+#   (other cells may be omitted; nothing inside a cell is changed).
+# - ONLINE QUOTES (read: html/abstract) were extracted with a web-fetch tool that passes the
+#   page through a small language model. Each one was re-requested as "the exact sentence,
+#   first word to final period", and two renderings were compared where they differed, but a
+#   model-mediated quote can still contain a slip. Re-check every html/abstract quote against
+#   the source before it enters data/assumptions.yaml. Quotes read from files on disk
+#   (read: fulltext) were checked directly against the text dump or workbook cell.
+# - value: the number stated by the source, in the source's unit. Range only -> value is
+#   the midpoint and the note says so. Bound only ("up to", "above") -> value is the bound
+#   and the note says which kind. Any other number in a note is a conversion or derivation
+#   made here and is marked "derived"; check those.
+# - 1 mol O2/m3-h = 1 mmol O2/L-h. Humbird 2021 is cited from the engrXiv Dec-2020 revision
+#   on disk (10.31224/osf.io/795su); printed page = PDF page - 5. NREL 2011: printed page =
+#   PDF page - 10. Intelligen 2025: printed page = PDF page - 1.
+# - Grade D is used when the source is sound but the parameter is organism- or product-
+#   specific and the source studies a different organism.
+# - Several requested sources could not be read (Humbird et al. 2017 full text, Garcia-Ochoa
+#   & Gomez 2009, van 't Riet 1979, Cooney 1969 body, Doran, Benz 2011). They are recorded
+#   with quote: null in section 8. Do not fill them in from memory.
+
+# ---------------------------------------------------------------------------------------
+# 1. Oxygen-transfer ceilings at production scale (OTR, kLa, head pressure, O2 enrichment)
+# ---------------------------------------------------------------------------------------
+
+- key: otr_practical_ceiling_fermentation
+  value: 200
+  unit: mol O2/m3-h (= mmol/L-h)
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Sec. 1, 'analysis approach: powers of ten', printed p.10 (PDF p.15), engrXiv revision"
+  quote: "In fermentation, 200 mol O2/m3-h is about as high as it gets; in animal cell culture, a practical limit is <50 mol O2/m3-h."
+  read: fulltext
+  note: >-
+    Expert judgement in a peer-reviewed TEA; no primary data cited for the 200 figure. Same
+    paper, printed p.28 (PDF p.33): "Although an OTR approaching 200 mol O2/m3-h is common in
+    an air-sparged STR fermentor, the sparging and agitation limits of a cell culture
+    bioreactor effectively limit OTR to <~25 mol O2/m3-h when air is used." Treat 200 as an
+    upper bound for air-sparged, unpressurised production vessels, not a design point.
+
+- key: otr_max_design_bakers_yeast_bubble_column
+  value: 150
+  unit: mol O2/m3-h
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook Humbird2021_cultured_meat_SI.xlsm, sheet A.1, cells A93:D93; paper Table 1.3, printed p.6"
+  quote: "Max aeration (OTR) | 150 | mol/m3-h"
+  read: fulltext
+  note: >-
+    Design cap in the baker's-yeast simulator (sheet A.1): 6 x 200 m3 production vessels
+    (cell C142 '198733' L, diameter 3.7 m, height 18.5 m, i.e. a bubble column with H/D = 5,
+    derived), 30 deg C, back pressure 1.33 bar (cell C81), air (21% O2). Table 1.3 of the
+    paper lists "Max. OTR (mol O2/m3-h) 150 25" for the standard and constrained cases. The
+    paper (printed p.5) states the practice it reproduces: "Commercial yeast is typically
+    produced in large (~200 m3) bubble-column bioreactors at cell density approaching
+    4×10^9/mL (70 g/L dry matter) and extremely high OUR of ~150 mol O2/m3-h."
+
+- key: bubble_column_aeration_cost_advantage_vs_str
+  value: 15
+  low: 10
+  high: 20
+  unit: "% lower O2-delivery cost than stirred tank, valid at OTR up to 150 mmol/L-h"
+  grade: B
+  source: "Humbird D, Davis R, McMillan JD. Aeration costs in stirred-tank and bubble column bioreactors. Biochem Eng J 127:161-166 (2017)"
+  doi_or_url: 10.1016/j.bej.2017.08.006
+  locator: abstract
+  quote: "This analysis suggests bubble-column reactor systems can reduce overall costs for oxygen delivery by 10–20% relative to stirred tanks at low to moderate oxygen transfer rates up to 150 mmol/L-h."
+  read: abstract
+  note: >-
+    value = midpoint of the stated 10-20% range. Abstract read via the Semantic Scholar API
+    (field 'abstract'). The full text (OSTI accepted manuscript, osti.gov/biblio/1392775)
+    could not be read: osti.gov refused connections from the fetch tool and navigation was
+    denied in the browser pane; ScienceDirect returned HTTP 403. The paper's design equations
+    and its maximum-OTR assumption are therefore unverified (see section 8). Upper end of the
+    studied range, 150 mmol/L-h, coincides with Humbird's baker's-yeast design cap above.
+
+- key: vessel_size_standard_worldclass_hypothetical
+  value: 500
+  low: 200
+  high: 1000
+  unit: m3 (200 'standard', 500 'world-class', 1000 'hypothetically large')
+  grade: B
+  source: "Humbird D, Davis R, McMillan JD. Biochem Eng J 127:161-166 (2017)"
+  doi_or_url: 10.1016/j.bej.2017.08.006
+  locator: abstract
+  quote: "capital and operating costs for oxygen delivery drop considerably moving from standard-size (200 m 3 ) to world-class size (500 m 3 ) reactors, but only marginally in further scaling up to hypothetically large (1000 m 3 ) reactors."
+  read: abstract
+  note: >-
+    Here value is the 'world-class' size, not a midpoint. The economy of scale in O2
+    delivery flattens above ~500 m3 in this analysis. Aspen Plus + Aspen Capital Cost
+    Estimator, validated against vendor quotes (per the abstract). "m 3" spacing is as in
+    the Semantic Scholar abstract text.
+
+- key: otr_required_modern_biomanufacturing
+  value: 120
+  unit: mmol O2/L-h (lower bound, "typically larger than")
+  grade: A
+  source: "Takors R. Food for thoughts for prospective biomanufacturing. Microb Biotechnol 18:e70088 (2025)"
+  doi_or_url: 10.1111/1751-7915.70088
+  locator: "Sec. 4 'Begin with the end in mind' (Europe PMC PMC11727576)"
+  quote: "Sufficiently high oxygen transfer rates (OTRs) typically larger than 120 mmol O₂ L⁻¹ h⁻¹ need to be ensured even for high filling volumes."
+  read: html
+  note: >-
+    Value is a lower bound stated as a design requirement for competitive large-scale
+    processes, not a measured ceiling. Next sentences, verbatim: "Furthermore, oxidation of
+    NADH in the respiratory chain provides 220 kJ mol⁻¹ free Gibbs energy (At standard
+    conditions) that is released as heat in large quantities. Hence, proper cooling
+    capacities need to be installed that get more and more challenging with rising
+    bioreactor volumes." Also: "bubble column type bioreactors (BCRs) can achieve similar
+    mass transfer qualities than stirred tanks (i.e., kLa coefficients) but require less
+    power input."
+
+- key: kla_upper_limit_fermentation
+  value: 800
+  unit: 1/h
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Sec. 1 'industrial scale-up perspectives', printed p.5 (PDF p.10)"
+  quote: "upper limits of the O2 mass transfer coefficient kLa are ~800 h-1 in fermentation and ~15 h-1 in cell culture [53]."
+  read: fulltext
+  note: >-
+    [53] = Nienow AW, 'Scale-up, stirred tank reactors', Encyclopedia of Industrial
+    Biotechnology, Wiley 2010, doi 10.1002/9780470054581.eib001 (secondary; primary not read). Compare measured industrial values in this
+    file: 142-226 1/h in a 600 m3 bubble column (Mast 2025) and 180 1/h in a ~24 m3 stirred
+    tank (Losoi 2022 note below).
+
+- key: kla_measured_600m3_bubble_column
+  value: 226
+  low: 142
+  high: 226
+  unit: 1/h (0.3 to 1 vvm, 470 m3 filling volume)
+  grade: A
+  source: "Mast Y, Ghaderi A, Takors R. Real case study of 600 m3 bubble column fermentations: spatially resolved simulations unveil optimization potentials for L-phenylalanine production with Escherichia coli. Biotechnol Bioeng (2025)"
+  doi_or_url: 10.1002/bit.28869
+  locator: "Europe PMC PMC11718436, methods/results on the industrial reactor"
+  quote: "Experiments with 470 m³ filling volume found the lowest kLa of 142 h⁻¹ for vvm of 0.3 and the maximum of 226 h⁻¹ for 1 vvm."
+  read: html
+  note: >-
+    value = maximum measured (at 1 vvm). Real industrial vessel (E. coli, L-Phe); kLa measured
+    in the vessel, broth coalescence may differ from yeast/fungal broths. Geometry, verbatim:
+    "7.92 m of diameter and 13.06 m of maximum filling height resulting in 598 m³ of maximum
+    filling volume." Operating data: "In accordance with the original process, a headspace
+    overpressure of 0.55 bar was taken into account." and "Fermentation temperature was
+    controlled at 32°C." Cooling: "The centered, internal heat exchange coil with 6.55 m
+    diameter and 9 m height acts as an internal expansion joint that enables a large
+    recirculation flow." Table 2 air flows 344-352 m3/min at 396-475 m3 liquid, i.e.
+    ~0.73-0.87 vvm (derived).
+
+- key: bubble_column_600m3_back_pressure_and_airflow
+  value: 21
+  unit: kPa back pressure (airflow 4.75 Nm3/s, 490 m3 water, 33 deg C)
+  grade: A
+  source: "Bisgaard J, Zahn JA, Tajsoleiman T, Rasmussen T, Huusom JK, Gernaey KV. Data-based dynamic compartment model: modeling of E. coli fed-batch fermentation in a 600 m3 bubble column. J Ind Microbiol Biotechnol 49:kuac021 (2022)"
+  doi_or_url: 10.1093/jimb/kuac021
+  locator: "Europe PMC PMC9559308, mixing-time experiment description"
+  quote: "The reactor was filled with 490 m³ of reverse osmosis-grade water and a total of 10 separate measurements were performed using the following conditions: an airflow of 4.75 Nm³/s, a bioreactor back pressure of 21 kPa, and liquid temperature 33°C."
+  read: html
+  note: >-
+    Industrial 1,3-propanediol bubble column. Verbatim: "The experiment was performed in a
+    bubble column bioreactor (DuPont Tate & Lyle Bio Products Company, TN, USA) with a
+    diameter (T) of 5.3 m and a total volume (V) of 600 m³" and "During the 32-hr
+    fermentation process, which was operated as a fed-batch (Guske & Miller, 2009), the
+    gassed liquid level increased from an initial level of 16 m (H_L,0) to a final level of
+    26 m (H_L, end) from dextrose substrate addition." 4.75 Nm3/s on 490 m3 = 0.58 vvm
+    (derived). A 26 m gassed level means up to ~2.5 bar of hydrostatic head at the sparger
+    (derived; less with gas hold-up), which raises O2 solubility at the bottom.
+
+- key: otr_pressurised_str_heat_removal_limited
+  value: 0.7
+  high: 1.0
+  unit: kmol O2/m3-h (= 700 mmol/L-h); high = theoretical transfer capacity at 11 bar without the heat limit
+  grade: A
+  source: "Knoll A, Maier B, Tscherrig H, Büchs J. The oxygen mass transfer, carbon dioxide inhibition, heat removal, and the energy and cost efficiencies of high pressure fermentation. Adv Biochem Eng Biotechnol 92:77-99 (2005)"
+  doi_or_url: 10.1007/b98918
+  locator: abstract
+  quote: "the oxygen transfer capacities of stirred tank reactors can theoretically be increased to values above 1 kmol m(-3) h(-1), although the problem of heat removal limits that value to levels of 0.7 kmol m(-3) h(-1)."
+  read: abstract
+  note: >-
+    The quoted clause is preceded by "By applying reactor pressures up to 11 bar (10 bar
+    overpressure)". Example 5 m3 fermentor with P. putida sorption characteristics
+    (abstract). The single
+    clearest literature statement that heat removal, not O2 transfer, caps OTR once pressure is
+    used. 0.7 kmol/m3-h x 455 kJ/mol O2 = ~88 kW/m3 of metabolic heat (derived). Abstract via
+    Europe PMC; unit notation "m(-3) h(-1)" as in Europe PMC. Full chapter not read.
+
+- key: pressure_cost_efficiency_optimum
+  value: 5.6
+  unit: bar (reactor pressure up to which O2-transfer cost efficiency increases)
+  grade: A
+  source: "Knoll A, Maier B, Tscherrig H, Büchs J. Adv Biochem Eng Biotechnol 92:77-99 (2005)"
+  doi_or_url: 10.1007/b98918
+  locator: abstract
+  quote: "The cost efficiency of the oxygen mass transfer [...] also increases with reactor pressure up to 5.6 bar."
+  read: abstract
+  note: >-
+    [...] = "defined as the ratio of the oxygen transfer capacity to the overall cost of the
+    system (overall purchase cost divided by a project lifetime of ten years, plus total
+    energy cost)". Same abstract: "It is shown that increasing reactor pressure enhances the energy
+    efficiency, defined as the ratio of the oxygen transfer capacity to the total power
+    consumption of the reactor system." Model study for a 5 m3 example vessel; pressure-rated
+    vessels cost more, which is inside their cost-efficiency metric.
+
+- key: otr_lab_nonpressurised_high_power
+  value: 0.51
+  unit: mol O2/L-h at ~48 kW/m3 specific power (lab stirred tank, E. coli)
+  grade: A
+  source: "Knoll A, Bartsch S, Husemann B, et al. High cell density cultivation of recombinant yeasts and bacteria under non-pressurized and pressurized conditions in stirred tank bioreactors. J Biotechnol 132:167-179 (2007)"
+  doi_or_url: 10.1016/j.jbiotec.2007.06.010
+  locator: abstract
+  quote: "By applying specific power inputs of approx. 48kWm(-3) the oxygen transfer rate of a E. coli culture in the non-pressurized stirred tank bioreactor was lifted up to values of 0.51moll(-1)h(-1)."
+  read: abstract
+  note: >-
+    Bench-scale result at ~10-40x the specific power used in production vessels (derived
+    comparison with the 1-5 kW/m3 design range in this file); do not use as a production
+    ceiling. Same abstract: "When a reactor pressure up to 10bar was applied, the oxygen
+    transfer rate of a pressurized stirred tank bioreactor was lifted up to values of
+    0.89moll(-1)h(-1)." and "it is demonstrated that only the pressure is a scaleable tool
+    for oxygen transfer enhancement in industrial stirred tank bioreactors." Also: "it was
+    shown that increased carbon dioxide partial pressures did not remarkably inhibit the
+    growth of the investigated model organisms" (E. coli, A. adeninivorans, S. cerevisiae,
+    C. glutamicum).
+
+- key: pichia_air_pressure_our_gain
+  value: 59
+  unit: "% increase in OUR when air pressure raised from 1.2 to 1.9 bar (P. pastoris, 10 L, ~120 g/L DCW)"
+  grade: A
+  source: "Liu WC, Gong T, Wang QH, Liang X, Chen JJ, Zhu P. Scaling-up fermentation of Pichia pastoris to demonstration-scale using new methanol-feeding strategy and increased air pressure instead of pure oxygen supplement. Sci Rep 6:18439 (2016)"
+  doi_or_url: 10.1038/srep18439
+  locator: "Discussion (Europe PMC PMC4726300)"
+  quote: "Charoenrat et al. reported that increasing air pressure from 1.2 to 1.9 bar increased the oxygen uptake rate (OUR) of P. pastoris by 59%."
+  read: html
+  note: >-
+    Secondary citation of Charoenrat et al. (Biochem Eng J 2006, 'Increased total air
+    pressure versus oxygen limitation...'), whose full text was not read. An earlier
+    rendering of the same passage added: "and the heterologous β-glucosidase yield increased
+    by 50% in the HCDF of the 10-L scale with ~120 g/L DCW" (verify). Direction and size
+    are consistent with Henry's law: +58% absolute pressure (derived).
+
+- key: pichia_air_pressure_replaces_pure_o2
+  value: 0.10
+  low: 0.05
+  high: 0.15
+  unit: MPa gauge (jar air pressure; normal practice 0.05 MPa)
+  grade: A
+  source: "Liu WC, Gong T, Wang QH, et al. Sci Rep 6:18439 (2016)"
+  doi_or_url: 10.1038/srep18439
+  locator: "Discussion (Europe PMC PMC4726300)"
+  quote: "In this paper, we first demonstrated that a pure oxygen supplement could be omitted from HCDF if jar air pressure is increased from the normal 0.05 MPa (super atmospheric pressure) to 0.10±0.05 MPa."
+  read: html
+  note: >-
+    Shown in 10 L to 1,000 L stirred tanks. Introduction, verbatim: "However, in large-scale
+    fermentation, supplying and handling pure oxygen can be highly expensive and dangerous."
+    and "Comparatively, a more practical and economical strategy is to increase jar air
+    pressure, especially for large-scale HCDF (a special tank is sometimes needed to tolerate
+    the higher pressure)."
+
+- key: pure_o2_otr_600m3_bubble_column_predicted
+  value: 1.1
+  unit: mol O2/(kg broth h) (= ~1100 mmol/L-h), pure O2 sparging, model prediction
+  grade: B
+  source: "Almeida Benalcázar E, van Winden WA, Puiman L, Posada JA, Jansen MLA, Noorman H, Straathof AJJ. Single cell protein production from ethanol: model-based bioreactor operation at industrial scale. Biotechnol Bioeng (2025)"
+  doi_or_url: 10.1002/bit.28969
+  locator: "abstract (Europe PMC PMC12067044)"
+  quote: "producing up to 58 kt/y of SCP in a 600 m³ bubble column operating in continuous mode was assessed and attributed mainly to a high O₂ transfer rate of 1.1 mol/(kg h) through the use of pure O₂."
+  read: html
+  note: >-
+    Model prediction, not a measurement; the abstract adds: "Although the large predicted O₂
+    transfer capacity seems technically feasible, it needs further experimental validation."
+    and "However, most of the pure O₂ fed to the fermenter remains unconsumed due to the large
+    gas flows needed to maximize mass transfer." Also: "biomass production may be hampered by
+    high dissolved CO₂ concentrations and by large heat production." Top pressure 1.2 bar(a),
+    H/D 6 (see vessel entries). Useful as a physical-limit scenario bound only.
+
+- key: o2_cost_dedicated_air_separation_unit
+  value: 0.04
+  unit: USD/kg O2 (only for very large consumers, ~1000 kt/yr O2)
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Sec. 2.3 'High-purity oxygen', printed p.28 (PDF p.33)"
+  quote: "can contract with an industrial gas company to construct a dedicated air separation unit that provides pure O2 at ~$0.04/kg"
+  read: fulltext
+  note: >-
+    The consumer size in the preceding clause is garbled in the PDF dump ("requires O~1,000
+    kTA, such as a steel mill"); read as roughly 1,000 kt/yr. Same page: "high-purity
+    merchant oxygen (delivered in trucks) is far too expensive, given that as much as 80% of
+    it will be vented from the bioreactor." Cost year ~2018-2020 (not stated).
+
+- key: o2_cost_onsite_vpsa_90pct
+  value: 0.15
+  low: 0.10
+  high: 0.20
+  unit: USD/kg O2 (90% O2 from vacuum pressure-swing adsorption, size-dependent)
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Sec. 2.3 'High-purity oxygen', printed p.28 (PDF p.33)"
+  quote: "The scale of a cell-culture facility would be more consistent with on-site production of 90% O2 in a vacuum pressure-swing adsorption (VPSA) unit, which has a size-dependent effective cost of $0.10–0.20/kg O2 [130]."
+  read: fulltext
+  note: >-
+    value = midpoint. [130] = IHS Chemical, PEP Yearbook (2020), not read. SI workbook sheet
+    RawUtil, cells X3:Z4, carries the energy figure used for O2 enrichment: "Membrane
+    separation, IHS chemical | kWh per kg O2 | 0.2 | kWh/kg".
+
+# ---------------------------------------------------------------------------------------
+# 2. Largest aerobic fermenters in use, by product class
+# ---------------------------------------------------------------------------------------
+
+- key: manufacturing_scale_fermentor_range
+  value: 1010
+  low: 20
+  high: 2000
+  unit: m3 (quoted as 20 000-2000 000 L)
+  grade: A
+  source: "Crater JS, Lievense JC. Scale-up of industrial microbial processes. FEMS Microbiol Lett 365(13):fny138 (2018)"
+  doi_or_url: 10.1093/femsle/fny138
+  locator: "Section 'What is scale-up and why does it matter?', paragraph 1"
+  quote: "A process developed in a laboratory (e.g. 0.5–10 L fermentors) must be translated into a full manufacturing scale process (e.g. 20 000–2000 000 L fermentors), with scale factors ranging anywhere from thousands to millions."
+  read: html
+  note: >-
+    value = midpoint (not meaningful; use the range). Same section: "The first stage is a
+    pilot plant (pilot scale) with 100–10,000 L fermentors and matched downstream equipment."
+    and "The second stage of scale-up is a demonstration plant (demo scale) with 10 000–100
+    000 L fermentors and matched downstream." Section 'Key considerations': "fermentation is
+    usually the costliest process step, both in terms of variable costs (raw materials and
+    utilities) and capital investment." The article has no numbers on OTR, heat removal or
+    CO2; its Table 2 'Scale-dependent fermentation parameters' lists kLa as "Gradient due to
+    power dissipation; upper limitation due to equipment design" and broth hydrostatic
+    pressure as "Increase in magnitude with gradient along vertical axis".
+
+- key: industrial_aerobic_vessel_range_humbird
+  value: 600
+  low: 200
+  high: 1000
+  unit: m3
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Sec. 1 'industrial scale-up perspectives', printed p.5 (PDF p.10)"
+  quote: "Today, animal cell culture is not practiced in bioreactors larger than 25 m3—significantly smaller than the 200–1,000 m3 vessels employed in industrial aerobic fermentation."
+  read: fulltext
+  note: "value = midpoint of the stated range. No primary source cited for the range."
+
+- key: largest_practical_stirred_tank
+  value: 1000
+  unit: m3 (upper bound, "~1,000")
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Sec. 'aseptic operation', printed p.32 (PDF p.37)"
+  quote: "Although the largest practical stirred-tank bioreactor is ~1,000 m3 [38], current designs of such large bioreactors"
+  read: fulltext
+  note: >-
+    [38] = Humbird, Davis & McMillan 2017 (the aeration-cost paper), so this is the 2017
+    paper's size assumption restated. The sentence continues: "their associated piping and
+    valves, and their heat removal equipment (internal coils or external loop through a heat
+    exchanger) are not practicably cleaned and sterilized to a level suitable for animal cell
+    culture." Printed p.33: "aseptic inoculum is prepared in sterile bioreactors up to ~200
+    m3 and the final production fermentor is run with a low level of contamination" (about
+    non-sterile fermentations; cites Meyer, Minas & Schmidhalter [60], not read).
+
+- key: lysine_fermenter_volume
+  value: 500
+  unit: m3
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Sidenote 82, printed p.32 (PDF p.37)"
+  quote: "For reference, lysine fermentation is carried out at 500 m3 [154]."
+  read: fulltext
+  note: >-
+    [154] = Eggeling L, Bott M. A giant market and a powerful metabolism: L-lysine provided
+    by Corynebacterium glutamicum. Appl Microbiol Biotechnol 99:3387-3394 (2015), doi
+    10.1007/s00253-015-6508-2. Primary not read.
+    Amino acids (lysine, glutamate) are the largest-volume aerobic stirred-tank products.
+
+- key: bakers_yeast_fermenter_volume
+  value: 200
+  unit: m3 (bubble column)
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Sec. 1, printed p.5 (PDF p.10); printed p.36 (PDF p.41)"
+  quote: "Commercial yeast is typically produced in large (~200 m3) bubble-column bioreactors at cell density approaching 4×10^9/mL (70 g/L dry matter) and extremely high OUR of ~150 mol O2/m3-h."
+  read: fulltext
+  note: >-
+    Printed p.36: "one hundred 200 m3 fermentors would be roughly enough to supply all the
+    baker's yeast in Europe (30% of the world) [55]" ([55] = BCC Research, not read), i.e.
+    ~20,000 m3 installed for ~30% of world baker's yeast (derived). The SI simulator uses
+    198,733 L vessels, 3.7 m diameter x 18.5 m height (sheet A.1, C142:I142).
+
+- key: largest_aerobic_fermenter_ici_pruteen
+  value: 1500
+  unit: m3 (airlift, methanol-fed SCP; operated 1979-1987)
+  grade: A
+  source: "Risner D, McDonald KA, Jones C, Spang ES. A techno-economic model of mycoprotein production: achieving price parity with beef protein. Front Sustain Food Syst 7:1204307 (2023)"
+  doi_or_url: 10.3389/fsufs.2023.1204307
+  locator: "Discussion, p.08"
+  quote: "The development of the world’s largest aerobic fermenter (1,500 m3) occurred in the 1970’s. Operation began in 1979 and the bioreactor was decommissioned in 1987 due to economic and technical challenges (Humbird, 2020)."
+  read: fulltext
+  note: >-
+    Secondary (cites Humbird 2020 and Vasey & Powell 1984 for the ICI Pruteen plant,
+    Methylophilus methylotrophus). The same text says Quorn production later used "an order
+    of magnitude in reduced scale (155m3)". Largest aerobic fermenter ever built; not in use.
+
+- key: mycoprotein_airlift_working_volume
+  value: 155
+  unit: m3 working volume (continuous airlift, ~2 t/h mycoprotein)
+  grade: A
+  source: "Risner D, McDonald KA, Jones C, Spang ES. Front Sustain Food Syst 7:1204307 (2023)"
+  doi_or_url: 10.3389/fsufs.2023.1204307
+  locator: "Sec. 2.1, p.02"
+  quote: "Commercial airlift bioreactors utilized for mycoprotein production have a reported working volume of 155 m3 and can produce approximately 2 metric tons of consumable mycoprotein per hour (Derbyshire and Ayoob, 2019)."
+  read: fulltext
+  note: "Secondary citation (Derbyshire & Ayoob 2019; Moore et al. 2021). Filamentous fungus (F. venenatum) in airlift."
+
+- key: antibiotic_fermenter_volume_max
+  value: 300
+  unit: m3 (upper bound, "up to")
+  grade: A
+  source: "Yang Q, Lin W, Xu J, et al. Changes in oxygen availability during glucose-limited chemostat cultivations of Penicillium chrysogenum lead to rapid metabolite, flux and productivity responses. Metabolites 12:45 (2022)"
+  doi_or_url: 10.3390/metabo12010045
+  locator: "Introduction (Europe PMC PMC8780904)"
+  quote: "Typically, aerobic fermentation for antibiotic production (e.g., penicillin, cephalosporins, and streptomycin) is usually carried out in large stirred fermenters with volumes up to 300 m³ [22]."
+  read: html
+  note: >-
+    Secondary ([22] not read). Next sentence: "These filamentous fungal fermentations feature
+    increased viscosity of the broth and non-Newtonian fluid properties." A documented
+    industrial penicillin fermentor used in scale-down CFD work is 54 m3 ("54 m³ fermentor
+    (height H = 7.7 m, diameter T = 3.0 m) with two Rushton turbines", Haringa et al. Eng Life
+    Sci 2016, PMC5129516, fetch-tool rendering).
+
+- key: citric_acid_typical_fermenter
+  value: 100
+  unit: m3 (batch, A. niger on molasses)
+  grade: A
+  source: "Ciriminna R, Meneguzzo F, Delisi R, Pagliaro M. Citric acid: emerging applications of key biotechnology industrial product. Chem Cent J 11:22 (2017)"
+  doi_or_url: 10.1186/s13065-017-0251-y
+  locator: "Section 'Production, properties and applications' (Europe PMC PMC5342991)"
+  quote: "A typical bioreactor is comprised of a batch fermenter (100 m³) charged with diluted molasses and minor amounts of inorganic nutrients to which, typically, 5–25 × 10⁶ A. niger spores/L are inoculated"
+  read: html
+  note: >-
+    Review statement, no primary cited in the sentence. Following sentence: "Aeration is
+    supplied to the fermenter by air sparging whereas temperature is kept at 25–27 °C by
+    cooling coils." Larger citric-acid vessels (several hundred m3) are often mentioned in
+    industry; no readable source found.
+
+- key: bubble_column_installed_volume_13pdo
+  value: 600
+  unit: m3
+  grade: A
+  source: "Almeida Benalcázar E, et al. Biotechnol Bioeng (2025)"
+  doi_or_url: 10.1002/bit.28969
+  locator: "Sec. 2.1 'Bioreactor configuration' (Europe PMC PMC12067044)"
+  quote: "The bioreactor volume (V_R) considered was 600 m³, which is in line with installed bubble columns for aerobic 1,3‐propanediol production."
+  read: html
+  note: >-
+    Corroborated by Bisgaard 2022 (DuPont Tate & Lyle, 600 m3) and Mast 2025 (L-Phe, 600 m3)
+    entries above. Same section: "The height‐over‐diameter ratio (H_R/D_R) was 6, a value
+    commonly used for large bubble columns." and Sec. 2.3: "The overhead pressure (p_top) is
+    1.2 bar (absolute)."
+
+- key: largest_bubble_columns_wastewater
+  value: 10000
+  unit: m3
+  grade: A
+  source: "Link C, Puiman L, Takors R. Simulating large-scale biotech bubble columns: challenges and insights from the parcel approach. Bioprocess Biosyst Eng (2026)"
+  doi_or_url: 10.1007/s00449-026-03397-5
+  locator: "Introduction (Europe PMC PMC13582231)"
+  quote: "In contrast, largest biotech BCRs of 10,000 m³ are found for wastewater treatment."
+  read: html
+  note: >-
+    Non-sterile aerobic reactors; bounds what is mechanically possible, not what is sterile.
+    Same paper: "Given that often low margin commodities are produced by gas fermentation,
+    economy-of-scale starts benefitting for bioreactor volumes exceeding 500 m³."
+
+- key: target_scale_commodities_vs_fine_chemicals
+  value: 100
+  unit: "m3 (lower bound, '> > 100 m³' for commodities; 5-50 m3 for fine chemicals)"
+  grade: A
+  source: "Takors R. Microb Biotechnol 18:e70088 (2025)"
+  doi_or_url: 10.1111/1751-7915.70088
+  locator: "Europe PMC PMC11727576"
+  quote: "Consequently, current biomanufacturing studies for commodities and fine chemicals are well advised to focus on large‐scale applications targeting 5–50 m³ for fine chemicals and > > 100 m³ for commodities."
+  read: html
+  note: "'> >' is as rendered in the XML (much greater than)."
+
+- key: cellulase_fermenter_volume_nrel
+  value: 300
+  unit: m3 (H/D = 2), T. reesei cellulase, fed-batch 50% -> 80% fill
+  grade: B
+  source: "Humbird D, Davis R, Tao L, et al. Process design and economics for biochemical conversion of lignocellulosic biomass to ethanol. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Sec. 3.4 Area 400, printed p.37 (PDF p.47); Table 19 printed p.39"
+  quote: "The size of the cellulase production vessels was chosen to be 300 m3 (80,000 gal) with a height-to-diameter ratio (H/D) of 2."
+  read: fulltext
+  note: >-
+    Design basis for on-site T. reesei enzyme; nine vessels. Table 19: height 11.5 m,
+    diameter 5.75 m, operating pressure 1 atm, 28 deg C, 316SS, 800 hp agitator. Same page:
+    "The reactors are temperature-controlled by chilled water flowing through internal
+    coils." For contrast, the anaerobic hydrolysis/fermentation vessels in the same design
+    are much larger (Table 8, printed p.28: "Number and size of batch vessels | 12 @ 3,600 m3
+    (950,000 gal) each").
+
+- key: pf_ova_fermenter_volume_intelligen
+  value: 136
+  unit: m3 stirred tank (K. phaffii OVA, fed-batch)
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Parisis V, Petrides D. Egg white protein (ovalbumin) production via precision fermentation: process modeling and TEA using SuperPro Designer. Intelligen (2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Sec. 'Upstream', printed p.5 (PDF p.6)"
+  quote: "The microbial culture is conducted in 136-m3 stirred-tank fermentors (P-24 / FR-101a), in fed-batch mode, and comprises two phases: a growth phase and an expression phase."
+  read: fulltext
+  note: >-
+    Aeration assumptions, verbatim: "The culture is aerobic, requiring an average air supply
+    rate of 1.2 volume of air per volume of liquid per minute (VVM) during this stage."
+    (growth, 36 h) and "The average aeration rate in this stage is 1.6 VVM." (expression,
+    72 h; printed p.6). Final broth ~107 m3. See also pf_high_density_scaleup_caution.
+
+- key: pf_high_density_scaleup_caution
+  value: 100
+  unit: m3 working volume (above which Intelligen flags technical challenges)
+  grade: B
+  source: "Da Gama Ferreira R, et al. Intelligen (2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Sec. 'Results and discussion', printed p.19 (PDF p.20)"
+  quote: "However, scaling up high-density culture beyond ~100 m3 of working volume may present technical challenges, potentially limiting the benefits of this approach."
+  read: fulltext
+  note: "Judgement without cited data. Relevant to the K. phaffii high-cell-density base case (Intelligen uses 92 g/L DCW)."
+
+- key: pf_commercial_fermenter_size_liberation_labs
+  value: 150
+  unit: m3 per fermenter (4 x 150 m3 = 600,000 L capacity, planned)
+  grade: C
+  source: "Pharmaceutical Technology. Liberation Labs' precision fermentation biomanufacturing facility, Indiana, US (26 Sep 2023)"
+  doi_or_url: https://www.pharmaceutical-technology.com/projects/liberation-labs-biomanufacturing-facility-indiana-us/
+  locator: "project page"
+  quote: "The first-of-a-kind facility will feature 150,000-litre fermenters and a fully dedicated downstream process (DSP)."
+  read: html
+  note: >-
+    Trade-press description of a company plan. Same page: "The facility will have a
+    fermentation capacity of 600,000 litres with a fully dedicated DSP." Operating status in
+    2026 not checked.
+
+- key: pf_archetype_culture_volume_gfi_europe
+  value: 80
+  high: 120
+  unit: m3 culture volume at harvest (base; 120 = improvement case), alpha-lactalbumin archetype
+  grade: C
+  source: "GFI Europe & Arthur D. Little. Pathfinding towards precision fermentation viability (Jul 2025)"
+  doi_or_url: gfieurope.org
+  locator: "Alpha-lactalbumin case study chart, printed p.31"
+  quote: "Variable | Base | 50% | Culture volume at harvest (m3) | 80 m3 | 120 m3"
+  read: fulltext
+  note: "Consultancy archetype assumption (sensitivity input), not an observed plant. Other archetypes in the same report use 200 and 300 m3."
+
+- key: pichia_hcdf_largest_reported_scale
+  value: 1000
+  unit: L stirred tank (P. pastoris high-cell-density fed-batch, ~95 g/L DCW)
+  grade: A
+  source: "Liu WC, Gong T, Wang QH, et al. Sci Rep 6:18439 (2016)"
+  doi_or_url: 10.1038/srep18439
+  locator: "Discussion (Europe PMC PMC4726300)"
+  quote: "To our knowledge, for stirred tank bioreactors, the reproducible scaling up of the HCDF of P. pastoris presented here represents the largest scale ever reported in literature."
+  read: html
+  note: >-
+    The scale in question is 1,000 L. Results, verbatim: "With the nearly constant specific
+    cell growth rate of zero, biomass was kept at ~95 g/L during the entire induction phase."
+    Indicates how thin the public record on Pichia at >1 m3 is (as of 2016). A 1,200 L GMP
+    K. phaffii fed-batch is reported by Dalvie et al. Biotechnol Bioeng 2022 (PMC8653030,
+    methanol-free strain).
+
+# ---------------------------------------------------------------------------------------
+# 3. Heat of fermentation per mol O2 (oxycaloric equivalent, Thornton's rule)
+# ---------------------------------------------------------------------------------------
+
+- key: oxycaloric_equivalent
+  value: -455
+  low: -480
+  high: -430
+  unit: kJ/mol O2 consumed (heat released; sign = enthalpy convention)
+  grade: A
+  source: "Maskow T, Kemp R, Buchholz F, Schubert T, Kiesel B, Harms H. What heat is telling us about microbial conversions in nature and technology: from chip- to megacalorimetry. Microb Biotechnol 3:269-284 (2010)"
+  doi_or_url: 10.1111/j.1751-7915.2009.00121.x
+  locator: "Section 'The additional benefit of calorespirometric ratios' (Europe PMC PMC3815370)"
+  quote: "This ratio (rq/rO2) is called the oxycaloric equivalent (Gnaiger and Kemp, 1990) and usually attains values between −430 and −480 kJ mol‐O2−1 with an averaged value of −455 ± 15 kJ mol‐O2−1 (Gnaiger and Kemp, 1990)."
+  read: html
+  note: >-
+    Review; primary = Gnaiger & Kemp 1990 (not read). Holds for fully respiratory
+    metabolism; mixed respiro-fermentative growth deviates. Same review: "A successful test of
+    the practicability of the megacalorimetry measurement principle was performed in 2004
+    with baker's yeast at the 100 m³ scale (Türker, 2004)."
+
+- key: thornton_rule_heat_per_electron
+  value: 113.5
+  low: 107
+  high: 120
+  unit: kJ per mol of electrons transferred to O2 (combustion enthalpy vs degree of reductance)
+  grade: A
+  source: "Maskow T, et al. Microb Biotechnol 3:269-284 (2010)"
+  doi_or_url: 10.1111/j.1751-7915.2009.00121.x
+  locator: "Section 'Historical roots and modern trends in biocalorimetry' (Europe PMC PMC3815370)"
+  quote: "Thornton (1917) plotted the combustion enthalpy of multiple organic compounds versus the degree of reductance γi (Eqn 7) and found a good linear correlation [the slope depending on the applied data base 107–120 kJ e‐mol−1 (Cordier et al., 1987)]."
+  read: html
+  note: >-
+    value = midpoint. Primary sources (Thornton 1917, Phil Mag 33:196; Cordier et al. 1987)
+    not read. 4 electrons per O2 x 113.5 = 454 kJ/mol O2 (derived), consistent with the
+    oxycaloric equivalent above.
+
+- key: heat_per_o2_roels_design_value
+  value: 460
+  unit: kJ/mol O2
+  grade: A
+  source: "Almeida Benalcázar E, et al. Biotechnol Bioeng (2025)"
+  doi_or_url: 10.1002/bit.28969
+  locator: "Sec. 2.8 'Heat balance and heat transfer' (Europe PMC PMC12067044)"
+  quote: "As proposed in Roels (1983), 460 kJ of heat are generated per mole of O₂ consumed."
+  read: html
+  note: "Secondary; primary = Roels JA, Energetics and Kinetics in Biotechnology (1983), not read. Same value as commonly attributed to Doran's textbook (Doran not read; see section 8)."
+
+- key: heat_per_o2_shuler_kargi_cooney
+  value: 0.50
+  unit: kJ/mmol O2 (= 500 kJ/mol O2)
+  grade: A
+  source: "Cardoso VM, Campani G, Santos MP, et al. Cost analysis based on bioreactor cultivation conditions: production of a soluble recombinant protein using Escherichia coli BL21(DE3). Biotechnol Rep 26:e00441 (2020)"
+  doi_or_url: 10.1016/j.btre.2020.e00441
+  locator: "Methods, Eq. 9 and nomenclature (Europe PMC PMC7049567)"
+  quote: "K: Constant of proportionality, 0.50 kJ/mmol O₂"
+  read: html
+  note: >-
+    Eq. 9 as printed: "Q_HEAT = K . OUR . V_R". Context sentence, verbatim: "The metabolic
+    heat released during the bioreactor cultures was correlated to the oxygen uptake rate
+    (OUR) using Eq. 9, proposed for aerobic microorganisms by Shuler and Kargi [61], as a
+    generalization of the expressions reported by Cooney et al. [62] and Abbott and Clamen
+    [63]." 0.50 kJ/mmol = 0.12 kcal/mmol (derived), i.e. the widely quoted Cooney figure;
+    ~10% above the calorimetric 455-460 kJ/mol. Primary texts not read.
+
+- key: heat_per_o2_industrial_hypothetical_gregory_green
+  value: 500
+  unit: Btu/mol O2 (= 528 kJ/mol, derived)
+  grade: C
+  source: "Gregory J, Green B. Heat transfer for huge-scale fermentation: the impact of ten-fold scaleup is explored here. Chemical Engineering 120(11) (Nov 2013)"
+  doi_or_url: https://go.gale.com/ps/i.do?id=GALE%7CA349227737&it=r&p=AONE&sid=AONE&u=googlescholar
+  locator: "hypothetical 1,000,000-gal case (Gale Academic OneFile HTML)"
+  quote: "100-mmol O₂/L/h uptake rate with metabolic heat load of 500 Btu/mol O₂"
+  read: html
+  note: >-
+    Trade-magazine design example by industry authors. Internally consistent: 100 mmol/L-h x
+    3,785 m3 x 500 Btu/mol = ~190e6 Btu/h (derived), matching the article's "Heat load =
+    25×10⁶ + 190×10⁶ = 215×10⁶ Btu/h" (25e6 = agitation at 10 hp/1,000 gal). The value is
+    ~15% above the oxycaloric equivalent, so it probably carries a design margin (not stated).
+
+# ---------------------------------------------------------------------------------------
+# 4. Heat removal: coolant temperatures, U, chillers, cooling-limited cases
+# ---------------------------------------------------------------------------------------
+
+- key: jacket_insufficient_above_volume
+  value: 30000
+  unit: US gal working volume (= ~114 m3, derived), highly aerobic fermentation
+  grade: C
+  source: "Gregory J, Green B. Chemical Engineering 120(11) (Nov 2013)"
+  doi_or_url: https://go.gale.com/ps/i.do?id=GALE%7CA349227737&it=r&p=AONE&sid=AONE&u=googlescholar
+  locator: "Gale Academic OneFile HTML"
+  quote: "For a highly aerobic fermentation system, a jacket alone is not sufficient for tanks above about 30,000 gallons."
+  read: html
+  note: >-
+    Illustrative table in the same article (labelled "intended for illustrative purposes
+    only"): "Working Volume (gal) | Jacket Area (ft²) | Ratio ... (ft²/gal) | 1,000 | 140 |
+    0.14 | 10,000 | 650 | 0.06 | 100,000 | 3,000 | 0.03 | 1,000,000 | 15,000 | 0.015"
+    (fetch-tool table rendering; 0.14 -> 0.015 ft2/gal = 3.4 -> 0.37 m2/m3, derived).
+    Also: "Coil and baffle-type heat-transfer surfaces can greatly increase the available
+    fermenter heat-transfer area. However, the effectiveness of these supplemental
+    heat-transfer surfaces decreases with increasing scale, just as in the case for the
+    jacket." No U value is given in the article.
+
+- key: highly_aerobic_our_industrial_experience
+  value: 100
+  unit: mmol O2/L-h
+  grade: C
+  source: "Gregory J, Green B. Chemical Engineering 120(11) (Nov 2013)"
+  doi_or_url: https://go.gale.com/ps/i.do?id=GALE%7CA349227737&it=r&p=AONE&sid=AONE&u=googlescholar
+  locator: "hypothetical 1,000,000-gal case (Gale Academic OneFile HTML)"
+  quote: "Using roughly estimated parameters for a hypothetical case that are within the authors' industrial experience, a highly aerobic fermenter could consume 100 mmol O₂/L/h."
+  read: html
+  note: >-
+    Heat load for 1,000,000 gal (3,785 m3) = 215e6 Btu/h = 63 MW = ~17 kW/m3 (derived). The
+    article's chiller sentence reads "This heat load could be provided by three 6,000-ton (24
+    million Btu/h) chillers." -- 6,000 tons is 72 million Btu/h, so the bracket is
+    internally inconsistent (misprint or fetch slip; do not use). Its conclusion: "From a
+    heat-transfer point of view, fermenter size can grow without bound but the economy of
+    scale ends at about 24 million Btu/h."
+
+- key: chilled_water_supply_return_temp_industrial_example
+  value: 2
+  high: 8
+  unit: deg C (chilled water supply 2, return 8)
+  grade: C
+  source: "Gregory J, Green B. Chemical Engineering 120(11) (Nov 2013)"
+  doi_or_url: https://go.gale.com/ps/i.do?id=GALE%7CA349227737&it=r&p=AONE&sid=AONE&u=googlescholar
+  locator: "hypothetical 1,000,000-gal case (Gale Academic OneFile HTML)"
+  quote: "Chilled water at 2°C (36°F), rising by 6°C (11°F) to 8°C (47°F)"
+  read: html
+  note: "Design example; fragment as rendered (list item)."
+
+- key: u_shell_tube_broth_chilled_water
+  value: 1.4
+  unit: kW/(m2 K), external shell-and-tube loop, broth vs chilled water
+  grade: B
+  source: "Almeida Benalcázar E, et al. Biotechnol Bioeng (2025)"
+  doi_or_url: 10.1002/bit.28969
+  locator: "Sec. 2.8 'Heat balance and heat transfer' (Europe PMC PMC12067044)"
+  quote: "The heat transfer coefficient (U) suited for this system was 1.4 kW/(m²K) (Towler and Sinnott 2013)."
+  read: html
+  note: >-
+    Design value taken from Towler & Sinnott, Chemical Engineering Design (2013), not read.
+    External loop, not a jacket or internal coil; low-viscosity SCP broth (yeast/bacteria).
+    Same section: "The broth was set to cool from 30°C to 15°C, and the chilled water was set
+    to heat up from 5°C to 20°C, leading to a mean gradient (ΔT_lm) of 15°C." and "This
+    resulted in 1269 tubes within one heat exchanger of ca. 430 m² of area available for
+    heat transfer." Viscous fungal broths will have lower film coefficients (no number found).
+
+- key: cooling_water_supply_temperature_nrel
+  value: 28
+  unit: deg C supply (9 deg C design rise)
+  grade: B
+  source: "Humbird D, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Sec. 3.9.2, printed p.54 (PDF p.64)"
+  quote: "The cooling water system is designed for a 28°C supply temperature with a 9°C temperature rise in coolers throughout the facility."
+  read: fulltext
+  note: >-
+    US Midwest design basis. With 28 deg C supply and a 28-30 deg C fermentation, tower water
+    alone has almost no driving force, which is why NREL cools the enzyme fermentors (Area
+    400) and ethanol fermentors with chilled water: "The chilled-water loop provides cooling
+    to the fermentors in Area 300 and Area 400." (printed p.55). Tower evaporation is based
+    on "a temperature drop from 37°C to 28°C".
+
+- key: chiller_electricity_per_ton_nrel
+  value: 0.56
+  unit: kW electricity per ton of refrigeration (= 0.159 kW/kW, COP ~6.3, derived)
+  grade: B
+  source: "Humbird D, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Sec. 3.9, printed p.55 (PDF p.65)"
+  quote: "Per the chiller spec sheet, the compressor electricity demand for the chiller was estimated at 0.56 kW/ton of refrigeration."
+  read: fulltext
+  note: "Preceding sentence: \"Chilled water is provided by two 2,350-ton Trane centrifugal chillers.\" Vendor spec sheet via NREL (grade B as design basis)."
+
+- key: refrigeration_power_rule_of_thumb_humbird
+  value: 1.24
+  unit: hp per ton of refrigeration (= 0.263 kW/kW)
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet RawUtil, cells BW2:BZ3"
+  quote: "Refrigeration power demand | 1.24 | hp/ton | 0.2629248030187212 | kW/kW"
+  read: fulltext
+  note: >-
+    Listed under "Rule-of-thumb constants" (BW1), no source cell. 65% higher than NREL's
+    0.56 kW/ton (0.159 kW/kW); the difference matters because refrigeration is the largest
+    aeration-related power item in Humbird's aeration model (sec. 5). Same sheet: cooling
+    water (energy basis) "5.82 | /MMkcal | IHS PEP, 2016".
+
+- key: cooling_water_delta_t_humbird
+  value: 8
+  unit: deg C cooling-water temperature rise
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet A.1, cells A158:D158"
+  quote: "Cooling water ΔT | 8 | C"
+  read: fulltext
+  note: "Baker's-yeast simulator. Same sheet: 'Chiller max duty (all trains) | 7624.100014765378 | kW (heat)' for the 6 x 200 m3 plant."
+
+- key: chilled_water_utility_cost_share_pf_ova
+  value: 42.09
+  unit: "% of utilities cost (chilled water, 136 m3 K. phaffii OVA plant)"
+  grade: B
+  source: "Da Gama Ferreira R, et al. Intelligen (2025)"
+  doi_or_url: 10.13140/RG.2.2.29080.87048
+  locator: "Table 4, printed p.19 (PDF p.20)"
+  quote: "Chilled Water | 0.400 | 6,182,685 | MT | 2,473,074 | 42.09"
+  read: fulltext
+  note: >-
+    Columns: unit cost ($/MT), annual amount, units, annual cost ($), %. Cooling water row:
+    "Cooling Water | 0.050 | 4,549,910 | MT | 227,495 | 3.87"; power 41.47%. Text, verbatim:
+    "most of the power and chilled water consumption comes from the main fermentation
+    step—specifically, from the compressor required to supply a very high airflow rate to the
+    main fermentor, and from the large volume of chilled water needed to keep its
+    temperature constant." SuperPro default prices, 2025$.
+
+- key: pichia_methanol_heat_production_rate
+  value: 19.2
+  unit: W/L (= kW/m3), Mut(S) P. pastoris, methanol-only feed phase, lab bioreactor
+  grade: A
+  source: "Zavec D, Gasser B, Mattanovich D. Characterization of methanol utilization negative Pichia pastoris for secreted protein production: new cultivation strategies for current and future applications. Biotechnol Bioeng 117:1394-1405 (2020)"
+  doi_or_url: 10.1002/bit.27303
+  locator: "Table 2 (Europe PMC PMC7187134)"
+  quote: "Heat production rate, W/L | 3 | 19.2 | −84%"
+  read: html
+  note: >-
+    TABLE ROW (fetch-tool rendering): columns Mut- PAOX1-HSA (scenario B) | Mut(S)
+    PAOX1-HSA (scenario D) | change. Same table: "OTR, mM/h | 23 | 149 | −85%". Ratio
+    19.2 W/L / 149 mmol/L-h = 464 kJ/mol O2 (derived), i.e. the heat was probably computed
+    from OTR with an oxycaloric factor. DASGIP ~0.3-0.5 L vessels. Text: "Compared with other
+    microbial expression systems, this is the main constraint to consider when upscaling a
+    P. pastoris process." referring to methanol oxidation that "increases the oxygen demand
+    and generates excessive heat as well as oxidative stress."
+
+# ---------------------------------------------------------------------------------------
+# 5. kLa correlations, power per volume, aeration, compressors, aeration cost
+# ---------------------------------------------------------------------------------------
+
+- key: kla_str_correlation_humbird_aeration_model
+  value: 0.002
+  unit: "kLa [1/s] = 0.002 (P/V [W/m3])^0.7 (us [m/s])^0.2 1.025^(T-20)"
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook (reimplementation of Humbird, Davis & McMillan 2017)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet Fig1.3, cells A11:F11 and formula in AH27; units from header rows 24-26"
+  quote: "kLa correlation const | 0.002 | 0.7 | 0.2 | 1.025"
+  read: fulltext
+  note: >-
+    Formula AH27: "=$C$11*AC27^$D$11*AE27^$E$11*$F$11^($C$2-20)" with AC = "P/V | W/m3", AE =
+    "Us | avg | m/s", C2 = fermentation temperature 30 deg C. These are the van 't Riet (1979)
+    constants for non-coalescing (electrolyte) media (primary not read; see section 8).
+    Sheet title "Cost of Aeration Figure"; paper Fig. 1.3 caption: "Specific aggregate
+    capital and operating cost to transfer O2 to aerobic stirred-tank fermentors of varying
+    size." Sidenote 6 (printed p.3): "A key difference between Figure 1.3 and the results in
+    [38] is that one full-time employee (FTE) has been added to monitor the bioreactor (five
+    shifts at 0.2 FTE per shift) at a loaded operating expense of $100k/y." So this sheet is
+    the closest readable proxy for the 2017 paper's stirred-tank model, not the paper itself.
+
+- key: kla_bubble_column_correlation_heijnen_vantriet
+  value: 0.32
+  unit: "kLa [1/s] = 1.022^(T-20) x 0.32 (vsG [m/s])^0.7, coalescing broth"
+  grade: A
+  source: "Almeida Benalcázar E, et al. Biotechnol Bioeng (2025), citing Heijnen & van 't Riet (1984)"
+  doi_or_url: 10.1002/bit.28969
+  locator: "Sec. 2.5 'Transfer rates', Eq. 13 (Europe PMC PMC12067044)"
+  quote: "The mean superficial gas velocity (v_sG^mean, in m/s) determines the [k_L a]_O2 (in s−1), assuming the broth is a coalescing liquid."
+  read: html
+  note: >-
+    Eq. 13 converted from MathML by the fetch tool: "[kLa]_O2 = 1.022^(T-20) x (0.32 x
+    (v_sG^mean)^0.7)"; Eq. 14 gas hold-up: "ε_G = 0.6 x (v_sG^mean)^0.7" (both cited to
+    Heijnen & Van't Riet 1984, Chem Eng J 28:B21-B42, doi 10.1016/0300-9467(84)85025-x, not read). Humbird's baker's-yeast
+    simulator uses the same 0.32 and 0.7 with a viscosity term: SI sheet A.1 cells A95:F95
+    "kLa correlation const | 0.32 | 0.7 | 1.025 | -0.84", formula AZ287
+    "=$C$95*AV287^$D$95*$E$95^($C$80-20)*AX287^$F$95" (AV = average us in m/s, AX =
+    suspension viscosity in cP from a Krieger-Dougherty model with phi_max 0.626).
+    Non-coalescing yeast broths should transfer better than this coalescing form (no number
+    found for bubble columns).
+
+- key: kla_bubble_column_600m3_linear_model
+  value: 0.288
+  unit: "kLa = 0.288 vs (units not stated in the sentence; presumably 1/s with vs in m/s)"
+  grade: A
+  source: "Bisgaard J, et al. J Ind Microbiol Biotechnol 49:kuac021 (2022)"
+  doi_or_url: 10.1093/jimb/kuac021
+  locator: "Methods, compartment model (Europe PMC PMC9559308)"
+  quote: "The mass transfer coefficient, kLa(j, k), was modeled with a simple linear relationship with the superficial gas velocity kLa = 0.288 vs (Guske & Miller, 2009)."
+  read: html
+  note: >-
+    From operator data for the DuPont Tate & Lyle 600 m3 column (Guske & Miller 2009, not
+    read). O2 solubility treatment, verbatim: "followed by the application of Henry's law with
+    the assumption that the way oxygen solubilizes in the fermentation broth is similar to
+    pure water." At vs = 0.1 m/s this gives 0.029 1/s = 104 1/h (derived), below Heijnen's
+    0.32 vs^0.7 (0.064 1/s) at the same vs.
+
+- key: kla_fungal_broth_viscosity_exponent
+  value: -0.699
+  unit: "exponent c on online viscosity in kLa = C (P/V)^a vs^b mu^c (a = 0.499, b = 0.484)"
+  grade: A
+  source: "Lemperle M, Ramin P, Kager J, Cassells B, Stocks S, Gernaey KV. Hybrid modeling for industrial fermentation processes with an 'Intra-Batch Experimental Design'. J Ind Microbiol Biotechnol 53:kuag014 (2026)"
+  doi_or_url: 10.1093/jimb/kuag014
+  locator: "Results, 'Fitting and validation of kLa correlation' (Europe PMC PMC13278493)"
+  quote: "The final parameters for the online correlation are C = 11.348 ± 0.732, a = 0.499 ± 0.007, b = 0.484 ± 0.013, and c = –0.699 ± 0.007"
+  read: html
+  note: >-
+    The sentence continues: "while the parameters for the offline correlation are C = 25.241
+    ± 23.532, a = 0.527 ± 0.131, b = 0.355 ± 0.172, and c = –0.814 ± 0.200." Industrial
+    fungal enzyme fermentations (Aspergillus and Trichoderma strains; Novozymes
+    co-author) at 550 L pilot scale; online model R2 = 0.92 (1,909 points). Units of kLa, P/V
+    and vg are inline graphics in the XML and could not be read, so C is unusable as is;
+    viscosity units: "Apparent viscosity (Pa*s)" (offline), "Online viscosity (mPa*s)". The
+    exponents are the transferable part: doubling broth viscosity cuts kLa by 38% (derived,
+    2^-0.699).
+
+- key: kla_fungal_correlation_nrel_validity_limit
+  value: 30
+  unit: m3 (maximum volume for which the correlation was intended; NREL applied it at 300 m3)
+  grade: B
+  source: "Humbird D, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Sec. 3.4.2, printed p.38 (PDF p.48)"
+  quote: "This correlation is intended for non-Newtonian fungal cultivation systems with a maximum volume of 30 m3."
+  read: fulltext
+  note: >-
+    Correlation from Wang DIC, Cooney CL, Demain AL, et al., Fermentation and Enzyme
+    Technology (Wiley 1979) [57]. The constant 8.42 is visible but the exponents are in an
+    equation object that pdftotext cannot extract (not re-rendered, to avoid writing files).
+    The correlation "assumes that P/VL is expressed in hp/1,000 L. VG is the superficial gas
+    velocity (cm/s) in the head space." NREL adds: "Our bioreactors exceed the maximum
+    intended volume for this correlation by several orders of magnitude but we believe that
+    this equation yields results that are reasonable enough in the absence of more
+    sophisticated reactor design".
+
+- key: our_max_treesei_cellulase_nrel
+  value: 56
+  unit: mmol O2/L-h (peak, at 50% initial working volume)
+  grade: B
+  source: "Humbird D, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Sec. 3.4.2, printed p.38 (PDF p.48)"
+  quote: "At its maximum (i.e., at the initial working volume of 50%), the OUR is 56 mmol/L-h."
+  read: fulltext
+  note: >-
+    Computed stoichiometrically from a 0.30 g/L-h protein productivity (not a transfer
+    limit). Preceding sentence: "The total oxygen demand for one bioreactor producing 12,000
+    kg protein in 120 hours online is 8.4 kmol/h." DO setpoint: "assumed to be 30% of
+    saturation at 1 atm absolute pressure (0.063 mmol/L)".
+
+- key: superficial_gas_velocity_treesei_nrel
+  value: 200
+  unit: cm/min (= 0.033 m/s, derived), average
+  grade: B
+  source: "Humbird D, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Sec. 3.4.2, printed p.39 (PDF p.49)"
+  quote: "In absolute terms, the average aeration rate for a VG of 200 cm/min was 0.83 standard m3/s (including two days of offline time)."
+  read: fulltext
+  note: "300 m3 T. reesei vessels, 1 atm top pressure."
+
+- key: agitator_power_treesei_300m3_nrel
+  value: 600
+  unit: kW maximum per 300 m3 vessel (average 260 kW)
+  grade: B
+  source: "Humbird D, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Sec. 3.4.2, printed p.39 (PDF p.49)"
+  quote: "The average impeller power P was determined to be 260 kW (350 hp), with a maximum of 600 kW (800 hp)."
+  read: fulltext
+  note: "600 kW on the 240 m3 maximum working volume = 2.5 kW/m3 (derived); 260 kW on an average ~195 m3 = ~1.3 kW/m3 (derived)."
+
+- key: electricity_per_kg_enzyme_treesei_nrel
+  value: 9
+  unit: kWh/kg crude enzyme protein (aeration + agitation + chilling + pumps)
+  grade: B
+  source: "Humbird D, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Table 21, printed p.40 (PDF p.50)"
+  quote: "Air compressor | 1,408 kW | Agitators | 2,326 kW | Chiller system (Area 400 contribution) | 1,587 kW | Total electricity (includes pumps, etc.) | 5,340 kW | Total electricity demand per kg protein | 9 kWh/kg"
+  read: fulltext
+  note: >-
+    Nine 300 m3 T. reesei fed-batch vessels, 490 kg/h protein, 0.24 g/g yield, 84 mol O2/kg
+    protein (INDEX note). Compressor spec (printed p.40): "The air compressor is a packaged
+    unit from Dresser Roots, capable of delivering 8,000 SCFM of air at 3 atm."
+
+- key: sparge_rate_design_limit
+  value: 2
+  unit: vvm (upper design limit, high-density fermentation)
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Sec. 1, printed p.5 (PDF p.10)"
+  quote: "In high-density fermentation, typical design limits are a sparge rate up to ~2 vvm (standard volumes of gas per volume of liquid per minute) and an agitation rate up to ~5,000 W/m3 (agitator power input per volume of liquid)."
+  read: fulltext
+  note: "No primary cited for this sentence (the next one cites Nienow [53]). Observed industrial range: 0.085-0.98 vvm (Losoi 2022), 0.3-1 vvm (Mast 2025), 1.2-1.6 vvm (Intelligen design)."
+
+- key: agitation_power_design_limit
+  value: 5000
+  unit: W/m3 (upper design limit)
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021)"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Sec. 1, printed p.5 (PDF p.10)"
+  quote: "In high-density fermentation, typical design limits are a sparge rate up to ~2 vvm (standard volumes of gas per volume of liquid per minute) and an agitation rate up to ~5,000 W/m3 (agitator power input per volume of liquid)."
+  read: fulltext
+  note: "Upper bound. Humbird's own 200 m3 aeration model needs ~1.1-1.5 kW/m3 at OUR 150-200 (next entries); NREL T. reesei design peaks at ~2.5 kW/m3."
+
+- key: aeration_model_200m3_str_our150_power_per_volume
+  value: 1148.3897415194872
+  unit: W/m3 ungassed agitator power (200 m3 STR, 157 m3 working, OUR 150 mol/m3-h)
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet Fig1.3, row 197 (A197, B197, C197, AC197)"
+  quote: "STRFERM 200,000 | 157169.6 | 150 | 1148.3897415194872"
+  read: fulltext
+  note: >-
+    Columns: A = vessel, B = working volume (L), C = OUR (mol/m3-h), AC = "P/V | W/m3".
+    Same row: us top 0.0496 m/s (AD197), kLa 0.18602756758246183 1/s = 670 1/h (AH197,
+    derived), VVM 0.41287595022786294 (AR197), vessel D 5 m, liquid height 8.0 m, bottom
+    pressure 2.114 bar. P/V formula (AC27): "=IFERROR(5*1000*(E27/60)^3*G27^5/B27*1000*2,0)"
+    i.e. power number 5, two impellers. Model output, not a measurement.
+
+- key: aeration_model_200m3_str_our150_electric_power
+  value: 1124.9843450223962
+  unit: kW total (compressor 197.5 + agitator 180.5 + refrigeration 747.0) for 157 m3 at OUR 150
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet Fig1.3, row 197, columns AL, AM, AN, AP"
+  quote: "197.47485606887773 | 180.4919563187212 | 747.0175326347974 | 1124.9843450223962"
+  read: fulltext
+  note: >-
+    Column headers (rows 24-26): "Compr | power | kW", "Agitator | power | kW", "Refrig |
+    power | kW", "Total | Power | kW". Derived: 23.6 kmol O2/h = 754 kg O2/h transferred, so
+    0.26 (compressor) + 0.24 (agitator) + 0.99 (refrigeration) = 1.49 kWh/kg O2; implied heat
+    removed 747/0.263 = 2.84 MW = 18 kW/m3 = 434 kJ per mol O2 including agitation heat
+    (derived). Refrigeration dominates. Compressor formula (AL27): "=D27*2.205*379.4/60*
+    (77+460)/8130/1.4*(I27^1.4-1)*0.7457/0.8" -- the trailing /0.8 appears to be an overall
+    compressor efficiency (inferred, unlabelled). CHECK WHEN PORTING (Phase C1): the formula
+    raises the bottom pressure to the power 1.4; an ideal adiabatic compression of the same
+    air flow (D197 = 173.8 kmol/h, 1.0 -> 2.11 bar, 298 K, exponent 0.286) at 80% efficiency
+    needs ~125 kW (derived), vs 197.5 kW in the sheet. The baker's-yeast sheet uses the same
+    formula (A.1!BD287); there compressor power costs 0.0772 $/kg DCW (A.1!H212) of the ~$1.9/kg
+    total, so the effect on that calibration is small.
+
+- key: o2_delivery_cost_200m3_str_our150
+  value: 0.571873718534426
+  low: 0.4589576632009588
+  high: 1.4550987209271773
+  unit: USD2018 per kg O2 delivered (low = OUR 200, high = OUR 50), 200 m3 STR
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet Fig1.3, BD187 (OUR 50), BD192 (OUR 100), BD197 (OUR 150), BD202 (OUR 200); header BD24:BD26"
+  quote: "O2 deliv | cost | $/kg O2 | STRFERM 200,000 | 150 | 0.571873718534426"
+  read: fulltext
+  note: >-
+    Aggregate capital + operating cost of O2 delivery (vessel, compressor, chiller; Lang
+    factor 4.5; capital charge 0.1175/yr from 20 y at 10% IRR; maintenance 4% + insurance/tax
+    5% of TCI; 8,400 h/yr; electricity $0.0472/kWh; + 1 FTE at $100k/yr). OUR 100 gives
+    0.7955924196022638 (BD192). Same OUR 150 for a 20 m3 vessel: 1.296695812015926 (BD109).
+    Excludes the O2 itself (air) and any head pressure beyond 1.33 bar.
+
+- key: compressor_efficiency_cost_study
+  value: 0.7
+  unit: overall compressor efficiency (electrical + mechanical losses)
+  grade: B
+  source: "Cardoso VM, et al. Biotechnol Rep 26:e00441 (2020)"
+  doi_or_url: 10.1016/j.btre.2020.e00441
+  locator: "Methods (Europe PMC PMC7049567)"
+  quote: "This approach was analogous to the procedure of Knoll et al. [29], considering an ideal single-stage compressor, with electrical and mechanical compression losses taken into account using the efficiency number (η_C = 0.7) [24]."
+  read: html
+  note: >-
+    Lab-scale E. coli cost study; assumption, not a measurement. Same paper: stirring energy
+    efficiency "The energy efficiency (ηS) was assumed to be 0.65" (fetch-tool rendering).
+    Compare Humbird SI (/0.8, inferred) and BioSTEAM default isentropic efficiency 0.85
+    (software default in biosteam/units/aerated_bioreactor.py, no source given; grade E).
+
+- key: vvm_range_industrial_reactors_simulated
+  value: 0.53
+  low: 0.085
+  high: 0.98
+  unit: vvm (four industrially relevant reactors, 8-237 m3 working volume)
+  grade: A
+  source: "Losoi P, Konttinen J, Santala V. Substantial gradient mitigation in simulated large-scale bioreactors by optimally placed multiple feed points. Biotechnol Bioeng 119(12):3549-3566 (2022)"
+  doi_or_url: 10.1002/bit.28232
+  locator: "Methods (Europe PMC PMC9828524)"
+  quote: "Each reactor was simulated with a compartment model based on previously published modeling approaches, with gas flow rates ranging from 0.085 to 0.98 vvm."
+  read: html
+  note: >-
+    value = midpoint. Also: "...compartment models of four industrially relevant bioreactors
+    with working volumes ranging from 8 to 237 m³." One stirred reactor (R4, 2.09 m diameter,
+    23.8 m3) had "k_L a = 180 h⁻¹" at 115 rpm and 35 deg C (fetch-tool rendering, not a full
+    sentence).
+
+# ---------------------------------------------------------------------------------------
+# 6. O2 solubility (Henry's law, salting-out)
+# ---------------------------------------------------------------------------------------
+
+- key: henry_o2_water_298k
+  value: 1.3e-5
+  unit: mol/(m3 Pa) at 298.15 K (= 1.3 mmol/(L bar), derived); d ln H / d(1/T) = 1500 K
+  grade: A
+  source: "Sander R. Compilation of Henry's law constants (version 5.0.0) for water as solvent. Atmos Chem Phys 23:10901-12440 (2023), online database henrys-law.org"
+  doi_or_url: https://www.henrys-law.org/henry/casrn/7782-44-7
+  locator: "O2 (CAS 7782-44-7), first table row (recommended, Burkholder et al. 2019)"
+  quote: "1.3×10⁻⁵ | 1500 | Burkholder et al. (2019) | L | 1)"
+  read: html
+  note: >-
+    TABLE ROW. Temperature correction: H(T) = H298 exp(1500 (1/T - 1/298.15)) gives 1.20
+    mmol/(L bar) at 30 deg C and 1.07 at 37 deg C (derived). Another listed row: Warneck &
+    Williams (2012) 1.2×10⁻⁵ with 1700 K. Pure water; broth is lower (salting-out, sugars).
+
+- key: henry_o2_humbird_model
+  value: 1.3
+  unit: mmol/(L bar) at 298 K; temperature dependence 1700 K
+  grade: B
+  source: "Humbird D. Biotechnol Bioeng 118:3239-3250 (2021), SI workbook"
+  doi_or_url: 10.1002/bit.27848
+  locator: "SI workbook, sheet Phys, cells A54:C55"
+  quote: "Henry H_O2 @ 298K | 1.3 | mmol/L-bar | H O2 temp dependence | 1700"
+  read: fulltext
+  note: "Used as H(T) = 1.3 exp(1700 (1/T - 1/298)); cell A.1!F91 gives 1.1832055629242697 mmol/L-bar at 30 deg C. No salting-out correction in the model (pure-water solubility)."
+
+- key: henry_o2_broth_nrel
+  value: 1
+  unit: "atm/(mmol/L) as written by NREL, i.e. C* = 0.21 mmol/L for air at 1 atm"
+  grade: B
+  source: "Humbird D, et al. NREL/TP-5100-47764 (2011)"
+  doi_or_url: https://docs.nrel.gov/docs/fy11osti/47764.pdf
+  locator: "Sec. 3.4.2, printed p.38 (PDF p.48)"
+  quote: "Henry’s coefficient for oxygen in water was set equal to 1 atm/(mmol/L) for all calculations."
+  read: fulltext
+  note: >-
+    Continues: "(Henry’s coefficient for oxygen in pure water is approximately 1.3
+    atm/(mmol/L) at 25°C, but solubility may be affected by the non-water components in the
+    broth; a coefficient of 1 is a reasonable initial estimate.)" UNIT ERROR IN SOURCE:
+    1.3 is correct in mmol/(L atm), the inverse of the units written (Sander: 1.32 mmol/(L
+    atm)). NREL's calculation is consistent with H = 1 atm L/mmol (DO 30% sat = 0.063 mmol/L,
+    so C* = 0.21 mmol/L), which is ~20% below pure water at 25 deg C (0.27 mmol/L,
+    derived) -- a plausible broth salting-out allowance, but the text misstates it.
+
+- key: o2_saturation_30c_scp_model
+  value: 0.069
+  unit: mmol/kg = 30% of air saturation at 1 atm (saturation = 0.23 mmol/kg, derived)
+  grade: B
+  source: "Almeida Benalcázar E, et al. Biotechnol Bioeng (2025)"
+  doi_or_url: 10.1002/bit.28969
+  locator: "Sec. 2.2 'Model assumptions' (Europe PMC PMC12067044)"
+  quote: "A dissolved O₂ concentration (C_O₂) of 0.069 mmol/kg equals 30% of the saturation concentration of O₂ at atmospheric conditions."
+  read: html
+  note: "Temperature 30 deg C in the model (broth cooled from 30 deg C). Compare pure water at 30 deg C with air: 1.20 mmol/(L bar) x 0.203 bar = 0.24 mmol/L (derived)."
+
+- key: o2_solubility_increase_as_sugar_consumed
+  value: 41
+  unit: "% increase in O2 solubility as 230 g/L xylose or glucose is consumed"
+  grade: A
+  source: "Slininger PJ, Petroski RJ, Bothast RJ, Ladisch MR, Okos MR. Measurement of oxygen solubility in fermentation media: a colorimetric method. Biotechnol Bioeng 33:578-583 (1989)"
+  doi_or_url: 10.1002/bit.260330510
+  locator: abstract
+  quote: "For example, during fermentations started with 230 g/L xylose or glucose, oxygen solubility could increase by 41% due to sugar consumption alone."
+  read: abstract
+  note: >-
+    Measured. Implication: in glucose-limited fed-batch (residual sugar ~0) the sugar
+    salting-out term is small; salts dominate. No readable source found for a general
+    'broth vs water' reduction factor (see section 8).
+
+# ---------------------------------------------------------------------------------------
+# 7. K. phaffii (Pichia) at scale: O2 demand and heat under methanol
+# ---------------------------------------------------------------------------------------
+
+- key: pichia_methanol_induction_our_lab
+  value: 250
+  low: 200
+  high: 300
+  unit: mmol O2/L-h (stirred lab bioreactors, methanol induction)
+  grade: A
+  source: "Liu H, Du W, Chang X, Zhao Y, Wu W, Sun C. A universal medium bridging the shake-flask to fermenter gap in Pichia pastoris for enhanced zearalenone lactonase production. Front Microbiol 17:1854154 (2026)"
+  doi_or_url: 10.3389/fmicb.2026.1854154
+  locator: "Discussion, p.13 (right column)"
+  quote: "In contrast, in stirred bioreactors equipped with active aeration, P. pastoris can achieve a high and stable oxygen uptake rate (OUR) of 200–300 mmoL/L/h during the methanol induction phase (Yu et al., 2010)."
+  read: fulltext
+  note: >-
+    value = midpoint. Secondary (Yu et al. 2010, not read). Two-column PDF dump interleaves
+    columns; sentence reassembled from the right column. Lab scale: exceeds the 150-200
+    mmol/L-h production ceilings above, which is the core feasibility problem for methanol
+    processes at scale.
+
+- key: pichia_mutS_methanol_otr_required
+  value: 149
+  unit: mmol O2/L-h (Mut(S) strain, methanol-only feed phase, lab bioreactor)
+  grade: A
+  source: "Zavec D, Gasser B, Mattanovich D. Biotechnol Bioeng 117:1394-1405 (2020)"
+  doi_or_url: 10.1002/bit.27303
+  locator: "Results (Europe PMC PMC7187134)"
+  quote: "The OTR needed to sustain the Mut− strain in aerobic conditions during the methanol only feed phase is lower by 85%, from 149 to 23 mM/hr."
+  read: html
+  note: "149 is the Mut(S) reference; 23 the Mut- strain. Specific O2 uptake 1.235 vs 0.239 mmol/g-h (Table 2). See pichia_methanol_heat_production_rate."
+
+- key: pichia_sorbitol_cofeed_o2_reduction
+  value: 30
+  unit: "% reduction in O2 consumption (upper bound, 'up to')"
+  grade: A
+  source: "Yamanie A, de Sá Magalhães S, Wijayadikusumah AR, Nurainy N, Keshavarz-Moore E. Enhancing sustainability and productivity in Komagataella phaffii fermentation: a techno-economic comparison of fed-batch and continuous cultivation with mixed induction strategies. Fermentation 12:97 (2026)"
+  doi_or_url: 10.3390/fermentation12020097
+  locator: "Introduction, p.2"
+  quote: "Studies have demonstrated that methanol/sorbitol co-feeding can lower oxygen consumption by up to 30%, decrease heat output, and significantly reduce the release of host cell proteins (HCPs), thereby enhancing product purity and downstream processing efficiency [4]."
+  read: fulltext
+  note: >-
+    Secondary ([4] not read). Same page: "Among these are excessive oxygen demand, substantial
+    heat generation, and stringent safety requirements associated with handling large volumes
+    of flammable methanol at industrial scale [3,4]." The paper also lists "scale-dependent
+    differences in oxygen transfer and heat removal" among its own limitations (5 L data
+    modelled to 40 and 400 L).
+
+- key: pichia_max_cell_density_reported
+  value: 244
+  unit: g DCW/L (glycerol, 48 h, lab bioreactor)
+  grade: A
+  source: "Shemesh P, Fishman A. Optimal fermentation conditions for growth and recombinant protein production in Pichia pastoris: strain selection, ploidy level and carbon source. Curr Res Food Sci 9:100840 (2024)"
+  doi_or_url: 10.1016/j.crfs.2024.100840
+  locator: abstract
+  quote: "Notably, wild-type strain Y-7556 reached an exceptional biomass concentration of 244 g DCW/L in just 48 h, the highest reported to date, highlighting the potential of high-cell-density fermentation in P. pastoris ."
+  read: fulltext
+  note: >-
+    Biological/rheological ceiling at lab scale, not an O2-feasible production density. For
+    scale: ~95 g/L DCW held at 1,000 L (Liu 2016) and 92 g/L in the Intelligen design.
+
+- key: co2_partial_pressure_tolerance_example
+  value: 0.26
+  unit: bar pCO2 without loss of mu_max (C. glutamicum on glucose)
+  grade: D
+  source: "Bäumchen C, Knoll A, Husemann B, et al. Effect of elevated dissolved carbon dioxide concentrations on growth of Corynebacterium glutamicum on D-glucose and L-lactate. J Biotechnol 128:868-874 (2007)"
+  doi_or_url: 10.1016/j.jbiotec.2007.01.001
+  locator: abstract
+  quote: "On d-glucose and pCO2 up to 0.26 bar, mu(max) was mostly constant around 0.58 h(-1)."
+  read: abstract
+  note: >-
+    Different organism (analogy for tall, pressurised vessels where pCO2 rises). Same
+    abstract: "At very high pCO2 (0.81 bar) mu(max) decreased down to 0.35 h(-1) independent
+    of the carbon source." No K. phaffii or T. reesei pCO2 threshold found.
+
+# ---------------------------------------------------------------------------------------
+# 8. Requested but NOT sourced (quote: null). Not usable. Do not fill from memory.
+# ---------------------------------------------------------------------------------------
+
+- key: humbird2017_design_equations_and_max_otr
+  value: null
+  unit: "kLa correlations, max OTR, compressor/agitator power and cost equations"
+  grade: B
+  source: "Humbird D, Davis R, McMillan JD. Aeration costs in stirred-tank and bubble column bioreactors. Biochem Eng J 127:161-166 (2017)"
+  doi_or_url: 10.1016/j.bej.2017.08.006
+  locator: "full text not read"
+  quote: null
+  read: abstract
+  note: >-
+    OSTI accepted manuscript (osti.gov/biblio/1392775) unreachable: ECONNREFUSED from the
+    fetch tool on every OSTI URL, and the browser pane refused navigation to osti.gov;
+    ScienceDirect (article and /am/ accepted-manuscript pages) returned 403. Only the abstract was read (entries in section 1). Best readable proxy:
+    Humbird 2021 SI sheet Fig1.3 (section 5), which reimplements the stirred-tank model with
+    van 't Riet non-coalescing constants and adds one FTE. The bubble-column equations of the
+    2017 paper remain unverified. Fetch by hand (P1).
+
+- key: garcia_ochoa_gomez_2009_tables
+  value: null
+  unit: "typical kLa/OTR values and kLa correlations (review tables)"
+  grade: A
+  source: "Garcia-Ochoa F, Gomez E. Bioreactor scale-up and oxygen transfer rate in microbial processes: an overview. Biotechnol Adv 27:153-176 (2009)"
+  doi_or_url: 10.1016/j.biotechadv.2008.10.006
+  locator: "abstract only"
+  quote: null
+  read: abstract
+  note: >-
+    Abstract (Europe PMC) contains no numbers. academia.edu copy 403, Semantic Scholar
+    figure page empty (JavaScript), UCM repository page lists metadata only; the Elsevier
+    page was not tried (all other ScienceDirect pages returned 403). Paywalled; get via
+    institutional access.
+
+- key: van_t_riet_1979_constants_primary
+  value: null
+  unit: "kLa = C (P/V)^a us^b; coalescing and non-coalescing media"
+  grade: A
+  source: "van 't Riet K. Review of measuring methods and results in nonviscous gas-liquid mass transfer in stirred vessels. Ind Eng Chem Process Des Dev 18:357-364 (1979)"
+  doi_or_url: 10.1021/i260071a001
+  locator: "not read"
+  quote: null
+  read: abstract
+  note: >-
+    ACS paywall, not read; no open-access paper found that prints the constants in readable
+    text. Constants seen only in (a) Humbird 2021 SI Fig1.3 (0.002, 0.7, 0.2; used for the
+    non-coalescing stirred tank, grade B above) and (b) a web tool page (bioprocesstools.com,
+    'BioProcess Tools Team', Mar 2026; grade E): "For coalescing media: C1 = 0.026, α = 0.4,
+    β = 0.5" and "For non-coalescing media: C1 = 0.002, α = 0.7, β = 0.2", "P/V in W/m³, vs
+    in m/s, kLa in s⁻¹". Validity ranges (vessel volume, P/V) not verified. DOI and pages from
+    Crossref (checked). 'read: abstract' means not even the abstract was read here.
+
+- key: cooney_1969_heat_per_o2
+  value: null
+  unit: kcal/mmol O2 (widely quoted as 0.12)
+  grade: A
+  source: "Cooney CL, Wang DIC, Mateles RI. Measurement of heat evolution and correlation with oxygen consumption during microbial growth. Biotechnol Bioeng 11:269-281 (1969); reprinted Biotechnol Bioeng 67:691 (2000)"
+  doi_or_url: 10.1002/bit.260110302
+  locator: abstract
+  quote: null
+  read: abstract
+  note: >-
+    The abstract (Europe PMC, 2000 reprint) states the correlation but gives no number:
+    "The proportionality constant for the correlation is independent of the growth rate,
+    slightly dependent on the substrate, and possibly dependent on the type of organism
+    growth." Body not read (paywalled). The 0.12 kcal/mmol figure is not verified here;
+    use heat_per_o2_shuler_kargi_cooney (0.50 kJ/mmol, the same number in kJ) or the
+    calorimetric oxycaloric_equivalent instead.
+
+- key: doran_heat_per_o2
+  value: null
+  unit: kJ/mol O2 (commonly quoted as -460)
+  grade: A
+  source: "Doran PM. Bioprocess Engineering Principles, 2nd ed. Academic Press (2013)"
+  doi_or_url: "ISBN 978-0-12-220851-5 (chapters have DOIs 10.1016/b978-0-12-220851-5.000xx)"
+  locator: "not read"
+  quote: null
+  read: abstract
+  note: >-
+    Textbook not accessible legally online (only pirated copies turned up; not used). The
+    same 460 kJ/mol is quoted from Roels (1983) by Almeida Benalcázar 2025 (section 3).
+    'read: abstract' means nothing was read.
+
+- key: benz_2011_bioreactor_design_heat_and_power
+  value: null
+  unit: "heat per O2, P/V and heat-transfer design values"
+  grade: C
+  source: "Benz GT. Bioreactor design for chemical engineers. Chem Eng Prog (Aug 2011) pp. 21-26"
+  doi_or_url: https://www.aiche.org/resources/publications/cep/2011/august/bioreactor-design-chemical-engineers
+  locator: "not read"
+  quote: null
+  read: abstract
+  note: >-
+    AIChE page 403; Semantic Scholar API rate-limited (429); only pirated copies found. A
+    search-engine snippet attributed ~460 kJ/mol O2 and "OUR of 200 mmol/L-h" as mid-range
+    to this article; unverified. Benz's related CEP pieces ("Optimize power consumption in
+    aerobic fermenters" 2003; "Optimize aspect ratio in industrial fermenters" 2019) also not
+    read.
+
+- key: u_jacket_and_internal_coil_fermenter
+  value: null
+  unit: W/(m2 K)
+  grade: A
+  source: "no authoritative readable source found"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: abstract
+  note: >-
+    Only readable U values: 1.4 kW/(m2 K) for an external shell-and-tube broth cooler
+    (Almeida Benalcázar 2025 citing Towler & Sinnott 2013, section 4), and 242 W/(m2 K) for a
+    50 L single-use cell-culture bag (Müller et al. Eng Life Sci 2017, abstract; not relevant
+    to stainless microbial fermenters, not recorded). Vendor pages for brewery tanks give
+    jacket/coil ranges but concern unagitated beer tanks (not used). Needed: textbook values
+    (Towler & Sinnott; Doran) for agitated jackets and coils, and a viscous-broth correction.
+
+- key: o2_solubility_broth_vs_water_reduction
+  value: null
+  unit: "% reduction of O2 solubility in typical fermentation medium vs water"
+  grade: A
+  source: "not found"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: abstract
+  note: >-
+    A search-engine summary stated "between 5% and 25% lower than in water" without a
+    traceable source; not used. Candidate primaries (not read; citations checked on Crossref):
+    Weisenberger & Schumpe, AIChE J 42:298-300 (1996), doi 10.1002/aic.690420130; Quicker et
+    al., Biotechnol Bioeng 23:635-650 (1981), doi 10.1002/bit.260230313; Gros et al.,
+    Biotechnol Prog 15:923-927 (1999) (abstract read: model only, no numbers).

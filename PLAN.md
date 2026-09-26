@@ -1,73 +1,130 @@
-# Project plan
+# Project plan (v2, 2026-09-26)
 
-Purpose: calibrated, verifiable cost estimates for PF whey and egg proteins, for
-the alt-protein community and impact investors. Not a paper. A public benchmark.
+**Purpose.** A public techno-economic analysis of precision-fermented whey (β-lactoglobulin)
+and egg-white (ovalbumin) proteins, at the standard of Humbird's 2021 cultivated-meat TEA.
+Audience: the alt-protein community, funders and EU policy. Deliverables: a report and
+preprint, code and workbook as supplementary information, an interactive explorer, and a
+one-page memo.
 
-## Phase 0 — Learn the accounting (3 weeks, ~15 h)
-Read in the order given in docs/READING.md. Exit criterion: you can rebuild
-Voutilainen 2021's cost table by hand in a spreadsheet within 20%.
+**The question** is fixed in [docs/SCOPE.md](docs/SCOPE.md): cost today, cost at the
+physical limits, and the performance needed for price parity.
 
-## Phase 1 — Data table (2 weeks)
-Fill data/titers.csv with every public titer, yield and secretion figure for
-BLG and ovalbumin (papers, patents, company disclosures). Fill
-data/assumptions.yaml with base/low/high and a source for every line.
-Exit criterion: fewer than 3 parameters with source "guess".
+**Method.** A physics-bounded process model rather than a factored top-down one:
+1. Element-balanced stoichiometry gives sugar, O₂ and heat per kg of protein.
+2. Fermenter transport limits (O₂ transfer, cooling, viscosity) give the feasible
+   productivity for each vessel size.
+3. From those, size the plant and its schedule, the downstream train and the utilities.
+4. Cost the capital bottom-up with facility-class factors, then the operating costs and
+   the financing.
+5. Calibrate the method against real prices before it is allowed to say anything new.
 
-## Phase 2 — Deterministic model (4–6 weeks)
-Implement upstream -> downstream -> capex -> opex -> economics.
-Exit criterion: tests/test_validation.py passes (Voutilainen within 20%,
-Intelligen lactoferrin within 30%).
+## Honesty protocol (binding for every phase)
 
-## Phase 3 — Uncertainty (2 weeks)
-Monte Carlo over titer, yield, DSP recovery, sugar price, CapEx factor.
-Tornado chart. Cost-vs-titer curve per product.
-Exit criterion: industry-benchmark inputs (42 g/L, 10,000 t/yr) land in the
-$20–200/kg band; if not, find the accounting error.
+1. **Four scenarios, never merged:**
+   - `academic`: grade A/B data only;
+   - `industry`: adds grade C survey data and company claims;
+   - `required`: inverse, the performance frontier for $10, $20 and $50/kg;
+   - `physical-limit`: the floor at physical and stoichiometric limits.
 
-## Phase 4 — Review (2–3 weeks, mostly waiting)
-Send assumptions.yaml and the three figures to one GFI fermentation scientist
-and one bioprocess engineer. Fix what they flag. Record their comments in
-docs/REVIEW.md.
+   The headline figure is `required`.
+2. **Evidence grade on every parameter:** A peer-reviewed, B patent example, C company
+   claim, D analogy, E guess. Tornado charts are coloured by grade.
+3. **No tuning to calibration targets.** Structural parameters (cost curves, installation
+   factors, labour and utility models) are fixed once. Every anchor must pass with only
+   its own process inputs changed. Record failures in docs/VALIDATION.md before fixing
+   them.
+4. **Quotes, not numbers.** Every titers.csv row carries a verbatim quote and a locator.
+   Nothing enters the base case until the quote has been checked against the full text on
+   disk (`verified: yes`). Pablo audits by exception.
+5. **Public data only.** No private disclosures, and no citing the model's own outputs.
+6. **Pre-registered priors** (docs/SCOPE.md) are scored at release and never used to tune.
+7. **Agreement with another model is consistency, not validation.** Only real market
+   prices (baker's yeast, enzymes) anchor the method to reality. Say which kind of check
+   each one is.
 
-## Phase 5 — Release
-Interactive page (reuse the cultivated-meat page pattern), short write-up,
-one-page memo. Headline framing: "what must be true for PF dairy/egg proteins
-to reach $X/kg".
+## Phases
+
+| Phase | Weeks | Deliverables | Exit criterion |
+|---|---|---|---|
+| **A. Frame and learn** | 2 | docs/SCOPE.md, docs/PRIMER.md, docs/READING.md, exercise A1 | Pablo signs off SCOPE; reading and primer self-check done; A1 unit cost within 20% of $38.99/kg |
+| **B. Evidence** (parallel with A) | 2–3 | Remaining P1 items fetched; 31 titer rows verified; Intelligen inputs extracted to `data/validation/`; price series for whey, egg white, dextrose and energy (US + EU); sources for OTR ceilings, maximum vessel size and heat per O₂ | Every parameter sourced and graded; fewer than 3 base-case guesses |
+| **C. Process model** | ~8 | C1: port Humbird's yeast simulator (SI sheets A.1–A.3, Equip, RawUtil, Phys) and reproduce it. C2: product-formation reactions for both hosts and the maximum yield. C3: cooling and viscosity limits, giving feasible productivity vs vessel size. C4: downstream train sized from fluxes and capacities. C5: plant integration, schedule, utilities, waste; finance as capital charge and DCF. | Every module tested with its equations in the docstring; Humbird's baker's-yeast result reproduced within 1% (software check) |
+| **D. Calibration** (overlaps C) | 2 | Frozen structure run on four anchors; docs/VALIDATION.md | Baker's yeast within ±25% of the market-implied cost (reality check); NREL cellulase ±20%; Intelligen OVA ±30%; Voutilainen ±30%. Misses explained, not tuned away. |
+| **E. Results** | 3 | Four scenarios; Monte Carlo with correlated inputs; the SCOPE figures (cost map, cost bridge, frontier, floor, tornado, scale and siting) | All figures regenerate from one command. Sanity: industry-benchmark inputs outside $10–200/kg means look for an accounting error first. |
+| **F. Review** | ~4, mostly waiting | Assumptions and figures sent to a GFI fermentation scientist, an enzyme-industry bioprocess engineer and a known sceptic (optionally Humbird); docs/REVIEW.md | Every comment answered or fixed |
+| **G. Release** | 2 | Report plus engrXiv preprint, SI (code, YAML, exported workbook), explorer (cultivated-meat pattern), one-page memo, scored priors | Public |
+
+**Status (2026-09-26, end of day).** A v1 draft of phases B–E and G is built and awaits
+Pablo's review.
+- **B:** four evidence files, 369 graded entries: hosts, downstream, engineering, prices.
+- **C:** the process model, with Humbird's baker's yeast reproduced to 0.004%.
+- **D:** the calibration record, with misses recorded (`docs/VALIDATION.md`).
+- **E:** all analyses and figures, from one command.
+- **G drafts:** report, memo, SI workbook and explorer.
+
+Phase F (external review) has not started. Open items:
+- 15 titer rows are not yet verified in full text.
+- Pablo's SCOPE sign-off and the Phase A reading are pending.
+- 9 parameters are still grade E (listed in the report's limitations).
+
+## Decisions log
+
+- **2026-09-26, working mode:** Pablo reviews the finished v1 rather than gating each phase.
+  Claude builds B through G as a complete draft. Gates that need Pablo move to that review:
+  the SCOPE sign-off, the Phase A reading, and auditing the verified quotes by exception.
+  The honesty protocol is unchanged.
+- **2026-09-26** (defaults accepted by Pablo):
+  - Products: BLG + OVA in v1; casein in v2.
+  - Hosts: *K. phaffii* base, *T. reesei* variant.
+  - Plant: nth-of-a-kind, 10 kt/yr base, swept 1–100 kt/yr; US Midwest base plus an EU
+    variant.
+  - Output: report + preprint. This replaces v1's "not a paper".
+  - `openpyxl` added as a dev dependency.
+  - Product specs: the GRN 1056-style concentrate is the base; the isolate is a variant.
+- **2026-09-26, v1 build (Claude; for Pablo's review):**
+  - *Escalation 2018→2025:* 1.33 (CEPCI and the BLS machinery PPI), replacing the placeholder 1.25.
+    Humbird's own index (PPI chemicals, 1.23) is the low end; pumps and compressors (1.52) the
+    high end. For consistency, the NREL anchor is deflated to 2007 with CEPCI (0.871), NREL's
+    own index. This moved the recorded misses (see VALIDATION, record of changes).
+  - *Cost bridge:* one change per step, ending exactly at the base case (asserted in code).
+    OVA concentrate and isolate are shown as variants from the base.
+  - *Feasibility:* designs past the O₂ or heat limit are never costed as if they worked.
+    Required titers are searched only below the feasible ceiling. Tornado and Monte Carlo
+    mark infeasible draws.
+  - *OVA:* its practical solubility of 50 g/L (Intelligen's assumption) caps its titer and
+    floor. A sensitivity with the cap lifted is reported next to the base.
+  - *EU variant:* NL electricity (Eurostat band IF), EU gas (band I4), EU glucose proxies (C),
+    NL wages (derived, B). Construction costs are the same as the US: no sourced location
+    factor is on disk.
+- **2026-09-26:** Calibration anchors changed:
+  - add baker's yeast (reality check), NREL 2011 cellulase and Intelligen OVA 2025;
+  - Voutilainen 2021 moves from anchor 1 to anchor 4;
+  - Intelligen lactoferrin 2024 becomes an optional downstream check (not on disk).
+
+  `tests/test_validation.py` is updated in Phase D.
+- **2026-09-18:** Honesty protocol points 1–5 (then called amendments).
 
 ## What not to do
-- No point estimate without a titer stated next to it.
-- No more than two products.
-- No BioSTEAM as the core model; use it only to cross-check CapEx.
-- No claim that cannot be traced to a row in assumptions.yaml.
 
-## Amendments (2026-09-18, after first review of the scaffold)
+- No point estimate without its titer, rate and yield stated next to it.
+- No more than two products in v1.
+- No BioSTEAM or SuperPro as the core model. BioSTEAM may cross-check capital costs; the
+  SuperPro trial may only be used to read Intelligen's example file.
+- No claim that cannot be traced to a row in data/pf/base.yaml or data/evidence/.
+- No first-of-a-kind penalty mixed into the base case; it is shown separately.
+- No teaching numbers (docs/PRIMER.md, exercises) copied into the model; they are
+  illustrative.
 
-Honesty protocol — these are binding for every phase.
-1. **Three scenarios, never merged.** `academic` (grade A/B data only), `industry`
-   (adds grade C survey/company claims), `required` (inverse: the titer/yield/recovery
-   frontier needed to hit $10, $20, $50/kg). The headline figure is `required`.
-2. **Evidence grade on every parameter** (A peer-reviewed, B patent example,
-   C company claim, D analogy, E guess). Tornado charts are coloured by grade.
-3. **No tuning to validation targets.** Structural parameters (cost curves, Lang
-   factor, labour and utility models) are fixed once; both validation tests must
-   pass with only the papers' own process inputs changed. Record failures in
-   docs/VALIDATION.md before fixing them.
-4. **Quotes, not numbers.** Every titers.csv row carries a verbatim quote and
-   locator; nothing enters the base case until the quote is checked against the full
-   text on disk (`verified: yes`). Pablo audits by exception, not row by row.
-5. **Public data only.** No private disclosures, no citing the model's own outputs.
+## History
 
-Model additions queued for Phase 2.
-- Oxygen-transfer feasibility test: titer/(yield*batch_time) implies an O2 demand;
-  reject parameter sets above the OTR ceiling of large aerobic vessels
-  (order 150-250 mmol/L/h; source to be fixed in Phase 1).
-- Per-unit DSP sizing (filtration, optional chromatography with resin cost, drying)
-  replacing dsp_capex_multiplier; "no chromatography" is a named scenario.
-- Labour scaled with fermenter count; correlated sampling of titer and batch time.
-- Validation anchor candidates to add: NREL 2011 on-site enzyme section;
-  Klein-Marcuschamer 2012 cellulase cost. Decide after reading (Phase 0).
+v1 (2026-09-18) had phases 0–5. They map to v2 as follows:
+- 0 (learn) → A
+- 1 (data) → B
+- 2 (deterministic model) → C + D
+- 3 (uncertainty) → E
+- 4 (review) → F
+- 5 (release) → G
 
-Phase 4 addition: a third reviewer who is a known skeptic of PF economics.
-
-Layout addition: `references/` (INDEX.md committed; PDFs and text dumps ignored),
-`docs/LITERATURE.md` (what exists, what does not), `docs/VALIDATION.md`.
+v1's "model additions queued for Phase 2" (O₂ feasibility test, per-unit downstream
+sizing, labour scaled with fermenter count, correlated titer and batch-time sampling) are
+now part of C3–C5 and E.

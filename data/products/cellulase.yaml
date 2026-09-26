@@ -1,0 +1,7 @@
+# NREL 2011 cellulase (T. reesei), formula-only product for calibration anchor 2.
+# humbird2011 p.38: "Cellulase protein: CH1.59N0.24O0.42S0.01" (provided to NREL by Novozymes).
+name: cellulase (NREL 2011)
+key: cellulase
+formula_cmol: {C: 1, H: 1.59, O: 0.42, N: 0.24, S: 0.01}
+residues_per_cmol: 0.2      # ~5 carbons per average residue (only used for the ATP ceiling)
+spec: {}
