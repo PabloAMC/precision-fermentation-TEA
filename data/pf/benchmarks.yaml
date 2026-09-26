@@ -10,8 +10,8 @@ incumbents:
     trade_series:          # annual unit values, per kg product
       - {key: whey_protein_gt80_us_export_unit_value, currency: USD}
       - {key: whey_protein_gt80_eu_export_unit_value, currency: EUR}
-    protein_frac: {value: 0.80, low: 0.76, high: 0.88, grade: D,
-      source: "HS 3502.20 / CN 3502 20 91 cover products with >80% whey protein on dry matter (WPC80 and WPI mixed); 0.80 as traded assumed; WPI is >=90% dry basis"}
+    protein_frac: {value: 0.80, low: 0.76, high: 0.88, grade: C,
+      source: "HS 3502.20 / CN 3502 20 91 cover products with >80% whey protein on dry matter (WPC80 and WPI mixed); 0.80 as traded assumed. GFI 2025 p.31 converts WPC80/WPI $8.2-17.7/kg product to $10.3-19.9/kg protein, i.e. 0.80 (WPC80) and 0.89 (WPI)"}
     spot:                  # 2026 USDA Dairy Market News narrative quotes, per lb product
       - {key: wpc80_regular_us_dmn_2026, protein_frac: 0.80, label: "WPC80 spot 2026"}
       - {key: wpi_us_dmn_2026, protein_frac: 0.90, label: "WPI spot 2026"}
@@ -20,10 +20,12 @@ incumbents:
     compare_to: ova
     trade_series:
       - {key: egg_albumin_dried_eu_export_unit_value, currency: EUR}
-    protein_frac: {value: 0.78, grade: B,
-      source: "Voutilainen 2021 SI sheet 'Commercial protein prices': egg white powder 78% protein (prices.yaml note)"}
+    protein_frac: {value: 0.811, grade: A,
+      source: "USDA FoodData Central, SR Legacy fdcId 172204 'Egg, white, dried': protein 81.1 g, water 5.8 g per 100 g (API record, fetched 2026-09-26). Voutilainen 2021 SI lists 78%"}
     spot: []
   years: [2015, 2025]      # window for the trade-value band
+  money_year: 2025         # trade values are deflated to this year's dollars (the model's money year)
+  deflator: cpi_u_us       # BLS CPI-U annual average, data/evidence/prices.yaml
 
 titer_markers:             # (product in titers.csv, source_key, host) -> max titer of matching rows
   blg:

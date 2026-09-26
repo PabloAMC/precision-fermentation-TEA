@@ -1,9 +1,11 @@
 """Incumbent protein prices and literature titers, from the evidence files (no copied numbers).
 
-Price per kg protein = unit value [currency / kg product] x FX [USD per EUR, ECB annual average
-of the same year] / protein fraction of the product. Trade unit values (UN Comtrade, Eurostat
-Comext) are official statistics but only proxies for contract prices (prices.yaml).
-Spot quotes are USD/lb product: x 1/0.45359237 lb per kg.
+Price per kg protein, in dollars of `money_year` (2025, like the model):
+    unit value [currency / kg product] x FX [USD per EUR, ECB annual average of the same year]
+    / protein fraction of the product x CPI-U(money_year) / CPI-U(year)
+Trade unit values (UN Comtrade, Eurostat Comext) are official statistics but only proxies for
+contract prices (prices.yaml). Spot quotes are USD/lb product (x 1/0.45359237 lb per kg) and are
+kept in their own year's dollars (2026), which is stated wherever they are shown.
 """
 from __future__ import annotations
 
@@ -26,16 +28,19 @@ def incumbents() -> dict:
     ev = _evidence()
     fx = {int(y): float(x) for y, x in ev["eurusd_annual_average"]["values"].items()}
     y0, y1 = cfg["incumbents"]["years"]
+    my = int(cfg["incumbents"]["money_year"])
+    cpi = {int(y): float(x) for y, x in ev[cfg["incumbents"]["deflator"]]["values"].items()}
+    real = lambda y: cpi[my] / cpi[y]   # noqa: E731  nominal -> money_year dollars
     out = {}
     for name, c in cfg["incumbents"].items():
-        if name == "years":
+        if name in ("years", "money_year", "deflator"):
             continue
         pf = c["protein_frac"]["value"]
         series = {}
         for s in c["trade_series"]:
             e = ev[s["key"]]
             conv = (lambda y: fx[y]) if s["currency"] == "EUR" else (lambda y: 1.0)
-            series[s["key"]] = {int(y): float(val) * conv(int(y)) / pf for y, val in e["values"].items()
+            series[s["key"]] = {int(y): float(val) * conv(int(y)) / pf * real(int(y)) for y, val in e["values"].items()
                                 if y0 <= int(y) <= y1}
         allv = [x for s in series.values() for x in s.values()]
         latest = {k: s[max(s)] for k, s in series.items()}
@@ -44,7 +49,7 @@ def incumbents() -> dict:
                      high=ev[s["key"]].get("high", ev[s["key"]]["value"]) * LB_PER_KG / s["protein_frac"],
                      year=ev[s["key"]].get("year")) for s in c.get("spot", [])]
         out[name] = dict(label=c["label"], compare_to=c["compare_to"], protein_frac=pf, series=series,
-                         band=(min(allv), max(allv)), years=(y0, y1), latest=latest, spot=spot)
+                         band=(min(allv), max(allv)), years=(y0, y1), latest=latest, spot=spot, money_year=my)
     return out
 
 

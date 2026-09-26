@@ -241,7 +241,7 @@ Cysteine:
   gamma: 12
   dHf_kJ_mol: -430.2687196
   dGf_kJ_mol: -338.82
-  mw: 89.0938
+  mw: 121.159  # formula mass; Humbird's Phys sheet lists 89.0938 (alanine's mass), a typo in the source. Unused by the model
   locator: Phys!A27:L27
 Glutamine:
   C: 5
@@ -337,7 +337,7 @@ Methionine:
   gamma: 24
   dHf_kJ_mol: -495.1089428
   dGf_kJ_mol: -502.92
-  mw: 117.14739999999999
+  mw: 149.212  # formula mass; Humbird's Phys sheet lists 117.1474 (valine's mass), a typo in the source. Unused by the model
   locator: Phys!A35:L35
 Phenylalanine:
   C: 9

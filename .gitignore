@@ -9,3 +9,4 @@ references/reports/*.pdf
 references/**/*.xlsx
 references/text/
 .DS_Store
+references/inbox/
