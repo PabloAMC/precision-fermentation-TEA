@@ -1,0 +1,18 @@
+# USDA NASS, Milk Production, Disposition, and Income Annual Summary (reports for 2016-2025 summaries), table
+# 'Milk and Cream Marketings and Income - United States', column 'All milk average returns per cwt' (dollars per cwt = per 100 lb).
+# Each year taken from the latest report that lists it (revised value). Official annual figure, not computed.
+# Files: https://esmis.nal.usda.gov/publication/milk-production-disposition-and-income-annual-summary (text versions mlkpdiYY.txt); accessed 2026-09-26
+# Source report per year: 2015:MilkProdDi-04-27-2017.txt; 2016:MilkProdDi-04-26-2018.txt; 2017:mlkpdi19.txt; 2018:mlkpdi20.txt; 2019:mlkpdi21.txt; 2020:mlkpdi22.txt; 2021:mlkpdi23.txt; 2022:mlkpdi24.txt; 2023:mlkpdi25.txt; 2024:mlkpdi26.txt; 2025:mlkpdi26.txt
+# Unit: USD per cwt (100 lb = 45.359237 kg) of farm milk at actual test (US all-milk fat 4.24% in 2024 and 4.32% in 2025, mlkpdi26 column All milk percent of fat). 2026 not yet published as annual (July 2026 monthly = 20.30, NASS Agricultural Prices, 31 Aug 2026).
+year,value
+2015,17.21
+2016,16.34
+2017,17.69
+2018,16.28
+2019,18.65
+2020,18.16
+2021,18.54
+2022,25.39
+2023,20.38
+2024,22.56
+2025,21.19

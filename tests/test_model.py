@@ -187,3 +187,42 @@ def test_ova_solubility_sensitivity_caps_titer():
     p = params.override(BASE, {"plant.product": "ova", "plant.solubility_override_g_L": 50.0,
                                "strain.titer_g_L": 55.0})
     assert not sc.is_feasible(plant.evaluate(p))
+
+
+# ---------------------------------------------------------------- lactoferrin and equivalents
+def test_lactoferrin_formula_from_uniprot():
+    """Mature P24627 (689 aa, 16 disulfides): C3358 H5251 N945 O1002 S38, 76,111 Da (lactoferrin.yaml)."""
+    p = pr.protein("lf")
+    assert p.residues == 689
+    assert {k: round(x) for k, x in p.formula.items()} == {"C": 3358, "H": 5251, "N": 945, "O": 1002, "S": 38}
+    assert p.mw_molecule == pytest.approx(76111, abs=1)
+
+
+def test_cex_buffers_scale_with_throughput_not_resin_volume():
+    """Resin replacement and buffers depend on protein / capacity only; the cycle time sets capital."""
+    p = sc.scenario_params("lactoferrin", "lf")
+    r1 = plant.evaluate(p)
+    r2 = plant.evaluate(params.override(p, {"dsp.cex_cycle_h": 7.0}))
+    for k in ("chromatography resin", "DSP chemicals", "water & wastewater"):
+        assert r2.annual[k] == pytest.approx(r1.annual[k], rel=1e-9)
+    assert r2.design["resin_m3"] == pytest.approx(2 * r1.design["resin_m3"], rel=1e-9)
+    assert r2.tci > r1.tci
+
+
+def test_cex_recovery_in_total(blg):
+    p = sc.scenario_params("lactoferrin", "lf")
+    r = plant.evaluate(p)
+    d = r.design
+    sigma, N = v(p, "dsp.uf_rejection"), v(p, "dsp.cex_diafiltration_volumes")
+    R_uf = d["CF"] ** -(1 - sigma) * math.exp(-N * (1 - sigma))
+    expect = (d["recovery_cell_removal"] * v(p, "dsp.mf_recovery") * v(p, "dsp.cex_recovery") * R_uf
+              * v(p, "dsp.dryer_recovery"))
+    assert d["recovery"] == pytest.approx(expect, rel=1e-9)
+
+
+def test_equivalents_units():
+    from pftea import benchmarks as bm
+    e = bm.equivalents()
+    milk = e["milk"]["prices"]["US farm milk (all-milk price)"]
+    assert milk[2025] == pytest.approx(21.19 / 45.359237 * 1.0313, rel=1e-9)     # $/cwt -> $/L, 2025$
+    assert e["egg"]["target_g"] == pytest.approx(1.96)

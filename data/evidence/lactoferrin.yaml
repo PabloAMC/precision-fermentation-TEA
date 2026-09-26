@@ -1,0 +1,613 @@
+# data/evidence/lactoferrin.yaml: evidence for the lactoferrin contrast case (research pass 2026-09-26):
+# product definition, specifications, titers, the Intelligen 2024 design basis, downstream route and prices.
+# Format: data/evidence/README.md. 'Derived' numbers are our arithmetic and say so.
+#
+# data/evidence/ candidate entries for LACTOFERRIN (research output, 2026-09-26).
+# Format: data/evidence/README.md. Grades: A measured/official; B published design basis;
+# C company claim/survey/trade press; D analogy; E guess.
+# Everything below was read as raw text (UniProt REST JSON, FDA PDFs -> pdftotext/page images,
+# EUR-Lex HTML, publisher HTML read in the browser pane). No summarising web-fetch tool was used
+# for any number or quote. Items marked `read: none` are leads with no verified number.
+
+# =======================================================================================
+# 1. Product identity, sequence, mass balance
+# =======================================================================================
+
+- key: blf_uniprot_mature_chain
+  value: "P24627 chain 20-708"
+  unit: residue range of the mature secreted chain (precursor numbering)
+  grade: A
+  source: "UniProtKB P24627 (TRFL_BOVIN), Lactotransferrin, Bos taurus; entry version 220, sequence version 2, last annotation update 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P24627.json
+  locator: "features: Signal 1-19; Chain 20-708 'Lactotransferrin'"
+  quote: "{\"type\":\"Signal\",\"location\":{\"start\":{\"value\":1},\"end\":{\"value\":19}}} ... {\"type\":\"Chain\",\"description\":\"Lactotransferrin\",\"location\":{\"start\":{\"value\":20},\"end\":{\"value\":708}}}"
+  read: fulltext
+  note: >-
+    689 residues after signal-peptide removal, matching the "689 amino acids" in the EU novel-food
+    specification and in FDA GRN 1219/1284. Mature sequence starts APRKNVRWCT and ends LLEACAFLTR.
+    CAS 146897-68-9 (GRN 1219/1284). Mature-chain residue i (literature/regulatory numbering)
+    = precursor residue i+19: this off-by-19 trap bites on the glycosylation sites (next entry).
+
+- key: blf_mature_formula_and_mw
+  value: {C: 3358, H: 5251, N: 945, O: 1002, S: 38}
+  unit: atoms per molecule of apo, unglycosylated mature bovine lactoferrin
+  grade: A
+  source: "Derived from UniProtKB P24627 mature chain 20-708 (689 aa, 16 disulfides listed in the entry)"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P24627.json
+  locator: "computed from the sequence; UniProt lists 16 'Disulfide bond' features"
+  quote: null
+  read: fulltext
+  note: >-
+    Computed here (residue sums + H2O, minus 2H per disulfide): average MW 76,111 Da;
+    CH1.564N0.281O0.298S0.0113; 52.99 wt% C, 17.39 wt% N (so N x 5.75 = protein, vs the
+    N x 6.38 dairy factor used in the GRAS specs - the specs therefore overstate protein by ~11%).
+    UniProt's own "molWeight" for the 708-aa precursor is 78,056 Da. Glycans are NOT included:
+    5 high-mannose/hybrid N-glycans add roughly 4-8 kDa, which is why measured masses are
+    80-87 kDa (GRN 1219: 84 kDa for rbLf; 80-87 kDa for dairy bLf).
+
+- key: blf_glycosylation_sites
+  value: 5
+  unit: N-linked sites (Asn252, Asn300, Asn387, Asn495, Asn564 in precursor numbering)
+  grade: A
+  source: "UniProtKB P24627 features; cross-checked against All G GRAS Notice GRN 1284 (mature numbering)"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P24627.json
+  locator: "5 'Glycosylation' features: 252 (high mannose), 300 (complex), 387 (complex/high-mannose/hybrid), 495 (complex/high-mannose/hybrid), 564 (high mannose)"
+  quote: "bLF from mature bovine milk can have glycans located at Asn233, Asn281, Asn368, Asn476, and Asn545, of which Asn281 is found without glycans 85% of the time"
+  read: fulltext
+  note: >-
+    The quote is GRN 1284 p.10 (mature numbering); UniProt's 252/300/387/495/564 are the same
+    sites in precursor numbering (i_mature + 19). Sequon scan of the mature chain confirms exactly
+    these five N-X-S/T motifs and no others. K. phaffii puts oligomannose glycans on 4 of the 5
+    sites (GRN 1284: "ALLGLF is glycosylated at Asn233, Asn368, Asn476, and Asn545"), with
+    7-13 mannoses, 23.73% of glycans carrying one phosphate. Human LF (P02788) has only
+    3 sites (Asn156, Asn497, Asn642, precursor numbering) plus an O-GlcNAc at Ser10.
+
+- key: hlf_uniprot_mature_chain
+  value: "P02788 chain 20-710"
+  unit: residue range of the mature secreted chain (precursor numbering)
+  grade: A
+  source: "UniProtKB P02788 (TRFL_HUMAN), Lactotransferrin, Homo sapiens; entry version 270, sequence version 6, last annotation update 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02788.json
+  locator: "features: Signal 1-19; Chain 20-710; Glycosylation 156, 497, 642"
+  quote: "{\"type\":\"Chain\",\"description\":\"Lactotransferrin\",\"location\":{\"start\":{\"value\":20},\"end\":{\"value\":710}}}"
+  read: fulltext
+  note: >-
+    691 residues, matching Helaina's "Composed of 691 amino acids" and "TRFL_HUMAN (P02788)".
+    Computed formula C3338H5201N957O1013S37, average MW 76,132 Da apo/unglycosylated
+    (CH1.558N0.287O0.304S0.0111; 52.66 wt% C, 17.61 wt% N). 16 disulfides. Only ~69% sequence
+    identity to bovine LF (GRN-cited figure), so the two are different products, not variants.
+
+- key: lf_iron_binding_capacity
+  value: 1.4
+  unit: mg Fe(3+) per g lactoferrin at 100% saturation
+  grade: A
+  source: "All G Co Holdings Pty Ltd. GRAS Notice (GRN) 1284: Recombinant bovine lactoferrin produced by a modified strain of Komagataella phaffii (2025/2026)"
+  doi_or_url: https://downloads.regulations.gov/FDA-2025-N-1928-0051/attachment_1.pdf
+  locator: "Section 2.1.3.4, p.12"
+  quote: "Theoretically one lactoferrin molecule can bind two Fe3+ ions and therefore lactoferrin can bind a maximum of 1.4mg Fe3+ / g lactoferrin (Groves, 1960; Foley and Bates, 1987; Majka et al., 2013)."
+  read: fulltext
+  note: >-
+    Cross-check: 2 x 55.845 / 76,111 = 1.47 mg/g from the computed mature MW, i.e. All G rounds
+    down (they divide measured Fe by 140 mg/100 g). For the mass balance this means iron is
+    <0.15 wt% of the protein even when fully loaded - negligible in the elemental balance, but it
+    sets the iron specification and it is a real raw-material line (FeSO4.7H2O appears in
+    TurtleTree's raw-material table, GRN 1219 Table 11).
+
+- key: lf_iron_saturation_states
+  value: 0.15
+  low: 0.019
+  high: 0.876
+  unit: fraction of the two iron sites occupied (dairy native ~0.10-0.20)
+  grade: A
+  source: "FDA GRAS Notices GRN 1219 (TurtleTree) Table 7 and GRN 1284 (All G) Table 2/Table 5; Lu X et al. Analyst 149:3636-3650 (2024) for Helaina rhLF"
+  doi_or_url: https://downloads.regulations.gov/FDA-2025-N-1927-0062/attachment_1.pdf
+  locator: "GRN 1219 Table 7 p.26; GRN 1284 Table 2 p.12; Lu 2024 sec 3.4.2"
+  quote: "Generally, lactoferrin derived from dairy is a mix of apo and holo lactoferrin, where there is 15-20% iron saturation. This state is called native-lactoferrin."
+  read: fulltext
+  note: >-
+    The three commercial PF products land in completely different places: TurtleTree rbLf isolate
+    87.6 +/- 1.5% saturated (holo; Table 7 also gives 96.7 mg Fe/100 g product), All G ALLGLF
+    1.89-7.04% (apo-like, spec <20%), Helaina rhLF 54 +/- 4% ("ranged between 50% and 60%").
+    Iron state is a product choice, not a process constant: it changes thermostability
+    (Tm ~68 C apo vs ~92 C holo) and the iron spec, and it decides whether an iron salt has to
+    be dosed. Relevant to the model only via the FeSO4 line and the powder composition.
+
+# =======================================================================================
+# 2. Incumbent product specification (what a PF product must match)
+# =======================================================================================
+
+- key: blf_spec_eu_novel_food
+  value: {protein_min_frac: 0.93, lf_frac_of_protein_min: 0.95, moisture_max: 0.045, ash_max: 0.015, iron_max_mg_kg: 350}
+  unit: mass fractions of the powder (iron in mg/kg)
+  grade: A
+  source: "Commission Implementing Decision 2012/725/EU of 22 November 2012 authorising the placing on the market of bovine lactoferrin as a novel food ingredient (Morinaga), OJ L 327, 27.11.2012, p.46; identical Annex I in 2012/727/EU (FrieslandCampina), OJ L 327 p.52"
+  doi_or_url: https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32012D0725
+  locator: "Annex I, 'Physical-chemical properties of bovine lactoferrin'"
+  quote: "Moisture less than 4,5 % | Ash less than 1,5 % | Arsenic less than 2 mg/kg | Iron less than 350 mg/kg | Protein more than 93,0 % | of which bovine lactoferrin more than 95,0 % | of which other proteins less than 5,0 % | pH (2 % solution, 20 C) 5,2 to 7,2"
+  read: fulltext
+  note: >-
+    This is the cleanest public incumbent spec and it is EU law. Same Annex describes the
+    incumbent process: "bLF is isolated from skimmed milk via ion exchange and subsequent
+    ultra-filtration steps. Finally it is dried by spraying and large particles are sieved out."
+    Use levels (Annex II): infant/follow-on formula 100 mg/100 mL; dairy-based foods for young
+    children 200 mg/100 g; processed cereal food 670 mg/100 g. The two EFSA opinions behind these
+    decisions are EFSA Journal 2012;10(5):2701 (FrieslandCampina) and 2012;10(7):2811 (Morinaga).
+
+- key: blf_spec_fda_grn669_dairy
+  value: {protein_min_frac: 0.95, lf_frac_of_protein_min: 0.95, moisture_frac: 0.045, ash_frac: 0.013, iron_max_mg_kg: 200, iron_saturation_max: 0.20}
+  unit: mass fractions of the powder
+  grade: A
+  source: "US FDA. Agency response letter, GRAS Notice No. GRN 000669 (cow's milk-derived lactoferrin, Synlait Milk Ltd), 9 March 2017"
+  doi_or_url: https://www.fda.gov/media/104116/download
+  locator: "p.2"
+  quote: "Synlait provides specifications for cMDLf expressed on a weight percent basis that include a minimum of 95.0% protein (of which >=95% is bLf), 4.5% moisture, and 1.3% ash. The iron content is <=200 mg/kg, and calculated iron saturation is <=20%."
+  read: fulltext
+  note: >-
+    Same letter gives the incumbent dairy process: "raw skim milk is chilled to below 8 C ...
+    clarified and microfiltered ... cMDLf is isolated from the filtrate using ion-exchange
+    chromatography and eluting of bound material with sodium chloride. The isolated cMDLf is then
+    desalted, ultrafiltered, pasteurized, and microfiltered prior to evaporation and spray drying."
+    Morinaga's GRN 464 spec is >=94.5% protein and <=1.3% ash (quoted in the GRN 1219 amendments).
+
+- key: rblf_spec_fda_grn1284_allg
+  value: {protein_min_frac: 0.90, lf_frac_of_protein_min: 0.95, moisture_max: 0.045, ash_max: 0.035, iron_max_mg_kg: 200, iron_saturation_max: 0.20}
+  unit: mass fractions of the powder
+  grade: A
+  source: "All G Co Holdings Pty Ltd. GRAS Notice (GRN) 1284, Table 4 'Product specifications for ALLGLF'; FDA 'no questions' letter 25 March 2026"
+  doi_or_url: https://downloads.regulations.gov/FDA-2025-N-1928-0051/attachment_1.pdf
+  locator: "Table 4, p.23 (batch data Table 5, p.24)"
+  quote: "Total Protein (N x 6.38) (%) >90 % | Purity (Lactoferrin) (%) >95 % (as % of the total protein) | Moisture <4.5 % | Ash (%) <3.5 % | Iron content <200 mg/kg | Iron Saturation <20 %"
+  read: fulltext
+  note: >-
+    The only precision-fermentation LF product whose full dossier is public. Three batches:
+    protein 93.6-95.2%, LF purity 95.7-99.4% of protein, moisture 1.76-3.52%, ash 1.7-2.8%,
+    iron 24.4-92.0 mg/kg. So a PF product CAN meet the dairy-incumbent spec almost exactly.
+    Process (Sect. 2.2.2, p.21-22): fed-batch K. phaffii "Ppas_337" (parent BG11), secreted and
+    soluble; biomass removed by filtration; "The lactoferrin is separated and purified from the
+    media via chromatography step"; then UF/DF, sterile MF, drying. FDA letter (media/191907)
+    adds "microfiltered using sterile membrane filters ... before drying".
+
+- key: rblf_spec_fda_grn1219_turtletree
+  value: {protein_min_frac: 0.80, lf_frac_of_protein_min: 0.95, moisture_max: 0.085, ash_max: 0.095, carbohydrate_max: 0.05, fat_max: 0.02, iron_max_mg_kg: 1200}
+  unit: mass fractions of the powder
+  grade: A
+  source: "TurtleTree Labs Inc. GRAS Notice (GRN) 1219, Table 8 'Physical and Microbiological Specifications of rbLf Isolate'; FDA 'no questions' letter 7 May 2025"
+  doi_or_url: https://downloads.regulations.gov/FDA-2025-N-1927-0062/attachment_1.pdf
+  locator: "Table 8, pp.27-28; batch results Table 9, pp.29-30"
+  quote: "Protein content (% total weight) >= 80% | Intact (full length) lactoferrin purity (% total protein) >= 95% | pH 5.6 - 7.2 | Fat < 2% | Iron <= 120 mg/100g | Total carbohydrates <= 5% | Water content <= 8.5% | Water activity < 0.6 aw | Total ash <= 9.5%"
+  read: fulltext
+  note: >-
+    A LOOSER spec than the dairy incumbent, and the amendments say why: "The rbLf isolate has a
+    higher ash content (<=9.5%) compared to GRN 464 (<=1.3%) which reflects the use of salts
+    (sodium and phosphates) in the final buffer step of the production process." Residual
+    carbohydrate is yeast mannan: ">90% total hydrolysed monosaccharides identified as mannose ...
+    The <5% residual carbohydrates remaining after chromatography purification of the rbLf are
+    likely mannose-based polysaccharides". Batches: protein 80.5-83.5%, ash 6.84-9.11%,
+    moisture 6.3-8.0%, carbohydrate 3.3-4.7%, iron 94-98 mg/100 g. For a cost model this is the
+    key spec insight: 80% protein with ~9% ash and ~4% mannan is what a CEX+UF/DF+spray-dry PF
+    train actually delivers, not 95%.
+
+# =======================================================================================
+# 3. Process and titer evidence
+# =======================================================================================
+
+- key: lf_intelligen_design_basis
+  value: 10
+  unit: g/L lactoferrin titer, fed-batch, 5 days
+  grade: B
+  source: "David LH, Wollborn D, Ferreira RG, Juliano P, Ridoutt B. Ex-ante life cycle assessment of recombinant human lactoferrin produced via precision fermentation. Int J Life Cycle Assess 31, article 96 (2026), reporting the SuperPro model of Ferreira RG, Misailidis N, Petrides D (2024), Intelligen Inc."
+  doi_or_url: 10.1007/s11367-026-02671-8
+  locator: "Sect. 2.1 and Table 2"
+  quote: "The baseline scenario assumes a titre of 10 g/L achieved over a 5-day fermentation period."
+  read: fulltext
+  note: >-
+    Table 2 (glucose / glycerol columns) gives the whole design basis of the Intelligen 2024
+    lactoferrin TEA without needing the ResearchGate file: batches/yr 328/328;
+    lactoferrin 822.6 / 784.7 kg per batch; total feedstock 28,392.8 / 26,403.6 kg per batch;
+    titre 10 g/L; final DCW 116.3 / 105.9 g/L; biomass yield on substrate 0.50 / 0.60 g/g;
+    lactoferrin yield on methanol 0.33 g/g; aeration 1 vvm; fermenter 100 m3; 216 h/batch; 30 C;
+    cooling duty 74,283.7 / 67,647.4 kWh per batch. Host is stated as Pichia pastoris, growth on
+    glycerol/glucose then methanol induction. DERIVED: 822.6 kg at 10 g/L implies 82.3 m3 of
+    broth (82% of the 100 m3 vessel); 328 x 822.6 kg = 269.8 t LF/yr in broth vs "approximately
+    251 tonnes of lactoferrin powder at 90% purity" produced, i.e. an overall DSP recovery of
+    ~84% (251 x 0.9 / 269.8). CHECK THIS ARITHMETIC before using it.
+
+- key: lf_intelligen_inventory_per_kg
+  value: {glucose_kg: 23.1, methanol_kg: 3.8, ammonia30_kg: 2.2, other_chemicals_kg: 9.0, electricity_kWh: 66.8, cooling_MJ: 237.6, steam_kg: 25.6, ultrapure_water_kg: 245.5, di_water_kg: 67.1, biowaste_kg: 13.0, wastewater_kg: 377.0}
+  unit: per kg of spray-dried lactoferrin powder at 90% purity (glucose scenario)
+  grade: B
+  source: "David LH et al. Int J Life Cycle Assess 31:96 (2026), Table 1 (foreground LCI from the SuperPro model)"
+  doi_or_url: 10.1007/s11367-026-02671-8
+  locator: "Table 1"
+  quote: "Carbon source kg 23.1 | Methanol kg 3.8 | Ammonia (30% w/w) kg 2.2 | Other chemicals* kg 9.0 | Electricity kWh 66.8 | Cooling energy MJ 237.6 | Steam (chemical industry) kg 25.6 | Ultrapure water kg 245.5 | Deionised water kg 67.1"
+  read: fulltext
+  note: >-
+    Glycerol scenario: 18.4 kg glycerol, 4.0 methanol, 2.4 ammonia, 10.2 other, 70.6 kWh.
+    This is the best public per-kg inventory for a lactoferrin PF plant and a direct cross-check
+    on the pf-tea mass/energy model: 23.1 kg glucose per kg of 90%-pure powder is ~20.8 kg
+    glucose per kg LF, i.e. an overall glucose-to-product yield of only 0.048 g/g, an order of
+    magnitude worse than the 0.28 g/g used for ovalbumin - because the titer is 10 g/L, the
+    biomass is 116 g/L, and methanol (not glucose) carries the product-forming carbon.
+    Electricity is dominated by air compression: "Fermentation dominated electricity consumption
+    in all scenarios, contributing more than 90% of total demand" and within it air compression
+    is "~63%".
+
+- key: lf_titer_hlf_kphaffii_liu2026
+  value: 2.214
+  unit: g/L secreted intact human lactoferrin, 5-L bioreactor
+  grade: A
+  source: "Liu K, Fan X, Tong Z, Zhang J, Zhao M, Chen Y, Wu C, Wang T, Wei S, Liu Y, Xue Z, Zheng Y. Reprogrammed Komagataella phaffii for enhanced secretory expression of human lactoferrin. J Biotechnol 419:1-10 (2026)"
+  doi_or_url: 10.1016/j.jbiotec.2026.07.011
+  locator: abstract
+  quote: "After high-density cultivation of K. phaffii through optimization of cultivation conditions in shake flasks and a 5 L bioreactor, the secretory intact hLF titer reached 2214 mg/L, representing a 76.3-fold increase achieved through these engineering strategies."
+  read: abstract
+  note: >-
+    AOX1 promoter with alpha-MF signal, dual expression cassette at three loci, ER expansion plus
+    vacuolar protease knockouts; "0.1 g/L FeCl3 was added to the medium to reduce the toxicity of
+    hLF and improve its stability" - i.e. iron is a process additive, not just a product
+    attribute. Highest peer-reviewed SECRETED lactoferrin titer found in any food-grade host.
+    Paywalled (Elsevier); abstract read via Europe PMC.
+
+- key: lf_titer_rblf_kphaffii_iglesias2016
+  value: 3.5
+  unit: g/L recombinant bovine lactoferrin (1-L batch culture)
+  grade: A
+  source: "Iglesias-Figueroa B, Valdiviezo-Godina N, Siqueiros-Cendon T, Sinagawa-Garcia S, Arevalo-Gallegos S, Rascon-Cruz Q. High-level expression of recombinant bovine lactoferrin in Pichia pastoris with antimicrobial activity. Int J Mol Sci 17(6):902 (2016)"
+  doi_or_url: 10.3390/ijms17060902
+  locator: "Sect. 2.3 and 4.5-4.6 (PMC4926436 full text)"
+  quote: "After 72 h of induction, cell lysis, and purification from 1 L of culture medium, we obtained an expression yield of 3500 mg/L"
+  read: fulltext
+  note: >-
+    TREAT WITH CARE. This is the number every review repeats (Mao 2023 Table 1, Shukla 2026) as
+    "3.5 g/L bovine lactoferrin in P. pastoris", but the methods say: 200 mL YPD seed into a
+    fermentor holding "1000 mL of BMMY induction media", "5% methanol each 24 h during 72 h",
+    then "cell lysis" and purification by ammonium-sulfate precipitation + Sephacryl S-200.
+    It is therefore a 1-L flask-scale, lysate-inclusive yield quantified after purification, not
+    a secreted broth titer at bioreactor scale. Do not use it as a design titer.
+
+- key: lf_titer_hlf_aspergillus_ward1995
+  value: 2
+  unit: g/L recombinant human lactoferrin, Aspergillus awamori
+  grade: A
+  source: "Ward PP, Piddington CS, Cunningham GA, Zhou X, Wyatt RD, Conneely OM. A system for production of commercial quantities of human lactoferrin: a broad spectrum natural antibiotic. Nature Biotechnology 13:498-503 (1995)"
+  doi_or_url: 10.1038/nbt0595-498
+  locator: abstract
+  quote: "we report a modification of this production system combined with a classical strain improvement program that has enabled production of levels of recombinant human lactoferrin in excess of 2 g/l."
+  read: abstract
+  note: >-
+    Glucoamylase fusion processed by an endogenous KEX-2 peptidase. The 1992 precursor in
+    A. oryzae reached "levels up to 25 mg/l" (10.1038/nbt0792-784). These two are the only
+    filamentous-fungal lactoferrin data points of any size; both are >30 years old and paywalled.
+
+- key: lf_titer_hlf_treesei_hu2025
+  value: 1.3495
+  unit: g/L recombinant human lactoferrin, 5-L fermenter, Trichoderma reesei
+  grade: A
+  source: "Hu C, Shen W, Xia Y, Zhou L, Yang H, Chen X. Efficient production of the recombinant human lactoferrin in an engineered Trichoderma reesei. J Agric Food Chem 73:32795-32806 (2025)"
+  doi_or_url: 10.1021/acs.jafc.5c11534
+  locator: abstract
+  quote: "Further optimization with 1% bran and 1.5 g/L Tween-80 boosted the titer to 368.47 mg/L. Scaling up to a 5 L fermenter yielded 1349.5 mg/L, a 1.93 x 10^4-fold improvement over initial levels."
+  read: abstract
+  note: >-
+    First lactoferrin in T. reesei, the host of the VTT/Onego BLG-OVA lineage already in this
+    repo. Strain CJ2095 dpea1::pdi1 on microcrystalline cellulose. Paywalled (ACS).
+
+- key: lf_titer_porcine_kphaffii_yen2024
+  value: 2.8
+  unit: g/L recombinant porcine lactoferrin, 5-L fed-batch
+  grade: A
+  source: "Yen CC, Wu PY, Ou-Yang H, Chen HL, Chong KY, Chang RL, Chen CM. Production of bioactive porcine lactoferrin through a novel glucose-inducible expression system in Pichia pastoris. Int J Mol Sci 25(3):1818 (2024)"
+  doi_or_url: 10.3390/ijms25031818
+  locator: "Sects. 2.1-2.2 (PMC10855427)"
+  quote: "Scaling up production transpired in a 5 L fermenter, yielding an estimated rpLF productivity of approximately 2.8 g/L by the conclusion of glycerol-fed fermentation. A three-step purification process involving tangential-flow ultrafiltration yielded approximately 6.55 g of rpLF crude (approximately 85% purity)."
+  read: fulltext
+  note: >-
+    Porcine LF, so grade D as an analogy for bovine, but it is the only public MEASURED
+    membrane-only purification of a recombinant lactoferrin: 2.9 L of supernatant, 0.45 um hollow
+    fibre gives "2.4 L filtrate with rpLF at 4.3 g/L and approximately 52% purity", 100 kDa
+    cassette "increasing rpLF concentration to 7.3 g/L and purity to nearly 68%" with 5% loss,
+    then 30 kDa cassette to "approximately 23 g/L and purity to 85%" but "nearly half of the rpLF
+    protein was lost during this step". Methanol-free (glucose-inducible G1 promoter), 144 h,
+    OD600 ~350 at harvest.
+
+- key: lf_helaina_industrial_scale_and_dsp
+  value: 45000
+  unit: L fermentation scale (industrial, human lactoferrin)
+  grade: C
+  source: "Lu X, Cummings C, Osuala A, ... (Helaina Inc.). Characterization of recombinant human lactoferrin expressed in Komagataella phaffii. Analyst 149:3636-3650 (2024)"
+  doi_or_url: 10.1039/d4an00333k
+  locator: "Sect. 2.2.1 Production of Helaina rhLF (PMC11215759)"
+  quote: "More than 10 fermentations of Helaina rhLF (Effera) were produced from a K. phaffii in an industrial scale (45,000 L) process ... The fermentation process consisted of batch, fed-batch, and induction phases. At the end of fermentation, cells were separated from the protein-containing broth. Recombinant hLF was then isolated by microfiltration, ultrafiltration/diafiltration and ion exchange chromatography. The recovery of the purification is >60%. The resulting LF-rich solution was finally spray-dried to a powder."
+  read: fulltext
+  note: >-
+    Company-authored, so grade C, but it is the only public statement of a PF lactoferrin plant
+    scale AND of a downstream recovery: >60% overall DSP yield for MF + UF/DF + IEX + spray dry.
+    Compare 87% (food grade, no chromatography) / 70% (high purity, with chromatography) in
+    GFI Europe's alpha-lactalbumin case (dsp.yaml key dsp_yield_alac_gfieurope) and the ~84%
+    implied by the Intelligen UF/DF-only case. NO TITER is disclosed anywhere by Helaina.
+    Same paper: purity 97.6 +/- 0.4% by RP-HPLC over three batches, no host-cell protein above
+    0.5% relative abundance, iron saturation 54 +/- 4%.
+
+- key: lf_turtletree_process_train
+  value: null
+  unit: qualitative process description (commercial PF bovine lactoferrin)
+  grade: A
+  source: "TurtleTree Labs Inc. GRAS Notice (GRN) 1219, Sects. 2.2.2.2-2.2.2.3 and Figure 14"
+  doi_or_url: https://downloads.regulations.gov/FDA-2025-N-1927-0062/attachment_1.pdf
+  locator: "pp.37-38 (Figure 14 'Manufacturing Process')"
+  quote: "The diluted broth undergoes two clarification steps: the first is to remove biomass as a sediment from the liquid which contains rbLf isolate via centrifugation. The second is to remove the remaining debris from the supernatant using microfiltration. The filtrate containing rbLf isolate from the clarification process undergoes a concentration step and optional pH adjustment, followed by chromatography purification. The eluted fraction, now enriched with rbLf isolate, is further concentrated through ultrafiltration and diafiltration to remove salts and impurities."
+  read: fulltext
+  note: >-
+    Flow sheet: Seed fermenter -> Production fermenter -> Centrifuge -> Microfiltration ->
+    Concentration -> Chromatography -> UF/DF -> Sterile filtration -> Spray dry -> Packaging.
+    "Production of rbLf isolate is achieved by submerged fermentation in a three-step process,
+    consisting of the seed phase, growth phase and production phase (Figure 14). Production does
+    not require expression induction by solvents such as methanol." Raw materials (Table 11,
+    p.36): glucose/corn syrup, MgSO4.7H2O, K2SO4, (NH4)2SO4, CaSO4, CuSO4, MnSO4, ZnCl2,
+    FeSO4.7H2O, biotin, H2SO4, Trans-280K antifoam, NH4OH titrant, NaCl, KH2PO4
+    ("Recovery Enhancer"). No titer, batch size or plant scale is disclosed.
+
+# =======================================================================================
+# 4. Downstream: the incumbent (and PF) cation-exchange route
+# =======================================================================================
+
+- key: blf_incumbent_cex_operating_window
+  value: null
+  unit: qualitative (pH and NaCl concentrations for dairy lactoferrin CEX)
+  grade: A
+  source: "Mao R, Ma X, Hao Y, Yang N, Teng D, Wang J. Perspective: A proposal on solutions of modern supply chain construction for lactoferrin. J Dairy Sci 106(11):7329-7335 (2023). Open access CC-BY"
+  doi_or_url: 10.3168/jds.2023-23328
+  locator: "Section 'Current processing technology of LF from whey and skim milk'"
+  quote: "(1) First, microfiltration (1-2 um) is used to remove the microorganism and particulate matter and fat. (2) Subsequently, the filtrate is put through a cation-exchange column with a pH of 6.3 to 6.8. Impurities are washed from the column with a low-salt buffer (1.5-2% sodium chloride), and the target bLF is eluted with a high-salt buffer (10-15% sodium chloride). (3) The purified liquid is concentrated in an ultrafiltration step, followed by desalting via diafiltration. After pasteurization and spray or freeze drying, the final powdered product, with a protein content >90% and purity >95%, is obtained"
+  read: fulltext
+  note: >-
+    The elution salt load is the cost driver a chromatography step adds: 10-15% NaCl (1.7-2.6 M)
+    in the eluate, which the following DF step has to wash out. Same paper: "cation-exchange
+    purification has been the most widely used process for the production of bLF by major
+    manufacturers since the 1980s, including Royal Friesland Campina, MILEI, and Synlait Milk
+    Ltd." For a PF broth the LF is already at 2-10 g/L rather than 0.1 g/L in milk, so the
+    column is loaded ~20-100x more concentrated - the binding capacity, not the feed volume,
+    becomes the sizing constraint.
+
+- key: blf_cex_resin_industrial_lifetime
+  value: 1000
+  unit: cycles before column replacement (lower bound)
+  grade: A
+  source: "Pires MC, Jungbauer A, Lau D, Young C, Hoffmann P, de Padua TF, Gerstweiler L. Column ageing of agarose-based chromatography in industrial lactoferrin purification. J Chromatogr A 1760:466274 (2025). CC-BY"
+  doi_or_url: 10.1016/j.chroma.2025.466274
+  locator: abstract
+  quote: "Commercial lactoferrin is extracted from bovine milk using cation exchange chromatography with agarose-based Sepharose SP Big Beads. After over a thousand cycles, the column must be replaced due to backpressure exceeding operational limits."
+  read: abstract
+  note: >-
+    Already in data/evidence/dsp.yaml as iex_resin_lifetime_industrial_lactoferrin; repeated here
+    because it is the single most useful chromatography parameter for a lactoferrin model and it
+    is 5-20x the biopharma replacement frequency Petrides quotes (50-200 cycles). Ageing
+    mechanism is CIP chemistry (NaOH, acetic acid, NaClO) degrading the agarose backbone, not
+    fouling; "equilibrium binding capacity remained stable, ionic capacity declined by 23%, and
+    dynamic binding capacity increased by 31%". ABSOLUTE DBC VALUES ARE IN THE FULL TEXT, WHICH
+    IS CC-BY BUT BOT-WALLED AT ELSEVIER - worth one manual download (see report item E).
+
+- key: blf_cex_resin_cost_lever
+  value: 18
+  unit: ratio of the price of DoWex to the price of the '732' resin
+  grade: A
+  source: "Wang et al. Comparative study of cation-exchange resins for high-efficiency preparation of bovine lactoferrin and its N-glycomic analysis by HILIC-MS/MS. J Agric Food Chem 74(7):6488-6504 (2026)"
+  doi_or_url: 10.1021/acs.jafc.5c12835
+  locator: abstract
+  quote: "Notably, the price of 732 resin is only one-18th that of DoWex, representing a significant reduction in production costs and making it promising in future large-scale manufacturing."
+  read: abstract
+  note: >-
+    Eight resins compared for bLF capture from milk; "Yields reached 4.46% for DoWex and 5.25% for
+    732, with purities exceeding 85% for both resins" (yields are % of the milk protein, not step
+    recoveries). Supports treating resin unit price as a 1-2 order-of-magnitude design choice:
+    styrene-divinylbenzene strong-acid resin ("732" is the Chinese industrial grade) vs an
+    agarose/polymeric protein resin. No absolute $/L is given. Paywalled (ACS).
+
+- key: lf_ufdf_only_purity_claim
+  value: 0.90
+  unit: mass fraction lactoferrin in the powder, UF/DF + spray drying only (no chromatography)
+  grade: B
+  source: "Intelligen Inc. SuperPro Designer Example Process Files, lactoferrin entry, cases a and b; corroborated by David LH et al. Int J LCA 31:96 (2026) Sect. 2.1"
+  doi_or_url: https://www.intelligen.com/static/SPDDownloadCenter/Latest/Example_Process_Files.htm
+  locator: "Nutraceuticals examples, 'Lectoferrin' [sic] entry"
+  quote: "In case a (this model), the biomass is removed by centrifugation and crossflow microfiltration/diafiltration; then, the protein is partially purified and concentrated by crossflow ultrafiltration/diafiltration; and finally spray-dried. A total of 249 tons of lactoferrin powder is produced per year in this scenario."
+  read: html
+  note: >-
+    DESIGN ASSUMPTION, NOT A MEASUREMENT, and the one number in the lactoferrin literature I would
+    challenge. David 2026 describes the same case-a model as producing "approximately 251 tonnes
+    of lactoferrin powder at 90% purity" whose downstream is "sequential centrifugation,
+    microfiltration, and ultrafiltration/diafiltration steps ... with spray drying". Case b adds
+    "cation-exchange chromatography" and drops output to 213 t/yr (0.855 of case a).
+    Evidence against reaching 90% by membranes alone: all three commercial PF producers
+    (TurtleTree GRN 1219, All G GRN 1284, Helaina) use ion exchange; the only measured
+    membrane-only recombinant-LF purification (Yen 2024, porcine) plateaus at 85% purity with
+    ~50% loss in the last step; and TurtleTree, which DOES use chromatography, still specifies
+    only >=80% protein with <=9.5% ash. A UF/DF-only case should be modelled as the optimistic
+    bound, with CEX as the base case.
+
+# =======================================================================================
+# 5. Regulatory status (what may be sold, and as what)
+# =======================================================================================
+
+- key: lf_fda_gras_inventory_status
+  value: 15
+  unit: GRAS notices mentioning lactoferrin (2 of them for fermentation-derived LF, both cleared)
+  grade: A
+  source: "US FDA GRAS Notice Inventory, search 'lactoferrin' (accessed 2026-09-26)"
+  doi_or_url: https://www.hfpappexternal.fda.gov/scripts/fdcc/index.cfm?set=GRASNotices&type=basic&search=lactoferrin
+  locator: "results table, 15 records"
+  quote: "1284 Recombinant bovine lactoferrin isolate produced by Komagataella phaffii Ppas_337 expressing the gene encoding bovine lactoferrin | Mar 25, 2026 | FDA has no questions ... 1219 Recombinant bovine lactoferrin isolate produced by Komagataella phaffii M020 expressing the gene encoding bovine lactoferrin | May 7, 2025 | FDA has no questions"
+  read: html
+  note: >-
+    Full list: 42 (2001, "Notice does not provide a basis for a GRAS determination"), 67, 77, 130,
+    423 (ceased), 464, 465, 611/612 (ceased), 669 - all cow's-milk-derived; 1219 and 1284 -
+    recombinant bovine from K. phaffii, both "FDA has no questions". Every HUMAN lactoferrin
+    notice was withdrawn: 162 "Lactoferrin (human) purified from rice" (2006, ceased), 189
+    "Lactoferrin (human) purified from bovine milk" (2009, ceased), 235 "Human lactoferrin
+    purified from rice" (2010, ceased). Helaina's human LF is self-affirmed GRAS, not an FDA
+    "no questions" letter. This asymmetry is the main regulatory argument for modelling BOVINE
+    lactoferrin. The inventory endpoint returns HTTP 503 intermittently; retry.
+
+- key: blf_eu_novel_food_process_statement
+  value: null
+  unit: qualitative (authorised EU manufacturing route for the incumbent)
+  grade: A
+  source: "Commission Implementing Decision 2012/727/EU (FrieslandCampina), Annex I; identical wording in 2012/725/EU (Morinaga)"
+  doi_or_url: https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32012D0727
+  locator: "Annex I, Definition"
+  quote: "bLF is isolated from skimmed milk via ion exchange and subsequent ultra-filtration steps. Finally it is dried by spraying and large particles are sieved out."
+  read: fulltext
+  note: >-
+    EFSA's two opinions on bovine lactoferrin are EFSA Journal 2012;10(5):2701 (adopted
+    27 April 2012, FrieslandCampina) and 2012;10(7):2811 (adopted 28 June 2012, Morinaga);
+    both concluded bLF "is safe under the proposed uses and use levels". Neither opinion PDF
+    could be downloaded (efsa.europa.eu and Wiley both return 403 to scripted requests); the
+    specification and process statement above are the operative text and are in EU law, so the
+    opinions themselves are only needed for the toxicology. NOTE: no EU authorisation exists for
+    fermentation-derived lactoferrin; a PF bLF would be a new novel-food application.
+
+# =======================================================================================
+# 6. Prices
+# =======================================================================================
+
+- key: blf_price_no_dedicated_trade_code
+  value: null
+  unit: n/a (negative finding)
+  grade: A
+  source: "US International Trade Commission Harmonized Tariff Schedule keyword search (hts.usitc.gov/reststop/search?keyword=lactoferrin) returned an empty result set; no lactoferrin line exists in HS/CN at 6- or 8-digit level"
+  doi_or_url: https://hts.usitc.gov/reststop/search?keyword=lactoferrin
+  locator: "API response"
+  quote: "[ ]"
+  read: html
+  note: >-
+    Consequence: the Comtrade/Comext unit-value method used for whey, casein and egg albumin in
+    prices.yaml CANNOT be applied to lactoferrin. It would fall in HS 3504.00 (other protein
+    substances) or HS 0404.90, both of which are dominated by other products. All lactoferrin
+    price evidence is therefore grade C at best.
+
+- key: blf_price_range_gfi2025
+  value: 625
+  year: 2025
+  low: 250
+  high: 1000
+  unit: USD/kg (whey-derived lactoferrin, as reported 2025)
+  grade: C
+  source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
+  doi_or_url: 10.62468/trxj5734
+  locator: "Sect. 1.3.3, PDF p.31 (on disk: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
+  quote: "The market price for high-value ingredients like lactoferrin (whey-derived) ranged from $250 to $1,000/kg, while high-value albumins ranged from $40 to $70/kg in public trade databases (data not shown)"
+  read: fulltext
+  note: >-
+    value is the midpoint. Same report, Sect. 1.3.1: "Industry white papers by Intelligen report
+    COPs of $292/kg for lactoferrin and $1,043/kg for collagen peptide, both assuming a
+    high-purity (~90%) dried protein product (Da Gama Ferreira et al. 2024a, 2024b)"; and
+    Appendix 2 row 177 tabulates the same model normalised to 2024 USD: Lactoferrin, aerobic,
+    yeast, 251.304 MTa, COP $262.43/kg, OpEx $65.95 M/yr, CapEx $122.53 M. The 251.304 t matches
+    David 2026 exactly, confirming both describe the Intelligen case-a model.
+
+- key: blf_price_gfieurope2025
+  value: 400
+  year: 2025
+  unit: USD/kg (median market price, bovine lactoferrin)
+  grade: C
+  source: "GFI Europe & Arthur D. Little. Pathfinding towards precision fermentation viability (Jul 2025)"
+  doi_or_url: https://gfieurope.org
+  locator: "Market size and pricing appendix table, and the alpha-lactalbumin case-study chart"
+  quote: "Protein Lactoferrin P6 635 1,588 400 105"
+  read: fulltext
+  note: >-
+    Columns are: market value $635 M, market size 1,588 MT, average price $400/kg, "PF average
+    price" $105/kg. Price data source is given as "Alibaba"; market-size sources are two
+    market-research reports. The chart on p.33 labels it "$400 Lactoferrin (1588, 400)".
+    The $105/kg PF price is ADL's assumed achievable PF selling price for the whole P6 archetype,
+    not a lactoferrin-specific cost estimate.
+
+- key: blf_price_mao2023
+  value: 700
+  year: 2023
+  unit: USD/kg
+  grade: C
+  source: "Mao R et al. J Dairy Sci 106(11):7329-7335 (2023), open access"
+  doi_or_url: 10.3168/jds.2023-23328
+  locator: "first section, 'Perspective'"
+  quote: "Facing the pressure of this demand, unstable sources, and trade disputes, a 10-fold increase in the price of LF in recent years ($700 USD/kg) is expected to continue."
+  read: fulltext
+  note: >-
+    Peer-reviewed journal but the price is an unreferenced assertion, hence grade C. The same
+    paragraph gives the volume series: "Worldwide bovine lactoferrin (bLF) production increased
+    rapidly from less than 80 t per year in 2006 to more than 300 t in 2021" and "expected to
+    grow yearly by 10% to 12%, to over 580 t in 2030". A useful market-size anchor: at $700/kg
+    and 300 t, the market is ~$210 M/yr, consistent with GFI Europe's $635 M at 1,588 t only if
+    the volume figures differ by 5x - the two sources disagree on market size, not just price.
+
+- key: blf_price_trade_press_series
+  value: null
+  values: {2013: [500, 1000], 2014: 600, 2016: 200, 2023: [750, 1500], 2025: [750, 1500]}   # transcribed from the quotes in the note (USD/kg, nominal)
+  unit: USD/kg, historical points
+  grade: C
+  source: "interest.co.nz (8 May 2013, content supplied by Synlait Milk); Farmers Weekly NZ (5 October 2016), quoting Tatua CEO Paul McGilvary and Synlait's FY2016 annual report; FoodNavigator-USA (7 April 2023), quoting TurtleTree; Green Queen (2025)"
+  doi_or_url: https://www.farmersweekly.co.nz/news/global-lactoferrin-oversupply-keeps-prices-down/
+  locator: "each article as dated"
+  quote: "It has gone from US$600 a kilogram about two years ago to roughly a third of that now, Tatua Co-operative Dairy Co chief executive Paul McGilvary said."
+  read: html
+  note: >-
+    A usable, if crude, 2013-2025 series, all grade C:
+    2013 "On the current market lactoferrin is priced at between US$500 to US$1,000 per kilogram"
+      (interest.co.nz, Synlait release);
+    2014 ~US$600/kg and 2016 ~US$200/kg (Farmers Weekly, quote above);
+    2016 Synlait margin collapse: "low pricing and throughput for lactoferrin during the 2016
+      financial year resulted in a gross margin loss of $12,000 per tonne compared to a $470,040
+      gross profit per tonne in 2015 and $508,098 in 2014" - i.e. ~NZ$470-508/kg of GROSS PROFIT
+      per kg in 2014-15, so the 2014-15 selling price must have been well above US$500/kg;
+    2023 "Lactoferrin presently trades at around $750 to $1,500 per kilogram" (TurtleTree's
+      Lin, in FoodNavigator-USA);
+    2025 "drives up retail costs to $750-1,500 per kg" (Green Queen).
+    Volume context in the same 2013/2016 articles: "The market for lactoferrin has grown from
+    45,000 kilograms in 2001 to 185,000 kg in 2012 and is projected to grow to 262,000 kg in 2017."
+    Physical driver, repeated by several sources: "It takes 10,000 litres of milk and smart
+    technology to make just one kilogram of lactoferrin" (Farmers Weekly 2016).
+
+- key: pf_lf_price_disclosed
+  value: null
+  unit: USD/kg (no PF lactoferrin price has been disclosed)
+  grade: C
+  source: "FoodNavigator-USA, 7 April 2023, interview with TurtleTree"
+  doi_or_url: https://www.foodnavigator-usa.com/Article/2023/04/07/TurtleTree-s-animal-free-lactoferrin-LF-promises-to-democratize-scarce-milk-protein/
+  locator: "body text"
+  quote: "Lactoferrin presently trades at around $750 to $1,500 per kilogram, which is much, much more than caseins and whey that are also being made through precision fermentation techniques. ... So, just about out of the gate, we are going to have a healthy profit margin that will only go up as we continue to optimize our strain in our process"
+  read: html
+  note: >-
+    No company has published a price or a cost for precision-fermented lactoferrin. The only
+    quantitative claims are (a) this margin claim, (b) GFI Europe's assumed $105/kg PF price for
+    the whole P6 archetype, and (c) the Intelligen model's $292/kg COP ($262/kg normalised to
+    2024 USD by GFI). A model that lands anywhere below ~$400/kg would therefore already be
+    telling the "PF is cost-competitive here" story - which is precisely why the DSP assumptions
+    (chromatography or not, 80% vs 95% purity) need to be defensible.
+
+# =======================================================================================
+# 7. Derived cross-checks on the Intelligen/David design basis (arithmetic done here, 2026-09-26;
+#    Pablo should re-check these before they enter data/pf/)
+# =======================================================================================
+
+- key: lf_intelligen_derived_checks
+  value: {broth_m3_per_batch: 82.3, fermenters_100m3: 9, powder_kg_per_batch: 765, dsp_recovery: 0.837, glucose_per_kg_lf: 25.7, methanol_per_kg_lf: 4.2, glucose_to_lf_yield_g_g: 0.039}
+  unit: derived quantities, glucose scenario
+  grade: B
+  source: "Derived from David LH et al. Int J LCA 31:96 (2026) Tables 1-2 and the stated 251 t/yr output"
+  doi_or_url: 10.1007/s11367-026-02671-8
+  locator: "Tables 1 and 2 plus Sect. 2.1"
+  quote: null
+  read: fulltext
+  note: >-
+    (1) 822.6 kg LF per batch at 10 g/L implies 82.26 m3 of broth, i.e. 82% working volume in the
+    stated 100 m3 fermenter. (2) 328 batches x 216 h = 70,848 fermenter-hours, so the plant needs
+    ~8.1 vessels at 8,760 h/yr or ~9 at 7,920 h/yr: a 9 x 100 m3 train, close to the pf-tea base
+    of 5 x 136 m3 for ovalbumin. (3) 251 t/yr / 328 = 765 kg powder per batch; at 90% purity that
+    is 688.7 kg LF recovered from 822.6 kg made, so OVERALL DSP RECOVERY = 0.837 for the UF/DF +
+    spray-dry case. (4) The Table 1 inventory reconciles: (23.1 + 3.8 + 9.0) kg/kg x 765 kg =
+    27.5 t/batch vs the stated "total feedstock 28,392.8 kg/batch", within 3%. (5) Per kg of LF
+    (not powder): 25.7 kg glucose + 4.2 kg methanol, i.e. an overall sugar-to-product yield of
+    0.039 g/g, SEVEN TIMES WORSE than the 0.28 g/g in the ovalbumin base case - because the
+    titer is 10 g/L against 116 g/L of biomass, and because the product carbon comes from
+    methanol. This single ratio is why lactoferrin costs ~$300/kg in the same modelling framework
+    that gives ~$39/kg for ovalbumin, and it is the number to attack with a higher titer.

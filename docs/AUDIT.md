@@ -286,3 +286,29 @@ limits, tornado truncation and capital bar, host-specific Monte Carlo counting e
 infeasible, refined physical-limit search with binding constraints), calibration cases (R4-3,
 R4-6, R4-7, R4-17, R6-m12), evidence corrections (R6-m10/m11, NP-5), titers.csv (new full
 texts), and 22 new model tests.
+
+## Batch 3 (2026-09-27): milk and egg equivalents; lactoferrin contrast case
+
+Both were requested after the audit (Pablo, 2026-09-26).
+
+**Milk and egg equivalents** (`benchmarks.equivalents`, report section on equivalents;
+evidence in `data/evidence/milk_egg.yaml`): a litre of milk holds 3.3 g BLG and 33.7 g of
+protein; a large egg holds 1.96 g ovalbumin and 3.64 g of egg-white protein. Milk and egg
+prices (US farm, EU raw milk, US retail; US wholesale and retail eggs) are converted per unit
+and deflated to 2025$ like the incumbent bands. Dividing a unit's price by its protein gives
+the price at which PF protein would cost as much as the natural source per gram of protein:
+US farm milk $14–19/kg protein (2015–2025), eggs $26–85/kg egg-white protein (wholesale). These
+are upper bounds on the protein's value, because fat, lactose and yolk carry part of the price,
+and whey is a by-product.
+
+**Lactoferrin** (`data/pf/scenarios/lactoferrin.yaml`, evidence `data/evidence/lactoferrin.yaml`):
+bovine lactoferrin in K. phaffii without methanol (FDA GRN 1219, 1284), 250 t/yr, 90% LF powder,
+MF → cation exchange → UF/DF → spray dryer. New model step: cation-exchange capture (plant.py
+block c'), with binding capacity, buffers, salt and ethanol from the EVERY patent (B), resin
+price (Petrides, B) and industrial lactoferrin resin life (>1,000 cycles, A). Two new
+guesses (E): cycle time (sets resin volume only) and column hardware per litre of resin.
+Salt and ethanol prices from Comext 2025 (A). Results at 10 g/L (Intelligen's design titer):
+$216/kg with price-anchored capital, $134/kg with design-report capital, against dairy
+lactoferrin at $200–1,500/kg (grade C, 2013–2025). At the best public methanol-free titer
+(2.8 g/L, porcine LF, Yen 2024) $531/$283. Resin life is the largest downstream lever (125 cycles:
+$364/kg).

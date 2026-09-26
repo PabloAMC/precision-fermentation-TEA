@@ -1,0 +1,18 @@
+# European Commission, Agri-food data portal (EU Milk Market Observatory data), endpoint /api/rawMilk/prices, memberStateCode 'EU-UK' (memberStateName 'European Union'), product 'Raw milk', unit 100KG.
+# https://api.tech.ec.europa.eu/agrifood/api/rawMilk/prices?memberStateCodes=EU&years=2014,...,2026; accessed 2026-09-26.
+# Definition (Commission Implementing Regulation (EU) 2017/1185, Annex II point 4(a)): 'the price of raw milk ... expressed per 100 kg of product at real fat and protein content'; 'the price shall be that paid by first purchasers'.
+# Annual value = simple (unweighted) mean of the 12 monthly EU prices (computed). 2026 = Jan-Aug 2026 only (partial year).
+# Unit: EUR per 100 kg raw cows milk at real fat and protein content (EU27 excluding UK).
+year,value
+2015,30.517
+2016,28.586
+2017,35.211
+2018,34.299
+2019,34.756
+2020,34.133
+2021,36.810
+2022,50.203
+2023,46.986
+2024,48.465
+2025,52.458
+2026,42.983

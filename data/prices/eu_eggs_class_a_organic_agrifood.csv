@@ -1,0 +1,11 @@
+# European Commission, Agri-food data portal (EU Egg Market Observatory data), endpoint /api/poultry/egg/prices, memberStateCode 'EU', farmingMethod 'Organic', unit EUR/100Kg, weekly.
+# https://api.tech.ec.europa.eu/agrifood/api/poultry/egg/prices?memberStateCodes=EU&beginDate=01/01/2014&endDate=26/09/2026; accessed 2026-09-26. EU aggregate exists only from week 1 of 2022.
+# Definition (Reg. (EU) 2017/1185 Annex I point 8, original text): 'wholesale price for Class A eggs ... (average of categories L and M), expressed per 100 kg of product'; 'notified for products in packing stations'.
+# Annual value = simple mean of weekly prices grouped by the API field marketingYear (computed). 2026 = weeks 1-38 only (partial; last week begins 14/09/2026). Original 2017 text covers caged hens; the by-farming-method EU series from 2022 reflects a later amendment (not read). Weeks per year: 2022:52, 2023:52, 2024:52, 2025:52, 2026:38
+# Unit: EUR per 100 kg of shell eggs (Class A, L+M average, packing-station level).
+year,value
+2022,388.01
+2023,424.06
+2024,410.81
+2025,441.62
+2026,462.31

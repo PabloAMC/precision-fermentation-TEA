@@ -1,0 +1,620 @@
+# data/evidence/milk_egg.yaml: composition of cow's milk and hen's eggs and the prices of milk and eggs,
+# gathered 2026-09-26 for the milk and egg equivalents (docs/AUDIT.md; report section on equivalents).
+# Format: data/evidence/README.md. 'Derived' numbers are our arithmetic and say so.
+#
+# milk_egg_evidence.yaml - milk and egg composition, and milk/egg price context (Phase B research, 2026-09-26).
+# Format: data/evidence/README.md. Extra fields as in prices.yaml: `year` (year of `value`), `values` (series or component map),
+# `csv` (companion annual series; path relative to this scratch dir, intended repo location data/prices/).
+# All web sources accessed 2026-09-26. `read: html` = HTML page or JSON/text API record read via curl or the browser pane
+# (raw text, never a model summary); `read: fulltext` = full article text (Europe PMC full-text XML or open-archive HTML).
+# Conversions (mine): 1 US cup = 236.5882365 mL; 1 US gal = 3.785411784 L; 1 cwt = 100 lb = 45.359237 kg; 1 oz = 28.349523125 g.
+# FDC "protein" is crude protein = total N x factor (6.38 milk, 6.25 egg); it includes non-protein N.
+# Annual price values marked "computed" are simple means of the published monthly/weekly values (the raw records are in this dir).
+
+
+# ---------------- 1. Milk composition ----------------
+
+- key: "milk_whole_protein_fdc_foundation"
+  value: 3.27
+  low: 2.93
+  high: 3.51
+  unit: "g crude protein / 100 g milk (N x 6.38)"
+  grade: "A"
+  source: "USDA ARS FoodData Central, Foundation Foods, FDC ID 746782 'Milk, whole, 3.25% milkfat, with added vitamin D' (publicationDate 12/16/2019)"
+  doi_or_url: "https://fdc.nal.usda.gov/food-details/746782/nutrients (API: https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=746782&format=full)"
+  locator: "foodNutrients 'Protein' (derivation Calculated) and 'Nitrogen' (Analytical); nutrientConversionFactors 'Protein From Nitrogen'"
+  quote: "Protein 3.27 G (min 2.93, max 3.51, median 3.25, derivation Calculated); Nitrogen 0.51 G (dataPoints 24, min 0.46, max 0.55, Analytical); Protein From Nitrogen value 6.38"
+  read: "html"
+  note: "US retail whole milk. = 33.7 g/L at 1.0313 kg/L (milk_density_fdc_sr_legacy; conversion mine). Crude protein includes NPN (~5% of crude protein, see milk_protein_nl_raw_heck2009). Foundation also lists '1.0 cup = 249.0 g' (= 1.052 kg/L, implausible for milk), so density is taken from SR Legacy."
+
+- key: "milk_whole_protein_fdc_sr_legacy"
+  value: 3.15
+  low: 3.07
+  high: 3.31
+  unit: "g crude protein / 100 g milk (N x 6.38)"
+  grade: "A"
+  source: "USDA ARS FoodData Central, SR Legacy, FDC ID 171265 'Milk, whole, 3.25% milkfat, with added vitamin D' (publicationDate 4/1/2019)"
+  doi_or_url: "https://fdc.nal.usda.gov/food-details/171265/nutrients (API: https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=171265&format=full)"
+  locator: "foodNutrients 'Protein' (Analytical)"
+  quote: "Protein 3.15 G (dataPoints 27, min 3.07, max 3.31, derivation Analytical); Protein From Nitrogen value 6.38"
+  read: "html"
+  note: "= 32.5 g/L at 1.0313 kg/L (mine). Same database: FDC 171266 'Milk, producer, fluid, 3.7% milkfat' Protein 3.28 G (no dataPoints) = 33.8 g/L, a farm-milk reference."
+
+- key: "milk_density_fdc_sr_legacy"
+  value: 1.0313
+  unit: "kg/L (temperature not stated)"
+  grade: "A"
+  source: "USDA ARS FoodData Central, SR Legacy, FDC ID 171265 'Milk, whole, 3.25% milkfat, with added vitamin D'"
+  doi_or_url: "https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=171265&format=full"
+  locator: "foodPortions"
+  quote: "portion: 1.0 fl oz = 30.5 g; 1.0 cup = 244.0 g; 1.0 tbsp = 15.0 g; 1.0 quart = 976.0 g"
+  read: "html"
+  note: "Density computed by me: 244/236.588 = 976/946.353 = 30.5/29.574 = 1.0313 g/mL (all three portions agree). Within the handbook range 1.028-1.038 (milk_density_tetrapak). A 1% density error moves every per-litre number by 1%."
+
+- key: "milk_density_tetrapak"
+  value: 1.033
+  low: 1.028
+  high: 1.038
+  unit: "g/cm3"
+  grade: "A"
+  source: "Tetra Pak. Dairy Processing Handbook (online edition), chapter 2 'Chemistry of milk', section 'Density'"
+  doi_or_url: "https://dairyprocessinghandbook.tetrapak.com/chapter/chemistry-milk"
+  locator: "section 'Physical properties of milk' > 'Density'"
+  quote: "The density of cows’ milk normally varies between 1.028 and 1.038 g/cm3, depending on its composition."
+  read: "html"
+  note: "value = midpoint of the stated range (mine). Standard industry handbook published by a vendor (Tetra Pak); graded A as a handbook, downgrade to B if the project prefers. Formula 2.2 (density at 15.5 C from composition) is an image, not read."
+
+- key: "milk_protein_tetrapak"
+  value: 3.4
+  unit: "% (w/w) protein in cows' milk, 'average composition'"
+  grade: "A"
+  source: "Tetra Pak. Dairy Processing Handbook (online edition), chapter 2 'Chemistry of milk', Table 2.1"
+  doi_or_url: "https://dairyprocessinghandbook.tetrapak.com/chapter/chemistry-milk"
+  locator: "Table 2.1 'Physical-chemical status of cows’ milk', column 'Average composition %'"
+  quote: "Table 2.1 Physical-chemical status of cows’ milk. | Average composition % ... Moisture 87.5 | Fat 3.9 | Proteins 3.4 | Lactose 4.8 | Minerals (Ash) 0,8"
+  read: "html"
+  note: "Generic average (no country/year). = 35.1 g/L at 1.0313 kg/L (mine)."
+
+- key: "milk_protein_nl_raw_heck2009"
+  value: 3.48
+  low: 3.39
+  high: 3.56
+  unit: "g total protein / 100 g raw milk (annual mean; low/high = monthly min/max)"
+  values: {total_protein: 3.48, true_protein: 3.30, true_protein_low: 3.21, true_protein_high: 3.38, casein: 2.72, npn: 0.182}
+  grade: "A"
+  source: "Heck JML, van Valenberg HJF, Dijkstra J, van Hooijdonk ACM. Seasonal variation in the Dutch bovine raw milk composition. J Dairy Sci 92(10):4745-4755 (2009)"
+  doi_or_url: "10.3168/jds.2009-2146"
+  locator: "Table 2 'Mean, CV, and seasonal variation of several basic milk parameters of Dutch bovine raw milk in 2005'"
+  quote: "Protein (g/100g) 3.48 1.7 3.39 July 3.56 December; True protein (g/100g) 3.30 1.9 3.21 July 3.38 December; CN (g/100g) 2.72 1.9 2.64 July 2.78 December"
+  read: "fulltext"
+  note: "Open-archive HTML read in the browser pane (journalofdairyscience.org). Weekly samples representative of the complete Dutch milk supply, Feb 2005-Feb 2006. NPN 0.182 g/100 g (Table 2), so true protein = 94.8% of total. Per litre at 1.0313 kg/L (mine): 35.9 g total, 34.0 g true protein. EU (Dutch) raw milk is richer than US retail whole milk (3.15-3.27 g/100 g)."
+
+- key: "milk_casein_share_heck2009"
+  value: 82.3
+  low: 81.8
+  high: 82.6
+  unit: "% casein in true protein (casein number)"
+  values: {casein_pct_of_true_protein: 82.3, casein_pct_of_total_protein: 78.0}
+  grade: "A"
+  source: "Heck JML et al. J Dairy Sci 92(10):4745-4755 (2009)"
+  doi_or_url: "10.3168/jds.2009-2146"
+  locator: "Table 3 and section 'Protein Composition'"
+  quote: "Dividing CN by total protein would yield a CN number of 78.0 instead of 82.3."
+  read: "fulltext"
+  note: "Whey (serum) true protein implied = 3.30 - 2.72 = 0.58 g/100 g = 6.0 g/L (mine), i.e. 17.7% of true protein. On a total-protein basis casein 78% and whey+NPN 22%."
+
+- key: "milk_blg_ala_share_true_protein_heck2009"
+  value: 8.4
+  low: 8.1
+  high: 8.8
+  unit: "g beta-lactoglobulin / 100 g true protein"
+  values: {beta_lg: 8.4, alpha_la: 2.3, alpha_la_low: 2.2, alpha_la_high: 2.4, alpha_s1_cn: 33.5, alpha_s2_cn: 10.8, beta_cn: 27.5, kappa_cn: 8.2}
+  grade: "A"
+  source: "Heck JML et al. J Dairy Sci 92(10):4745-4755 (2009)"
+  doi_or_url: "10.3168/jds.2009-2146"
+  locator: "Table 3 'Mean (g/100g of true protein), CV, and seasonal variation in the protein composition of Dutch bovine raw milk in 2005'"
+  quote: "α-LA 2.3 5.7 2.2 November 2.4 June; β-LG 8.4 3.6 8.1 May 8.8 February"
+  read: "fulltext"
+  note: "Capillary zone electrophoresis (Heck et al. 2008). Text: 'The 6 main proteins together constitute 90.8% (wt/wt) of the true protein.' Implied (mine): BLG 0.277 g/100 g = 2.86 g/L (2.68-3.07 using monthly extremes of both factors); alpha-LA 0.076 g/100 g = 0.78 g/L. Lower than textbook 3.2/1.2 g/kg; method and basis (true protein, 9.2% unassigned) matter."
+
+- key: "milk_blg_farrell2004"
+  value: 3.0
+  low: 2.0
+  high: 4.0
+  unit: "g/L skim milk"
+  grade: "A"
+  source: "Farrell HM Jr, Jimenez-Flores R, Bleck GT, Brown EM, Butler JE, Creamer LK, Hicks CL, Hollar CM, Ng-Kwai-Hang KF, Swaisgood HE. Nomenclature of the proteins of cows' milk - sixth revision. J Dairy Sci 87(6):1641-1674 (2004)"
+  doi_or_url: "10.3168/jds.S0022-0302(04)73319-6"
+  locator: "Table 1 'Proteins of bovine milk and some of their properties', column 'Composition in skim milk (g/L)'"
+  quote: "Protein (suggested abbreviation) | Composition in skim milk (g/L) ... β-Lactoglobulin (β -LG) | 2–4"
+  read: "fulltext"
+  note: "Open-archive HTML read in the browser pane. value = midpoint of the stated range (mine). Table footnote: 'Inclusion of values in this table does not constitute endorsement by the Committee.' Other rows (g/L skim): αs1-CN 12–15, αs2-CN 3–4, β-CN 9–11, κ-CN 2–4, α-LA 0.6–1.7, SA 0.4, IgG1 0.3–0.6, LF 0.02–0.1. Text: 'β-Lactoglobulin is the major protein in whey.' Skim-milk basis: per litre of whole milk ~4% lower (fat volume; my estimate)."
+
+- key: "milk_ala_farrell2004"
+  value: 1.2
+  low: 0.6
+  high: 1.7
+  unit: "g/L"
+  grade: "A"
+  source: "Farrell HM Jr et al. J Dairy Sci 87(6):1641-1674 (2004)"
+  doi_or_url: "10.3168/jds.S0022-0302(04)73319-6"
+  locator: "section 'α-LA' (text) and Table 1 (range)"
+  quote: "Bovine milk contains α-LA at a concentration of approximately 1.2 to 1.5g/L (Jenness, 1974)."
+  read: "fulltext"
+  note: "value = lower end of the text range 1.2-1.5; low/high = Table 1 range 0.6–1.7 g/L skim milk. Also: 'Bovine SA represents about 1.5% of total milk protein and about 8% of total whey protein.'; 'The Ig fraction accounts for about 1% of total milk protein or about 6% of total whey protein.'"
+
+- key: "milk_blg_tetrapak"
+  value: 3.2
+  unit: "g/kg milk"
+  values: {blg_g_per_kg: 3.2, blg_pct_total_protein: 9.8}
+  grade: "A"
+  source: "Tetra Pak. Dairy Processing Handbook (online edition), chapter 2 'Chemistry of milk', Table 2.5"
+  doi_or_url: "https://dairyprocessinghandbook.tetrapak.com/chapter/chemistry-milk"
+  locator: "Table 2.5 'Concentration of proteins in milk', columns 'Conc. in milk g/kg' and '% of total protein w/w'"
+  quote: "Table 2.5 Concentration of proteins in milk | Conc. in milk g/kg | % of total protein w/w ... β-lactoglobulin | 3.2 | 9.8"
+  read: "html"
+  note: "= 3.30 g/L at 1.0313 kg/L (mine). Table 2.5 cites no source; the chapter's figures cite Walstra, Wouters and Geurts (2006) and Fox and McSweeney (1998), which carry the same textbook values (not verified here). Table total protein = 26 + 6.4 + 0.9 = 33.3 g/kg."
+
+- key: "milk_ala_tetrapak"
+  value: 1.2
+  unit: "g/kg milk"
+  values: {ala_g_per_kg: 1.2, ala_pct_total_protein: 3.7}
+  grade: "A"
+  source: "Tetra Pak. Dairy Processing Handbook (online edition), chapter 2 'Chemistry of milk', Table 2.5"
+  doi_or_url: "https://dairyprocessinghandbook.tetrapak.com/chapter/chemistry-milk"
+  locator: "Table 2.5 'Concentration of proteins in milk'"
+  quote: "Serum proteins ... α-lactalbumin | 1.2 | 3.7"
+  read: "html"
+  note: "= 1.24 g/L at 1.0313 kg/L (mine)."
+
+- key: "milk_whey_protein_tetrapak"
+  value: 6.4
+  unit: "g/kg milk (total serum/whey proteins)"
+  values: {whey_g_per_kg: 6.4, whey_pct_total_protein: 19, serum_albumin_g_per_kg: 0.4, immunoglobulins_g_per_kg: 0.8, misc_incl_proteose_peptone_g_per_kg: 0.8}
+  grade: "A"
+  source: "Tetra Pak. Dairy Processing Handbook (online edition), chapter 2 'Chemistry of milk', Table 2.5"
+  doi_or_url: "https://dairyprocessinghandbook.tetrapak.com/chapter/chemistry-milk"
+  locator: "Table 2.5, row 'Total Serum proteins'"
+  quote: "Total Serum proteins | 6.4 | 19"
+  read: "html"
+  note: "= 6.60 g/L at 1.0313 kg/L (mine). BLG/whey = 3.2/6.4 = 50%, matching the handbook text (milk_blg_share_whey_tetrapak). Heck 2009 implies 6.0 g/L true whey protein for Dutch milk."
+
+- key: "milk_casein_tetrapak"
+  value: 26
+  unit: "g/kg milk (total casein)"
+  values: {casein_g_per_kg: 26, casein_pct_total_protein: 78.3}
+  grade: "A"
+  source: "Tetra Pak. Dairy Processing Handbook (online edition), chapter 2 'Chemistry of milk', Table 2.5 and section 'Casein'"
+  doi_or_url: "https://dairyprocessinghandbook.tetrapak.com/chapter/chemistry-milk"
+  locator: "Table 2.5 row 'Total Casein'; section 'Casein'"
+  quote: "Total Casein | 26 | 78.3"
+  read: "html"
+  note: "Text: casein 'is the dominant class of proteins in milk, consti­tuting about four-fifths of the milk proteins.' Consistent with Heck 2009 (78.0% of total protein)."
+
+- key: "milk_blg_share_whey_tetrapak"
+  value: 50
+  unit: "% of whey proteins"
+  grade: "A"
+  source: "Tetra Pak. Dairy Processing Handbook (online edition), chapter 2 'Chemistry of milk', section on heat treatment of proteins"
+  doi_or_url: "https://dairyprocessinghandbook.tetrapak.com/chapter/chemistry-milk"
+  locator: "section 'Protein' under effects of heat treatment (near Fig. 2.45)"
+  quote: "Whey proteins, on the other hand, particularly b-lactoglobulin which makes up about 50% of the whey proteins, are fairly heat sensitive."
+  read: "html"
+  note: "Rounded statement; consistent with Table 2.5 (3.2 of 6.4 g/kg)."
+
+
+# ---------------- 2. Egg composition ----------------
+
+- key: "egg_large_whole_edible_mass_fdc_foundation"
+  value: 50.3
+  unit: "g per large egg, whole without shell"
+  grade: "A"
+  source: "USDA ARS FoodData Central, Foundation Foods, FDC ID 748967 'Eggs, Grade A, Large, egg whole' (publicationDate 12/16/2019)"
+  doi_or_url: "https://fdc.nal.usda.gov/food-details/748967/nutrients (API: https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=748967&format=full)"
+  locator: "foodPortions"
+  quote: "portion: 1.0 whole without shell egg = 50.3 g | dataPoints 526; 1.0 RACC = 50.0 g"
+  read: "html"
+  note: "Measured mean over 526 Grade A large eggs. SR Legacy gives 50 g (egg_large_masses_fdc_sr_legacy). 50.3 g is 88.7% of the USDA large-egg minimum average in-shell mass 56.70 g (mine)."
+
+- key: "egg_large_white_mass_fdc_foundation"
+  value: 34.0
+  unit: "g egg white per large egg"
+  grade: "A"
+  source: "USDA ARS FoodData Central, Foundation Foods, FDC ID 747997 'Eggs, Grade A, Large, egg white' (publicationDate 12/16/2019)"
+  doi_or_url: "https://fdc.nal.usda.gov/food-details/747997/nutrients (API: https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=747997&format=full)"
+  locator: "foodPortions"
+  quote: "portion: 1.0 white egg = 34.0 g | dataPoints 576"
+  read: "html"
+  note: "SR Legacy gives 33 g. Yolk 17.0 g (egg_large_yolk_mass_fdc_foundation); white+yolk 51.0 g vs whole 50.3 g (different sample sets and separation losses)."
+
+- key: "egg_large_yolk_mass_fdc_foundation"
+  value: 17.0
+  unit: "g yolk per large egg"
+  grade: "A"
+  source: "USDA ARS FoodData Central, Foundation Foods, FDC ID 748236 'Eggs, Grade A, Large, egg yolk' (publicationDate 12/16/2019)"
+  doi_or_url: "https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=748236&format=full"
+  locator: "foodPortions"
+  quote: "portion: 1.0 yolk egg = 17.0 g | dataPoints 531"
+  read: "html"
+  note: "Yolk protein 16.2 g/100 g (egg_yolk_protein_fdc) = 2.75 g per large egg (mine)."
+
+- key: "egg_large_masses_fdc_sr_legacy"
+  value: 50
+  unit: "g per large egg (whole, without shell)"
+  values: {whole_g: 50, white_g: 33, yolk_g: 17, medium_whole_g: 44, extra_large_whole_g: 56, jumbo_whole_g: 63, small_whole_g: 38}
+  grade: "A"
+  source: "USDA ARS FoodData Central, SR Legacy, FDC IDs 171287 'Egg, whole, raw, fresh', 172183 'Egg, white, raw, fresh', 172184 'Egg, yolk, raw, fresh'"
+  doi_or_url: "https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=172183&fdcIds=171287&fdcIds=172184&format=full"
+  locator: "foodPortions of each food"
+  quote: "171287: 1.0 large = 50.0 g; 1.0 medium = 44.0 g; 1.0 extra large = 56.0 g; 172183: 1.0 large = 33.0 g; 172184: 1.0 large = 17.0 g"
+  read: "html"
+  note: "No dataPoints given for SR Legacy portions. Other sizes useful for sensitivity: small 38 g, jumbo 63 g."
+
+- key: "egg_white_protein_fdc_foundation"
+  value: 10.7
+  low: 9.5
+  high: 12.3
+  unit: "g crude protein / 100 g egg white (N x 6.25)"
+  grade: "A"
+  source: "USDA ARS FoodData Central, Foundation Foods, FDC ID 747997 'Eggs, Grade A, Large, egg white'"
+  doi_or_url: "https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=747997&format=full"
+  locator: "foodNutrients 'Protein' (Calculated) and 'Nitrogen' (Analytical)"
+  quote: "Protein 10.7 G (min 9.5, max 12.3, median 10.6, derivation Calculated); Nitrogen 1.71 G (dataPoints 24, min 1.52, max 1.97); Protein From Nitrogen value 6.25"
+  read: "html"
+  note: "Egg-white protein per large egg = 34.0 g x 0.107 = 3.64 g (mine). low/high are sample extremes, not a CI."
+
+- key: "egg_white_protein_fdc_sr_legacy"
+  value: 10.9
+  low: 10.21
+  high: 11.76
+  unit: "g crude protein / 100 g egg white (N x 6.25)"
+  grade: "A"
+  source: "USDA ARS FoodData Central, SR Legacy, FDC ID 172183 'Egg, white, raw, fresh'"
+  doi_or_url: "https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=172183&format=full"
+  locator: "foodNutrients 'Protein' (Analytical)"
+  quote: "Protein 10.9 G (dataPoints 12, min 10.21, max 11.76, derivation Analytical)"
+  read: "html"
+  note: "Per large egg: 33 g x 0.109 = 3.60 g (mine). Réhault-Godbert 2019 (ova_share_rehault_godbert2019) cites the same 10.90 g/100 g."
+
+- key: "egg_whole_protein_fdc_foundation"
+  value: 12.4
+  low: 11.6
+  high: 13.2
+  unit: "g crude protein / 100 g whole egg without shell (N x 6.25)"
+  grade: "A"
+  source: "USDA ARS FoodData Central, Foundation Foods, FDC ID 748967 'Eggs, Grade A, Large, egg whole'"
+  doi_or_url: "https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=748967&format=full"
+  locator: "foodNutrients 'Protein' (Calculated) and 'Nitrogen' (Analytical)"
+  quote: "Protein 12.4 G (min 11.6, max 13.2, median 12.4, derivation Calculated); Nitrogen 1.99 G (dataPoints 24, min 1.86, max 2.11)"
+  read: "html"
+  note: "Whole-egg protein per large egg = 50.3 x 0.124 = 6.24 g (mine); SR Legacy 12.56 g/100 g x 50 g = 6.28 g."
+
+- key: "egg_whole_protein_fdc_sr_legacy"
+  value: 12.56
+  low: 11.81
+  high: 13.06
+  unit: "g crude protein / 100 g whole egg without shell (N x 6.25)"
+  grade: "A"
+  source: "USDA ARS FoodData Central, SR Legacy, FDC ID 171287 'Egg, whole, raw, fresh'"
+  doi_or_url: "https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=171287&format=full"
+  locator: "foodNutrients 'Protein' (Analytical)"
+  quote: "Protein 12.56 G (dataPoints 12, min 11.81, max 13.06, derivation Analytical)"
+  read: "html"
+  note: "Search endpoint rounds this to 12.6; the food-detail record gives 12.56."
+
+- key: "egg_yolk_protein_fdc"
+  value: 16.2
+  low: 15.46
+  high: 17.3
+  unit: "g crude protein / 100 g yolk (N x 6.25)"
+  values: {foundation_748236: 16.2, sr_legacy_172184: 15.86}
+  grade: "A"
+  source: "USDA ARS FoodData Central, FDC IDs 748236 (Foundation) and 172184 (SR Legacy)"
+  doi_or_url: "https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=748236&fdcIds=172184&format=full"
+  locator: "foodNutrients 'Protein'"
+  quote: "748236: Protein 16.2 G (min 15.6, max 17.3, Calculated); 172184: Protein 15.86 G (dataPoints 12, min 15.46, max 16.38, Analytical)"
+  read: "html"
+  note: "Context only (yolk proteins are not OVA). Yolk carries ~43% of whole-egg protein (2.75 of 6.39 g; mine)."
+
+- key: "egg_large_weight_class_usda_ams56"
+  value: 24
+  unit: "oz minimum net weight per dozen (US Large)"
+  values: {large_min_oz_per_dozen: 24, large_min_individual_oz_per_dozen_rate: 23, extra_large: 27, medium: 21, jumbo: 30}
+  grade: "A"
+  source: "USDA AMS. United States Standards, Grades, and Weight Classes for Shell Eggs, AMS 56, effective July 20, 2000, §56.218"
+  doi_or_url: "https://www.ams.usda.gov/sites/default/files/media/Shell_Egg_Standard%5B1%5D.pdf (linked from https://www.ams.usda.gov/grades-standards/shell-egg-grades-and-standards)"
+  locator: "§56.218 Weight classes, Table I -- U.S. Weight Classes for Consumer Grades for Shell Eggs"
+  quote: "Large .............................. 24 45 23 (columns: Minimum net weight per dozen (ounces); Minimum net weight 30 per dozen (pounds); Minimum net weight for individual eggs at rate per dozen (ounces))"
+  read: "fulltext"
+  note: "PDF text-extracted and deleted. 24 oz/dozen = 680.4 g = 56.70 g per egg in shell (minimum lot average); individual eggs >= 54.3 g (conversions mine). The standards were removed from the CFR in 1995 and are maintained as AMS 56 (foreword)."
+
+- key: "egg_weight_grades_eu_2023_2465"
+  value: 63
+  unit: "g (lower bound of EU size L; M = 53 to <63 g)"
+  values: {xl_min_g: 73, l_min_g: 63, m_min_g: 53}
+  grade: "A"
+  source: "Commission Delegated Regulation (EU) 2023/2465 of 17 August 2023 as regards marketing standards for eggs (OJ L, 8.11.2023), Article 5(1)"
+  doi_or_url: "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32023R2465"
+  locator: "Article 5 'Grading of Class A eggs by weight', paragraph 1"
+  quote: "L – large: weight ≥ 63 g and < 73 g; ... M – medium: weight ≥ 53 g and < 63 g; ... S – small: weight < 53 g."
+  read: "html"
+  note: "Needed to convert EU egg prices (EUR/100 kg, 'average of categories L and M') to per-egg prices: ~63 g in shell (the L/M boundary) is a reasonable mid-value (my assumption); an EU M egg is thus comparable to a US Large (>= 56.7 g). EU L egg is heavier than US Large."
+
+- key: "ova_share_li2022"
+  value: 54
+  unit: "% of egg-white protein"
+  grade: "A"
+  source: "Li Z, Huang X, Tang Q, Ma M, Jin Y, Sheng L. Functional properties and extraction techniques of chicken egg white proteins. Foods 11(16):2434 (2022)"
+  doi_or_url: "10.3390/foods11162434"
+  locator: "Table 1 'Percentage of total protein, MW and pI of major egg proteins'; section 2.1 'Ovalbumin (OVA)'"
+  quote: "OVA, the most abundant protein in EW, accounts for about 54% of the total EWP."
+  read: "fulltext"
+  note: "Europe PMC full text (PMC9407204). Table 1: Ovalbumin 54; Ovotransferrin 12–13; Ovomucoid 11; Lysozyme 3.4–3.5; Ovomucin 1.5–3.5 (% of total egg-white protein). Secondary review; the 54% figure traces to classic reviews (Stevens 1991; Mine 1995; not read, see documents list). OVA per large egg = 3.64 g x 0.54 = 1.96 g (mine)."
+
+- key: "ova_share_rehault_godbert2019"
+  value: 50
+  unit: "% of egg-white protein"
+  grade: "A"
+  source: "Réhault-Godbert S, Guyot N, Nys Y. The golden egg: nutritional value, bioactivities, and emerging benefits for human health. Nutrients 11(3):684 (2019)"
+  doi_or_url: "10.3390/nu11030684"
+  locator: "section 2.1.1 'Proteins'"
+  quote: "In total, 150 distinct proteins have been identified in egg white [35], knowing that the very abundant ovalbumin accounts for 50% of the total egg-white proteins."
+  read: "fulltext"
+  note: "Europe PMC full text (PMC6470839). Same section: 'The average volume of egg white is estimated to be 30 mL (for an egg weighting 60 g, eggshell included) and protein concentration is about 110 mg/mL of egg white.' = 3.3 g egg-white protein per 60 g egg (mine), consistent with FDC (3.6 g for a US large egg). Also 12.5 g protein/100 g whole egg, 10.90 g/100 g white."
+
+- key: "ova_share_huntington_stein2001"
+  value: 62.5
+  low: 60
+  high: 65
+  unit: "% of egg-white protein"
+  grade: "A"
+  source: "Huntington JA, Stein PE. Structure and properties of ovalbumin. J Chromatogr B 756(1-2):189-198 (2001)"
+  doi_or_url: "10.1016/S0378-4347(01)00108-6"
+  locator: "introduction (not read)"
+  quote: null
+  read: "abstract"
+  note: "NOT USABLE AS IS: the '60–65% of egg-white protein' figure is my recollection of this paper; the abstract (read via Europe PMC) gives no percentage. Listed because it would widen the OVA-share range upward; verify from the full text before use."
+
+
+# ---------------- 3. Price context: milk ----------------
+
+- key: "us_all_milk_price_nass"
+  value: 21.19
+  unit: "USD/cwt (farm milk at actual test)"
+  year: 2025
+  values: {2015: 17.21, 2016: 16.34, 2017: 17.69, 2018: 16.28, 2019: 18.65, 2020: 18.16, 2021: 18.54, 2022: 25.39, 2023: 20.38, 2024: 22.56, 2025: 21.19}
+  grade: "A"
+  source: "USDA NASS. Milk Production, Disposition, and Income, 2016-2025 Annual Summaries (releases April 2017 - April 2026)"
+  doi_or_url: "https://esmis.nal.usda.gov/publication/milk-production-disposition-and-income-annual-summary (text files mlkpdi19.txt ... mlkpdi26.txt, MilkProdDi-04-27-2017.txt, MilkProdDi-04-26-2018.txt)"
+  locator: "table 'Milk and Cream Marketings and Income - United States', column 'All milk average returns per cwt'"
+  quote: "Producer returns averaged $21.19 per hundredweight, 6.1 percent below 2024. ... 2024 .....: 224,901 22.56 5.32 50,730,665; 2025 .....: 230,668 21.19 4.91 48,869,132"
+  read: "html"
+  csv: "milkegg/us_all_milk_price_nass.csv"
+  note: "Official annual values; each year from the latest summary listing it (revisions: 2019 18.63->18.65, 2020 18.25->18.16). US all-milk fat test 4.24% (2024), 4.32% (2025). 2025: 21.19/45.359 = 0.467 USD/kg = 0.482 USD/L at 1.0313 kg/L (mine). July 2026 monthly: 'The July all milk price of $20.30 per cwt is 80 cents lower than June and 50 cents lower than July 2025.' (NASS Agricultural Prices, 31 Aug 2026, agpr0826.txt)."
+
+- key: "us_retail_milk_whole_bls"
+  value: 4.0665
+  unit: "USD per US gallon (3.785 L), whole milk, US city average retail"
+  year: 2025
+  values: {2015: 3.4187, 2016: 3.2043, 2017: 3.2255, 2018: 2.8958, 2019: 3.0357, 2020: 3.3184, 2021: 3.5445, 2022: 4.091, 2023: 4.0274, 2024: 3.9839, 2025: 4.0665, "2026_jan_aug": 4.1756}
+  grade: "A"
+  source: "US BLS, CPI Average Price Data, series APU0000709112 'Milk, fresh, whole, fortified, per gal. (3.8 lit) in U.S. city average, average price, not seasonally adjusted'"
+  doi_or_url: "https://api.bls.gov/publicAPI/v1/timeseries/data/ (POST seriesid APU0000709112); viewer: https://data.bls.gov/timeseries/APU0000709112"
+  locator: "monthly values M01-M12, 2015-2026"
+  quote: "2025: M01 4.025, M02 4.026, M03 4.050, M04 4.074, M05 4.022, M06 4.029, M07 4.162, M08 4.171, M09 4.129, M10 '-' (footnote X 'Data unavailable due to the 2025 lapse in appropriations'), M11 3.997, M12 4.047"
+  read: "html"
+  csv: "milkegg/us_retail_milk_whole_gal_bls.csv"
+  note: "Annual = simple mean of monthly values (computed; the BLS viewer shows no annual average for this series). 2025 = 11 months; 2026 = Jan-Aug (Aug 2026 = 4.229). 2025: 4.0665/3.7854 = 1.074 USD/L (mine)."
+
+- key: "eu_raw_milk_price_mmo"
+  value: 52.458
+  unit: "EUR/100 kg raw cows' milk at real fat and protein content (EU aggregate, API code 'EU-UK' = EU excluding UK, my reading)"
+  year: 2025
+  values: {2015: 30.518, 2016: 28.586, 2017: 35.211, 2018: 34.299, 2019: 34.756, 2020: 34.133, 2021: 36.81, 2022: 50.203, 2023: 46.986, 2024: 48.465, 2025: 52.458, "2026_jan_aug": 42.983}
+  grade: "A"
+  source: "European Commission, Agri-food data portal (EU Milk Market Observatory), raw milk prices, EU aggregate"
+  doi_or_url: "https://api.tech.ec.europa.eu/agrifood/api/rawMilk/prices?memberStateCodes=EU&years=2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026"
+  locator: "records memberStateCode 'EU-UK', memberStateName 'European Union', product 'Raw milk', unit '100KG'"
+  quote: "{memberStateCode: 'EU-UK', memberStateName: 'European Union', month: 12, price: '€54.75', unit: '100KG', year: 2024, product: 'Raw milk'}; 2025 monthly: 53.7, 53.77, 53.19, 53.02, 52.99, 52.89, 52.85, 53.22, 53.4, 52.4, 50.08, 47.98"
+  read: "html"
+  csv: "milkegg/eu_raw_milk_price_mmo.csv"
+  note: "Annual = unweighted mean of 12 monthly EU prices (computed). Definition (Commission Implementing Regulation (EU) 2017/1185, Annex II point 4(a)): 'the price of raw milk ... expressed per 100 kg of product at real fat and protein content'; 'the price shall be that paid by first purchasers'. 2025: 0.525 EUR/kg = 0.541 EUR/L at 1.0313 kg/L (mine). Organic raw milk also in the API (Dec 2024: 61.70)."
+
+
+# ---------------- 4. Price context: eggs ----------------
+
+- key: "us_retail_eggs_grade_a_large_bls"
+  value: 4.2516
+  unit: "USD per dozen, Grade A large, US city average retail"
+  year: 2025
+  values: {2015: 2.4694, 2016: 1.6842, 2017: 1.4671, 2018: 1.7417, 2019: 1.3958, 2020: 1.5057, 2021: 1.674, 2022: 2.8568, 2023: 2.7962, 2024: 3.1715, 2025: 4.2516, "2026_jan_aug": 2.3085}
+  grade: "A"
+  source: "US BLS, CPI Average Price Data, series APU0000708111 'Eggs, grade A, large, per doz. in U.S. city average, average price, not seasonally adjusted'"
+  doi_or_url: "https://api.bls.gov/publicAPI/v1/timeseries/data/ (POST seriesid APU0000708111)"
+  locator: "monthly values M01-M12, 2015-2026"
+  quote: "2025: M01 4.953, M02 5.897, M03 6.227, M04 5.122, M05 4.548, M06 3.775, M07 3.599, M08 3.587, M09 3.488, M10 '-', M11 2.860, M12 2.712; 2026 M08 2.272 (latest)"
+  read: "html"
+  csv: "milkegg/us_retail_eggs_grade_a_large_doz_bls.csv"
+  note: "Annual = simple mean of monthly values (computed); 2025 = 11 months (Oct 2025 missing, shutdown); 2026 = Jan-Aug. Per egg (mine): 2019 0.116, 2024 0.264, 2025 0.354, 2026 YTD 0.192 USD. 2022-2025 are avian-influenza-driven highs; 2015-2021 mean 1.71 USD/dozen (mine)."
+
+- key: "us_wholesale_eggs_ny_ers"
+  value: 373.68
+  unit: "US cents per dozen, Grade A large, New York wholesale"
+  year: 2025
+  values: {2015: 181.74, 2016: 85.93, 2017: 100.96, 2018: 137.59, 2019: 94.03, 2020: 112.19, 2021: 118.48, 2022: 282.42, 2023: 192.42, 2024: 303.11, 2025: 373.68, "2026_jan_jul": 118.38}
+  grade: "A"
+  source: "USDA ERS, Livestock and Meat Domestic Data, 'Wholesale prices' (wholesale-prices.xlsx); ERS calculations using USDA AMS data"
+  doi_or_url: "https://www.ers.usda.gov/media/5538/wholesale-prices.xlsx?v=25893 (page: https://www.ers.usda.gov/data-products/livestock-and-meat-domestic-data)"
+  locator: "sheet 'Historical', column 'Eggs, Grade A, large' / 'New York' (Cents/doz), monthly 2000-01 to 2026-07"
+  quote: "2025-01 673.1, 2025-02 819.79, 2025-03 533, 2025-12 176.41; 2026-07 111.68; source line: 'USDA Economic Research Service calculations using data from USDA, Agricultural Marketing Service.'"
+  read: "html"
+  csv: "milkegg/us_wholesale_eggs_ny_grade_a_large_ers.csv"
+  note: "XLSX downloaded to scratch and parsed (not a PDF). Annual = simple mean of monthly values (computed); 2026 = Jan-Jul. Sheet 'Current' gives Aug 2026 estimate 119. Per egg (mine): 2019 0.078, 2024 0.253, 2025 0.311 USD. AMS MyMarketNews public data for the current egg reports (AMS_2734 Daily New York Shell Egg, AMS_2843 National Shell Egg Index) start only in 2026, so ERS is the usable history."
+
+- key: "us_wholesale_eggs_combined_regional_ers"
+  value: 365.53
+  unit: "US cents per dozen, Grade A large, combined regional wholesale"
+  year: 2025
+  values: {2015: 177.56, 2016: 78.95, 2017: 94.63, 2018: 134.53, 2019: 88.75, 2020: 105.10, 2021: 112.80, 2022: 273.56, 2023: 193.72, 2024: 297.29, 2025: 365.53, "2026_jan_jul": 91.80}
+  grade: "A"
+  source: "USDA ERS, Livestock and Meat Domestic Data, 'Wholesale prices' (wholesale-prices.xlsx)"
+  doi_or_url: "https://www.ers.usda.gov/media/5538/wholesale-prices.xlsx?v=25893"
+  locator: "sheet 'Historical', column 'Eggs, Grade A, large' / 'Combined regional' (Cents/doz)"
+  quote: "2025-01 641.16, 2025-02 822.19, 2025-12 158.79; 2026-07 100.59"
+  read: "html"
+  csv: "milkegg/us_wholesale_eggs_combined_regional_grade_a_large_ers.csv"
+  note: "Annual = simple mean of monthly values (computed). Tracks NY within ~5%."
+
+- key: "us_market_egg_price_nass_jul2026"
+  value: 0.783
+  unit: "USD per dozen, price received by producers for market (table) eggs"
+  year: 2026
+  values: {"2025-07": 2.93, "2026-06": 0.533, "2026-07": 0.783}
+  grade: "A"
+  source: "USDA NASS. Agricultural Prices, released August 31, 2026"
+  doi_or_url: "https://esmis.nal.usda.gov/sites/default/release-files/796040/agpr0826.txt"
+  locator: "Summary, 'Poultry and egg'; table 'Prices Received Used to Calculate Feed Price Ratios - United States: July 2026'"
+  quote: "The July market egg price, at 78.3 cents per dozen, is 25.0 cents higher than June but $2.10 lower than July 2025."
+  read: "html"
+  note: "Farm-gate point value for context only (no annual series assembled). 0.065 USD/egg (mine)."
+
+- key: "eu_eggs_class_a_barn_agrifood"
+  value: 283.00
+  unit: "EUR/100 kg shell eggs, Class A, barn, EU average"
+  year: 2025
+  values: {2022: 206.18, 2023: 252.00, 2024: 233.97, 2025: 283.00, "2026_wk1_38": 293.50}
+  grade: "A"
+  source: "European Commission, Agri-food data portal (EU Egg Market Observatory), egg prices, EU aggregate, farmingMethod 'Barn'"
+  doi_or_url: "https://api.tech.ec.europa.eu/agrifood/api/poultry/egg/prices?memberStateCodes=EU&beginDate=01/01/2014&endDate=26/09/2026"
+  locator: "weekly records memberStateCode 'EU', farmingMethod 'Barn', unit '€/100Kg'"
+  quote: "{beginDate: '22/01/2024', endDate: '28/01/2024', price: '€240.01', unit: '€/100Kg', farmingMethod: 'Barn', marketingYear: 2024, weekNumber: 4, memberStateCode: 'EU'}"
+  read: "html"
+  csv: "milkegg/eu_eggs_class_a_barn_agrifood.csv"
+  note: "EU aggregate starts week 1 of 2022; member-state series exist earlier but have a gap from late 2017 to late 2020. Annual = simple mean of weekly prices by marketingYear (computed). Definition (Reg. (EU) 2017/1185 Annex I point 8, original text): 'wholesale price for Class A eggs from caged hens (average of categories L and M), expressed per 100 kg of product'; 'prices shall be notified for products in packing stations'. The 2022+ farming-method split reflects a later amendment (not read). 2025: 2.83 EUR/kg = 0.178 EUR per 63 g egg (mine)."
+
+- key: "eu_eggs_class_a_cage_agrifood"
+  value: 262.35
+  unit: "EUR/100 kg shell eggs, Class A, cage (enriched), EU average"
+  year: 2025
+  values: {2022: 187.67, 2023: 231.71, 2024: 212.88, 2025: 262.35, "2026_wk1_38": 268.48}
+  grade: "A"
+  source: "European Commission, Agri-food data portal (EU Egg Market Observatory), egg prices, EU aggregate, farmingMethod 'Cage'"
+  doi_or_url: "https://api.tech.ec.europa.eu/agrifood/api/poultry/egg/prices?memberStateCodes=EU&beginDate=01/01/2014&endDate=26/09/2026"
+  locator: "weekly records memberStateCode 'EU', farmingMethod 'Cage'"
+  quote: "{beginDate: '22/01/2024', endDate: '28/01/2024', price: '€220.61', unit: '€/100Kg', farmingMethod: 'Cage', marketingYear: 2024, weekNumber: 4, memberStateCode: 'EU'}"
+  read: "html"
+  csv: "milkegg/eu_eggs_class_a_cage_agrifood.csv"
+  note: "As eu_eggs_class_a_barn_agrifood. Cheapest EU system; closest to the US conventional (caged) egg."
+
+- key: "eu_eggs_class_a_free_range_agrifood"
+  value: 320.83
+  unit: "EUR/100 kg shell eggs, Class A, free range, EU average"
+  year: 2025
+  values: {2022: 254.52, 2023: 296.73, 2024: 292.23, 2025: 320.83, "2026_wk1_38": 337.60}
+  grade: "A"
+  source: "European Commission, Agri-food data portal (EU Egg Market Observatory), egg prices, EU aggregate, farmingMethod 'Free range'"
+  doi_or_url: "https://api.tech.ec.europa.eu/agrifood/api/poultry/egg/prices?memberStateCodes=EU&beginDate=01/01/2014&endDate=26/09/2026"
+  locator: "weekly records memberStateCode 'EU', farmingMethod 'Free range'"
+  quote: "{beginDate: '22/01/2024', endDate: '28/01/2024', price: '€294.31', unit: '€/100Kg', farmingMethod: 'Free range', marketingYear: 2024, weekNumber: 4, memberStateCode: 'EU'}"
+  read: "html"
+  csv: "milkegg/eu_eggs_class_a_free_range_agrifood.csv"
+  note: "As eu_eggs_class_a_barn_agrifood."
+
+- key: "eu_eggs_class_a_organic_agrifood"
+  value: 441.62
+  unit: "EUR/100 kg shell eggs, Class A, organic, EU average"
+  year: 2025
+  values: {2022: 388.01, 2023: 424.06, 2024: 410.81, 2025: 441.62, "2026_wk1_38": 462.31}
+  grade: "A"
+  source: "European Commission, Agri-food data portal (EU Egg Market Observatory), egg prices, EU aggregate, farmingMethod 'Organic'"
+  doi_or_url: "https://api.tech.ec.europa.eu/agrifood/api/poultry/egg/prices?memberStateCodes=EU&beginDate=01/01/2014&endDate=26/09/2026"
+  locator: "weekly records memberStateCode 'EU', farmingMethod 'Organic'"
+  quote: "{beginDate: '22/01/2024', endDate: '28/01/2024', price: '€415.65', unit: '€/100Kg', farmingMethod: 'Organic', marketingYear: 2024, weekNumber: 4, memberStateCode: 'EU'}"
+  read: "html"
+  csv: "milkegg/eu_eggs_class_a_organic_agrifood.csv"
+  note: "As eu_eggs_class_a_barn_agrifood."
+
+- key: "eggs_farm_price_de_eurostat"
+  value: 14.81
+  unit: "EUR per 100 eggs (agricultural selling price)"
+  year: 2024
+  values: {2015: 7.73, 2016: 7.04, 2017: 9.92, 2018: 9.29, 2019: 8.3, 2020: 7.84, 2021: 7.61, 2022: 12.06, 2023: 15.53, 2024: 14.81}
+  grade: "A"
+  source: "Eurostat, apri_ap_anouta 'Selling prices of animal products (absolute prices) - annual price (from 2000 onwards)', prod_ani 12200000 'Fresh eggs (whole country) - prices per 100 items', EUR, Germany"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/apri_ap_anouta?format=JSON&lang=en&currency=EUR&prod_ani=12200000&prod_ani=12112000&time=2015&...&time=2025"
+  locator: "geo DE, currency EUR, prod_ani 12200000 (dataset updated 2025-05-15)"
+  quote: "DE: 2015 7.73, 2016 7.04, 2017 9.92, 2018 9.29, 2019 8.3, 2020 7.84, 2021 7.61, 2022 12.06, 2023 15.53, 2024 14.81"
+  read: "html"
+  csv: "milkegg/eggs_farm_price_de_eurostat.csv"
+  note: "Official annual national price; the only 2015-2021 EU egg price series found with per-egg units. No EU aggregate in this dataset. 2024: 0.148 EUR/egg. Data oddities elsewhere in the same table: BE 2024 = 111.04 (likely a decimal error), FR only 2015-2016, DK confidential from 2018."
+
+- key: "eggs_farm_price_es_eurostat"
+  value: 14.88
+  unit: "EUR per 100 eggs (agricultural selling price)"
+  year: 2024
+  values: {2015: 7.67, 2016: 6.6, 2017: 8.29, 2018: 8.4, 2019: 7.38, 2020: 7.67, 2021: 7.92, 2022: 12.49, 2023: 16.02, 2024: 14.88}
+  grade: "A"
+  source: "Eurostat, apri_ap_anouta, prod_ani 12200000 'Fresh eggs (whole country) - prices per 100 items', EUR, Spain"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/apri_ap_anouta?format=JSON&lang=en&currency=EUR&prod_ani=12200000"
+  locator: "geo ES, currency EUR, prod_ani 12200000"
+  quote: "ES: 2015 7.67, 2016 6.6, 2017 8.29, 2018 8.4, 2019 7.38, 2020 7.67, 2021 7.92, 2022 12.49, 2023 16.02, 2024 14.88"
+  read: "html"
+  csv: "milkegg/eggs_farm_price_es_eurostat.csv"
+  note: "As eggs_farm_price_de_eurostat."
+
+- key: "eggs_farm_price_nl_eurostat"
+  value: 10.76
+  unit: "EUR per 100 eggs (agricultural selling price)"
+  year: 2024
+  values: {2015: 6.31, 2016: 5.44, 2017: 7.42, 2018: 6.73, 2019: 6.21, 2020: 5.82, 2021: 5.96, 2022: 10.46, 2023: 12.34, 2024: 10.76}
+  grade: "A"
+  source: "Eurostat, apri_ap_anouta, prod_ani 12200000 'Fresh eggs (whole country) - prices per 100 items', EUR, Netherlands"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/apri_ap_anouta?format=JSON&lang=en&currency=EUR&prod_ani=12200000"
+  locator: "geo NL, currency EUR, prod_ani 12200000"
+  quote: "NL: 2015 6.31, 2016 5.44, 2017 7.42, 2018 6.73, 2019 6.21, 2020 5.82, 2021 5.96, 2022 10.46, 2023 12.34, 2024 10.76"
+  read: "html"
+  csv: "milkegg/eggs_farm_price_nl_eurostat.csv"
+  note: "As eggs_farm_price_de_eurostat."
+
+- key: "eggs_farm_price_pl_eurostat"
+  value: 9.52
+  unit: "EUR per 100 eggs (agricultural selling price)"
+  year: 2024
+  values: {2015: 5.46, 2016: 4.63, 2017: 6.29, 2018: 5.12, 2019: 5.32, 2020: 5.16, 2021: 5.79, 2022: 9.4, 2023: 11.08, 2024: 9.52}
+  grade: "A"
+  source: "Eurostat, apri_ap_anouta, prod_ani 12200000 'Fresh eggs (whole country) - prices per 100 items', EUR, Poland"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/apri_ap_anouta?format=JSON&lang=en&currency=EUR&prod_ani=12200000"
+  locator: "geo PL, currency EUR, prod_ani 12200000"
+  quote: "PL: 2015 5.46, 2016 4.63, 2017 6.29, 2018 5.12, 2019 5.32p, 2020 5.16p, 2021 5.79p, 2022 9.4, 2023 11.08, 2024 9.52"
+  read: "html"
+  csv: "milkegg/eggs_farm_price_pl_eurostat.csv"
+  note: "p = provisional (Eurostat flag). As eggs_farm_price_de_eurostat."
+
+- key: "eggs_farm_price_it_eurostat"
+  value: 15.25
+  unit: "EUR per 100 eggs (agricultural selling price)"
+  year: 2024
+  values: {2015: 12.59, 2016: 10.78, 2017: 12.74, 2018: 13.67, 2019: 13.54, 2020: 13.62, 2021: 13.59, 2022: 16.88, 2023: 19.15, 2024: 15.25}
+  grade: "A"
+  source: "Eurostat, apri_ap_anouta, prod_ani 12200000 'Fresh eggs (whole country) - prices per 100 items', EUR, Italy"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/apri_ap_anouta?format=JSON&lang=en&currency=EUR&prod_ani=12200000"
+  locator: "geo IT, currency EUR, prod_ani 12200000"
+  quote: "IT: 2015 12.59, 2016 10.78, 2017 12.74, 2018 13.67, 2019 13.54, 2020 13.62, 2021 13.59, 2022 16.88, 2023 19.15, 2024 15.25"
+  read: "html"
+  csv: "milkegg/eggs_farm_price_it_eurostat.csv"
+  note: "As eggs_farm_price_de_eurostat. Italy is a high-price outlier among large producers."
+
+
+# ---------------- 5. Derived conversion factors (for the report's intuitive units) ----------------
+
+- key: "derived_protein_per_litre_and_per_egg"
+  value: null
+  unit: "see values (g protein per litre of milk or per US large egg)"
+  values: {milk_all_protein_g_per_L: 33.7, milk_all_protein_g_per_L_low: 32.5, milk_all_protein_g_per_L_high: 35.9, milk_whey_protein_g_per_L: 6.6, milk_whey_protein_g_per_L_low: 6.0, milk_blg_g_per_L: 3.3, milk_blg_g_per_L_low: 2.0, milk_blg_g_per_L_high: 4.0, milk_ala_g_per_L: 1.24, egg_white_protein_g_per_large_egg: 3.64, egg_white_protein_g_per_large_egg_low: 3.3, egg_white_protein_g_per_large_egg_high: 3.9, egg_whole_protein_g_per_large_egg: 6.24, ova_g_per_large_egg: 1.96, ova_g_per_large_egg_low: 1.8, ova_g_per_large_egg_high: 2.2}
+  grade: "A"
+  source: "Computed from the component entries in this file"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: "html"
+  note: "Derived, not a quote (hence quote: null); check the arithmetic. Milk: 3.27 g/100 g x 1.0313 kg/L x 10 = 33.7 g/L (low 3.15 US SR Legacy = 32.5; high 3.48 NL raw = 35.9). Whey 6.4 g/kg x 1.0313 = 6.6 g/L (Heck 6.0). BLG 3.2 g/kg x 1.0313 = 3.3 g/L (range 2-4 g/L Farrell; Heck 2.9). Egg white protein 34.0 g x 10.7% = 3.64 g (SR 3.60; low 3.3 from Réhault-Godbert 30 mL x 110 mg/mL; high ~3.9 = 34 g x 11.5%). OVA = 3.64 x 0.54 = 1.96 g (50-60% share gives 1.8-2.2 g). Cost of the protein in one unit = modelled USD/kg x (g per unit)/1000: e.g. at 10 USD/kg BLG, one litre's BLG costs 3.3 cents; at 10 USD/kg OVA, one egg's OVA costs 2.0 cents."
