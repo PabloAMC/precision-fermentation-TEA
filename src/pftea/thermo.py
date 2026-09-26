@@ -136,8 +136,14 @@ def catabolic(csource: Species) -> Reaction:
 
 
 def heijnen_dissipation(csource: Species) -> float:
-    """Gibbs energy dissipated per C-mol biomass [kJ/C-mol], Heijnen & van Dijken (1992)."""
+    """Gibbs energy dissipated per C-mol biomass [kJ/C-mol], Heijnen & van Dijken (1992).
+
+    c = carbon atoms per molecule of the C-source; gamma/c = its degree of reduction per C-mol.
+    The correlation is defined for 1 <= c <= 6 (for c > 6, (6 - c)^1.8 is not real).
+    """
     c, g = csource.C, csource.gamma
+    if not 1 <= c <= 6:
+        raise ValueError(f"Heijnen correlation needs 1 <= c <= 6 carbon atoms, got {c}")
     return 200 + 18 * (6 - c) ** 1.8 + np.exp(((3.8 - g / c) ** 2) ** 0.16 * (3.6 + 0.4 * c))
 
 
