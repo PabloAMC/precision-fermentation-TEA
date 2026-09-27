@@ -135,12 +135,88 @@ def test_dryer_feed_solids_as_specified(blg):
 
 
 def test_whole_fermenters_costed(blg):
+    """Whole vessels at the vendor-quote curve (base), or at Humbird's aseptic quotes (sensitivity)."""
     p, r = blg
     n = r.design["N_prod_int"]
     assert n == math.ceil(r.design["N_prod"] - 1e-9)
-    per = plant.eq.fermenter(v(p, "fermenter.volume_m3"), v(p, "capital.fermenter_exponent_above_table"))
+    vf = v(p, "capital.vendor_fermenter")
+    V = v(p, "fermenter.volume_m3")
     idx = v(p, "capital.cost_index_2018_to_2025") * v(p, "capital.location_factor")
-    assert r.capex["ISBL: production fermenters"] == pytest.approx(per * n * idx, rel=1e-12)
+    assert r.capex["ISBL: production fermenters"] == pytest.approx(
+        vf["cost_2018usd_300m3"] * (V / 300) ** vf["exponent"] * n * idx, rel=1e-12)
+    ra = plant.evaluate(params.override(p, sc.ASEPTIC))
+    per = plant.eq.fermenter(V, v(p, "capital.fermenter_exponent_above_table"))
+    assert ra.capex["ISBL: production fermenters"] == pytest.approx(per * ra.design["N_prod_int"] * idx, rel=1e-12)
+
+
+def test_coincident_peak_of_staggered_batches():
+    """Batches of 10 h at load 1 (first 2 h at 5) started every 4 h: 3 overlap, so the peak is 5 + 1 + 1."""
+    t, val = [0.0, 2.0], [5.0, 1.0]
+    assert plant._coincident_peak(t, val, 10.0, 4.0) == pytest.approx(7.0)
+    assert plant._coincident_peak(t, val, 10.0, 100.0) == pytest.approx(5.0)     # no overlap
+
+
+def test_utilities_sized_below_sum_of_peaks(blg):
+    p, r = blg
+    assert r.design["heat_plant_peak_kW"] < r.design["heat_sum_of_peaks_kW"]
+    assert r.design["heat_plant_peak_kW"] >= r.batch.heat_kWh / r.batch.t_total * r.design["N_prod"] * 0.5
+
+
+def test_feed_volume_follows_concentration(blg):
+    """A 500 g/L glucose feed adds 2 L per kg of glucose (1 kg of water per kg of glucose here)."""
+    p, r = blg
+    b = r.batch
+    c_s, c_n = v(p, "fermenter.feed_glucose_g_L"), v(p, "fermenter.nh3_feed_g_L")
+    expect = b.glucose_kg * (1000 / c_s - 1) + b.nh3_kg * (1000 / c_n - 1)
+    assert b.feed_water_kg == pytest.approx(expect, rel=1e-9)
+
+
+def test_cip_chemicals_inside_humbird_maintenance(blg):
+    p, r = blg
+    rn = plant.evaluate(params.override(p, {"finance.fixed_cost_rule": "nrel"}))
+    cip = rn.annual["DSP chemicals"] - r.annual["DSP chemicals"]
+    assert cip == pytest.approx(rn.design["n_batches"] * v(p, "dsp.cip_solution_kg_per_kg")
+                                * rn.design["target_per_batch_kg"] * v(p, "dsp.cip_price_usd_kg"), rel=1e-6)
+
+
+def test_energetic_ceiling_components():
+    """ATP per residue = peptide bond + amino-acid synthesis + sulfate assimilation (3 ATP + 8 e- at P/O)."""
+    p = params.override(BASE, {"plant.product": "blg"})
+    prot = pr.protein("blg")
+    s_res = prot.formula["S"] / prot.residues
+    po = v(p, "hosts.kphaffii.po_ratio")
+    assert plant.atp_per_residue(p) == pytest.approx(4 + 0.29 + s_res * (3 + 4 * po), rel=1e-12)
+    assert plant.energetic_ceiling(p) < pr.energetic_ceiling(prot, th.get("Glucose (s)"), 4, 4 + 12 * po)
+
+
+def test_compressor_is_textbook_adiabatic():
+    """P = (D/3600) R T (r^a - 1)/(a eta), a = (k-1)/k, equals the US-unit form hp = scfm T[R]/(8130 a)
+    (r^a - 1) within 0.5% (8130 vs 8102 from 379.4 scf/lbmol); Humbird's A.1 cell, with k where a
+    belongs, gives ~1.6x at r = 2.12 (review H1)."""
+    from pftea import fermentation as fm
+    D, r = 100.0, 2.12
+    a = 0.4 / 1.4
+    us = D * 2.205 * 379.4 / 60 * (77 + 460) / (8130 * a) * (r ** a - 1) * 0.7457 / 0.8
+    si = fm.compressor_kW_adiabatic(D, r * 1.01325, 0.8)
+    assert si == pytest.approx(us, rel=0.005)
+    assert fm.compressor_kW(D, r) / si == pytest.approx(1.59, abs=0.02)
+
+
+def test_aeration_search_crosses_the_lean_gas_region():
+    """At a high DO setpoint the exit gas is too lean below some air rate (no solution there); the
+    search must widen through that region, not stop (review H1: it returned None at DO 0.5)."""
+    vessel = plant._vessel(BASE)
+    lo = pf.aerate(vessel, pf.Conditions(T_C=30.0, DO_top_frac=0.1258), 129.0, 0.8 * vessel.volume_m3)
+    hi = pf.aerate(vessel, pf.Conditions(T_C=30.0, DO_top_frac=0.5), 129.0, 0.8 * vessel.volume_m3)
+    assert lo is not None and hi is not None
+    assert hi["D"] > lo["D"] and hi["comp_kW"] + hi["agit_kW"] > lo["comp_kW"] + lo["agit_kW"]
+
+
+def test_seed_fermenter_quote_switch(blg):
+    p, r = blg
+    ra = plant.evaluate(params.override(p, {"capital.seed_fermenter_quote": "acce_aseptic"}))
+    assert ra.capex["ISBL: seed fermenters"] > r.capex["ISBL: seed fermenters"]
+    assert ra.capex["ISBL: production fermenters"] == pytest.approx(r.capex["ISBL: production fermenters"], rel=1e-12)
 
 
 def test_crude_broth_has_no_disposal_or_dryer():
@@ -202,11 +278,20 @@ def test_cex_buffers_scale_with_throughput_not_resin_volume():
     """Resin replacement and buffers depend on protein / capacity only; the cycle time sets capital."""
     p = sc.scenario_params("lactoferrin", "lf")
     r1 = plant.evaluate(p)
-    r2 = plant.evaluate(params.override(p, {"dsp.cex_cycle_h": 7.0}))
+    r2 = plant.evaluate(params.override(p, {"dsp.cex_flow_cv_per_h": v(p, "dsp.cex_flow_cv_per_h") / 2}))
     for k in ("chromatography resin", "DSP chemicals", "water & wastewater"):
         assert r2.annual[k] == pytest.approx(r1.annual[k], rel=1e-9)
     assert r2.design["resin_m3"] == pytest.approx(2 * r1.design["resin_m3"], rel=1e-9)
     assert r2.tci > r1.tci
+
+
+def test_cex_cycle_includes_loading():
+    """Cycle = (buffer CVs + load CVs) / flow, load CVs = capacity / feed concentration (review BE-12)."""
+    p = sc.scenario_params("lactoferrin", "lf")
+    d = plant.evaluate(p).design
+    assert d["cex_cycle_h"] == pytest.approx((v(p, "dsp.cex_cv_per_cycle") + d["cex_load_cv"])
+                                             / v(p, "dsp.cex_flow_cv_per_h"), rel=1e-12)
+    assert d["cex_load_cv"] > 10
 
 
 def test_cex_recovery_in_total(blg):

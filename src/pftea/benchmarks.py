@@ -57,25 +57,66 @@ def incumbents() -> dict:
 
 
 def reported_prices() -> dict:
-    """Price points for products with no trade code (benchmarks.yaml `reported_prices`), nominal US$/kg.
+    """Price points for products with no trade code (benchmarks.yaml `reported_prices`), US$/kg.
 
-    Returns {name: {label, compare_to, grade, points: [(year or None, low, high, key)], band: (lo, hi)}}.
+    Each point is deflated from its year to the incumbents' money year with the CPI deflator when
+    `deflate` is set (nominal values kept alongside). Returns {name: {label, compare_to, grade,
+    points: [(year, low, high, key)], points_nominal, band: (lo, hi), band_nominal, comparators}}.
     """
-    cfg = yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())["reported_prices"]
+    full = yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())
+    cfg, inc = full["reported_prices"], full["incumbents"]
+    prices = {e["key"]: e for e in yaml.safe_load((ROOT / "data/evidence/prices.yaml").read_text())}
+    cpi = {int(y): float(x) for y, x in prices[inc["deflator"]]["values"].items()}
+    my = inc["money_year"]
     out = {}
     for name, c in cfg.items():
         ev = {e["key"]: e for e in yaml.safe_load((ROOT / f"data/evidence/{c['evidence']}.yaml").read_text())}
-        pts = []
+        nom = []
         for k in c["keys"]:
             e = ev[k]
             if e.get("values"):
                 for y, x in e["values"].items():
                     lo, hi = (x, x) if isinstance(x, (int, float)) else x
-                    pts.append((int(y), float(lo), float(hi), k))
+                    nom.append((int(y), float(lo), float(hi), k))
             else:
-                pts.append((e.get("year"), float(e.get("low", e["value"])), float(e.get("high", e["value"])), k))
+                nom.append((e.get("year"), float(e.get("low", e["value"])), float(e.get("high", e["value"])), k))
+        f = (lambda y: cpi[my] / cpi[y] if (c.get("deflate") and y in cpi) else 1.0)   # noqa: E731
+        pts = [(y, lo * f(y), hi * f(y), k) for y, lo, hi, k in nom]
+        comps = [dict(key=k, value=float(ev[k]["value"]), year=ev[k].get("year"), unit=ev[k]["unit"],
+                      value_money_year=float(ev[k]["value"]) * f(ev[k].get("year")), deflator=f(ev[k].get("year")),
+                      source=ev[k]["source"], ours=c.get("comparator_cases", {}).get(k), values=ev[k].get("values") or {})
+                 for k in c.get("comparators", [])]
         out[name] = dict(label=c["label"], compare_to=c["compare_to"], grade=c["grade"], points=pts,
-                         band=(min(p[1] for p in pts), max(p[2] for p in pts)))
+                         points_nominal=nom, band=(min(p[1] for p in pts), max(p[2] for p in pts)),
+                         band_nominal=(min(p[1] for p in nom), max(p[2] for p in nom)), comparators=comps)
+    return out
+
+
+def context_prices() -> list[dict]:
+    """Protein ingredients for context (benchmarks.yaml `context`): a $/kg-protein range per ingredient.
+
+    Each row is either a reported range per kg protein (`basis: protein`, e.g. GFI 2025 ranges, nominal
+    2024-2025 dollars), a range per kg product converted with a stated protein fraction
+    (`basis: product`), or one of the incumbents' trade bands (`incumbent: whey|egg`, 2025 dollars).
+    """
+    full = yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())
+    ev = {e["key"]: e for e in yaml.safe_load((ROOT / "data/evidence/prices.yaml").read_text())}
+    inc = None
+    out = []
+    for c in full.get("context", []):
+        if c.get("incumbent"):
+            inc = inc or incumbents()
+            d = inc[c["incumbent"]]
+            lo, hi, when = d["band"][0], d["band"][1], f"{d['years'][0]}-{d['years'][1]}, 2025$"
+        else:
+            e = ev[c["key"]]
+            if c["basis"] == "protein":
+                lo, hi = float(e["protein_low"]), float(e["protein_high"])
+            else:
+                lo, hi = float(e["low"]) / c["protein_frac"], float(e["high"]) / c["protein_frac"]
+            when = c.get("when", "")
+        out.append(dict(label=c["label"], lo=lo, hi=hi, when=when, grade=c["grade"], group=c.get("group", ""),
+                        key=c.get("key") or c.get("incumbent"), note=c.get("note", "")))
     return out
 
 

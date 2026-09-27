@@ -19,6 +19,8 @@ overrides:
   strain.titer_g_L: 36
   strain.X_prod_g_L: 30                  # 0.2 g biomass/g sugar -> ~36 g/L at harvest
   strain.t_prod_h: 156                   # ~180 h batch (36 g/L / 0.2 g/L/h) incl. ~24 h growth
+  strain.X0_g_L: 3.0                     # keeps the ~24 h growth this split assumes; pinned when the base moved to 0.88
+  fermenter.seed_final_X_g_L: 30.0       # their seed train 0.3, 3, 30 m3 for 300 m3 (10% transfers): 3 g/L = 10% of 30 g/L
   strain.mu_prod_per_h: 0.0
   hosts.treesei.maint_factor: 0.0        # their stoichiometry is yield-based
   fermenter.volume_m3: 300

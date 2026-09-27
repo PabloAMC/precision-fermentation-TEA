@@ -10,3 +10,5 @@ references/**/*.xlsx
 references/text/
 .DS_Store
 references/inbox/
+results/analyses.partial.json
+.preview/

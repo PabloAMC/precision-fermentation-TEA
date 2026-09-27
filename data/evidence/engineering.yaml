@@ -1363,3 +1363,41 @@
     Weisenberger & Schumpe, AIChE J 42:298-300 (1996), doi 10.1002/aic.690420130; Quicker et
     al., Biotechnol Bioeng 23:635-650 (1981), doi 10.1002/bit.260230313; Gros et al.,
     Biotechnol Prog 15:923-927 (1999) (abstract read: model only, no numbers).
+
+- key: aeration_power_humbird2021_fig13_200m3
+  value: 0.501
+  unit: kWh of compressor + agitator power per kg O2 transferred (200 m3 STRFERM, 157.2 m3 liquid, OUR 150 mol/m3/h)
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), Supporting Information workbook, sheet Fig1.3 ('Cost of Aeration Figure')"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Fig1.3 rows 192, 195, 197 (STRFERM 200,000 at OUR 100, 130, 150), columns AL (compressor), AM (agitator), AN (refrigeration), AP (total)"
+  quote: null
+  read: fulltext
+  values: {our_100: 0.486, our_130: 0.496, our_150: 0.501, total_with_refrigeration_our_150: 1.491, pv_W_m3_our_150: 1148, vvm_our_150: 0.413}
+  note: >-
+    Read from the workbook cells 2026-09-27 (review H1): at OUR 150, compressor 197.5 kW + agitator
+    180.5 kW over 157.2 m3 x 150 mol/m3/h x 0.032 kg/mol = 754 kg O2/h. 30 C, back pressure 1.33 bar,
+    DO 12.58% of air saturation at the top, kLa = 0.002 (P/V)^0.7 Us^0.2 1.025^(T-20). The compressor
+    column uses the A.1 formula with k = 1.4 in place of (k-1)/k (fermentation.py docstring), so its
+    compressor power is ~1.6x the adiabatic value. His refrigeration column divides kmol/h by molar
+    masses as if kg/h (review H1), which the pf model does not use.
+
+- key: aeration_power_humbird2017_fig3
+  value: 2.21
+  unit: kWh total system power per kg O2 (200 m3 stirred tank, OUR 150 mmol/L/h; includes chilling of reaction and agitator heat, pumps and air cooler)
+  grade: C
+  source: "Humbird D, Davis R, McMillan JD. Aeration costs in stirred-tank and bubble column bioreactors. Biochem Eng J 127:161-166 (2017)"
+  doi_or_url: 10.1016/j.bej.2017.08.006
+  locator: "Fig. 3a (accepted manuscript p.21), digitized; method pp.7-10 (Eq. 2, reaction heat 110 kcal/mol O2, chiller 1.24 hp/ton)"
+  quote: null
+  read: fulltext
+  values: {str200: {10: 1.97, 50: 2.09, 100: 2.17, 129: 2.19, 150: 2.21}, str500: {10: 1.87, 50: 1.97, 100: 2.02, 150: 2.06},
+           str1000: {10: 1.80, 50: 1.89, 100: 1.94, 150: 1.97}, chilling_of_reaction_heat_kWh_per_kg_o2: 1.05}
+  note: >-
+    Digitized from the figure by pixel analysis (+/-0.01 kWh/kg O2; review H1), so grade C. Less the
+    chilling of the reaction heat (460 kJ/mol O2 = 4.0 kWh heat per kg O2 at 0.263 kWe per kW of
+    refrigeration = 1.05), the 200 m3 stirred tank needs about 1.16 kWh/kg O2 at OUR 150 for
+    compression, agitation, chilling of agitator heat, pumps and the air cooler: about twice Humbird's
+    2021 sheet (aeration_power_humbird2021_fig13_200m3). The paper states that its model could not set
+    dissolved O2 independently of OUR and that production fed-batches hold DO near zero (p.10); its
+    kLa correlation has no temperature term. It reports no air rate, P/V or compressor efficiency.

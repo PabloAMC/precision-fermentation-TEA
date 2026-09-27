@@ -17,7 +17,7 @@ editing this file and recording the change in PLAN.md.
 | Q1 | What do BLG and OVA cost at public (academic) and claimed (industry) performance? | Cost vs titer × rate map with every public and claimed data point |
 | Q2 | What drives the cost, and how good is the evidence for each driver? | Tornado coloured by evidence grade; cost bridge from $4/kg crude enzyme to purified OVA |
 | Q3 | Which combinations of performance and scale reach $10 and $20 per kg protein? | "What must be true" frontier |
-| Q4 | What is the cost at the physical limits? | Physical-limit floor |
+| Q4 | What is the cost at the physical limits? | Physical-limit best case (v2.1: shown against the secretion ceiling it assumes) |
 | Q5 | Are published company claims consistent with O₂-transfer and cooling limits? | Claims plotted against the feasible region |
 | Q6 | How much do siting (US vs EU) and scale (1–100 kt/yr) matter? | Scale curve; US vs EU comparison |
 
@@ -100,11 +100,15 @@ and carbon pricing (the EU variant may add it as a sensitivity).
 | `academic` | Titers from peer-reviewed full texts (grade A). Where no product-specific value exists (product yield, maintenance, most process values) the base values are kept, which include design values (B) and a few analogies and guesses (D, E). |
 | `industry` | The base case with one grade-C input: the private-sector average titer (GFI 2025). |
 | `required` | Inverse: the titer needed for $10, $20 and $50 per kg protein at each production time. |
-| `physical-limit` | Product yield near the energetic ceiling (not the stoichiometric maximum, which ignores ATP); the lowest measured maintenance; no growth in production; rate limited by the O₂ cap (250 mol/m³/h with head pressure), cooling (40 kW/m³), the minimum initial fill and a secretion ceiling (40 mg/g/h, grade D) in 400 m³ vessels; minimal downstream processing for the spec; contract sugar; 100 kt/yr. |
+| `physical-limit` | A best case at assumed limits, not a floor: product yield at 95% of the energetic ceiling (peptide bonds, amino-acid synthesis and sulfate assimilation); the lowest measured maintenance; no growth in production; a 600 g/L glucose feed; rate limited by the O₂ cap (250 mol/m³/h per m³ of cell-free liquid, head pressure not costed), cooling (40 kW/m³), the minimum initial fill and a secretion ceiling (40 mg/g/h, grade D; also shown at 5–120) in 400 m³ vessels; 8 h turnaround; a 90% concentrate; contract sugar; 100 kt/yr. |
 
 *Changed 2026-09-27 (audit R8-m4):* the definitions above now describe what runs; the v1 text
 promised "grades A and B only" for `academic` and a "stoichiometric maximum yield" for
 `physical-limit`, which the model did not do. Logged in PLAN.md.
+
+*Changed 2026-09-27 (Phase F AI pre-review, docs/REVIEW.md):* `physical-limit` is described as a best
+case conditional on the secretion ceiling (review SC-2, FS-3); its yield, feed and O₂ basis follow
+the review changes (FS-1, FS-2, HM-3). The scenario keeps its pre-registered name.
 
 ## Out of scope for v1
 

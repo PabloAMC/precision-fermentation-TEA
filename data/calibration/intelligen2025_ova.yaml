@@ -23,7 +23,7 @@ overrides:
   strain.mu_prod_per_h: 0.00136            # 917 kg cells made in 72 h on 8,927 kg (Eq. 2)
   # strain.Y_ps_g_g and the production-phase maintenance are the base values, which are derived
   # from this anchor's Eq. (2): its expression-phase glucose matches by construction.
-  strain.X0_g_L: 2.0                       # 5% inoculum (p.6)
+  strain.X0_g_L: 0.88                      # 5% inoculum (p.6) of 17.6 g/L seed broth (Intelligen's LF flowsheet; base.yaml)
   fermenter.volume_m3: 136                 # p.5
   fermenter.fill_max: 0.787                # 107 m3 of 136 m3 at harvest (p.7)
   fermenter.turnaround_h: 12               # 5 fermenters, 24 h cycle, 108 h culture
@@ -37,7 +37,7 @@ overrides:
   utilities.glucose_usd_kg: 0.36           # Table 3
   utilities.electricity_usd_kWh: 0.090     # Table 4
   utilities.ammonia_usd_kg: 0.507          # Table 3: NH3 (30%) $0.152/kg
-  fermenter.nh3_feed_wt: 0.30              # p.6
+  fermenter.nh3_feed_g_L: 268              # p.6: 30% w/w aqueous ammonia (base.yaml density)
   utilities.steam_usd_t: 20.0              # Table 4
   utilities.water_usd_m3: 3.0              # Table 3 'Water' $3/t
   capital.cost_index_2018_to_2025: 1.33    # our base index (Intelligen reports 2025 prices)

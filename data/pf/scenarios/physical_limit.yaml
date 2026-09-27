@@ -1,26 +1,28 @@
-# 'physical-limit': the cost floor set by physics and stoichiometry, not by any strain that exists.
-# Product-reaction yield at ~0.95 of the energetic ceiling (4 ATP/peptide bond, P/O 1.48; the ceiling
-# omits amino-acid synthesis, so this is near the true limit); the lowest measured maintenance in both
-# phases; no growth in production; production limited only by O2 transfer, heat removal, the specific
-# productivity ceiling and the vessel (volume, minimum initial fill); minimal DSP for the concentrate
-# spec; contract sugar; 100 kt/yr. Capital stays on the Humbird basis (the NREL basis is shown
-# separately). The search picks cell density and production time; the titer sits at its feasibility
-# ceiling, because cost falls with titer until a limit binds (scenarios.physical_limit).
-description: "Physical and stoichiometric limits, 100 kt/yr, food-grade plant"
+# 'physical-limit': a best case at assumed physiological and engineering limits, not any strain that
+# exists and not a lower bound. Every lever moved from the base case is listed below. Product-reaction
+# yield at 0.95 of the energetic ceiling (peptide bonds, amino-acid synthesis and sulfate
+# assimilation paid by respiration at P/O 1.48: BLG 0.564, OVA 0.570 g/g); the lowest measured
+# maintenance in both phases; no growth in production; a denser sugar feed; production limited only
+# by O2 transfer, heat removal, the specific-productivity ceiling and the vessel (volume, minimum
+# initial fill); 400 m3 vessels, 8 h turnaround; a 90% concentrate; contract sugar; 100 kt/yr.
+# Capital stays on the base (price-anchored) convention; the design-report convention is shown
+# separately. The search picks cell density and production time; the titer sits at its feasibility
+# ceiling, because cost falls with titer until a limit binds (scenarios.physical_limit). Where it
+# binds, the secretion ceiling (strain.q_p_max_mg_g_h, 40 mg/g/h, grade D, ~8x the base design and
+# above any published K. phaffii value) sets the result: run_analyses shows the floor at 5-120.
 common:
   plant.annual_target_protein_t: 100000
-  strain.Y_ps_g_g: 0.55                  # ~0.95 x the energetic ceiling (BLG 0.582, OVA 0.590 g/g); base.yaml high end
+  strain.Y_ps_g_g: 0.535                 # 0.95 x the energetic ceiling of BLG (0.564; OVA 0.570); base.yaml high end
   hosts.kphaffii.maint_factor: 0.57      # growth phase: lowest measured chemostat m_s, 0.0100 g/g/h (Rebnegger 2016) / Tijhuis 0.0174
   hosts.kphaffii.m_s_prod_g_g_h: 0.0023  # production: lowest measured producing-strain m_s (Nieto-Taype 2020, 1-copy clone)
   strain.mu_prod_per_h: 0.0
-  fermenter.volume_m3: 400               # beyond Humbird's quotes: capital.fermenter_exponent_above_table applies
-  fermenter.otr_cap_mol_m3_h: 250        # air ceiling ~200 (Humbird 2021, B) + head pressure: +59% OUR from 1.2 to 1.9 bar in P. pastoris (Liu 2016, A); grade D
+  fermenter.volume_m3: 400               # the 300 m3 vendor quote scaled with its 0.7 exponent (the aseptic curve would extrapolate Humbird's quotes)
+  fermenter.otr_cap_mol_m3_h: 250        # per m3 cell-free liquid (base basis): STR air value ~200 (Humbird 2021, B) + head pressure: +59% OUR from 1.2 to 1.9 bar in P. pastoris (Liu 2016, A); the extra pressure is not costed; grade D
+  fermenter.feed_glucose_g_L: 600        # Shemesh 2024: 60% (w/v) dextrose feed (base.yaml high end)
   fermenter.heat_removal_max_kW_m3: 40   # OTR 250 x 460 kJ/mol = 32 kW/m3 + agitation; external exchangers; 42 claimed at pilot scale (US 4,670,397); grade D
   fermenter.turnaround_h: 8              # Humbird A.1
   utilities.glucose_usd_kg: 0.31         # contract dextrose $0.25/kg (humbird2021 p.40, 2019$) x CPI-U 1.2593 (audit R5-3)
   dsp.concentrate_target_frac_dry: 0.90
-# The specific-productivity ceiling (strain.q_p_max_mg_g_h, 40 mg/g/h, grade D) is a base.yaml
-# feasibility limit; run_analyses shows the floor at 20 and 120 mg/g/h because it binds here.
 search:
   X_prod_g_L: [20, 30, 45, 60, 80, 100, 130]
   t_prod_h: [12, 24, 36, 48, 72, 96]

@@ -963,7 +963,10 @@
     year in this scenario." Both cases use the same fermentation (engineered yeast, 10 g/L
     in 5 days). Derived: adding the CEX step cuts powder output to 0.855 of case a. The
     output is powder mass, so the ratio mixes CEX yield with removal of impurities (the
-    case b powder is purer). The full ReadMe (ResearchGate 382686507) was not read.
+    case b powder is purer). The full ReadMe (ResearchGate 382686507) was not read. UPDATE
+    2026-09-27: the February 2026 report (lactoferrin.yaml lf_cost_intelligen2026_case_*) gives
+    215,551 and 251,304 kg powder a year (216 and 251 t) for cases b and a; this web page's 213 and
+    249 t are an older version.
 
 - key: dsp_yield_alac_gfieurope
   value: 0.87

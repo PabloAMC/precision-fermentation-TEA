@@ -984,16 +984,22 @@
     gene dosage (more production burden) RAISED m_s ~13x. The authors link it to the
     recombinant protein production burden.
 
-- key: ms_heyland2010_looser2015_unverified
+- key: ms_heyland2010_looser2015
   value: null
-  unit: "g glucose/g DCW/h"
+  low: 0.009
+  high: 0.032
+  unit: "g substrate/g DCW/h (Looser 2015 Table 2: methanol 0.011-0.03, glycerol 0.009-0.032; no glucose value)"
   grade: A
   source: "Heyland J, Fu J, Blank LM, Schmid A. Quantitative physiology of Pichia pastoris during glucose-limited high-cell density fed-batch cultivation for recombinant protein production. Biotechnol Bioeng 107:357-368 (2010); Looser V, et al. Cultivation strategies to enhance productivity of Pichia pastoris: a review. Biotechnol Adv 33:1177-1193 (2015)"
   doi_or_url: "10.1002/bit.22836; 10.1016/j.biotechadv.2015.05.008"
-  locator: null
+  locator: "Looser Table 2 (accepted-manuscript tables; page numbers there do not match the journal's); Heyland p.363 and Table I"
   quote: null
-  read: abstract
+  read: fulltext
   note: >-
-    NOT READ: neither is open access in Europe PMC. Heyland reports fed-batch (not chemostat)
-    physiology of a producing strain on glucose; Looser tabulates literature m_s values. Worth
-    downloading to check whether fed-batch m_s differs from chemostat values.
+    Read 2026-09-27 (PDFs downloaded by Pablo; details in hosts.yaml
+    kphaffii_glucose_hcd_fedbatch_heyland2010 and kphaffii_secretion_review_looser2015).
+    Neither paper reports a maintenance coefficient on glucose, so neither confirms or refutes
+    the production-phase value (Rebnegger 2024, 0.00437). Looser's Table 2 values are Pirt
+    fits from growing cultures on methanol and glycerol, all above it; maintenance falls at
+    near-zero growth (Rebnegger 2016), so they are not direct comparators. Heyland's single
+    growth rate (0.12/h) cannot separate yield from maintenance.

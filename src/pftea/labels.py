@@ -18,7 +18,8 @@ LABELS = {
     "fermenter.volume_m3": "fermenter volume (m3)",
     "fermenter.pv_max_W_m3": "agitation power limit (W/m3)",
     "fermenter.us_max_m_s": "gas velocity limit (m/s)",
-    "fermenter.otr_cap_mol_m3_h": "O2 transfer cap (mol/m3/h)",
+    "fermenter.otr_cap_mol_m3_h": "O2 transfer cap (mol/m3 cell-free liquid/h)",
+    "fermenter.feed_glucose_g_L": "glucose feed concentration (g/L)",
     "fermenter.heat_removal_max_kW_m3": "heat removal cap (kW/m3)",
     "fermenter.turnaround_h": "turnaround between batches (h)",
     "fermenter.min_initial_fill": "minimum initial fill",
@@ -57,7 +58,10 @@ LABELS = {
     "capital.fermenter_exponent_above_table": "fermenter cost exponent above 196 m3",
     "capital.dsp_area_factor": "downstream building area (x fermentation)",
     "capital.lab_m2": "laboratory area (m2)",
+    "capital.missing_frac": "missing-equipment allowance",
     "capital.basis": "capital convention (design-report vs price-anchored)",
+    "capital.fermenter_quote": "fermenter price (vendor quote vs aseptic cell-culture spec)",
+    "dsp.cex_flow_cv_per_h": "ion-exchange flow (column volumes/h)",
 }
 
 

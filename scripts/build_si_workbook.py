@@ -80,8 +80,9 @@ lines = [
     ("Evidence grades: A measured/official, B design value or patent example, C claim or survey, D analogy or derived,", BODY),
     ("        E guess (listed in docs/VALIDATION.md and docs/AUDIT.md).", BODY),
     ("Sheets: Parameters, Scenarios, Results, Cost_breakdown, Capex_base, Cost_vs_titer, Required_titer, Claims,", BODY),
-    ("        Tornado, MonteCarlo, Scale, Bridge, Calibration, Equivalents, Lactoferrin, Titers, Evidence_* (one per", BODY),
-    ("        evidence file), Accounting (live).", BODY),
+    ("        Convention_steps, Base_sensitivities, Constants, Best_design_base, Ceiling_limits, Tornado, MonteCarlo,", BODY),
+    ("        Scale, Bridge, Calibration, Equivalents, Lactoferrin, Lactoferrin_reconciliation, Market_context, Titers,", BODY),
+    ("        Evidence_* (one per evidence file), Accounting (live).", BODY),
 ]
 for i, (t, f) in enumerate(lines, 1):
     ws.cell(i, 1, t).font = f
@@ -155,33 +156,72 @@ for prod, c in R["cost_vs_titer"].items():
             rows.append([prod, "humbird", tp, T, m, f])
     for T, m, f in zip(c["titers"], c["light_72h"], c["light_72h_feasible"]):
         rows.append([prod, "light", 72, T, m, f])
-sheet("Cost_vs_titer", ["product", "convention", "t_prod h", "titer g/L", "MSP_CCF $/kg", "feasible (O2/heat)"], rows,
+sheet("Cost_vs_titer", ["product", "convention", "t_prod h", "titer g/L", "MSP_CCF $/kg", "feasible (all limits)"], rows,
       [10, 12, 10, 10, 14, 18])
 
 rows = []
 for key, d in R["required"].items():
     for tg, lst in d.items():
         for tp, r in zip(R["required_t_prods"], lst):
-            rows.append([key, float(tg), tp, r["titer"], r.get("ceiling"), r["feasible"]])
-sheet("Required_titer", ["product/convention", "target $/kg", "t_prod h", "titer needed g/L", "O2/heat ceiling g/L",
-                         "reachable"], rows, [20, 12, 10, 16, 18, 10],
-      note="Titer at which MSP_CCF equals the target, searched only below the O2/heat ceiling (blank = not reachable).")
-sheet("Claims", ["claim", "titer g/L", "host", "product", "cells g/L", "shortest feasible t_prod h", "MSP humbird",
-                 "MSP light"],
-      [[c["label"], c["titer"], c["host"], c["product"], c["X_prod"], c["t_prod_min"], c.get("msp_humbird"),
-        c.get("msp_light")] for c in R["claims"]], [52, 10, 10, 9, 10, 22, 13, 12])
+            rows.append([key, float(tg), tp, r["titer"], r.get("ceiling"), r["feasible"], r.get("q_p_mg_g_h")])
+sheet("Required_titer", ["product/convention", "target $/kg", "t_prod h", "titer needed g/L", "feasibility ceiling g/L",
+                         "reachable", "specific productivity mg/g/h"], rows, [26, 12, 10, 16, 20, 10, 16],
+      note="Titer at which MSP_CCF equals the target, searched only below the feasibility ceiling (blank = not reachable); "
+           "'/feed600' rows use a 600 g/L glucose feed.")
+sheet("Claims", ["claim", "titer g/L", "host", "product", "cells g/L", "own t_prod h", "feasible then", "MSP then (price-anchored)",
+                 "MSP then (design-report)", "shortest feasible t_prod h", "MSP there (price-anchored)", "MSP there (design-report)",
+                 "q_p there mg/g/h"],
+      [[c["label"], c["titer"], c["host"], c["product"], c["X_prod"], c["t_prod_own"], c["feasible_own"],
+        c.get("msp_own_humbird"), c.get("msp_own_light"), c["t_prod_min"], c.get("msp_humbird"), c.get("msp_light"),
+        c.get("q_p_mg_g_h")] for c in R["claims"]], [52, 10, 10, 9, 10, 12, 12, 16, 16, 18, 16, 16, 14],
+      note="Each claim at its own production time (72 h where the source gives none), then at the shortest feasible "
+           "production phase, where specific productivity runs at its 40 mg/g/h ceiling (a best case).")
+sheet("Convention_steps", ["step", "MSP_CCF $/kg (base BLG)"], [[d["step"], d["msp"]] for d in R["convention_steps"]],
+      [70, 22], note="The gap between the capital conventions, taken one rule at a time.")
+base_ = R["base"]["blg"]["msp_ccf"]
+sheet("Base_sensitivities", ["one change to the base BLG", "MSP_CCF $/kg", "change $/kg"],
+      [[k_, x, x - base_] for k_, x in R.get("base_sensitivities", {}).items()], [70, 14, 14],
+      note="One change at a time on the base BLG (run_analyses.s_base); quoted in the report text.")
+
+
+def _flat(d, pre=""):
+    for k_, x in d.items():
+        if isinstance(x, dict):
+            yield from _flat(x, f"{pre}{k_}.")
+        elif isinstance(x, list):
+            yield [pre + k_, ", ".join(f"{y:.4g}" if isinstance(y, (int, float)) else str(y) for y in x)]
+        else:
+            yield [pre + k_, x]
+
+
+sheet("Constants", ["model-derived constant", "value"], list(_flat(R.get("constants", {}))), [60, 24],
+      note="Values quoted in the report (run_analyses.constants): yields, O2 caps per m3 of broth, vessel prices, the "
+           "energetic ceiling, aeration energy per kg O2, seed-train share, the production-maintenance bound.")
+sheet("Best_design_base", ["secretion ceiling mg/g/h", "MSP_CCF $/kg", "cells g/L", "t_prod h", "titer g/L", "binding"],
+      [[float(q), d["msp_ccf"], d["X_prod"], d["t_prod"], d["titer"], ", ".join(d["binding"])]
+       for q, d in R["best_design_base"].items()], [22, 14, 10, 10, 10, 50],
+      note="Cheapest BLG design with base biology, capital, vessel and scale; only cell density, production time and titer "
+           "free (review SC-1).")
+sheet("Ceiling_limits", ["case", "t_prod h", "ceiling g/L", "limit that fails above it"],
+      [[k, r_["t_prod"], r_["ceiling"], r_["limit"]] for k, rows_ in R["ceiling_limits"].items() for r_ in rows_],
+      [44, 10, 12, 30])
 sheet("Tornado", ["parameter", "label", "grade", "low", "high", "MSP at low", "MSP at high", "base", "swing",
                   "low truncated to feasibility", "high truncated to feasibility"],
       [[t["path"], label(t["path"]), t["grade"], num(t["low"]), num(t["high"]), t["msp_low"], t["msp_high"], t["base"],
         t["swing"], t.get("truncated_low"), t.get("truncated_high")] for t in R["tornado"]],
       [38, 32, 9, 12, 12, 12, 12, 10, 10, 16, 16],
       note="Industry-benchmark BLG, one parameter at a time. An end that breaks a physical limit is replaced by the last "
-           "feasible value (truncated = TRUE). 'capital.basis' is the capital-convention bar.")
-sheet("MonteCarlo", ["scenario", "draws", "feasible fraction", "p10", "p50", "p90", "scenario value", "its percentile"],
-      [[k, d.get("n"), d["feasible_frac"], d["p10"], d["p50"], d["p90"], d.get("base"), d.get("base_percentile")]
+           "feasible value (truncated = TRUE). 'capital.basis' (conventions) and 'capital.fermenter_quote' (vendor quote vs "
+           "aseptic cell-culture vessels) are structural bars.")
+sheet("MonteCarlo", ["scenario", "draws", "feasible fraction", "p10", "p50", "p90", "p10 all draws", "p50 all draws",
+                     "p90 all draws", "scenario value", "its percentile", "why draws fail"],
+      [[k, d.get("n"), d["feasible_frac"], d["p10"], d["p50"], d["p90"], d.get("p10_all"), d.get("p50_all"), d.get("p90_all"),
+        d.get("base"), d.get("base_percentile"),
+        "; ".join(f"{a}: {b}" for a, b in (d.get("infeasible_reasons") or {}).items())]
        for k, d in R["monte_carlo"].items()],
-      [18, 8, 16, 10, 10, 10, 14, 14], note="Triangular draws over each scenario's ranges; percentiles over feasible draws "
-                                            "only; draws the model cannot build count as infeasible.")
+      [18, 8, 16, 10, 10, 10, 12, 12, 12, 14, 14, 40],
+      note="Triangular draws over each scenario's ranges; p10-p90 over feasible draws, and over all draws with a cost; "
+           "draws the model cannot build count as infeasible.")
 sheet("Scale", ["kt/yr"] + list(R["scale"]["curves"].keys()),
       [[o / 1000] + [R["scale"]["curves"][k][i] for k in R["scale"]["curves"]] for i, o in enumerate(R["scale"]["outputs"])],
       [10, 22, 22, 22, 22], note="Industry-benchmark BLG, MSP_CCF $/kg.")
@@ -193,7 +233,9 @@ for name in ("nrel2011_cellulase", "intelligen2025_ova", "voutilainen2021_case")
     for k, x in R["calibration"][name].items():
         if isinstance(x, list):
             rows.append([name, k, x[0], x[1]])
-sheet("Calibration", ["anchor", "quantity", "ours", "theirs"], rows, [22, 58, 14, 14],
+for k, x in R["calibration"].get("bakers_yeast_stacks", {}).items():
+    rows.append(["bakers_yeast (A.1 variants)", k, x if not isinstance(x, list) else f"{x[0]:.2f}-{x[1]:.2f}", None])
+sheet("Calibration", ["anchor", "quantity", "ours", "theirs"], rows, [26, 66, 14, 14],
       note="docs/VALIDATION.md has the diagnosis of every difference.")
 
 E_ = R["equivalents"]
@@ -206,13 +248,42 @@ sheet("Equivalents", ["source", "price series", "year", f"$ per unit (2025$)", "
       [8, 44, 8, 18, 26], note="Milk: per litre (33.7 g protein, 3.3 g BLG); eggs: per US large egg (3.64 g egg-white protein, "
                                "1.96 g OVA). data/evidence/milk_egg.yaml; the protein price is an upper bound on its value.")
 L_ = R["lactoferrin"]
-rows = [[k, d["design"]["titer"], d["msp_ccf"], d["per_kg_powder"], d["tci"]] for k, d in L_["cases"].items()]
-rows += [[f"titer {T} g/L (price-anchored)", T, m, None, None] for T, m in zip(L_["cost_vs_titer"]["titers"], L_["cost_vs_titer"]["msp"])]
-rows += [[f"scale {x} t/yr (price-anchored)", 10, m, None, None] for x, m in zip(L_["cost_vs_scale"]["t_per_yr"], L_["cost_vs_scale"]["msp"])]
-rows += [[f"sensitivity {k}", 10, m, None, None] for k, m in L_["resin"].items()]
-sheet("Lactoferrin", ["case", "titer g/L", "MSP_CCF $/kg LF", "$/kg powder", "TCI $"], rows, [52, 10, 16, 14, 16],
+rows = [[k, d["design"]["titer"], d["msp_ccf"], d["cop"], d["per_kg_powder"], d["tci"]] for k, d in L_["cases"].items()]
+rows += [[f"titer {T} g/L (price-anchored)", T, m, None, None, None] for T, m in zip(L_["cost_vs_titer"]["titers"], L_["cost_vs_titer"]["msp"])]
+rows += [[f"scale {x} t/yr (price-anchored)", 10, m, None, None, None] for x, m in zip(L_["cost_vs_scale"]["t_per_yr"], L_["cost_vs_scale"]["msp"])]
+rows += [[f"sensitivity {k}", 10, m, None, None, None] for k, m in L_["resin"].items()]
+sheet("Lactoferrin", ["case", "titer g/L", "MSP_CCF $/kg LF", "cost of production $/kg LF", "$/kg powder", "TCI $"], rows,
+      [52, 10, 16, 16, 14, 16],
       note=f"Contrast case, 250 t/yr, cation exchange (data/pf/scenarios/lactoferrin.yaml). Reported dairy bLF prices "
-           f"${L_['reported_prices']['band'][0]:,.0f}-{L_['reported_prices']['band'][1]:,.0f}/kg (grade C).")
+           f"${L_['reported_prices']['band'][0]:,.0f}-{L_['reported_prices']['band'][1]:,.0f}/kg in 2025 dollars (grade C); "
+           + "; ".join(f"{c_['key']}: ${c_['value_money_year']:.0f}/kg (a cost of production, 2025$)" for c_ in L_['reported_prices'].get('comparators', [])))
+# Intelligen's lactoferrin model against ours, SuperPro categories, $/kg LF (report tab-lf-rec; review L)
+CATS = [("raw materials", "raw_materials"), ("labour", "labour"), ("facility", "facility"), ("lab/QC/QA", "lab_qc_qa"),
+        ("consumables", "consumables"), ("waste", "waste"), ("utilities", "utilities")]
+IC = {c_["ours"]: c_ for c_ in L_["reported_prices"].get("comparators", [])}
+REC_ = L_.get("reconciliation", {})
+rows = []
+for ours, theirs_design in (("lf_ufdf_only", "lf_intelligen_a"), ("lf", "lf_intelligen_b")):
+    c_ = IC.get(ours)
+    if not c_ or theirs_design not in REC_:
+        continue
+    kg = c_["values"]["powder_kg_per_yr"] * c_["values"]["lf_frac_powder"]
+    for lab_, ik in CATS:
+        rows.append([c_["key"], lab_, c_["values"][ik] / kg * c_["deflator"], REC_[theirs_design]["per_kg"][lab_],
+                     REC_[ours]["per_kg"][lab_]])
+    rows.append([c_["key"], "total (cost of production)", c_["value_money_year"], REC_[theirs_design]["cop"], REC_[ours]["cop"]])
+    rows.append([c_["key"], "total capital investment $", c_["values"]["tci_usd"] * c_["deflator"], REC_[theirs_design]["tci"],
+                 REC_[ours]["tci"]])
+sheet("Lactoferrin_reconciliation", ["Intelligen case", "category", "Intelligen $/kg LF (2025$)", "ours at their design inputs",
+                                     "ours, base design"], rows, [36, 28, 22, 22, 18],
+      note="Intelligen's 2024 costs (Feb 2026 report, Tables 2-5) per kg lactoferrin, deflated to 2025$; ours = cost of production "
+           "(operating + 10-yr depreciation) in the same categories. Their design inputs: data/pf/scenarios/lactoferrin.yaml "
+           "lf_intelligen_a/b. data/evidence/lactoferrin.yaml lf_cost_intelligen2026_case_a_ufdf and _case_b_cex.")
+
+sheet("Market_context", ["ingredient", "low $/kg protein", "high $/kg protein", "basis", "grade", "evidence key"],
+      [[c["label"], c["lo"], c["hi"], c["when"] or "2015-2025, 2025$", c["grade"], c["key"]] for c in R["benchmarks"].get("context", [])],
+      [42, 16, 16, 24, 8, 36], note="Protein ingredients for context (report Q1, fig 11). GFI 2025 ranges are nominal; export unit "
+                                    "values are deflated to 2025 dollars. data/evidence/prices.yaml.")
 
 # ---------------------------------------------------------------- data
 with (ROOT / "data/titers.csv").open() as fh:
@@ -246,7 +317,7 @@ for i, (k, x, src) in enumerate(inputs, 4):
     c.comment = Comment(f"Source: {src}", "pf-tea")
 ws["A9"], ws["B9"] = "Annual operating cost item, $/yr", "Value"
 ws["A9"].font = ws["B9"].font = HDR
-op_items = [k for k in b["per_kg"] if k not in ("capital charge", "maintenance", "insurance & tax")]
+op_items = [k for k in b["per_kg"] if k not in ("capital charge", "maintenance", "insurance")]
 r = 10
 for k in op_items:
     ws.cell(r, 1, k).font = BODY
@@ -255,7 +326,7 @@ for k in op_items:
     c.comment = Comment("Source: results/analyses.json base.blg.per_kg x annual output", "pf-tea")
     r += 1
 for k, frac, src in (("maintenance", "maintenance_frac_tci", "Humbird 2021 p.46: 4% of TCI"),
-                     ("insurance & tax", "insurance_tax_frac_tci", "Humbird 2021 p.46: 5% of TCI")):
+                     ("insurance", "insurance_tax_frac_tci", "Humbird 2021 p.46: 5% of TCI")):
     ws.cell(r, 1, f"{k} (fraction of TCI in column C)").font = BODY
     cf = ws.cell(r, 3, float(P["finance"][frac]["value"]))
     cf.font = BLUE

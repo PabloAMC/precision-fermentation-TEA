@@ -325,3 +325,69 @@ where the secretion ceiling or O₂ (on Humbird's cell-free basis) binds. Decisi
 ceiling as a volume ceiling set by design choices, with these sensitivities (`ceiling_limits` in
 `results/analyses.json`, report Table 7); v1's "O₂ wall" wording is withdrawn everywhere. The
 teaching documents were updated to v2 results.
+
+
+## Phase F AI pre-review (2026-09-27): what changed in v2.1
+
+Four simulated expert reviewers (AI) read v2 (commit 5cbf9bc); their reviews are verbatim in
+`docs/ai-review/` and every comment is answered in `docs/REVIEW.md`. Each comment was re-checked
+against the code, the data or the source before acting. Model and data changes, in order of effect
+on the base BLG price (29.37 → 21.17 \$/kg):
+
+| Change | Why (review) | Evidence |
+|---|---|---|
+| Fermenters priced from NREL 2011's vendor quote (industrial enzyme fermenter, internal coils, agitator) in both conventions; Humbird's aseptic ACCE curve kept as a structural high case (`capital.fermenter_quote`) | BE-1, HM-2, SC-3: the aseptic cell-culture reactor (ASME BPE, 316L, full vacuum; Humbird text Table 3.3) is 2.9× the vendor quote and 3.2× the bubble column of the yeast anchor ($779k per 199 m³, 2018$) | Humbird p.37 and Table 3.3; A.1 Equip!BT6; NREL 2011 App. A; with it our capital matches Voutilainen's FCI (+1.8%) and Intelligen's cost (−3.5%) |
+| Missing-equipment allowance 10% → 20% (range 10–20%) | BE-4: the list omits CIP and feed tanks, filter housings, sugar storage, inactivation, packing and effluent pretreatment | Humbird A.1 uses 20% on its abbreviated list |
+| O₂ cap 150 per m³ of broth → 200 per m³ of cell-free liquid (range 150–250) | HM-3, BE-7: 150 is Humbird's bubble-column limit; his air-sparged STR value is ~200, on the cell-free basis of his Eq. 4.2 | Humbird p.28, p.49, p.91; 129 per m³ of broth at 107 g/L cells |
+| Chillers and compressors sized on the coincident peak of staggered batches | BE-6: v2 summed every fermenter's peak (72.6 MW against a coincident 27.3 MW) | model arithmetic; `plant._coincident_peak`, tested |
+| CIP chemicals not charged again under Humbird's rule | HM-8, BE-3 | Humbird p.46: maintenance "is assumed to include CIP chemicals" |
+| Membrane skid price treated as installed (backed out to a purchase cost) | BE-8 | Mercier-Bouchard 2017 row "Installation capital investment"; our P-1 note "probably installed" |
+| Spent-cell disposal fees converted at the model's 15% paste solids (US $458, EU $211 per t dry) | BE-9 | the paste model (30% dry wet cells × 50% extracellular liquid) |
+| Feed concentrations in g/L: glucose 500 g/L (not "50 wt%"; range 500–600), ammonia 268 g/L | FS-1, BE-2, HM-1 | Intelligen p.6; Shemesh 2024 "60% (w/v)"; GESTIS density of 30% ammonia |
+| Energetic ceiling adds amino-acid synthesis (0.29 ATP/residue) and sulfate assimilation (3 ATP + 8 e⁻ per S); physical-limit yield 0.55 → 0.535 | FS-2, SC-2 | Stouthamer 1973 as recomputed by Martin et al. 2025 (PMC7617979) |
+| Physical-limit case uses a 600 g/L feed; shown at secretion ceilings 5–120 mg/g/h; secretion-ceiling range 5–40 | FS-3, SC-2, HM-1 | Intelligen's design rate 4.75 mg/g/h is the low end |
+| Inoculum 5 → 3 g/L (5% of a 60 g/L seed), then 0.88 g/L (5% of 17.6 g/L seed broth) | FS-11, follow-up L | Intelligen's lactoferrin flowsheet; the growth phase is then 37 h against Intelligen's 36 h |
+| CEX cycle time computed from load and buffer column volumes (2.1 h, was 3.5 h), at 20 column volumes per hour | BE-12, follow-up L | load CVs = capacity / feed concentration; flow from Intelligen's design (500 cm/h, 25 cm bed) |
+| Lactoferrin price band deflated to 2025$; Intelligen's own costs shown as costs of production ($299 UF/DF only, $441 with cation exchange, 2025$) against ours ($113, $159) and reconciled by category | SC-6, follow-up L | Intelligen report Tables 2–5; the $292 GFI cites is case a per kg lactoferrin |
+| Monte Carlo: failure reasons, input means and all-draw percentiles recorded; academic BLG cells 40–60 g/L; industry titer 24–54 g/L, grade C | SC-8 | GFI 2025 Table 2 and text |
+| Claims priced at their own production time; the shortest-time cost kept as a labelled best case | SC-7 | Behm 2022: 120 h |
+| New analyses: cheapest design at base biology by secretion ceiling; required titers with implied q_p; ceiling rows for 35/40/50% starts, 80 g/L cells and a 600 g/L feed; convention gap decomposed; base sensitivities; A.1 under other capital stacks | SC-1, SC-4, SC-3, BE-3, BE-5 | `results/analyses.json` |
+
+Text changes (report, memo, explorer, README, REVIEW): the feed label, the ceiling's causes (SC-4),
+secretion as the gate for $10/kg (SC-1), "best case" instead of "floor" (SC-2), what the yeast anchor
+supports (SC-3, HM-2), the published-cost ratios (SC-5, BE-13), the milk-and-egg bias (SC-10), the
+whey-egg comparison (SC-9), the bridge's infeasible first steps (SC-11), the priors' scoring (SC-12),
+heat per mol O₂ (FS-10, HM-9), the compressor effect (HM-7), and the directions of the model's
+simplifications (FS-6, FS-12, HM-4).
+
+**New evidence found while checking FS-4.** Rebnegger et al. 2024, the source of the production-phase
+maintenance, measured secretion falling as growth slowed and settling "roughly fivefold lower" than
+the chemostat trend (0.019 mg/g/h at doubling times of two months), which the authors partly
+attribute to the promoter. The base production phase (Intelligen's design: 4.7 mg/g/h at near-zero
+growth) therefore assumes secretion decoupled from growth, which no public BLG or OVA data test. It is
+now the report's lead caveat and the first question for funders. The v2 evidence note said secretion
+"collapses" and that decoupling "does NOT work"; that overstated the paper and was corrected.
+
+**Follow-up reading, same day** (details in REVIEW.md). Compressor: the PF model now uses the
+textbook adiabatic formula; Humbird's workbook formula puts k = 1.4 where (k−1)/k belongs and is kept
+only in the A.1 port (+$0.02/kg). The aeration search no longer fails at high DO setpoints (a
+latent bug; no base result changed). Seed density 17.6 g/L and inoculum 0.88 g/L from Intelligen's
+lactoferrin flowsheet. Cation-exchange flow 20 column volumes per hour (Intelligen) instead of a
+guess. New evidence entries for Heyland 2010 (an intracellular product: never cite it for secretion),
+Looser 2015, Humbird 2017 and 2021 aeration and the Intelligen lactoferrin report; three lactoferrin
+evidence notes corrected against that report; a malformed YAML entry (Prielhofer) found and fixed, and
+a data-integrity test added (`tests/test_data.py`); a misattributed heat-per-O₂ citation corrected
+(von Stockar → Maskow et al. 2010).
+
+**Corrections to earlier audit statements.** R3's "the 4FB capital chain match Humbird's sheets"
+needs a qualification (HM-5): the model applies the ISBL installation factor to the fermenters,
+whereas Humbird's chain enters bioreactors at their installed ACCE cost (Table14 bioreactor install
+factor 1). With the aseptic quote the two agree within about 10% ($7.5M against his $6.8M per 200 m³,
+2018$); with vendor-quote vessels the factor is the right treatment. R6-M2's feed fix was only
+"documented"; the report still said "50 wt%" (FS-1).
+
+**Not changed, with reasons** (details in REVIEW.md): the 9% fixed-cost rule (Humbird's; his yeast
+workbook needs it to reach the market band), the diafiltration flux (the reviewer's 10–20 L/m²/h needs
+a source not on disk), a titer-dependent k_La (no source), a wider T. reesei maintenance range (no
+measured value), start-up, working capital and failed batches (not in the anchored method; listed as
+exclusions), and the base feed (Intelligen's 500 g/L kept; 600 g/L is the sensitivity).

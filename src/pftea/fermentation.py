@@ -29,6 +29,10 @@ Controls solved each step (A.1 stores the values its VBA solver found):
     The last step is shortened so the working volume ends exactly at its maximum.
 Power:
     compressor [kW] = D 2.205 379.4/60 (77+460)/8130/1.4 (p_btm,max^1.4 - 1) 0.7457/0.8  [BD]
+      (kept as written to reproduce the workbook. The textbook adiabatic form is
+      hp = scfm T1[R] / (8130 a) (r^a - 1) with a = (k-1)/k = 0.286; the cell puts k = 1.4
+      where a belongs, which overstates the power 1.6x at r = 2.1. The PF model uses
+      compressor_kW_adiabatic: P = (D/3600) R T1 (r^a - 1) / (a eta), r = p_out / 1.01325)
     refrigeration electricity [kW] = rt (heat of reaction + agitation + evaporation)  [BF]
       heat of reaction = -sum_i r_i dHf_i; evaporation = stripped water x 2410 kJ/kg
       rt = kW electricity per kW refrigeration (1.24 hp/ton, Couper)
@@ -269,9 +273,21 @@ def integrate(steps: list[Step], values: list[float]) -> float:
 
 
 def compressor_kW(D_kmol_h: float, p_btm_max_bar: float) -> float:
-    """A.1 column BD: air compressor power for D kmol/h delivered at p_btm_max."""
+    """A.1 column BD as written: air compressor power for D kmol/h delivered at p_btm_max.
+
+    Reproduces Humbird's workbook, including its use of k = 1.4 in place of (k-1)/k (see the
+    module docstring); the PF model uses compressor_kW_adiabatic."""
     return (D_kmol_h * 2.205 * 379.4 / 60 * (77 + 460) / 8130 / 1.4
             * (p_btm_max_bar ** 1.4 - 1) * 0.7457 / 0.8)
+
+
+def compressor_kW_adiabatic(D_kmol_h: float, p_out_bar: float, eff: float,
+                            T_in_K: float = 298.15, p_in_bar: float = 1.01325, k: float = 1.4) -> float:
+    """Adiabatic compression of D kmol/h of air from p_in to p_out at isentropic efficiency eff:
+    P = (D/3600) R T_in (r^a - 1) / (a eff), a = (k-1)/k. T_in = 25 C as in A.1 (77 F)."""
+    a = (k - 1) / k
+    r = max(p_out_bar / p_in_bar, 1.0)
+    return D_kmol_h / 3600 * 8.314462618 * T_in_K * (r ** a - 1) / (a * eff)
 
 
 def refrigeration_kW(step: Step, dcw: th.Species, rt_refrig: float, agitator_kW: float = 0.0) -> float:

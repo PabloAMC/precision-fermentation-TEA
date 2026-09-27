@@ -599,6 +599,11 @@
   quote: null
   read: fulltext
   note: >-
+    CORRECTED 2026-09-27 against the primary report (lf_cost_intelligen2026_case_a_ufdf; review L):
+    the design has 6 staggered 100 m3 fermenters, not ~9 (the 216 h below is the ~9-day overall batch
+    time; one fermenter's cycle is 132.6 h), 78.18 m3 of broth per batch at 10.03 g/L, overall
+    recovery 0.882 (case a) and 0.793 (case b), and glycerol, not glucose, in the growth phase
+    (Table 1; David 2026's glucose column is his own variant). The derivation as first written:
     (1) 822.6 kg LF per batch at 10 g/L implies 82.26 m3 of broth, i.e. 82% working volume in the
     stated 100 m3 fermenter. (2) 328 batches x 216 h = 70,848 fermenter-hours, so the plant needs
     ~8.1 vessels at 8,760 h/yr or ~9 at 7,920 h/yr: a 9 x 100 m3 train, close to the pf-tea base
@@ -611,3 +616,70 @@
     titer is 10 g/L against 116 g/L of biomass, and because the product carbon comes from
     methanol. This single ratio is why lactoferrin costs ~$300/kg in the same modelling framework
     that gives ~$39/kg for ovalbumin, and it is the number to attack with a higher titer.
+
+- key: lf_cost_intelligen2024_via_gfi2025
+  value: 292
+  year: 2024
+  unit: USD/kg (cost of production, ~90% pure dried lactoferrin; Intelligen's SuperPro model)
+  grade: B
+  source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025), Sect. 1.3.1 and Appendix row 177, reporting Da Gama Ferreira R, Misailidis N, Petrides D. Lactoferrin production via precision fermentation (Intelligen, 2024)"
+  doi_or_url: 10.62468/trxj5734
+  locator: "Sect. 1.3.1 'TEM Landscape: precision fermentation', p.28; Appendix table row 177 (p.72)"
+  quote: "Industry white papers by Intelligen report COPs of $292/kg for lactoferrin and $1,043/kg for collagen peptide, both assuming a high-purity (~90%) dried protein product (Da Gama Ferreira et al. 2024a, 2024b)"
+  read: fulltext
+  values: {production_t_per_yr: 251.304, cop_normalised_usd_kg: 262.43, opex_musd_per_yr: 65.95, capex_musd: 122.53}
+  note: >-
+    A model cost, not a price (review SC-6). CORRECTED 2026-09-27 against the primary report
+    (lf_cost_intelligen2026_case_a_ufdf, review L): $262.43 is Intelligen's own unit production cost
+    per kg of powder for case a (UF/DF only, no chromatography), not a GFI normalisation, and $292 is
+    that figure per kg of lactoferrin (262.43/0.90). GFI's Figure 11 prints $260. The cation-exchange
+    case costs $406.95/kg powder (lf_cost_intelligen2026_case_b_cex). Both are unit production costs
+    (depreciation included, no return on capital).
+
+- key: lf_cost_intelligen2026_case_a_ufdf
+  value: 291.6
+  year: 2024
+  unit: "USD/kg lactoferrin: unit production cost $262.43/kg powder / 0.90 lactoferrin in the powder (SuperPro; operating cost with depreciation, no return on capital)"
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Petrides D. Lactoferrin Production via Precision Fermentation: Process Modeling and Evaluation using SuperPro Designer. Intelligen, February 2026 version"
+  doi_or_url: https://www.intelligen.com/products/superpro-examples/
+  locator: "Table 2 'Executive summary (2024 prices)' and Table 4 'Annual operating cost (2024 prices)', pp.18-19; product composition p.7"
+  quote: "Unit Production Cost 262.43 $/kg MP"
+  read: fulltext
+  values: {usd_per_kg_powder: 262.43, lf_frac_powder: 0.90, powder_kg_per_yr: 251304, tci_usd: 122525000,
+           aoc_usd_per_yr: 65950000, raw_materials: 22303000, labour: 9159000, facility: 20176000,
+           lab_qc_qa: 2564000, consumables: 6560000, waste: 1425000, utilities: 3763000}
+  note: >-
+    Read 2026-09-27 (PDF downloaded by Pablo; review L). Case a: two centrifuges, microfiltration,
+    UF/DF and spray drying, no chromatography; 90% lactoferrin, 4% other protein, 5% moisture (p.7).
+    Design: Pichia, glycerol growth 72 h then methanol expression 48 h to 10 g/L (p.4-5), 6 staggered
+    100 m3 fermenters (p.4, p.11), 78.18 m3 of broth per batch (flowsheet), 328 batches a year and
+    overall recovery 0.882 (both derived). 'Facility-dependent' (20.2 M$/yr = 16.5% of TCI) holds
+    the depreciation, so the unit cost compares with our cost of production, not our minimum
+    selling price. Selling price assumed $600/kg powder (p.17). Not reported: equipment list and
+    costs, labour hours and rate, itemised raw materials. Glycerol is priced at $1.865 per L of 85%
+    solution (Fig. 10, p.27; about $1.8/kg glycerol).
+
+- key: lf_cost_intelligen2026_case_b_cex
+  value: 429.7
+  year: 2024
+  unit: "USD/kg lactoferrin: unit production cost $406.95/kg powder / 0.947 lactoferrin in the powder (SuperPro; operating cost with depreciation, no return on capital)"
+  grade: B
+  source: "Da Gama Ferreira R, Misailidis N, Petrides D. Lactoferrin Production via Precision Fermentation: Process Modeling and Evaluation using SuperPro Designer. Intelligen, February 2026 version"
+  doi_or_url: https://www.intelligen.com/products/superpro-examples/
+  locator: "Table 3 'Executive summary (2024 prices)' and Table 5 'Annual operating cost (2024 prices)', pp.18-19; chromatography pp.9-10"
+  quote: "Unit Production Cost 406.95 $/kg MP"
+  read: fulltext
+  values: {usd_per_kg_powder: 406.95, lf_frac_powder: 0.947, powder_kg_per_yr: 215551, tci_usd: 146623000,
+           aoc_usd_per_yr: 87718000, raw_materials: 24567000, labour: 9389000, facility: 24372000,
+           lab_qc_qa: 2625000, consumables: 20851000, waste: 2199000, utilities: 3714000}
+  note: >-
+    Read 2026-09-27 (review L). Case b adds cation exchange (the route of our 'lf' case): 94.7%
+    lactoferrin (p.10). Chromatography (pp.9-10): SP Sepharose Big Beads at 500 cm/h through a 25 cm
+    bed (20 column volumes per hour), loading 33 min, cycle 108 min, four staggered columns of
+    200 L; 10 + 5 + 5 + 5 bed volumes of equilibration, wash, elution and regeneration buffer;
+    lactoferrin retention 97%; binding capacity 100 g/L; resin $1,000/L lasting 150 cycles (Fig. 14,
+    p.31). Buffers are made in-line from concentrates held in blending and receiver tanks with
+    sterile filters, which with the columns add $24.1M to the TCI of case a (p.17). Selling price
+    assumed $1,000/kg powder.
+

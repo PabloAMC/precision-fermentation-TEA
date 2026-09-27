@@ -21,30 +21,35 @@ Blocks (data in data/pf/base.yaml; equations in each block's comments):
       L = P R_cell R_MF; resin used per batch (m3 resin-cycles) = L / q (dynamic capacity).
       Per resin-cycle: CV_tot column volumes of buffer (water and wastewater), elution CV_elu at
       1 M NaCl (the eluate goes to UF/DF, which washes the salt out), CIP with NaOH and
-      regeneration with 20% ethanol. Resin replaced per year = resin-cycles / life; resin volume
-      installed = resin-cycles per hour x cycle time (first fill added to TCI unfactored);
-      column hardware per litre of resin. Recovery R_cex.
+      regeneration with 20% ethanol. Loading takes q / c_load column volumes (c_load = protein
+      concentration of the MF permeate), so the cycle time is (CV_tot + q / c_load) / flow.
+      Resin replaced per year = resin-cycles / life; resin volume installed = resin-cycles per
+      hour x cycle time (first fill added to TCI unfactored); column hardware per litre of resin.
+      Recovery R_cex.
    d. Isolate only: ammonium-sulfate precipitation and washed basket centrifuges; the dryer is
       fed the cake (solids fraction s_cake).
    e. Spray dryer: water evaporated = solids (1 - s_in)/s_in; recovery R_dry.
    f. Cleaning in place (all specs): CIP solution per kg product (Intelligen), counted as water,
-      wastewater and chemicals.
+      wastewater and chemicals (the chemicals only in the design-report convention: Humbird's 4%
+      maintenance includes them).
 3. Scale: batches/yr = annual target protein / target per batch. Fermenters needed
    N = batches/yr x (batch time + turnaround) / operating hours; capital is costed for
    ceil(N) whole vessels.
 4. Seed train: 10:1 volume steps down to lab scale; seed cells grown on the growth
    stoichiometry; units per stage from occupancy.
-5. Utilities: compressors (peak air of the fermenters online), chillers (peak heat load per
-   fermenter x fermenters online), cooling tower, boiler (sterilisation steam), water.
-6. Capital, two conventions:
+5. Utilities: compressors and chillers sized on the coincident plant peak: batches start every
+   H / n_batches hours, so the plant load at time t is the sum of one batch's air or heat
+   profile at t, t + interval, t + 2 interval, ... (its maximum over one interval). Cooling
+   tower, boiler (sterilisation steam), water.
+6. Capital, two conventions (fermenters from the vendor-quote curve in both unless
+   capital.fermenter_quote = acce_aseptic, Humbird's aseptic cell-culture STR quotes):
    - price-anchored (Humbird 2021 facility-class method, 'commodity aerobic'):
        ISBL TDC = PEC_ISBL (1 + m) (1 + f_ISBL);  OSBL TDC = PEC_OSBL (1 + m) (1 + f_OSBL)
        buildings = sum(area x levels x $/m2 by class)
        TDC = ISBL + OSBL + buildings; TPC = TDC (1 + E&C); TCI = TPC (1 + fees & contingency)
      with m = missing-capital allowance (m = 0.1/0.9). All 2018$ x cost index x location factor.
-   - design-report ('light', NREL 2011 style): vendor-quote fermenters, NREL installation
-     factors, site development on ISBL, indirect costs on TDC; same buildings except the
-     warehouse (inside NREL's site factor).
+   - design-report ('light', NREL 2011 style): NREL installation factors, site development on
+     ISBL, indirect costs on TDC; same buildings except the warehouse (inside NREL's site factor).
 7. Operating costs: raw materials, utilities, consumables, waste; labour (Humbird's operator
    attention model with supervisors at 1.4x salary); maintenance and insurance by convention.
 8. Money: COP (operating + straight-line depreciation), MSP_CCF (capital charge),
@@ -113,28 +118,65 @@ def _vessel(p, volume=None) -> pf.STR:
                   otr_cap_basis=_opt(p, "fermenter.otr_cap_basis", "broth"),
                   heat_max_kW_m3=v(p, "fermenter.heat_removal_max_kW_m3"),
                   heat_per_o2_kJ=v(p, "fermenter.heat_per_o2_kJ"),
-                  min_fill=_opt(p, "fermenter.min_initial_fill"))
+                  min_fill=_opt(p, "fermenter.min_initial_fill"),
+                  kla_k=v(p, "fermenter.kla_temperature_factor"),
+                  compressor_formula=_opt(p, "fermenter.compressor_formula", "adiabatic"),
+                  compressor_eff=v(p, "fermenter.compressor_efficiency"))
+
+
+def _conditions(p) -> pf.Conditions:
+    return pf.Conditions(T_C=_host(p).T_C, rt_refrig=v(p, "utilities.rt_refrig"),
+                         DO_top_frac=v(p, "fermenter.DO_top_frac"))
 
 
 def batch(p, keep_series=False) -> pf.Batch:
     host = _host(p)
-    c = pf.Conditions(T_C=host.T_C, rt_refrig=v(p, "utilities.rt_refrig"))
+    c = _conditions(p)
     strain = pf.Strain(product=pr.protein(v(p, "plant.product")), Y_ps=v(p, "strain.Y_ps_g_g"),
                        X_prod=v(p, "strain.X_prod_g_L"), mu_prod=v(p, "strain.mu_prod_per_h"),
                        t_prod=v(p, "strain.t_prod_h"), X_max=v(p, "strain.X_max_g_L"))
     return pf.run_batch(_vessel(p), c, host, strain, X0=v(p, "strain.X0_g_L"),
-                        titer=v(p, "strain.titer_g_L"), w_s=v(p, "fermenter.feed_glucose_wt"),
-                        w_nh3=v(p, "fermenter.nh3_feed_wt"), keep_series=keep_series)
+                        titer=v(p, "strain.titer_g_L"), c_s=v(p, "fermenter.feed_glucose_g_L"),
+                        c_nh3=v(p, "fermenter.nh3_feed_g_L"), keep_series=keep_series)
+
+
+def atp_per_residue(p) -> float:
+    """ATP charged per residue by the energetic ceiling: the peptide bond, the net cost of making
+    the amino acid from glucose and NH4+ (Stouthamer), and sulfate assimilation for the protein's
+    sulfur (activation ATP plus its 8 electrons at the host's P/O ratio)."""
+    h = f"hosts.{v(p, 'strain.host')}"
+    po = v(p, f"{h}.po_ratio")
+    prot = pr.protein(v(p, "plant.product"))
+    s_per_res = prot.formula.get("S", 0.0) / prot.residues
+    e = "energetics"
+    return (v(p, f"{e}.atp_per_peptide_bond") + v(p, f"{e}.atp_aa_synthesis_per_residue")
+            + s_per_res * (v(p, f"{e}.sulfur_atp_per_S") + v(p, f"{e}.sulfur_electrons_per_S") / 2 * po))
 
 
 def energetic_ceiling(p) -> float:
-    """Upper bound on the product-reaction yield [g/g]: polymerisation energy paid by respiration
-    at the host's P/O ratio (product.energetic_ceiling); amino-acid synthesis energy beyond carbon
-    and electrons is not counted, so this is an upper bound."""
+    """Upper bound on the product-reaction yield [g/g]: the ATP of atp_per_residue paid by
+    respiring glucose at the host's P/O ratio (product.energetic_ceiling). Transport, secretion,
+    folding and turnover costs are not counted, so this stays an upper bound."""
     h = f"hosts.{v(p, 'strain.host')}"
     atp_glc = v(p, "energetics.substrate_atp_per_glucose") + 12 * v(p, f"{h}.po_ratio")
     return pr.energetic_ceiling(pr.protein(v(p, "plant.product")), th.get("Glucose (s)"),
-                                v(p, "energetics.atp_per_peptide_bond"), atp_glc)
+                                atp_per_residue(p), atp_glc)
+
+
+def _coincident_peak(prof_t, prof_v, t_total: float, interval: float) -> float:
+    """Peak of the summed load of identical batches started every `interval` hours; each batch
+    follows the step profile (step start times prof_t, values prof_v) until t_total."""
+    t, val = np.asarray(prof_t, float), np.asarray(prof_v, float)
+    if t.size == 0:
+        return 0.0
+    if not (np.isfinite(interval) and interval > 0):
+        return float(val.max())
+    n_on = int(np.ceil(t_total / interval)) + 1
+    grid = np.arange(0.0, interval, min(interval / 64, 0.05))
+    taus = grid[:, None] + interval * np.arange(n_on)[None, :]
+    i = np.searchsorted(t, taus, side="right") - 1
+    load = np.where((i >= 0) & (taus < t_total), val[np.clip(i, 0, None)], 0.0)
+    return float(load.sum(axis=1).max())
 
 
 def evaluate(p, keep_series=False) -> Result:
@@ -144,7 +186,7 @@ def evaluate(p, keep_series=False) -> Result:
     if not b.ok:
         flags.append(b.reason)
     vessel = _vessel(p)
-    c = pf.Conditions(T_C=_host(p).T_C, rt_refrig=v(p, "utilities.rt_refrig"))
+    c = _conditions(p)
     omax = pf.otr_max(vessel, c, v(p, "strain.X_prod_g_L"))
     heat_cap = v(p, "fermenter.heat_removal_max_kW_m3")
     if heat_cap and b.heat_max_kW_m3 > heat_cap * 1.02:
@@ -172,6 +214,7 @@ def evaluate(p, keep_series=False) -> Result:
     crude = spec == "crude"
     n_st = int(v(p, "dsp.centrifuge_stages"))
     resin_cyc = buffer_m3 = nacl_kg = naoh_kg = etoh_kg = 0.0     # cation exchange ('cex' spec only)
+    load_cv = cex_cycle_h = 0.0
     if crude:                                              # whole broth used as is (NREL on-site enzyme)
         dil, V1, V_clar, V_wash, R_cell = 1.0, W, W, 0.0, 1.0
         R_mf = R_uf = 1.0
@@ -193,6 +236,8 @@ def evaluate(p, keep_series=False) -> Result:
         # c'. cation-exchange capture ('cex' spec)
         P_uf, V_uf = P_in * R_cell * R_mf, V_clar          # kg and m3 into UF
         if spec == "cex":
+            load_cv = v(p, "dsp.cex_dbc_g_L") / (P_uf / V_clar)   # column volumes of MF permeate per load
+            cex_cycle_h = (v(p, "dsp.cex_cv_per_cycle") + load_cv) / v(p, "dsp.cex_flow_cv_per_h")
             resin_cyc = P_uf / v(p, "dsp.cex_dbc_g_L")      # m3 resin-cycles per batch
             V_uf = v(p, "dsp.cex_elution_cv") * resin_cyc   # eluate
             buffer_m3 = v(p, "dsp.cex_cv_per_cycle") * resin_cyc
@@ -281,8 +326,9 @@ def evaluate(p, keep_series=False) -> Result:
     seed_units = [max(1, math.ceil(t_seed / per_start)) for _ in seeds]
 
     # ---------------------------------------------------------------- 5. utilities sizing
-    air_acmh = running * b.air_max_kmol_h * 0.08314 * 298
-    heat_peak_kW = running * b.heat_max_kW                  # peak load per fermenter x fermenters online
+    interval = H / n_batches                                # h between batch starts
+    air_acmh = _coincident_peak(b.profile["t"], b.profile["air"], b.t_total, interval) * 0.08314 * 298
+    heat_peak_kW = _coincident_peak(b.profile["t"], b.profile["heat"], b.t_total, interval)
     heat_avg_kW = n_batches * b.heat_kWh / H
     comp_avg_kW = n_batches * (b.comp_kWh + b.agit_kWh) / H
     cw_L_s = (heat_avg_kW * (1 + c.rt_refrig) + comp_avg_kW) / (4.1868 * v(p, "utilities.cooling_water_dT_C"))
@@ -299,11 +345,15 @@ def evaluate(p, keep_series=False) -> Result:
     isbl, osbl = {}, {}
     basis = v(p, "capital.basis")
     nb = v(p, "capital.nrel_basis")
+    vf = v(p, "capital.vendor_fermenter")
     exp_above = v(p, "capital.fermenter_exponent_above_table")
-    ferm_cost = ((lambda V: nb["fermenter_2018usd_300m3"] * (V / 300) ** nb["fermenter_exponent"])
-                 if basis == "nrel" else (lambda V: eq.fermenter(V, exp_above)))
+    quote = _opt(p, "capital.fermenter_quote", "vendor")
+    ferm_cost = ((lambda V: vf["cost_2018usd_300m3"] * (V / 300) ** vf["exponent"])
+                 if basis == "nrel" or quote == "vendor" else (lambda V: eq.fermenter(V, exp_above)))
     isbl["production fermenters"] = ferm_cost(vessel.volume_m3) * N_int
-    isbl["seed fermenters"] = sum(ferm_cost(s) * n for s, n in zip(seeds, seed_units))
+    seed_quote = _opt(p, "capital.seed_fermenter_quote")       # sensitivity: seeds on another curve
+    seed_cost = ((lambda V: eq.fermenter(V, exp_above)) if seed_quote == "acce_aseptic" else ferm_cost)
+    isbl["seed fermenters"] = sum(seed_cost(s) * n for s, n in zip(seeds, seed_units))
     n_ster, st_size = eq.units(steril_L_h, eq.MAX["sterilizer_L_h"])
     isbl["media sterilizers"] = eq.sterilizer(st_size) * n_ster
     media_tank = max(b.W0, 1.0)
@@ -322,14 +372,18 @@ def evaluate(p, keep_series=False) -> Result:
     else:
         mf_m2 = n_batches * V_clar / (v(p, "dsp.mf_flux_LMH") / 1000 * H)
         uf_m2 = n_batches * (perm_c / v(p, "dsp.uf_flux_LMH") + perm_df / v(p, "dsp.df_flux_LMH")) * 1000 / H
-    isbl["MF + UF skids"] = eq.membrane_skid(mf_m2 + uf_m2, v(p, "dsp.membrane_skid_usd_m2"))
+    # the skid price is an installed cost (Mercier-Bouchard's 'installation capital investment'):
+    # back it out to a purchased cost with the convention's installation factor (review BE-8)
+    skid_inst = v(p, "capital.nrel_basis")["other_install"] if basis == "nrel" else \
+        1 + v(p, "capital.facility_classes")[v(p, "capital.facility_class")]["isbl"]
+    isbl["MF + UF skids"] = eq.membrane_skid(mf_m2 + uf_m2, v(p, "dsp.membrane_skid_usd_m2") / skid_inst)
     isbl["harvest + hold tanks"] = eq.tank(100) * math.ceil(2 * W / 100) * 2
     evap_kg_h = n_batches * water_evap / H
     if evap_kg_h > 0:
         n_d, dsize = eq.units(evap_kg_h, v(p, "dsp.spray_dryer_max_kg_h"))
         isbl["spray dryers"] = eq.spray_dryer(dsize, v(p, "dsp.spray_dryer_cost_2018usd"), v(p, "dsp.spray_dryer_ref_kg_h"),
                                               v(p, "dsp.spray_dryer_exponent")) * n_d
-    resin_m3 = n_batches * resin_cyc / H * v(p, "dsp.cex_cycle_h") if spec == "cex" else 0.0   # installed resin
+    resin_m3 = n_batches * resin_cyc / H * cex_cycle_h if spec == "cex" else 0.0   # installed resin
     if spec == "cex":
         isbl["CEX columns and skids"] = resin_m3 * 1000 * v(p, "dsp.cex_hardware_usd_per_L_resin")
     if spec == "isolate":
@@ -422,6 +476,8 @@ def evaluate(p, keep_series=False) -> Result:
     # membrane permeates, cake wash, CIP and the column buffers other than the eluate (which goes to UF)
     cells_t = 0.0 if crude else n_batches * b.cells_kg / 1000   # crude broth keeps its cells (used on site)
     nb_maint = (isbl_tdc * idx * nb["maintenance_frac_isbl"] + tci * nb.get("maintenance_frac_fci", 0.0))
+    rule = _opt(p, "finance.fixed_cost_rule") or ("nrel" if basis == "nrel" else "humbird")   # maintenance + insurance
+    cip_chem = 0.0 if (rule == "humbird" and _opt(p, "finance.maintenance_includes_cip_chemicals", False)) else 1.0
     annual = {
         "glucose": glc_kg * v(p, f"{U}.glucose_usd_kg"),
         "ammonia": n_batches * b.nh3_kg * v(p, f"{U}.ammonia_usd_kg"),
@@ -429,7 +485,7 @@ def evaluate(p, keep_series=False) -> Result:
                                             + v(p, "media.h3po4_kg_per_kg_cells") * b.cells_kg * v(p, "media.h3po4_price_usd_kg")
                                             + v(p, "media.antifoam_kg_per_m3") * W * v(p, "media.antifoam_price_usd_kg")
                                             + v(p, "media.methanol_kg_per_kg_product") * P_in * v(p, "media.methanol_price_usd_kg")),
-        "DSP chemicals": n_batches * (AS_kg * v(p, "dsp.ammonium_sulfate_usd_kg") + cip_kg * v(p, "dsp.cip_price_usd_kg")
+        "DSP chemicals": n_batches * (AS_kg * v(p, "dsp.ammonium_sulfate_usd_kg") + cip_chem * cip_kg * v(p, "dsp.cip_price_usd_kg")
                                       + nacl_kg * v(p, "dsp.nacl_usd_kg") + naoh_kg * v(p, "dsp.naoh_usd_kg")
                                       + etoh_kg * v(p, "dsp.ethanol_usd_kg")),
         "chromatography resin": (n_batches * resin_cyc / v(p, "dsp.cex_resin_life_cycles") * 1000
@@ -440,13 +496,13 @@ def evaluate(p, keep_series=False) -> Result:
         "water & wastewater": water_m3 * v(p, f"{U}.water_usd_m3") + ww_m3 * v(p, f"{U}.wastewater_usd_m3"),
         "biomass disposal": cells_t * v(p, f"{U}.biomass_disposal_usd_t_dry"),
         "labour": labour_usd,
-        "maintenance": (nb_maint if basis == "nrel" else tci * v(p, "finance.maintenance_frac_tci")),
-        "insurance & tax": (tci * nb["insurance_frac_fci"] if basis == "nrel"
-                            else tci * v(p, "finance.insurance_tax_frac_tci")),
+        "maintenance": (nb_maint if rule == "nrel" else tci * v(p, "finance.maintenance_frac_tci")),
+        "insurance": (tci * nb["insurance_frac_fci"] if rule == "nrel"
+                      else tci * v(p, "finance.insurance_tax_frac_tci")),
     }
-    variable = sum(val for k, val in annual.items() if k not in ("labour", "maintenance", "insurance & tax"))
+    variable = sum(val for k, val in annual.items() if k not in ("labour", "maintenance", "insurance"))
     # (maintenance and insurance are charged on TCI including the resin first fill)
-    fixed = annual["labour"] + annual["maintenance"] + annual["insurance & tax"]
+    fixed = annual["labour"] + annual["maintenance"] + annual["insurance"]
     ccf = fin.ccf(v(p, "finance.ccf_rate"), v(p, "finance.ccf_life_y"))
     annual["capital charge"] = tci * ccf
     per_kg = {k: val / annual_target_kg for k, val in annual.items()}
@@ -473,7 +529,9 @@ def evaluate(p, keep_series=False) -> Result:
                   target_per_batch_kg=target, product_made_kg=P_in, o2_kmol_batch=b.o2_kmol,
                   powder_per_batch_kg=powder, purity_dry=purity, otr_max=omax, our_peak=b.our_max,
                   heat_peak_kW_m3=b.heat_max_kW_m3, seeds_m3=seeds, seed_units=seed_units, mf_m2=mf_m2,
-                  uf_m2=uf_m2, CF=CF, evap_kg_h=evap_kg_h, resin_m3=resin_m3, dryer_inlet_solids=(0.0 if crude else dryer_in_solids),
+                  uf_m2=uf_m2, CF=CF, evap_kg_h=evap_kg_h, resin_m3=resin_m3, cex_cycle_h=cex_cycle_h, cex_load_cv=load_cv,
+                  heat_plant_peak_kW=heat_peak_kW, heat_sum_of_peaks_kW=running * b.heat_max_kW,
+                  dryer_inlet_solids=(0.0 if crude else dryer_in_solids),
                   fte=fte, area_m2=total_area, lang_effective=tci / (idx * (isbl_pec + osbl_pec)),
                   y_ps_over_ceiling=v(p, "strain.Y_ps_g_g") / ceiling, energetic_ceiling=ceiling,
                   effective_yield_production=(b.product_kg / b.glucose_prod_kg if b.glucose_prod_kg > 0 else float("nan")),

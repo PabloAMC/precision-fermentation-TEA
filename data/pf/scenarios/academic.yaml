@@ -15,6 +15,12 @@ blg_li2026:                              # variant: Li et al. 2026, the best pub
   strain.X_prod_g_L: 38                  # DCW at the end of the ~24 h batch, read from Fig. 6B at 4:1; derived
   strain.t_prod_h: 108                   # glucose fed-batch 24 -> 132 h (Fig. 6B); the v1 96 h was the plate assay time
   strain.mu_prod_per_h: 0.0100           # 38 -> ~112 g DCW/L over 108 h; derived
+ova_intact_1gL:                          # variant: intact OVA only. Aro's purified TrOVA 'revealed a major band of approximately
+  strain.host: treesei                   # 36 kDa with an estimated purity of 80 %', the clipped form (full OVA is 42 kDa), so intact
+  strain.titer_g_L: 1.0                  # OVA is plausibly well under the 2 g/L sum (review FS-8); 1 g/L is a judgment (D)
+  strain.X_prod_g_L: 35
+  strain.mu_prod_per_h: 0.0
+  strain.t_prod_h: 110
 ova:                                     # Aro et al. 2023 (T. reesei)
   strain.host: treesei
   strain.titer_g_L: 2.0                  # full-length + a 36 kDa clipped form summed; an upper bound for intact OVA (audit NP-3)
@@ -33,6 +39,7 @@ mc_paths:
 mc_ranges:
   blg:
     strain.titer_g_L: {low: 13.88, high: 13.88}
+    strain.X_prod_g_L: {low: 40, high: 60}   # ~200 g/L wet cells at induction (Yao 2026) at 0.2-0.3 g dry/g wet (A.1 uses 0.3); the base 40-150 range made most draws infeasible (review SC-8)
   ova:
     strain.titer_g_L: {low: 2.0, high: 2.0}
     strain.X_prod_g_L: {low: 20, high: 50}   # T. reesei harvest range (same patent)

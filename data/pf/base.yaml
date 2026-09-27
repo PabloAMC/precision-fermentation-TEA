@@ -18,33 +18,33 @@ plant:
 strain:                      # base = 'industry-benchmark' K. phaffii process (overridden by scenarios)
   host: {value: kphaffii}
   titer_g_L: {value: 30, low: 5, high: 60, unit: g/L, grade: B,
-    source: "intelligen_ovalbumin2025 design basis 30 g/L; Every2024-HY ovomucoid 30.19 g/L (patent Ex. 9); gfi2025costs public avg 24, private avg 42. Tornado ends beyond the feasibility boundary are truncated to it"}
+    source: "intelligen_ovalbumin2025 design basis 30 g/L; Every2024-HY ovomucoid 30.19 g/L (patent Ex. 9); gfi2025costs public avg 24, private avg 42. For scale: the highest secreted titer in the Looser 2015 review's compilation is 19.55 g/L (glucose oxidase, methanol/mannitol, 168 h, 100 -> 245 g/L cells; Table 4). Tornado ends beyond the feasibility boundary are truncated to it"}
   t_prod_h: {value: 72, low: 48, high: 120, unit: h, grade: B,
     source: "intelligen_ovalbumin2025 p.6: expression phase 72 h; NREL 2011: 96 h production"}
   X_prod_g_L: {value: 107, low: 40, high: 150, unit: g DCW/L at the start of production, grade: B,
     source: "derived from intelligen_ovalbumin2025: cells at the start of expression = 92 g/L x 107 m3 at harvest (p.7) - 8/28 x 3,210 kg rOVA made (Eq. 2) = 8,927 kg, in 107 m3 less the expression-phase additions (11,464 kg glucose as 500 g/L solution 22.9 m3 + 30% ammonia 3.5 m3 - net O2/CO2 exchange 2.2 m3) = 82.8 m3 -> 108 g/L; feeding then dilutes it to 92 g/L at harvest. Range: K. phaffii glucose fed-batch 93-169 g/L at harvest (Shemesh 2024, A); patents 100-200 (Every2024-HY, B); hosts.yaml"}
   X_max_g_L: {value: 150, low: 100, high: 200, unit: g DCW/L, grade: A,
-    source: "K. phaffii glucose fed-batch 93-169 g/L (Shemesh 2024); typical 150; patents up to 200 (hosts.yaml). Growth stops here"}
+    source: "K. phaffii glucose fed-batch 93-169 g/L (Shemesh 2024); typical 150; patents up to 200 (hosts.yaml). Growth stops here. Heyland 2010 grew at constant rate only up to ~155 g/L, slowing above it (218 g/L after 65 h in 2.6 L), and states such densities are reachable only in small fermenters because O2 transfer and heat removal limit larger ones (hosts.yaml kphaffii_glucose_hcd_fedbatch_heyland2010)"}
   mu_prod_per_h: {value: 0.0014, low: 0.0, high: 0.02, unit: 1/h, grade: B,
-    source: "derived from intelligen_ovalbumin2025 Eq. 2: 917 kg cells made on ~8,930 kg in 72 h (8 g per 28 g rOVA at 30 g/L x 107 m3; 92 g/L at harvest) -> ln(9,844/8,927)/72 = 0.00136/h. Range: 0 (non-growing production) to 0.02 (K. phaffii production-phase growth rates, hosts.yaml; D)"}
-  Y_ps_g_g: {value: 0.465, low: 0.28, high: 0.55, unit: g protein/g glucose (product reaction only), grade: B,
-    source: "derived so that the model reproduces intelligen_ovalbumin2025 Eq. 2 (expression phase: 100 g glucose -> 28 g rOVA + 8 g cells + 4 g HCP, maintenance included). Glucose per g product in expression = 1/Y_ps + (8/28)/Y_x + m_s,prod/q_p = 100/28, with Y_x = 0.5705 g/g (the model's Heijnen growth yield for K. phaffii), m_s,prod = 0.00437 g/g/h (hosts.kphaffii.m_s_prod_g_g_h) and q_p = 3,210 kg / 675,213 kg.h = 0.00475 g/g/h (Intelligen) -> 1/Y_ps = 3.5714 - 0.5008 - 0.9192 = 2.151, Y_ps = 0.465 (audit R2-Q2/R6-C2: 0.28 is a lumped yield, not a reaction yield). low = 0.28 (the lumped value read as a reaction yield, as in v1); high = 0.55 (~0.95 x the P/O-based energetic ceiling 0.58-0.59, which omits amino-acid synthesis cost; D). Checks: Behm 2022 design 0.223 g/g overall (T. reesei BLG); NREL cellulase 0.24 g/g overall"}
-  q_p_max_mg_g_h: {value: 40, low: 20, high: 120, unit: mg product/g DCW/h, grade: D,
-    source: "judgment: a physiological ceiling on specific secretion, applied as a feasibility limit. No K. phaffii measurement near it: secreted-protein q_p in K. phaffii fed-batch is typically 0.1-5 mg/g/h (the base design runs at 4.7). high = our model of NREL's T. reesei cellulase design, which implies ~118 mg/g/h (a model output, not an NREL input); low = judgment. Shown as a sensitivity where it binds (physical limit)"}
-  X0_g_L: {value: 5, low: 2, high: 15, unit: g DCW/L, grade: D,
-    source: "inoculum 5% v/v (Intelligen p.6) times a seed density of ~100 g/L (judgment; Intelligen gives no seed density, and fermenter.seed_final_X_g_L = 60 would give 3 g/L); Humbird A.1 starts at 15 g/L"}
+    source: "derived from intelligen_ovalbumin2025 Eq. 2: 917 kg cells made on ~8,930 kg in 72 h (8 g per 28 g rOVA at 30 g/L x 107 m3; 92 g/L at harvest) -> ln(9,844/8,927)/72 = 0.00136/h. Range: 0 (non-growing production) to 0.02 (K. phaffii production-phase growth rates, hosts.yaml; D). Growth stops at X_max: from 107 g/L the high end reaches 150 g/L after ~17 h and the phase continues without growth"}
+  Y_ps_g_g: {value: 0.465, low: 0.28, high: 0.535, unit: g protein/g glucose (product reaction only), grade: B,
+    source: "derived so that the model reproduces intelligen_ovalbumin2025 Eq. 2 (expression phase: 100 g glucose -> 28 g rOVA + 8 g cells + 4 g HCP, maintenance included). Glucose per g product in expression = 1/Y_ps + (8/28)/Y_x + m_s,prod/q_p = 100/28, with Y_x = 0.5705 g/g (the model's Heijnen growth yield for K. phaffii), m_s,prod = 0.00437 g/g/h (hosts.kphaffii.m_s_prod_g_g_h) and q_p = 3,210 kg / 675,213 kg.h = 0.00475 g/g/h (Intelligen) -> 1/Y_ps = 3.5714 - 0.5008 - 0.9192 = 2.151, Y_ps = 0.465 (audit R2-Q2/R6-C2: 0.28 is a lumped yield, not a reaction yield). The glucose of Intelligen's 4 g of host-cell protein is charged to the target (read with the HCP as product, the yield would be 0.53; review HM-6). The inversion is sensitive to m_s,prod: at 0.0023 it gives 0.39 (review FS-4). low = 0.28 (the lumped value read as a reaction yield, as in v1); high = 0.535 (0.95 x the energetic ceiling 0.564 of BLG with amino-acid synthesis and sulfate assimilation counted, product.energetic_ceiling; review FS-2/SC-2; D). Checks: Behm 2022 design 0.223 g/g overall (T. reesei BLG); NREL cellulase 0.24 g/g overall"}
+  q_p_max_mg_g_h: {value: 40, low: 5, high: 40, unit: mg product/g DCW/h, grade: D,
+    source: "judgment: a physiological ceiling on specific secretion, applied as a feasibility limit. No K. phaffii measurement is near it: Intelligen's design runs at 4.75 mg/g/h (low, B); the best public BLG fed-batch implies ~1 (Yao 2026, 13.88 g/L in 108 h at ~120 g/L cells); a VHH-secreting strain peaked at 0.64 and fell to 0.019 at near-zero growth (Rebnegger 2024, hosts.yaml); the Looser 2015 review compiles q_P,max of secreted proteins from 0.004 to 0.69, the glucose (GAP) ones 0.05-0.49 at mu 0.15-0.20/h, growth-coupled; the best glucose fed-batch on file secreted 2.1 near mu 0.1/h (Prielhofer 2018, hosts.yaml; the report's 'best demonstrated' case); fungal enzyme processes reach ~5-20 (Ellila 2017 productivities at 20-50 g/L cells; review FS-3). Our model of NREL's T. reesei cellulase design implies ~118 (a model output at 6.6 g/L cells, not physiological evidence; shown only as a sensitivity). Binds only in the physical-limit and required-titer analyses, where the report shows the floor at 5-120"}
+  X0_g_L: {value: 0.88, low: 0.88, high: 15, unit: g DCW/L, grade: B,
+    source: "derived: inoculum 5% v/v (Intelligen OVA p.6) x the seed density fermenter.seed_final_X_g_L = 17.6 g/L (Intelligen's lactoferrin flowsheet; one number for both, review FS-11). v2.1 used 3 (from a guessed 60 g/L seed). Humbird A.1 starts at 15 g/L (high)"}
 
 hosts:
   kphaffii:
     biomass_formula: {value: {C: 1, H: 1.665, O: 0.602, N: 0.134}, grade: A,
       source: "Carnicer et al. 2009 Microb Cell Fact 8:65, Table 4: Fab-producing K. phaffii CH1.665N0.134O0.602S0.0039 (evidence hosts.yaml; re-check table cell)"}
-    mu_max_per_h: {value: 0.20, low: 0.15, high: 0.25, unit: 1/h, grade: A,
-      source: "hosts.yaml: mu_max ~0.2 1/h on sugar vs 0.11-0.12 on methanol"}
+    mu_max_per_h: {value: 0.20, low: 0.15, high: 0.28, unit: 1/h, grade: A,
+      source: "hosts.yaml: mu_max ~0.2 1/h on sugar vs 0.11-0.12 on methanol. Glucose batch (Heyland 2010 Table I and p.360): 0.28 for the non-producing parent (high: a producer cannot outgrow it; also Looser 2015 Table 2, glucose) and 0.15-0.16 for the producing strain (low); both papers note the better producers grow more slowly"}
     temperature_C: {value: 30, unit: C, grade: B, source: "intelligen_ovalbumin2025 p.6: 30 C"}
     maint_factor: {value: 1.0, low: 0.57, high: 1.67, grade: A,
       source: "growth phase: multiplier on Tijhuis 1993 maintenance (0.0174 g glucose/g DCW/h at 30 C, Humbird A.1 method). Producing K. phaffii in glucose chemostats: 0.0147-0.0161 (Rebnegger 2016 citing Rebnegger 2014; Maurer 2006) = 0.85-0.93x. low = 0.0100 (non-producing strain, Rebnegger 2016) / 0.0174; high = 0.029 (5-copy lipase clone, Nieto-Taype 2020) / 0.0174"}
     m_s_prod_g_g_h: {value: 0.00437, low: 0.0023, high: 0.0161, unit: g glucose/g DCW/h, grade: A,
-      source: "production phase (mu ~ 0): Rebnegger et al. 2024 Microb Cell Fact 23:44, VHH-secreting K. phaffii, glucose, 30 C, fitted over mu <= 0.05/h: 'm S (4.37 +/- 0.27 mg g-1 h-1)'. Maintenance falls at near-zero growth (Rebnegger 2016: retentostat 0.0031 vs chemostat 0.0100 for the same strain). low = 0.0023 (1-copy lipase clone, Nieto-Taype 2020); high = 0.0161 (Maurer 2006 chemostat, producing Fab strain). Research evidence file: placeholders item 13"}
+      source: "production phase (mu ~ 0): Rebnegger et al. 2024 Microb Cell Fact 23:44, VHH-secreting K. phaffii, glucose, 30 C, fitted over mu <= 0.05/h: 'm S (4.37 +/- 0.27 mg g-1 h-1)'. Maintenance falls at near-zero growth (Rebnegger 2016: retentostat 0.0031 vs chemostat 0.0100 for the same strain). low = 0.0023 (1-copy lipase clone, Nieto-Taype 2020); high = 0.0161 (Maurer 2006 chemostat, producing Fab strain). Not raised to Looser 2015 Table 2's 0.009-0.032 (growing cultures on methanol and glycerol; no glucose value) or to the 5-copy lipase clone's 0.029 (Nieto-Taype 2020, chemostat; used for the growth phase, maint_factor high): maintenance falls at near-zero growth (Rebnegger 2016). The base expression phase can carry at most ~0.006 with the product made at the energetic ceiling (results constants ms_prod_max_at_ceiling; review H2). Evidence: placeholders.yaml nietotaype2020 and ms_heyland2010_looser2015 entries"}
     po_ratio: {value: 1.48, unit: mol ATP/mol O, grade: B,
       source: "Chung et al. 2010 Microb Cell Fact 9:50: 'P/O ratio (1.48 mol ATP/mol O)', a genome-scale-model constraint (hosts.yaml kphaffii_po_ratio_chung2010); no measured P/O found"}
     kla_factor: {value: 1.0, grade: B, source: "yeast broth treated as non-coalescing water-like (Humbird Fig1.3)"}
@@ -65,6 +65,11 @@ hosts:
 energetics:                   # energetic ceiling on the product-reaction yield (product.energetic_ceiling)
   atp_per_peptide_bond: {value: 4, unit: ATP/peptide bond, grade: A,
     source: "Martin et al. 2025 BBA Bioenerg 10.1016/j.bbabio.2025.149564: 'The cost assumed for protein synthesis at the ribosome is uncontested, 4 ATP per peptide bond' (hosts.yaml atp_per_peptide_bond)"}
+  atp_aa_synthesis_per_residue: {value: 0.29, low: 0.0, high: 1.2, unit: ATP/amino acid, grade: A,
+    source: "Stouthamer 1973 as recomputed by Martin et al. 2025 (PMC7617979, section 1.2): synthesis of amino acids from glucose and NH4+ adds '1.4 mmol ATP for amino acid synthesis from glucose' per 4.78 mmol of amino acids, 'or average 0.28 ATP per amino acid' weighted by E. coli composition (0.29 = 1.4/4.78). high = the unweighted average over amino acids, 1.2 (same source, Table 2); low = 0 (the common amino acids yield net ATP). Membrane transport (~5 mmol ATP/g cells, Stouthamer) and secretion costs are not counted, so the ceiling stays an upper bound"}
+  sulfur_atp_per_S: {value: 3, unit: ATP/S atom, grade: B,
+    source: "textbook sulfate assimilation: ATP sulfurylase (ATP -> AMP + PPi, 2 ATP-equivalents) + APS kinase (1 ATP). Not re-read for this project. The 8 electrons of sulfate -> sulfide are charged separately at the host's P/O (4 NADH-equivalents), sulfur_electrons_per_S"}
+  sulfur_electrons_per_S: {value: 8, unit: e-/S atom, grade: A, source: "oxidation state +6 (sulfate) to -2 (cysteine/methionine sulfur)"}
   substrate_atp_per_glucose: {value: 4, unit: ATP/glucose, grade: A,
     source: "textbook stoichiometry: 2 ATP in glycolysis + 2 GTP/ATP from succinyl-CoA in the TCA cycle per glucose. Oxidative phosphorylation adds P/O x 12 (24 electrons = 12 O atoms = 6 O2 per glucose), so 4 + 12 x 1.48 = 21.8 ATP per glucose for K. phaffii. Not re-read for this project"}
 
@@ -79,20 +84,29 @@ fermenter:
     source: "Humbird 2021 p.5 'an agitation rate up to ~5,000 W/m3' design limit in high-density fermentation (B); low = NREL 300 m3 T. reesei maximum 600 kW on 240 m3 of liquid = 2,500 W/m3 (B, derived)"}
   us_max_m_s: {value: 0.10, low: 0.05, high: 0.23, unit: m/s, grade: D,
     source: "judgment: no design text states a superficial-velocity limit. Humbird's own 200 m3 aeration model at OUR 150 runs 0.050 m/s at the top (Fig1.3 row 197, B); NREL averages 0.033 m/s (B). high = Humbird 2021 p.5 'sparge rate up to ~2 vvm' in a 200 m3 vessel (8 m liquid height, top at 1.33 bar, 30 C) = 0.23 m/s (derived); Intelligen runs 1.6 vvm (B)"}
-  otr_cap_mol_m3_h: {value: 150, low: 100, high: 200, unit: mol/m3/h, grade: B,
-    source: "engineering.yaml: Humbird A.1!C93 design cap 150 (B); '200 mol O2/m3-h is about as high as it gets' (Humbird 2021 p.10, B); >120 needed by new processes (Takors, A); 100 industrial experience (C). Applied per m3 of broth (otr_cap_basis)"}
-  otr_cap_basis: {value: broth, note: "broth (industrial basis, base) | cell_free_liquid (Humbird A.1 applies the 150 cap per m3 of cell-free liquid, ~110 per m3 of broth at 80 g/L; audit R2-1, sensitivity)"}
+  otr_cap_mol_m3_h: {value: 200, low: 150, high: 250, unit: mol/m3 cell-free liquid/h, grade: B,
+    source: "Humbird 2021: 'an OTR approaching 200 mol O2/m3-h is common in an air-sparged STR fermentor' (text p.28), on his basis OUR = qO2 / cell-free liquid volume (Eq. 4.2, p.49); low = 'Bubble columns have a practical OTR limit of 150 mol O2/m3-h' (A.1, p.91); high = physical-limit scenario (head pressure, D). Per m3 of broth this is 129 at 107 g/L cells, 147 at 80 and 100 at 150 (review HM-3/BE-7: an industrial designer would use 100-120 per m3 of broth with air at ~100 g/L cells)",
+    v2_note: "v2 used 150 per m3 of broth (engineering.yaml: Humbird A.1!C93 design cap 150, which is his bubble-column value; '200 mol O2/m3-h is about as high as it gets', p.10; >120 needed by new processes, Takors, A; 100 industrial experience, C)"}
+  otr_cap_basis: {value: cell_free_liquid, note: "cell_free_liquid (Humbird's basis, Eq. 4.2; base since the Phase F review) | broth (the cap applied per m3 of broth, the v2 base with 150)"}
   heat_per_o2_kJ: {value: 460, low: 430, high: 500, unit: kJ/mol O2, grade: A,
-    source: "Roels 1983 via Almeida Benalcazar et al. 2025 (engineering.yaml heat_per_o2_roels_design_value); calorimetry 455 +/- 15, range 430-480 (von Stockar 2010, hosts.yaml oxycaloric_equivalent); Cooney/Shuler-Kargi 500 (high). Used only in the OTR_max heat check; the batch heat comes from formation enthalpies (~480-510)"}
+    source: "Roels 1983 via Almeida Benalcazar et al. 2025 (engineering.yaml heat_per_o2_roels_design_value); calorimetry 455 +/- 15, range 430-480 (Maskow et al. 2010, engineering.yaml oxycaloric_equivalent); Cooney/Shuler-Kargi 500 (high). Used only in the OTR_max heat check; the batch heat comes from formation enthalpies (~480-510)"}
   heat_removal_max_kW_m3: {value: 25, low: 15, high: 40, unit: kW/m3, grade: D,
     source: "no production-scale ceiling is published. Evidence: 'several million kcal' per hour from 200-300 m3 SCP yeast fermenters = ~8-30 kW/m3 (US 3,986,934, B, derived); internal coils alone ~17 kW/m3 in a 600 m3 column (Almeida Benalcazar 2025, derived with its U 1.4 kW/m2/K), so external exchangers are needed; 42 kW/m3 claimed at pilot scale with tube baffles (US 4,670,397, B). 25 = 1.2 x the OTR-150 load (19.2 metabolic + ~1.2 agitation)"}
   turnaround_h: {value: 12, low: 8, high: 48, unit: h, grade: B,
     source: "intelligen_ovalbumin2025 (5 fermenters, 24 h cycle, 108 h culture -> ~12 h); Humbird A.1 8 h; NREL 48 h"}
-  feed_glucose_wt: {value: 0.5, grade: B, source: "intelligen_ovalbumin2025 p.6: 500 g/L glucose solution (the model tracks volume at 1 kg/L, so 0.5 gives the right feed volume; audit R6-M2)"}
-  nh3_feed_wt: {value: 0.30, grade: B, source: "intelligen_ovalbumin2025 p.6: 'aqueous ammonia (30% w/w), which also serves as nitrogen source'"}
+  feed_glucose_g_L: {value: 500, low: 500, high: 600, unit: g glucose/L feed, grade: B,
+    source: "intelligen_ovalbumin2025 p.6: 500 g/L glucose solution (about 42 wt%; not '50 wt%', review FS-1/BE-2/HM-1). high = Shemesh 2024 K. phaffii fed-batches: 'Dextrose or glycerol as a carbon source was fed from a 60% (w/v) sterile solution' (600 g/L, A). Concentrated feeds are common in industry (Aro 2023: '55 % glucose'; Nielsen 2025 DoE up to 52 w/w%), and the titer ceiling depends on this choice (report Table 7). Heyland 2010 fed 730 g/L (73% w/v) to a 2.6 L lab fermenter; not used as the high, which already comes from lab fed-batches (Shemesh 2024), while no production-scale design on file feeds more than 500 g/L. A 730 g/L feed would raise the physical-limit ceiling somewhat further (not computed)"}
+  nh3_feed_g_L: {value: 268, unit: g NH3/L feed, grade: B,
+    source: "intelligen_ovalbumin2025 p.6: 'aqueous ammonia (30% w/w)' at 0.895 kg/L (interpolated between 0.91 at 25% and 0.88 at 35% w/w: GESTIS via Wikipedia 'Ammonia solution') = 268 g NH3/L (review BE-2: v2 counted it at 1 kg/L)"}
   seed_ratio: {value: 0.1, grade: B, source: "NREL 2011 p.39: seed vessels 10% of the next; Intelligen 5% inoculum"}
   seed_time_h: {value: 24, low: 15, high: 36, unit: h, grade: B, source: "intelligen 15 h per seed step; NREL 2-day seed cycle incl. cleaning"}
-  seed_final_X_g_L: {value: 60, grade: D, source: "seed grown to high density before transfer"}
+  seed_final_X_g_L: {value: 17.6, grade: B, source: "Intelligen lactoferrin design (Feb 2026 report, flowsheet of case a): seed broth leaves the first two seed fermenters at 17.36 and 17.77 g/L biomass (15-16 h fed-batch steps, 5% transfers); the ovalbumin report (the base process) does not state it. v2.1 used 60 g/L (D, a guess)"}
+  DO_top_frac: {value: 0.1258, unit: fraction of air saturation at the vessel top, grade: B,
+    source: "Humbird 2021 A.1!C92 (the dissolved-O2 setpoint of his aeration method). Humbird, Davis & McMillan 2017 p.10: in practice fed-batch aeration and agitation hold DO near zero, where transfer is most efficient; their own simulations could not set DO, and imply about three times this model's aeration energy per kg O2. Review H1 reproduced their 200 m3 stirred-tank curve with this model's equations only by holding DO near 0.5 together with their geometry, 1 atm headspace, no kLa temperature term and a 72%-efficient compressor with line losses (a reconstruction, not a published value); the base sensitivity at 0.5 alone raises aeration energy by about half"}
+  kla_temperature_factor: {value: 1.025, low: 1.0, high: 1.025, unit: multiplier per C above 20 C, grade: B,
+    source: "Humbird 2021 Fig1.3!C11:F11: van 't Riet kLa x 1.025^(T-20). low = Humbird, Davis & McMillan 2017 Eq. 2, the same correlation (0.002, 0.7, 0.2) with no temperature term (review H1)"}
+  compressor_formula: {value: adiabatic, note: "adiabatic: P = (D/3600) R T_in (r^a - 1) / (a eta), a = (k-1)/k = 0.286, r = p_btm,max / 1 atm (the textbook form; review H1) | humbird_a1: A.1!BD as written, which puts k = 1.4 where a belongs (1.6x the power at r = 2.1)"}
+  compressor_efficiency: {value: 0.8, grade: B, source: "Humbird 2021 A.1!BD: the compressor power is divided by 0.8"}
 
 media:                        # kg per kg of dry cells made, or per m3 of broth
   salts_kg_per_m3: {value: 22.3, low: 14.7, high: 38.0, unit: kg/m3 final broth, grade: B,
@@ -130,12 +144,12 @@ dsp:
     source: "whey protein practice (Tetra Pak Dairy Processing Handbook): WPC80 UF retentates reach 27-32% DM and are dried at ~36% ('~36% for WPC80', ch.19); WPI and >60%-protein WPC are brought to 35-37% DM by NF/high-concentration membranes, not evaporators (ch.18). value = UF-only midpoint; high = NF. The final concentration step is costed at the DF flux"}
   dryer_feed_solids_ova: {value: 0.23, low: 0.20, high: 0.30, unit: mass fraction dry matter, grade: C,
     source: "egg-white practice applied to rOVA (close analogy): egg white is ultrafiltered industrially from 11.5% to 23% solids (Tsai et al. 1977 J Food Prot 40:449, 24 plant batches, A as data); UF to 20-30% DM before spray drying (EP 2 926 674 B1 citing DD 290128, B). 23% solids is ~200 g/L protein; OVA dissolves at 200 g/L in water (Wang 2025, A), so the Intelligen/vendor '50 g/L practical solubility' is not a limit (audit P-8)"}
-  dryer_feed_solids_lf: {value: 0.27, low: 0.20, high: 0.37, unit: mass fraction dry matter, grade: D,
-    source: "analogy: no lactoferrin-specific value; whey-protein UF retentates reach 27-32% DM (Tetra Pak, C), so the UF-only low end is used; range as for BLG and egg white"}
+  dryer_feed_solids_lf: {value: 0.27, low: 0.10, high: 0.37, unit: mass fraction dry matter, grade: D,
+    source: "analogy: no lactoferrin-specific value; whey-protein UF retentates reach 27-32% DM (Tetra Pak, C), so the UF-only low end is used; high as for BLG and egg white. low = Intelligen's lactoferrin design, which dries a ~10% feed and calls 100 g/L the protein's solubility limit (pp.7, 10; no citation given)"}
   # c'. cation-exchange capture (spec 'cex': lactoferrin; the dairy route and every commercial PF route)
   cex_dbc_g_L: {value: 75, low: 50, high: 100, unit: g protein/L resin, grade: B,
     source: "EVERY US 2024/0083940 A1 [0700]: 'The ligand density would accommodate protein binding capacity between 50-100 g protein/L resin' (dsp.yaml iex_binding_capacity_cex_every; a design statement, not a measured dynamic capacity for lactoferrin)"}
-  cex_cv_per_cycle: {value: 16, grade: B, source: "EVERY US 2024/0083940 A1 Table 4: equilibration 4 + wash 2-3 + elution 3-4 + CIP 3 + regeneration 3 column volumes (midpoints; dsp.yaml iex_column_volumes_per_cycle_every)"}
+  cex_cv_per_cycle: {value: 16, low: 16, high: 25, grade: B, source: "EVERY US 2024/0083940 A1 Table 4: equilibration 4 + wash 2-3 + elution 3-4 + CIP 3 + regeneration 3 column volumes (midpoints; dsp.yaml iex_column_volumes_per_cycle_every). high = Intelligen's lactoferrin design, 10 + 5 + 5 + 5 bed volumes (p.9)"}
   cex_elution_cv: {value: 3.5, grade: B, source: "same Table 4: elution 3-4 CV of '25 mM Citrate buffer with 1M NaCl'"}
   cex_elution_nacl_kg_m3: {value: 58.4, grade: B, source: "1 M NaCl (EVERY Table 4) = 58.44 kg/m3; the dairy process elutes with 10-15% NaCl (Mao 2023), higher"}
   cex_cip_cv: {value: 3, grade: B, source: "EVERY Table 4: CIP 3 CV of 1 M NaOH"}
@@ -143,10 +157,10 @@ dsp:
   cex_regen_cv: {value: 3, grade: B, source: "EVERY Table 4: regeneration 3 CV of '20% EtOH and 150 mM NaCl', listed per cycle in 'a typical process' (often only for storage; per cycle is conservative)"}
   cex_regen_etoh_kg_m3: {value: 157.8, grade: B, source: "20% v/v ethanol x 789 kg/m3 (EVERY Table 4)"}
   cex_regen_nacl_kg_m3: {value: 8.77, grade: B, source: "150 mM NaCl (EVERY Table 4) = 8.77 kg/m3"}
-  cex_cycle_h: {value: 3.5, low: 2.0, high: 6.0, unit: h per cycle, grade: E,
-    source: "guess: ~17.5 CV per cycle (16 buffer + ~1.5 load) at ~5 CV/h, a typical packed-bed flow; sets only the resin volume (capital), not the buffer or resin-replacement costs, which scale with protein throughput / capacity"}
-  cex_recovery: {value: 0.832, low: 0.60, high: 0.95, grade: B,
-    source: "EVERY US 2025/0134130 Ex. 5: 'Chromatography purification recovered about 83.2% POI' (dsp.yaml iex_cex_step_recovery_every). low: Helaina's whole LF train 'recovery of the purification is >60%' (Lu 2024, C); high: judgment"}
+  cex_flow_cv_per_h: {value: 20, low: 5, high: 20, unit: column volumes/h, grade: B,
+    source: "Intelligen lactoferrin design (Feb 2026 report p.10): SP Sepharose Big Beads at 500 cm/h through a 25 cm bed = 20 column volumes per hour, loading 33 min, cycle 108 min (lactoferrin.yaml lf_cost_intelligen2026_case_b_cex; review L). low = 5, the v2.1 guess for a packed bed (E). The cycle time follows: (buffer CVs + load CVs) / flow, with load CVs = capacity / feed concentration (review BE-12). Sets only the resin volume and column hardware (capital); buffer tanks are not itemised (in-line dilution from concentrates in Intelligen's design) and fall under the missing-equipment allowance"}
+  cex_recovery: {value: 0.832, low: 0.60, high: 0.97, grade: B,
+    source: "EVERY US 2025/0134130 Ex. 5: 'Chromatography purification recovered about 83.2% POI' (dsp.yaml iex_cex_step_recovery_every). low: Helaina's whole LF train 'recovery of the purification is >60%' (Lu 2024, C); high: lactoferrin retention 97% in Intelligen's design (p.9, B)"}
   cex_resin_usd_L: {value: 1250, low: 100, high: 2000, unit: $/L resin, grade: B,
     source: "Petrides 2015 p.11-33: protein IEX/HIC resins '$500 to $2,000 per liter' (midpoint); low = polymeric resins 'under $100 per liter' (both dsp.yaml). Industrial lactoferrin uses agarose SP Sepharose Big Beads (Pires 2025), a protein resin"}
   cex_resin_life_cycles: {value: 1000, low: 125, high: 1000, unit: cycles, grade: A,
@@ -154,7 +168,7 @@ dsp:
   cex_hardware_usd_per_L_resin: {value: 1000, low: 300, high: 3000, unit: $ (2018$) per L resin, grade: E,
     source: "guess: columns, skid and automation per litre of packed resin; no public cost found (lactoferrin research pass). Petrides' membrane-system curve (biopharma) is the nearest analogue. Resin first fill is added to TCI unfactored"}
   cex_diafiltration_volumes: {value: 4, grade: D,
-    source: "derived: 1 M NaCl in the eluate is washed out by DF to ~2% of protein at 50 g/L after 4 volumes (58.4 x e^-4 = 1.1 g/L), meeting ash <3.5% (GRN 1284); 3 volumes would leave ~6%"}
+    source: "derived: 1 M NaCl in the eluate is washed out by DF to ~2% of protein at 50 g/L after 4 volumes (58.4 x e^-4 = 1.1 g/L), meeting ash <3.5% (GRN 1284); 3 volumes would leave ~6%; Intelligen's lactoferrin design uses 5 (p.10)"}
   cex_target_frac_dry: {value: 0.90, low: 0.77, high: 0.94, grade: A,
     source: "lactoferrin share of the powder: GRN 1284 (All G) batches 93.6-95.2% protein x 95.7-99.4% LF of protein (~0.90-0.94); low = GRN 1219 (TurtleTree) batches 80.5-83.5% protein x >=95% (~0.77-0.79)"}
   nacl_usd_kg: {value: 0.184, grade: A, source: "prices.yaml salt_food_grade_eu_import_unit_value: EUR 0.1629/kg (2025) x ECB 1.1300"}
@@ -187,8 +201,8 @@ dsp:
   membrane_price_usd_m2: {value: 45, low: 45, high: 272, unit: $/m2, grade: B,
     source: "dairy spiral-wound elements: CAD 300 per 6.69 m2 module (Mercier-Bouchard 2017 J Dairy Sci Table 4 fn 3) = CAD 44.8/m2 / 1.2966 CAD per USD (ECB 2017) x CPI-U 2017->2025 1.3134 = $45/m2. high = Petrides 2015 'under $200/m2' for industrial membranes x CPI-U 2015->2025 1.3583. Flat-sheet PES quote $171/m2 (2023$; Chen 2023) lies between"}
   membrane_life_y: {value: 0.5, low: 0.25, high: 2, unit: yr, grade: B, source: "dsp.yaml: Petrides 2015, industrial membranes last >2000 operating hours (lower bound)"}
-  membrane_skid_usd_m2: {value: 263, low: 85, high: 526, unit: $/m2 (2018$), grade: B,
-    source: "Mercier-Bouchard 2017 J Dairy Sci Table 4 fn 2: 'capital investment costs (excluding membranes) of Can$321.02/m2 for SW membranes' in a 5,185 m2 dairy MF plant (probably installed) / 1.2966 x CEPCI 603.1/567.5. low = SuperPro help: food and water installations '$70-100/m2' of membrane (midpoint; year unknown). high = 2x, the low end of SuperPro's 2-5x multiplier for units built to biopharma specifications. Ceramic MF would be ~$3,900/m2 (same paper), not used by EVERY's process"}
+  membrane_skid_usd_m2: {value: 263, low: 85, high: 526, unit: $/m2 installed (2018$), grade: B,
+    source: "an INSTALLED cost: the model divides it by the convention's installation factor to get a purchased cost (review BE-8; v2 applied installation on top). Mercier-Bouchard 2017 J Dairy Sci Table 4 fn 2: 'capital investment costs (excluding membranes) of Can$321.02/m2 for SW membranes' in a 5,185 m2 dairy MF plant (the row reads 'Installation capital investment') / 1.2966 x CEPCI 603.1/567.5. low = SuperPro help: food and water installations '$70-100/m2' of membrane (midpoint; year unknown). high = 2x, the low end of SuperPro's 2-5x multiplier for units built to biopharma specifications. Ceramic MF would be ~$3,900/m2 (same paper), not used by EVERY's process"}
   membrane_kWh_m3_permeate: {value: 5.0, low: 1.0, high: 13.0, unit: kWh/m3, grade: D, source: "dsp.yaml: UF ~13 kWh/m3 permeate (A, upper end); typical crossflow UF lower"}
   cip_solution_kg_per_kg: {value: 7.33, unit: kg CIP solution per kg product, grade: B,
     source: "intelligen_ovalbumin2025 Table 3: CIP-Acid 3,430,444 + CIP-Caustic 3,901,202 kg/yr for 1,000 t/yr powder (dsp.yaml cip_chemicals_price_intelligen); counted as process water and wastewater"}
@@ -209,8 +223,8 @@ utilities:                    # 2025$ unless noted; US Midwest base, EU variant
   steam_gas_GJ_per_t: {value: 3.29, grade: D,
     source: "physics: LP steam ~2,740 kJ/kg from feed water at 25 C (105 kJ/kg), steam tables, at an 80% boiler efficiency (judgment) = 3.29 GJ of gas per t steam, no condensate return (audit R5-6). Steam price = gas price x this"}
   steam_usd_t: {value: null, note: "override only (calibration anchors); otherwise derived from the gas price"}
-  biomass_disposal_usd_t_dry: {us_midwest: 343, eu_nw: 158, low: {us_midwest: 0, eu_nw: 0}, high: {us_midwest: 458, eu_nw: 514}, unit: $/t dry cells (positive = cost), grade: C,
-    source: "spent GM biomass is today mostly sterilised and landfilled (Garnica-Garcia 2026 New Biotechnol, abstract). US = EREF 2024 national average MSW landfill tipping fee $62.28/short ton (Waste Advantage, C) at 20% dry solids (Humbird cream yeast, B) = $343/t DM, excl. transport. EU = WRAP 2024/25 UK anaerobic-digestion gate fee median GBP 24/t wet (C) x ECB 2025 1.3189 at 20% DS = $158/t DM (the Kalundborg route: Novonesis/Novo Nordisk biomass to biogas). low = 0: a free outlet as feed (21 CFR 573.587 allows dried K. pastoris in broiler feed) or fertiliser; credits are possible but unquantified. high: US landfill at 15% DS (undewatered paste) $458; EU WRAP range top GBP 78/t = $514"}
+  biomass_disposal_usd_t_dry: {us_midwest: 458, eu_nw: 211, low: {us_midwest: 0, eu_nw: 0}, high: {us_midwest: 458, eu_nw: 686}, unit: $/t dry cells (positive = cost), grade: C,
+    source: "spent GM biomass is today mostly sterilised and landfilled (Garnica-Garcia 2026 New Biotechnol, abstract). Fees per wet tonne are converted at 15% dry solids, the model's own centrifuge paste (30% dry wet cells x 50% extracellular liquid; review BE-9: v2 used Humbird's 20% cream yeast, i.e. $343 and $158, while no dewatering is costed). US = EREF 2024 national average MSW landfill tipping fee $62.28/short ton (Waste Advantage, C) = $458/t DM, excl. transport. EU = WRAP 2024/25 UK anaerobic-digestion gate fee median GBP 24/t wet (C) x ECB 2025 1.3189 = $211/t DM (the Kalundborg route: Novonesis/Novo Nordisk biomass to biogas). low = 0: a free outlet as feed (21 CFR 573.587 allows dried K. pastoris in broiler feed) or fertiliser; credits are possible but unquantified. high: EU WRAP range top GBP 78/t wet = $686; US: no higher source"}
   rt_refrig: {value: 0.2629248030187212, grade: B, source: "Humbird RawUtil!BY4 (1.24 hp/ton, Couper)"}
   cooling_water_dT_C: {value: 8, grade: B, source: "Humbird A.1!C158"}
   building_W_m2: {value: 50, grade: B, source: "Humbird Equip Table9: Sanitary 50 W/m2"}
@@ -238,22 +252,29 @@ capital:
     source: "prices.yaml: CEPCI 2018->2023 x1.323 (B) and 2025 = 1.016 x 2024 (publisher) -> ~x1.33-1.35; BLS PPI machinery & equipment WPU11 x1.327 (A). low = BLS PPI chemical manufacturing PCU325325 x1.229 (A), the index Humbird's Equip sheet uses (290.2 in 2018); high = PPI pumps & compressors WPU1141 x1.524 (A). Equipment-specific PPIs run higher still: heavy-gauge tanks x1.92, heat exchangers x1.64"}
   location_factor: {us_midwest: 1.0, eu_nw: 1.09, low: {us_midwest: 1.0, eu_nw: 1.075}, high: {us_midwest: 1.0, eu_nw: 1.09}, grade: B,
     source: "IEAGHG 2018/04 (Amec Foster Wheeler), Chapter E Tables 5-6: the same plants costed in the Netherlands and the US Midwest at 3Q2016 prices and 1.13 $/EUR: TPC ratio NL/US 1.087-1.090 (coal cases; value, high) and 1.075-1.082 (gas-turbine cases, whose turbine is world-priced; low). Applied to TCI. A PF plant (imported stainless equipment) may sit at the low end"}
-  basis: {value: humbird, note: "humbird ('price-anchored capital', base: ACCE fermenter quotes + Petrides/Humbird factors, anchored to baker's-yeast price) | nrel ('design-report capital': vendor-quote fermenters, NREL 2011 installation + Table 27 indirects, 3% ISBL maintenance + 0.7% FCI insurance): structural sensitivity"}
+  basis: {value: humbird, note: "humbird ('price-anchored capital (Humbird method)', base: Humbird's facility-class factors, 9%/yr fixed costs and capital charge; with his factors and fixed costs his baker's-yeast workbook lands inside the market-implied cost band, which the lighter NREL stack falls below) | nrel ('design-report capital (NREL-style)': NREL 2011 installation + Table 27 indirects, 3% ISBL maintenance + 0.7% FCI insurance): structural sensitivity"}
+  fermenter_quote: {value: vendor, note: "vendor (base since the Phase F review: capital.vendor_fermenter, an industrial enzyme-plant fermenter, at the vessel-price level of the yeast anchor, whose A.1 bubble column is $0.78M at 199 m3 in 2018$, and of Intelligen's food-PF design) | acce_aseptic (Humbird 2021 STRFERM: ACCE bare vessel + agitator to the ASME BPE-2016 aseptic cell-culture specification, 316L and full vacuum, text p.37; 2.9x the vendor quote at 300 m3; structural sensitivity). Review BE-1/HM-2/SC-3"}
+  seed_fermenter_quote: {value: null, note: "null = seed vessels priced like the production fermenters (base) | acce_aseptic: Humbird's STRFERM quotes, which cover 1-20 m3, instead of the 300 m3 vendor quote scaled down (sensitivity)"}
+  vendor_fermenter:
+    value: {cost_2018usd_300m3: 1133050, exponent: 0.7}
+    grade: B
+    source: "humbird2011 App. A: F-400 $3,628,673 + A-400 $5,255,007 for 9 units (2007$) = $987,076 per 300 m3 fermenter with agitator (F-400: '80,000 gal, 1 atm, 28 C, Internal coil, SS316'), x CEPCI 603.1/525.4 to 2018$ (audit R4-17/R5-5); exponent 0.7 (Area 300 fermentors). Used for production and seed fermenters in both conventions"
   nrel_basis:
-    value: {fermenter_2018usd_300m3: 1133050, fermenter_exponent: 0.7, fermenter_install: 1.70, other_install: 1.8,
+    value: {fermenter_install: 1.70, other_install: 1.8,
             site_frac_isbl: 0.175, indirect_frac_tdc: 0.60, maintenance_frac_isbl: 0.03, maintenance_frac_fci: 0.0, insurance_frac_fci: 0.007}
     grade: B
-    source: "humbird2011 App. A: F-400 $3,628,673 + A-400 $5,255,007 for 9 units (2007$) = $987,076 per 300 m3 fermenter with agitator, x CEPCI 603.1/525.4 to 2018$ (audit R4-17/R5-5); exponent 0.7 (Area 300 fermentors); install F-400 2.0 and A-400 1.5, cost-weighted 1.70; other equipment 1.8 (Table 25 skidded equipment). Table 27: site development 9% + piping 4.5% + other 4% of ISBL (the 4% warehouse is inside this, so no warehouse building on this basis); prorateable 10% + field 10% + home office 20% + contingency 10% + other 10% of TDC. Table 31: maintenance 3% of ISBL installed, insurance 0.7% of FCI; maintenance_frac_fci is for other design reports (Voutilainen 1.5% of FCI)"
+    source: "humbird2011: install F-400 2.0 and A-400 1.5, cost-weighted 1.70; other equipment 1.8 (Table 25 skidded equipment). Table 27: site development 9% + piping 4.5% + other 4% of ISBL (the 4% warehouse is inside this, so no warehouse building on this basis); prorateable 10% + field 10% + home office 20% + contingency 10% + other 10% of TDC. Table 31: maintenance 3% of ISBL installed, insurance 0.7% of FCI; maintenance_frac_fci is for other design reports (Voutilainen 1.5% of FCI)"
   fermenter_exponent_above_table: {value: 0.69, low: 0.6, high: 0.998, grade: B,
-    source: "Humbird SI Equip!BM74:BO74: power fit of the STRFERM bare-vessel quotes, exponent 0.69, used beyond the largest quote (196 m3). low = six-tenths rule (D); high = the last quoted segment 100 -> 196 m3 (0.998), the v1 extrapolation (audit R3-F3)"}
+    source: "used only with fermenter_quote acce_aseptic. Humbird SI Equip!BM74:BO74: power fit of the STRFERM bare-vessel quotes, exponent 0.69, used beyond the largest quote (196 m3). low = six-tenths rule (D); high = the last quoted segment 100 -> 196 m3 (0.998), the v1 extrapolation (audit R3-F3)"}
   facility_class: {value: commodity_aerobic, note: "commodity_aerobic (food-grade, indoor sanitary) | commodity_anaerobic (outdoor, lysine-type)"}
   facility_classes:
     value:
       commodity_aerobic: {isbl: 1.4, osbl: 1.25, ec: 0.5, fc: 0.15, process_building: sanitary}
       commodity_anaerobic: {isbl: 1.25, osbl: 1.25, ec: 0.5, fc: 0.15, process_building: outside}
     grade: B
-    source: "Humbird Equip Table14 (Petrides classes, as tabulated by Humbird): ISBL non-bioreactor DC x PEC, OSBL DC x PEC, E&C x TDC, fees & contingency x TPC, fermentation-area building class"
-  missing_frac: {value: 0.10, grade: B, source: "Humbird 4FB sheets: 10% missing-capital estimate on ISBL and OSBL"}
+    source: "Humbird Equip Table14 (Petrides classes, as tabulated by Humbird): ISBL non-bioreactor DC x PEC, OSBL DC x PEC, E&C x TDC, fees & contingency x TPC, fermentation-area building class. Humbird tabulates the commodity-aerobic column but none of his sheets uses it (his 4FB/4P sheets use cGMP biopharm; A.1 uses a flat Lang factor of 4.5). The model applies the ISBL factor to the fermenters too, where Humbird enters bioreactors at their installed ACCE cost (Table14 bioreactor install factor 1): with the aseptic quote and the 20% allowance this gives $7.5M per 200 m3 installed (2018$), against his own installed aseptic STR at $6.8M ($2.4M bare; text Table 3.3). Review HM-5"
+  missing_frac: {value: 0.20, low: 0.10, high: 0.20, grade: B,
+    source: "Humbird A.1 (baker's yeast): 20% missing capital on an abbreviated equipment list (TCI = Lang 4.5 x PEC / 0.8), the case closest to this model's list, which omits CIP and feed tanks per fermenter, sterile filter housings, glucose storage, biomass inactivation, powder packing and effluent pretreatment (review BE-4). low = Humbird 4FB sheets: 10% on a fuller list (the v2 value). As a fraction of the total: allowance = m/(1-m) x listed PEC"}
   packing_factor: {value: 0.15, grade: B, source: "Humbird 4FB-020!D232: fraction of area occupied by fermenters"}
   building_usd_m2_level_2018:
     value: {outside: 0.0, sanitary: 1981.7, lab: 2636.9, office: 1656.9, compressor: 1291.8, shop: 1251.6, warehouse: 1132.1, slab: 135.8}
@@ -271,8 +292,10 @@ capital:
 finance:
   ccf_rate: {value: 0.075, grade: B, source: "humbird2021 p.39: i = 7.5%, n = 10 y -> CCF ~15% TCI/y"}
   ccf_life_y: {value: 10, grade: B, source: "humbird2021 p.39"}
-  maintenance_frac_tci: {value: 0.04, grade: B, source: "humbird2021 p.46"}
-  insurance_tax_frac_tci: {value: 0.05, grade: B, source: "humbird2021 p.46"}
+  maintenance_frac_tci: {value: 0.04, grade: B, source: "humbird2021 p.46: 'Annual maintenance is here taken to be 4% TCI/y, which is assumed to include CIP chemicals in addition to the repair and preventative maintenance of rotating equipment, etc.'"}
+  insurance_tax_frac_tci: {value: 0.05, grade: B, source: "humbird2021 p.46: 'Annual insurance is taken to be 5% TCI/y.' Humbird's whole fixed-cost ('overhead') rule is these two; the model has no separate plant-overhead, QC or local-tax line, so 9% stands for all of them (typical insurance alone is ~0.4-1%; review BE-3)"}
+  fixed_cost_rule: {value: null, note: "null = follow capital.basis (humbird: 4% + 5% of TCI; nrel: 3% of installed ISBL + 0.7% of FCI); set to show the two rules on one plant (report, capital section)"}
+  maintenance_includes_cip_chemicals: {value: true, grade: B, source: "humbird2021 p.46 (quote under maintenance_frac_tci): with the price-anchored convention the CIP chemicals are not charged again (review HM-8)"}
   dcf_irr: {value: 0.10, grade: B, source: "humbird2011 Table 33"}
   dcf_life_y: {value: 30, grade: B, source: "humbird2011 Table 33 (construction 8/60/32% and 7-y MACRS are fixed in finance.py with the same source)"}
   tax_rate: {value: 0.21, grade: A, source: "US federal corporate rate since 2018 (NREL 2011 used 35%)"}

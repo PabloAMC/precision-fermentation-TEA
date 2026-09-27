@@ -3,12 +3,16 @@
 A transparent, public-data-only cost model for β-lactoglobulin (whey) and ovalbumin
 (egg white) made by precision fermentation, with lactoferrin as a high-value contrast case. It
 uses Humbird's (2021) method: element- and electron-balanced stoichiometry, an O₂-limited
-fed-batch fermenter, and capital anchored to the market price of baker's yeast. It is checked
-against NREL 2011, Intelligen 2025 and Voutilainen 2021.
+fed-batch fermenter, and Humbird's capital factors and fixed costs, which with his workbook land
+in the market-implied cost of baker's yeast. It is checked against NREL 2011, Intelligen 2025 and
+Voutilainen 2021.
 
-**Status (2026-09-27):** v2. The v1 draft was audited by eight independent AI reviewers; every
-finding and fix is in [docs/AUDIT.md](docs/AUDIT.md). Built with an AI assistant (Claude,
-Anthropic) under the author's direction; not yet peer-reviewed. Start with the report.
+**Status (2026-09-27):** v2.1. The v1 draft was audited by eight independent AI reviewers, and v2
+by four simulated AI expert reviewers (Phase F pre-review), followed by a reading of the sources
+they pointed to (aeration, strain physiology, Intelligen's lactoferrin model); every finding and fix is in
+[docs/AUDIT.md](docs/AUDIT.md) and [docs/REVIEW.md](docs/REVIEW.md). Built with an AI assistant
+(Claude, Anthropic) under the author's direction; not yet reviewed by human experts. Start with
+the report.
 
 ## Deliverables
 
@@ -17,7 +21,7 @@ Anthropic) under the author's direction; not yet peer-reviewed. Start with the r
 | Report (preprint draft) | `report/pf_tea_report.pdf` (source `report/pf_tea_report.typ`) |
 | One-page funder memo | `report/memo.pdf` |
 | Supplementary workbook | `report/pf_tea_SI.xlsx`: parameters, evidence, all result tables, one live accounting sheet |
-| Interactive explorer | `docs/explorer.html`: about 8,400 precomputed model runs, no install needed |
+| Interactive explorer | `docs/explorer.html`: about 12,700 precomputed model runs, no install needed |
 | Figures | `docs/figures/*.png` |
 | Calibration record | `docs/VALIDATION.md` |
 | Audit log (v1 → v2) | `docs/AUDIT.md` |
@@ -55,7 +59,7 @@ src/pftea/thermo.py         black-box stoichiometry, Heijnen dissipation, Tijhui
 src/pftea/fermentation.py   Humbird's A.1 fermenter (bubble column), compressor, chillers
 src/pftea/humbird_yeast.py  anchor 1: exact port of Humbird's baker's-yeast workbook
 src/pftea/product.py        protein formulas, product reaction, energetic ceiling
-src/pftea/pf_ferm.py        PF fed-batch stirred tank: aeration optimum, O2 wall
+src/pftea/pf_ferm.py        PF fed-batch stirred tank: aeration optimum, O2 and heat limits
 src/pftea/equipment.py      equipment cost curves (Humbird/ACCE)
 src/pftea/plant.py          whole plant: batch -> DSP -> scale -> capital -> costs -> MSP
 src/pftea/finance.py        capital charge, DCF
@@ -79,7 +83,7 @@ PLAN.md                     phases, honesty protocol, decisions log
 ```
 uv venv --python 3.12 .venv && uv pip install -p .venv/bin/python -e ".[dev]"
 .venv/bin/python -m pytest
-.venv/bin/python scripts/run_analyses.py        # about 45 min; --fast for a quick pass
+.venv/bin/python scripts/run_analyses.py        # about 1-1.5 h; --fast for a quick pass
 .venv/bin/python scripts/make_figures.py
 .venv/bin/python scripts/explorer_grid.py && .venv/bin/python scripts/build_explorer.py
 .venv/bin/python scripts/build_si_workbook.py
@@ -89,7 +93,7 @@ typst compile --root . report/pf_tea_report.typ && typst compile --root . report
 Never run `uv run` inside the repo without `--no-project`: it re-syncs `.venv` and strips
 the dev extras.
 
-Or all of it at once: `scripts/build_all.sh` (about 45 min; `--fast` for a quick pass).
+Or all of it at once: `scripts/build_all.sh` (about 1.5 h; `--fast` for a quick pass).
 
 ## Licence
 
