@@ -44,8 +44,8 @@ def run(name: str, extra: dict | None = None) -> dict:
     if name == "nrel2011_cellulase":
         d = case["finance_debt"]
         variable = sum(val for k, val in r.annual.items()
-                       if k not in ("labour", "maintenance", "insurance & tax", "capital charge"))
-        fixed = r.annual["labour"] + r.annual["maintenance"] + r.annual["insurance & tax"]
+                       if k not in ("labour", "maintenance", "insurance", "capital charge"))
+        fixed = r.annual["labour"] + r.annual["maintenance"] + r.annual["insurance"]
         kg = v(p, "plant.annual_target_protein_t") * 1000
         msp = fin.msp_dcf(r.tci, variable, fixed, kg, irr=v(p, "finance.dcf_irr"), life=v(p, "finance.dcf_life_y"),
                           tax=v(p, "finance.tax_rate"), wc_frac=v(p, "finance.working_capital_frac_fci"),
@@ -85,8 +85,8 @@ def run(name: str, extra: dict | None = None) -> dict:
         out.update(result=r, params=p)
         f = case["finance"]
         variable = sum(val for k, val in r.annual.items()
-                       if k not in ("labour", "maintenance", "insurance & tax", "capital charge"))
-        fixed = r.annual["labour"] + r.annual["maintenance"] + r.annual["insurance & tax"]
+                       if k not in ("labour", "maintenance", "insurance", "capital charge"))
+        fixed = r.annual["labour"] + r.annual["maintenance"] + r.annual["insurance"]
         kg = v(p, "plant.annual_target_protein_t") * 1000
         msp = fin.msp_dcf_voutilainen(r.tci, variable, fixed, kg, rate=f["rate"], life=f["life"], tax=f["tax"],
                                       capital_factor=f["capital_factor"], inflation=f["inflation"],

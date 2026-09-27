@@ -23,6 +23,7 @@
   let (lo, hi) = (band.at(0), band.at(1))
   if x < lo { "below" } else if x <= hi { "inside" } else { "above" }
 }
+#let IB = LF.reported_prices.comparators.find(c => c.key == "lf_cost_intelligen2026_case_b_cex")
 #let wheyobs = inc.whey.series.values().map(s => s.values()).flatten()
 #let above(x) = wheyobs.filter(p => p >= x).len()
 
@@ -32,38 +33,40 @@
 #set table(stroke: none, inset: (x: 4pt, y: 2.5pt))
 #show table: set text(size: 8.8pt)
 
+#let BD(q) = R.best_design_base.at(str(q), default: none)
+#let QP(q) = R.physical_limit.at("blg/humbird/q_p_max_" + str(q), default: none)
+
 #text(size: 13pt, weight: "bold")[Precision-fermented whey and egg proteins: what they cost, and where evidence would help]
 #v(-0.3em)
-#text(size: 8.5pt, fill: rgb("#52514e"))[Memo · v2, audited (#R.generated) · Pablo Antonio Moreno Casares · techno-economic model `pf-tea`,
-Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs · prepared with an AI assistant; not yet peer-reviewed]
+#text(size: 8.5pt, fill: rgb("#52514e"))[Memo · v2.1, audited and AI pre-reviewed (#R.generated) · Pablo Antonio Moreno Casares · techno-economic model `pf-tea`,
+Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs · prepared with an AI assistant; not yet reviewed by human experts]
 
 *Bottom line.*
-- *Today's public strains are several times too expensive.* Food-grade β-lactoglobulin (BLG, whey) and
+- *Today's public strains are far too expensive.* Food-grade β-lactoglobulin (BLG, whey) and
   ovalbumin (OVA, egg) cost #usd(S("academic/blg").msp_ccf) and #usd(S("academic/ova").msp_ccf) per kg
   protein at the best published titers. Whey protein traded at #usd(inc.whey.band.at(0))–#usd(inc.whey.band.at(1))
   and dried egg white at #usd(inc.egg.band.at(0))–#usd(inc.egg.band.at(1)) per kg protein in 2015–2025
   (2025 dollars).
-- *Industry-level titers are close but not there.* At the 42 g/L private-sector average, BLG costs
-  #usd(S("industry/blg").msp_ccf, d: 1) with our base (price-anchored) capital estimate and
-  #usd(S("industry/blg/light").msp_ccf, d: 1) with the lighter one most published studies use. That
-  undercuts whey in spike years like 2026 (about #usd(inc.whey.spot.at(0).usd_kg_protein)/kg protein);
-  in 2015–2025, only #above(S("industry/blg/light").msp_ccf) of #wheyobs.len() annual export prices were
-  above even the lighter estimate.
-- *Whey is the hardest benchmark.* It is a by-product of cheese, priced at what clears the market.
-  Lactoferrin, a scarce milk protein, shows the other side: the same model puts PF lactoferrin at
-  #usd(LF.cases.at("lf/light").msp_ccf)–#usd(LF.cases.at("lf/humbird").msp_ccf)/kg (lighter to base capital), against
+- *At the titers companies' cost models assume, BLG is near whey.* At 42 g/L it costs
+  #usd(S("industry/blg").msp_ccf, d: 1) (#usd(S("industry/blg/light").msp_ccf, d: 1) with the lighter
+  accounting of NREL-style design reports); #above(S("industry/blg").msp_ccf) of #wheyobs.len() annual
+  whey export prices in 2015–2025 were above the first figure.
+- *The gate is secretion, not titer.* \$20/kg needs about #fx(req("blg/humbird", 20, 72).q_p_mg_g_h)–#fx(req("blg/humbird", 20, 48).q_p_mg_g_h)
+  mg protein per g of cells per hour at the base cell density (the base design: #fx(blg.design.q_p_mg_g_h, d: 1)).
+  With today's biology and capital, design alone reaches #usd(BD(40).msp_ccf, d: 1)/kg at 40 mg/g/h
+  and #usd(BD(10).msp_ccf, d: 1) at 10. No published *K. phaffii* process is near either rate: compiled
+  secretion rates stay below 1 mg/g/h and peak while cells grow fast, the best glucose fed-batch we found
+  reached 2.1, and in the one near-zero-growth study, secretion fell as growth slowed.
+- *Best case, not a floor.* With every assumed limit at its best, 400 m³ vessels and 100 kt/yr, BLG
+  costs #usd(PL("blg/humbird").msp_ccf, d: 1) and OVA #usd(PL("ova/humbird").msp_ccf, d: 1) per kg, if cells
+  secrete 40 mg/g/h; at 10 mg/g/h BLG costs #usd(QP(10).msp_ccf, d: 1), and at the best rate demonstrated in a
+  public glucose fed-batch (2.1 mg/g/h) #usd(QP(2.1).msp_ccf, d: 1).
+- *Lactoferrin shows the other side.* At a design titer of 10 g/L, PF lactoferrin costs
+  #usd(LF.cases.at("lf/light").msp_ccf)–#usd(LF.cases.at("lf/humbird").msp_ccf)/kg, against
   #usd(LF.reported_prices.band.at(0))–\$#thou(LF.reported_prices.band.at(1))/kg reported for the dairy product.
-- *A feasibility ceiling and capital dominate.* A higher titer needs more sugar feed, and a 200 m³
-  fermenter that must start at least 30% full with a 50% glucose feed reaches about
-  #fx(R.titer_ceiling.blg.at(R.required_t_prods.position(x => x == 72))) g/L in a 72 h production phase.
-  Both are design choices; relaxed, the secretion rate and O#sub[2] transfer set the ceiling instead, near
-  #fx(R.ceiling_limits.at("minimum fill 0.20").at(1).ceiling) g/L. Capital-related costs are
-  #(fx(100 * (blg.per_kg.at("capital charge") + blg.per_kg.maintenance + blg.per_kg.at("insurance & tax")) / blg.msp_ccf) + "%")
-  of the base-case price; sugar is #(fx(100 * blg.per_kg.glucose / blg.msp_ccf) + "%").
-- *The physical floor is low.* With every biological parameter at its best at once, the cost is
-  #usd(PL("blg/humbird").msp_ccf, d: 1) (BLG) and #usd(PL("ova/humbird").msp_ccf, d: 1) (OVA) per kg,
-  or #usd(PL("blg/light").msp_ccf, d: 1) and #usd(PL("ova/light").msp_ccf, d: 1) with the lighter capital
-  estimate. The gap between today and the floor is engineering and biology, not thermodynamics.
+  Intelligen's own model of the same route costs #fx(IB.value_money_year / LF.reconciliation.lf.cop, d: 1)×
+  ours to produce, mostly through its unit prices; even so it sits #where(IB.value_money_year, LF.reported_prices.band)
+  that range.
 
 #table(
   columns: (2.3fr, 0.9fr, 1fr, 1fr, 1fr, 1fr),
@@ -77,31 +80,24 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
     [#usd(R.base_light.ova.msp_ccf, d: 1)],
   [industry benchmark], [42], [#usd(S("industry/blg").msp_ccf, d: 1)], [#usd(S("industry/blg/light").msp_ccf, d: 1)],
     [#usd(S("industry/ova").msp_ccf, d: 1)], [#usd(S("industry/ova/light").msp_ccf, d: 1)],
-  [physical limit (100 kt/yr)], [#fx(PL("blg/humbird").titer) / #fx(PL("ova/humbird").titer)],
+  [physical-limit best case (100 kt/yr)], [#fx(PL("blg/humbird").titer) / #fx(PL("ova/humbird").titer)],
     [#usd(PL("blg/humbird").msp_ccf, d: 1)], [#usd(PL("blg/light").msp_ccf, d: 1)],
     [#usd(PL("ova/humbird").msp_ccf, d: 1)], [#usd(PL("ova/light").msp_ccf, d: 1)],
 )
 
-*What \$20/kg requires.* About #fx(req("blg/humbird", 20, 48).titer) g/L of BLG in a 48 h production
-phase, or #fx(req("blg/humbird", 20, 72).titer) g/L in 72 h, with price-anchored capital; with the
-lighter estimate, #fx(req("blg/light", 20, 48).titer)–#fx(req("blg/light", 20, 72).titer) g/L.
-#let r10h = R.required.at("blg/humbird").at("10").filter(r => r.titer != none).map(r => r.titer)
-#let r10l = R.required.at("blg/light").at("10").filter(r => r.titer != none).map(r => r.titer)
-#if r10h.len() == 0 [\$10/kg is not reachable with price-anchored capital at the base cell density and yield.]
-#if r10l.len() > 0 [With the lighter estimate it needs #fx(calc.min(..r10l))–#fx(calc.max(..r10l)) g/L, near the ceiling.]
-Beyond that, yield, cell density, production time, capital and scale must move together.
+*Capital.* Fermenters are priced at an industrial vendor quote; the aseptic cell-culture vessels of
+our first version would add #usd(R.base_aseptic.blg.msp_ccf - blg.msp_ccf, d: 1)/kg to the base. The two accounting conventions
+differ by #usd(blg.msp_ccf - R.base_light.blg.msp_ccf, d: 1)/kg, mostly because Humbird charges 9% of investment a
+year for maintenance, insurance and overheads and NREL-style reports under 2%.
 
 *Where evidence would help most*, in our judgment:
-+ *Open fed-batch data.* Measured titer, productivity and sugar yield *together*, at 1–10 m³, for BLG
-  and OVA. No public dataset has all three; the product yield in every cost estimate, ours included,
-  is a design value.
-+ *Productivity per hour of fermenter time, not titer alone.* Near the ceiling, extra titer helps
-  only if it takes neither longer nor more feed; the workable starting volume and feed concentration at
-  scale would move the ceiling itself.
-+ *Real capital costs.* Capital is the largest cost item in every scenario, and the two estimating
-  conventions differ by #fx(R.base.blg.msp_ccf / R.base_light.blg.msp_ccf, d: 1)×; published costs of
-  recent plants would settle it.
-+ *Downstream data.* Diafiltration flux at scale (one patent value sizes most of the membrane area).
++ *Secretion without growth.* How much BLG or OVA a strain secretes per g of cells per hour when it
+  barely grows, over days, at 1–10 m³. It sets both today's cost and the best case.
++ *Open fed-batch data.* Titer, productivity and sugar yield measured *together*; the product yield in
+  every cost estimate, ours included, is a design value.
++ *Real plant costs.* Capital, staffing and running costs of recent PF plants would settle the vessel
+  price basis and the fixed-cost rule.
++ *The design ceiling.* Workable starting volumes, feed concentrations and O#sub[2] transfer at scale.
 
 *EU.* At Dutch sugar, energy, wage and construction prices the same plant costs about
 #usd(R.policy.at("EU base") - R.policy.at("US base"), d: 1)/kg more. A capital charge at 4% over 20 years
@@ -110,7 +106,7 @@ US-level sugar #usd(R.policy.at("EU base") - R.policy.at("EU with US glucose pri
 effects on one plant, not policy recommendations.
 
 #text(size: 8.5pt, fill: rgb("#52514e"))[*Caveats.* A production cost with a 14.6%/yr capital charge, not a
-market price. Excludes R&D, licensing, regulatory, sales and first-of-a-kind premiums. Strain parameters
-rest on design values and company-reported averages (evidence grades B–C). The best public BLG titer
-uses an ethanol-fed production phase, priced here as glucose. Full report, audit log, calibration
-record and data: `pf-tea` repository.]
+market price. Excludes R&D, licensing, regulatory, sales, start-up, failed batches and first-of-a-kind
+premiums. Strain parameters rest on design values and company-reported averages (evidence grades B–C).
+The best public BLG titer uses an ethanol-fed production phase, priced here as glucose. Full report,
+audit log, simulated expert reviews and data: `pf-tea` repository.]

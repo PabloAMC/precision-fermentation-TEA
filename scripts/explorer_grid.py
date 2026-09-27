@@ -17,14 +17,14 @@ sys.path.insert(0, str(ROOT / "src"))
 
 AXES = {
     "product": ["blg", "ova"],
-    "convention": ["humbird", "light"],
+    "convention": ["humbird", "light", "aseptic"],
     "site": ["us_midwest", "eu_nw"],
     "titer": [2, 3, 5, 8, 12, 20, 30, 42, 60, 80, 110],
     "t_prod": [36, 48, 72, 96, 120, 168],
     "X_prod": [40, 80, 107, 140],
-    "Y_ps": [0.28, 0.40, 0.465, 0.55],
+    "Y_ps": [0.28, 0.40, 0.465, 0.535],
 }
-GROUPS = {"capital": ["capital charge"], "maintenance + insurance": ["maintenance", "insurance & tax"],
+GROUPS = {"capital": ["capital charge"], "maintenance + insurance": ["maintenance", "insurance"],
           "labour": ["labour"], "glucose": ["glucose"],
           "other materials": ["ammonia", "salts & other media", "DSP chemicals", "membranes", "chromatography resin",
                               "biomass disposal"],
@@ -39,6 +39,8 @@ def run(point):
           "strain.X_prod_g_L": float(X), "strain.Y_ps_g_g": float(Y)}
     if conv == "light":
         ch.update(sc.LIGHT)
+    elif conv == "aseptic":
+        ch.update(sc.ASEPTIC)
     try:
         r = plant.evaluate(params.override(params.load(), ch))
     except ValueError:

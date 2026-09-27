@@ -6,35 +6,88 @@ number it shows is a model run, never a JavaScript re-implementation.
 Run:  .venv/bin/python scripts/build_explorer.py
 """
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-G = json.loads((ROOT / "results/explorer_grid.json").read_text())
-R = json.loads((ROOT / "results/analyses.json").read_text())
+arg = lambda k, d: Path(sys.argv[sys.argv.index(k) + 1]) if k in sys.argv else d   # noqa: E731  (preview builds)
+G = json.loads(arg("--grid", ROOT / "results/explorer_grid.json").read_text())
+R = json.loads(arg("--results", ROOT / "results/analyses.json").read_text())
+OUT = arg("--out", ROOT / "docs/explorer.html")
 
 inc = R["benchmarks"]["incumbents"]
-ref = []
-for label, key, prod in [("Best public academic strain (BLG: Yao 2026, ethanol-induced)", "academic/blg", "blg"),
-                         ("Best public academic strain (T. reesei)", "academic/ova", "ova"),
-                         ("Industry benchmark, 42 g/L", "industry/blg", "blg"), ("Industry benchmark, 42 g/L", "industry/ova", "ova")]:
-    ref.append(dict(label=label, product=prod, titer=R["scenarios"][key]["design"]["titer"],
-                    humbird=R["scenarios"][key]["msp_ccf"], light=R["scenarios"][key + "/light"]["msp_ccf"]))
-for prod in ("blg", "ova"):
-    ref.insert(2 if prod == "blg" else 3, dict(label="Base case, 30 g/L (Intelligen design)", product=prod, titer=30.0,
-                                              humbird=R["base"][prod]["msp_ccf"], light=R["base_light"][prod]["msp_ccf"]))
-for prod in ("blg", "ova"):
-    h, l_ = R["physical_limit"][f"{prod}/humbird"], R["physical_limit"][f"{prod}/light"]
-    ref.append(dict(label="Physical limit, 100 kt/yr", product=prod, titer=h["titer"], humbird=h["msp_ccf"], light=l_["msp_ccf"]))
-L = R["lactoferrin"]["cases"]
-ref.append(dict(label="Contrast: lactoferrin, 250 t/yr, cation exchange", product="lf", titer=L["lf/humbird"]["design"]["titer"],
-                humbird=L["lf/humbird"]["msp_ccf"], light=L["lf/light"]["msp_ccf"]))
+SC = R["scenarios"]
+PLR = R["physical_limit"]
+
+
+def case(label, d, light=None, aseptic=None, titer=None, note=""):
+    return dict(label=label, titer=titer if titer is not None else d["design"]["titer"], humbird=d["msp_ccf"],
+                light=light["msp_ccf"] if light else None, aseptic=aseptic["msp_ccf"] if aseptic else None, note=note)
+
+
+def rows_ok(*makers):
+    """Reference rows whose results exist (a preview build may run on partial results)."""
+    out = []
+    for mk in makers:
+        try:
+            out.append(mk())
+        except (KeyError, TypeError):
+            pass
+    return out
+
+
+ref = {"blg": rows_ok(
+    lambda: case("Best public academic strain (Yao 2026; ethanol-fed production, priced as glucose)", SC["academic/blg"],
+         SC["academic/blg/light"], SC.get("academic/blg/aseptic")),
+    lambda: case("Best public titer on glucose (Li 2026)", SC["academic/blg_li2026"], SC["academic/blg_li2026/light"]),
+    lambda: case("Base case (Intelligen's design point)", R["base"]["blg"], R["base_light"]["blg"], R["base_aseptic"]["blg"], titer=30.0),
+    lambda: case("Industry benchmark: titer assumed in private cost models", SC["industry/blg"], SC["industry/blg/light"],
+         SC.get("industry/blg/aseptic")),
+    lambda: case("Physical-limit best case, 100 kt/yr (secretion at 40 mg/g/h)", PLR["blg/humbird"], PLR["blg/light"],
+         PLR.get("blg/humbird/aseptic")),
+    lambda: case("Same, secretion capped at 10 mg/g/h", PLR["blg/humbird/q_p_max_10"]),
+    lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["blg/humbird/q_p_max_2.1"])),
+    "ova": rows_ok(
+    lambda: case("Best public academic strain (Aro 2023, T. reesei; full-length + clipped)", SC["academic/ova"],
+         SC["academic/ova/light"], SC.get("academic/ova/aseptic")),
+    lambda: case("Same, intact OVA only (1 g/L, judgment)", SC["academic/ova_intact_1gL"]),
+    lambda: case("Base case (Intelligen's design point)", R["base"]["ova"], R["base_light"]["ova"], R["base_aseptic"]["ova"], titer=30.0),
+    lambda: case("Industry benchmark: titer assumed in private cost models", SC["industry/ova"], SC["industry/ova/light"],
+         SC.get("industry/ova/aseptic")),
+    lambda: case("Physical-limit best case, 100 kt/yr (secretion at 40 mg/g/h)", PLR["ova/humbird"], PLR["ova/light"])),
+    "lf": rows_ok(
+    lambda: case("Design titer, cation exchange (Intelligen's design)", R["lactoferrin"]["cases"]["lf/humbird"],
+         R["lactoferrin"]["cases"]["lf/light"]),
+    lambda: case("Design titer, UF/DF only (optimistic)", R["lactoferrin"]["cases"]["lf_ufdf_only/humbird"],
+         R["lactoferrin"]["cases"]["lf_ufdf_only/light"]),
+    lambda: case("Best public methanol-free titer (porcine LF, Yen 2024)", R["lactoferrin"]["cases"]["lf_academic/humbird"],
+         R["lactoferrin"]["cases"]["lf_academic/light"]))}
+LFP = R.get("lactoferrin", {}).get("reported_prices", {"band": [0, 0], "points": []})
+SERIES_LABEL = {"whey_protein_gt80_us_export_unit_value": "US exports", "whey_protein_gt80_eu_export_unit_value": "EU exports",
+                "egg_albumin_dried_eu_export_unit_value": "EU exports"}
+market = {
+    "blg": dict(label="Whey protein (WPC80/WPI)", frac=inc["whey"]["protein_frac"],
+                series=[dict(label=SERIES_LABEL.get(k, k), pts=v) for k, v in inc["whey"]["series"].items()],
+                spot=[dict(label="WPC80 spot, 2026 peak (USDA)", year=2026, value=inc["whey"]["spot"][0]["usd_kg_protein"])]
+                if inc["whey"]["spot"] else [], band=inc["whey"]["band"], years=inc["whey"]["years"]),
+    "ova": dict(label="Dried egg white", frac=inc["egg"]["protein_frac"],
+                series=[dict(label=SERIES_LABEL.get(k, k), pts=v) for k, v in inc["egg"]["series"].items()],
+                spot=[], band=inc["egg"]["band"], years=inc["egg"]["years"]),
+    "lf": dict(label="Dairy lactoferrin (reports and trade press, grade C)", frac=None, band=LFP["band"],
+               points=[dict(year=p[0], lo=p[1], hi=p[2]) for p in LFP["points"] if p[0]],
+               comparators=[dict(label="Intelligen's model, " + {"lf": "cation exchange", "lf_ufdf_only": "UF/DF only"}[c["ours"]],
+                                 value=c["value_money_year"],
+                                 ours=R["lactoferrin"].get("reconciliation", {}).get(c["ours"], {}).get("cop"))
+                            for c in LFP.get("comparators", []) if c.get("ours")]),
+}
+powder_frac = {p: R["base"][p]["per_kg_powder"] / R["base"][p]["msp_ccf"] for p in ("blg", "ova")}
 EQ = R["equivalents"]["sources"]
 
 
 def src_band(name, label):
     ser = EQ[name]["prices"][label]
     yr = max(ser, key=int)
-    return dict(label=label, lo=min(ser.values()), hi=max(ser.values()), last=ser[yr], year=int(yr))
+    return dict(label=label, lo=min(ser.values()), hi=max(ser.values()), last=ser[yr], year=int(yr), pts=ser)
 
 DATA = {
     "grid": G,
@@ -50,6 +103,9 @@ DATA = {
                           bands=[src_band("egg", "US wholesale eggs (New York, Grade A large)"),
                                  src_band("egg", "US retail eggs (Grade A large)")])},
     "ref": ref,
+    "market": market,
+    "context": R["benchmarks"].get("context", []),
+    "powder_frac": powder_frac,
     "generated": R["generated"],
 }
 
@@ -156,6 +212,16 @@ details { margin-top: 10px; }
 summary { cursor: pointer; color: var(--accent); font-size: 13.5px; }
 summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .notes { margin-top: 18px; display: grid; gap: 8px; color: var(--ink-2); font-size: 13.5px; max-width: 80ch; }
+.yourprice { display: grid; gap: 6px; border-top: 1px solid var(--rule); padding-top: 10px; }
+.yourprice label { font-size: 14px; color: var(--ink-2); }
+.yourprice .in { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.yourprice input { width: 7.5em; font: 500 15px "IBM Plex Mono", ui-monospace, monospace; padding: 5px 8px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.yourprice input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.yourprice output { font-size: 14px; }
+.panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; margin-bottom: 10px; }
+.panel-head h2 { margin: 0; }
+.seg.small label { padding: 5px 10px; font-size: 13px; }
+tr.mkt td { color: var(--ink-2); background: var(--accent-soft); }
 .notes b { color: var(--ink); font-weight: 600; }
 @media (max-width: 860px) {
   .summary, .main { grid-template-columns: minmax(0, 1fr); }
@@ -177,7 +243,15 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       <div class="price"><span class="big num" id="msp">$0</span><span class="unit" id="msp-unit">per kg protein, 2025 dollars</span></div>
       <div class="chips" id="chips"></div>
     </div>
-    <div class="panel compare" id="compare"></div>
+    <div class="panel compare">
+      <h2 style="margin:0 0 2px" id="compare-h">Against the market</h2>
+      <div class="compare" id="compare"></div>
+      <div class="yourprice">
+        <label for="yourprice">Have a price in mind? Enter it to see the titer this design would need to reach it.</label>
+        <div class="in"><span class="num" id="yp-cur">$</span><input id="yourprice" type="number" inputmode="decimal" min="0" step="any" placeholder="e.g. 12"><span class="hint" id="yp-unit">per kg protein</span></div>
+        <output id="yp-out" class="hint" aria-live="polite"></output>
+      </div>
+    </div>
   </section>
 
   <section class="main">
@@ -195,13 +269,15 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
           <div class="seg" role="radiogroup">
             <input type="radio" name="convention" id="c-h" value="0" checked><label for="c-h">Price-anchored (base)</label>
             <input type="radio" name="convention" id="c-l" value="1"><label for="c-l">Design-report</label>
+            <input type="radio" name="convention" id="c-a" value="2"><label for="c-a">Aseptic vessels</label>
           </div>
-          <p class="hint">Price-anchored: Humbird's facility factors, which reproduce the market price of baker's yeast. Design-report: vendor-quote fermenters and the smaller fixed costs of NREL-style studies, as in most published PF analyses.</p>
+          <p class="hint">Price-anchored (base): industrial fermenters at a vendor quote, with Humbird's facility factors and fixed costs (9% of investment a year); with the same factors his baker's-yeast workbook lands in the market-implied cost band. Design-report: NREL's installation factors and fixed costs under 2% a year, as in NREL-style design reports. Aseptic vessels: the base with Humbird's cell-culture-grade fermenter prices, about 2.9 times the vendor quote (a high case).</p>
         </fieldset>
         <fieldset>
           <legend>Show the price</legend>
           <div class="seg" role="radiogroup">
             <input type="radio" name="unit" id="u-kg" value="0" checked><label for="u-kg">per kg protein</label>
+            <input type="radio" name="unit" id="u-pow" value="2"><label for="u-pow">per kg powder</label>
             <input type="radio" name="unit" id="u-src" value="1"><label for="u-src" id="u-src-l">per litre of milk</label>
           </div>
           <p class="hint" id="u-hint"></p>
@@ -242,6 +318,16 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
         <details><summary>Show the numbers behind the chart</summary><div class="tablewrap"><table id="chart-table"></table></div></details>
       </div>
       <div class="panel">
+        <div class="chart-head"><h2 style="margin:0" id="mkt-h">Market prices by year, and this design</h2>
+          <div class="legend" id="mkt-legend"></div>
+        </div>
+        <div class="chartbox"><svg class="chart" id="mkt" viewBox="0 0 640 260" role="img" aria-label="Market prices by year against this design's cost"></svg></div>
+        <p class="hint" id="mkt-note"></p>
+        <details><summary>Show the market prices</summary><div class="tablewrap"><table id="mkt-table"></table></div></details>
+        <details><summary>Other protein ingredients, for context</summary><div class="tablewrap"><table id="ctx-table"></table></div>
+          <p class="hint" style="margin-top:6px">$ per kg protein. Export unit values: 2015–2025 in 2025 dollars. GFI 2025 ranges: nominal, about 2024–2025 (industry data, grade C).</p></details>
+      </div>
+      <div class="panel">
         <h2>What the price is made of</h2>
         <div class="bar" id="bar" aria-hidden="true"></div>
         <div class="tablewrap" style="margin-top:10px"><table id="breakdown"></table></div>
@@ -250,15 +336,22 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   </section>
 
   <section class="panel" style="margin-top:16px">
-    <h2>Reference cases from the report</h2>
+    <div class="panel-head"><h2>Reference cases from the report</h2>
+      <div class="seg small" role="radiogroup" aria-label="Protein shown in the table">
+        <input type="radio" name="refp" id="r-blg" value="blg" checked><label for="r-blg">&beta;-lactoglobulin</label>
+        <input type="radio" name="refp" id="r-ova" value="ova"><label for="r-ova">Ovalbumin</label>
+        <input type="radio" name="refp" id="r-lf" value="lf"><label for="r-lf">Lactoferrin</label>
+      </div>
+    </div>
     <div class="tablewrap"><table id="ref"></table></div>
+    <p class="hint" id="ref-note" style="margin-top:8px"></p>
   </section>
 
   <section class="notes">
     <p><b>What this is.</b> A cost with a capital charge of 14.6% of investment a year (7.5% over 10 years), not a market price. It excludes R&amp;D, licences, regulatory work, sales and first-of-a-kind premiums.</p>
-    <p><b>Physical limits.</b> A 200&nbsp;m&sup3; fermenter transfers at most 150&nbsp;mol&nbsp;O&#8322;/m&sup3;/h (a design cap) and removes at most 25&nbsp;kW/m&sup3; of heat; a batch must start at least 30% full, and cells secrete at most 40&nbsp;mg of protein per gram per hour. A design that breaks any of these is marked; its price is shown but cannot be achieved as designed.</p>
-    <p><b>Incumbent prices.</b> Export unit values from UN&nbsp;Comtrade and Eurostat, per kg of protein (80% protein for whey, 81.1% for egg white), in 2025 dollars. The 2026 whey spot is from USDA Dairy Market News.</p>
-    <p><b>Milk and egg equivalents.</b> The price of replacing the protein of a litre of milk (33.7&nbsp;g) or of one egg's white (3.64&nbsp;g) with PF protein, beside what the litre or the egg costs. This flatters milk and eggs as competitors: fat, lactose and yolk carry part of their price, and whey is a by-product of cheese.</p>
+    <p><b>Limits.</b> A 200&nbsp;m&sup3; fermenter transfers at most 200&nbsp;mol&nbsp;O&#8322; per m&sup3; of cell-free liquid per hour (about 130 per m&sup3; of broth at the base cell density; Humbird's air-sparged value) and removes at most 25&nbsp;kW/m&sup3; of heat; a batch must start at least 30% full, with glucose fed at 500&nbsp;g/L; and cells secrete at most 40&nbsp;mg of protein per gram per hour, a judgment about 8 times the base design and above any published <i>K.&nbsp;phaffii</i> value. A design that breaks any of these is marked; its price is shown but cannot be achieved as designed. The minimum fill and the feed concentration are design choices: with a 600&nbsp;g/L feed the ceiling rises (report, Q3).</p>
+    <p><b>Market prices.</b> Export unit values from UN&nbsp;Comtrade and Eurostat, deflated to 2025 dollars. Per kg of protein they assume 80% protein for whey (the minimum for its trade code; more isolate in the mix would lower the per-protein price) and 81.1% for egg white; "per kg powder" compares the same export prices per kg of product with our powder's cost per kg. The 2026 whey spot is from USDA Dairy Market News narrative quotes. Lactoferrin prices are reported ranges (trade press and reports, grade C). Our figures are production costs with a return on capital, not selling prices: a seller would add margin, sales and distribution.</p>
+    <p><b>Milk and egg equivalents.</b> The price of replacing the protein of a litre of milk (33.7&nbsp;g) or of one egg's white (3.64&nbsp;g) with PF protein, beside what the litre or the egg costs. This flatters PF: charging the whole price of milk or eggs to their protein makes them look dearer per gram, when fat, lactose and yolk carry part of that price. The same egg white bought as dried egg white cost __EGGWHITE__ in 2015–2025, and a litre's whey protein bought as WPC80/WPI __WHEYSHARE__ of the farm milk price in the same year.</p>
     <p class="hint" id="gen"></p>
   </section>
 </div>
@@ -266,12 +359,52 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 <script>
 const D = __DATA__;
 const G = D.grid, AX = G.axes, ORDER = G.order;
-const LABELS = {product: ["blg", "ova"], convention: ["humbird", "light"], site: ["us_midwest", "eu_nw"]};
+const LABELS = {product: ["blg", "ova"], convention: ["humbird", "light", "aseptic"], site: ["us_midwest", "eu_nw"]};
 const BASE = {product: 0, convention: 0, site: 0, titer: AX.titer.indexOf(30), t_prod: AX.t_prod.indexOf(72), X_prod: AX.X_prod.indexOf(107), Y_ps: AX.Y_ps.indexOf(0.465)};
 let S = Object.assign({}, BASE);
-let UNIT = 0;   // 0: $/kg protein; 1: per litre of milk (BLG) or per egg (OVA)
-const conv = () => UNIT ? D.equiv[prodKey()].grams / 1000 : 1;
-const moneyU = (x, d) => UNIT ? "$" + (x * conv()).toFixed(x * conv() < 1 ? 3 : 2) : money(x, d);
+let UNIT = 0;   // 0: $/kg protein; 1: per litre of milk (BLG) or per egg (OVA); 2: per kg powder
+let REFP = "blg";   // protein shown in the reference table
+const EQV = () => D.equiv[prodKey()];
+const MKT = () => D.market[prodKey()];
+// model cost ($/kg protein) -> the unit shown; market price ($/kg protein) -> the unit shown
+const conv = () => UNIT === 1 ? EQV().grams / 1000 : UNIT === 2 ? D.powder_frac[prodKey()] : 1;
+const mconv = () => UNIT === 2 ? MKT().frac : 1;
+const unitWord = () => UNIT === 1 ? "per " + EQV().per : UNIT === 2 ? "per kg powder" : "per kg protein";
+const fmtU = x => x < 1 ? "$" + x.toFixed(3) : money(x);      // a value already in the shown unit
+const moneyU = (x, d) => UNIT === 0 ? money(x, d) : fmtU(x * conv());
+function marketNow() {
+  // the incumbent's prices in the shown unit: ingredient export prices, or milk and egg prices (per unit)
+  if (UNIT === 1) {
+    const e = EQV();
+    return {label: e.bands[0].label, series: e.bands.map(b => ({label: b.label, pts: b.pts})), spot: [],
+            band: [e.bands[0].lo, e.bands[0].hi], years: [2015, e.bands[0].year]};
+  }
+  const m = MKT(), k = mconv();
+  const sc = pts => Object.fromEntries(Object.entries(pts).map(([y, x]) => [y, x * k]));
+  return {label: m.label, series: m.series.map(s => ({label: s.label, pts: sc(s.pts)})),
+          spot: m.spot.map(p => Object.assign({}, p, {value: p.value * k})), band: [m.band[0] * k, m.band[1] * k], years: m.years};
+}
+const feasible = f => f === 0 || f === 2;
+function titerFor(price) {
+  // titer at which this design (other levers as set) reaches `price` (shown unit): log-log interpolation on the grid
+  const k = conv();
+  const pts = AX.titer.map((t, i) => { const v = at(Object.assign({}, S, {titer: i})); return v ? {t, v: v[0] * k, f: v[1]} : null; }).filter(Boolean);
+  if (!pts.length || !(price > 0)) return null;
+  if (pts[0].v <= price) return {t: pts[0].t, ok: feasible(pts[0].f), first: true};
+  for (let j = 1; j < pts.length; j++) {
+    if (pts[j].v <= price) {
+      const a = pts[j - 1], b = pts[j], w = (Math.log(a.v) - Math.log(price)) / (Math.log(a.v) - Math.log(b.v));
+      return {t: Math.exp(Math.log(a.t) + w * (Math.log(b.t) - Math.log(a.t))), ok: feasible(a.f) && feasible(b.f)};
+    }
+  }
+  return null;
+}
+function titerText(r, price) {
+  if (!r) return `Not reached below ${AX.titer[AX.titer.length - 1]} g/L with these settings.`;
+  if (r.first) return `Already below ${fmtU(price)} at ${r.t} g/L, the lowest titer shown.`;
+  return `About ${r.t < 10 ? r.t.toFixed(1) : Math.round(r.t)} g/L with these settings` +
+    (r.ok ? ", which a 200 m³ fermenter can run." : ", beyond what the fermenter can run with these settings.");
+}
 const SERIES = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6"];
 const FLAG = {
   0: ["good", "Achievable in a 200 m³ fermenter", "M3 8l3 3 7-7"],
@@ -318,31 +451,40 @@ function render() {
     if (ceil && AX.X_prod[S.X_prod] === 107 && AX.Y_ps[S.Y_ps] === 0.465) chips.push(`<span class="chip plain">Feasibility ceiling at ${tp} h: about ${Math.round(ceil)} g/L</span>`);
   }
   $("chips").innerHTML = chips.join("");
-  const eq = D.equiv[prodKey()];
-  $("msp-unit").textContent = UNIT ? `per ${eq.per} (PF protein replacing ${eq.what}), 2025 dollars` : "per kg protein, 2025 dollars";
+  const eq = EQV();
+  $("msp-unit").textContent = UNIT === 1 ? `per ${eq.per} (PF protein replacing ${eq.what}), 2025 dollars`
+    : UNIT === 2 ? "per kg of powder, 2025 dollars" : "per kg protein, 2025 dollars";
   $("u-src-l").textContent = "per " + eq.per;
-  $("u-hint").textContent = UNIT ? `Multiplies $/kg by ${eq.grams.toFixed(2)} g / 1000.` : "";
-  // comparison panel
+  $("u-hint").textContent = UNIT === 1 ? `Multiplies $/kg by ${eq.grams.toFixed(2)} g / 1000.`
+    : UNIT === 2 ? `Our powder is ${Math.round(100 * D.powder_frac[prodKey()])}% target protein; market prices per kg of product (${Math.round(100 * MKT().frac)}% protein).` : "";
+  // comparison panel: in the shown unit throughout
   const base = at(Object.assign({}, BASE, {product: S.product}));
-  const rows = [];
+  const mk = marketNow(), rows = [];
   if (v) {
-    let pos;
-    if (v[0] < band.lo) pos = "below the whole band";
-    else if (v[0] <= band.hi) pos = "inside the band";
-    else pos = (v[0] / band.hi).toFixed(1) + "× the top of the band";
-    if (!UNIT) {
-      rows.push([`${band.label}, ${band.years[0]}–${band.years[1]} trade prices`, `${money(band.lo, 1)}–${money(band.hi, 1)}`]);
-      rows.push(["This design", pos]);
-      if (band.spot) rows.push(["Whey spot price, 2026 peak (USDA)", money(band.spot, 0) + (v[0] <= band.spot ? ", undercut" : ", not reached")]);
-    } else {
+    const cur = v[0] * conv(), [lo, hi] = mk.band;
+    const pos = cur < lo ? "below the whole range" : cur <= hi ? "inside the range" : cur < 1.05 * hi ? "at the top edge of the range" : (cur / hi).toFixed(1) + "× the top of the range";
+    if (UNIT === 1) {
       for (const b of eq.bands) rows.push([`${b.label}, ${b.year} (2015–${b.year} range)`, `$${b.last.toFixed(2)} ($${b.lo.toFixed(2)}–${b.hi.toFixed(2)})`]);
-      rows.push(["This design", moneyU(v[0])]);
+      rows.push(["This design", fmtU(cur)]);
+    } else {
+      const all = mk.series.flatMap(s => Object.values(s.pts));
+      const avg = all.reduce((a, b) => a + b, 0) / all.length;
+      rows.push([`${mk.label}, ${mk.years[0]}–${mk.years[1]} export prices`, `${fmtU(lo)}–${fmtU(hi)}`]);
+      rows.push(["This design", pos]);
+      rows.push(["Years this design would have been cheaper", `${all.filter(p => p >= cur).length} of ${all.length} annual prices`]);
+      for (const p of mk.spot) rows.push([p.label, fmtU(p.value) + (cur <= p.value ? ", undercut" : ", not reached")]);
+      const r = titerFor(avg);
+      rows.push([`Titer to match the ${mk.years[0]}–${mk.years[1]} average (${fmtU(avg)})`,
+                 r ? (r.first ? `≤ ${r.t} g/L` : `${Math.round(r.t)} g/L${r.ok ? "" : " (not runnable)"}`) : "not reached"]);
     }
     if (base) rows.push(["Change from the base case", (v[0] >= base[0] ? "+" : "−") + moneyU(Math.abs(v[0] - base[0]))]);
   }
-  $("compare").innerHTML = `<h2 style="margin:0 0 2px">${UNIT ? "Against milk and eggs" : "Against the incumbent"}</h2>` +
-    rows.map(r => `<div class="row"><span class="k">${r[0]}</span><span class="v${/^[+−]?\$[\d.,–$]+$/.test(r[1]) ? " num" : ""}">${r[1]}</span></div>`).join("");
+  $("compare-h").textContent = UNIT === 1 ? "Against milk and eggs" : "Against the market";
+  $("compare").innerHTML = rows.map(r => `<div class="row"><span class="k">${r[0]}</span><span class="v${/^[+−]?\$[\d.,–$]+$/.test(r[1]) ? " num" : ""}">${r[1]}</span></div>`).join("");
+  $("yp-unit").textContent = unitWord();
+  yourPrice();
   drawChart(band);
+  drawMarket(v);
   drawBreakdown(v);
 }
 
@@ -351,7 +493,7 @@ function drawBreakdown(v) {
   if (!v) { bar.innerHTML = ""; tb.innerHTML = ""; return; }
   const tot = v[2].reduce((a, b) => a + b, 0);
   bar.innerHTML = v[2].map((x, i) => `<div style="flex:${Math.max(x, 0)} 0 0;background:var(${SERIES[i]})" title="${G.groups[i]}: ${money(x)}"></div>`).join("");
-  tb.innerHTML = `<thead><tr><th>Cost item</th><th class="r">${UNIT ? "$ per " + D.equiv[prodKey()].per : "$/kg"}</th><th class="r">Share</th></tr></thead><tbody>` +
+  tb.innerHTML = `<thead><tr><th>Cost item</th><th class="r">$ ${unitWord()}</th><th class="r">Share</th></tr></thead><tbody>` +
     v[2].map((x, i) => `<tr><td><span style="display:inline-flex;align-items:center;gap:8px"><i class="sw" style="background:var(${SERIES[i]})"></i>${G.groups[i]}</span></td><td class="r">${moneyU(x)}</td><td class="r">${(100 * x / tot).toFixed(0)}%</td></tr>`).join("") +
     `<tr><td><b>Total</b></td><td class="r"><b>${moneyU(v[0])}</b></td><td class="r">100%</td></tr></tbody>`;
 }
@@ -361,10 +503,10 @@ function drawChart(band0) {
   const svg = $("chart"), W = 640, H = 300, m = {l: 52, r: 16, t: 14, b: 38};
   const k = conv();
   const pts = AX.titer.map((t, i) => { const v0 = at(Object.assign({}, S, {titer: i})); return {t, i, v: v0 ? [v0[0] * k, v0[1], v0[2]] : null}; }).filter(p => p.v);
-  if (UNIT) { const b0 = D.equiv[prodKey()].bands[0]; band = {label: b0.label, lo: b0.lo, hi: b0.hi, spot: null, years: [2015, b0.year]}; }
+  { const mk = marketNow(); band = {label: mk.label, lo: mk.band[0], hi: mk.band[1], spot: mk.spot.length ? mk.spot[0].value : null, years: mk.years}; }
   const ys = pts.map(p => p.v[0]).concat([band.lo, band.hi]);
   let y0 = Math.min(...ys) * 0.8, y1 = Math.max(...ys) * 1.15;
-  y0 = Math.max(y0, UNIT ? 0.005 : 1); y1 = Math.min(Math.max(y1, band.hi * 1.3), UNIT ? 100 : 3000);
+  y0 = Math.max(y0, UNIT === 1 ? 0.005 : 1); y1 = Math.min(Math.max(y1, band.hi * 1.3), UNIT === 1 ? 100 : 3000);
   const lx = Math.log, X = t => m.l + (lx(t) - lx(2)) / (lx(110) - lx(2)) * (W - m.l - m.r);
   const Y = y => H - m.b - (lx(y) - lx(y0)) / (lx(y1) - lx(y0)) * (H - m.t - m.b);
   let s = "";
@@ -385,7 +527,7 @@ function drawChart(band0) {
   s += `<text x="${(m.l + W - m.r) / 2}" y="${H - 4}" text-anchor="middle" class="lbl">titer at harvest (g/L, log scale)</text>`;
   if (band.spot && band.spot <= y1 && band.spot >= y0) {
     s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(band.spot)}" y2="${Y(band.spot)}" stroke="var(--spot)" stroke-dasharray="4 3"/>`;
-    s += `<text x="${W - m.r - 4}" y="${Y(band.spot) - 5}" text-anchor="end" class="lbl">whey spot, 2026</text>`;
+    s += `<text x="${W - m.r - 4}" y="${Y(band.spot) - 5}" text-anchor="end" class="lbl">spot price, 2026</text>`;
   }
   const ok = pts.filter(p => p.v[1] === 0 || p.v[1] === 2);
   // connect the leading run of achievable points
@@ -405,7 +547,7 @@ function drawChart(band0) {
   svg.querySelectorAll(".hit").forEach(c => {
     const p = pts.find(q => q.i === +c.dataset.i);
     c.addEventListener("mouseenter", () => {
-      tip.innerHTML = `<b>${p.t} g/L</b>: ${UNIT ? "$" + p.v[0].toFixed(3) + " per " + D.equiv[prodKey()].per : money(p.v[0]) + "/kg"}<br>${FLAG[p.v[1]][1]}`;
+      tip.innerHTML = `<b>${p.t} g/L</b>: ${fmtU(p.v[0])} ${unitWord()}<br>${FLAG[p.v[1]][1]}`;
       tip.hidden = false;
       const r = svg.getBoundingClientRect(), k = r.width / W;
       const x = X(p.t) * k, y = Y(p.v[0]) * k;
@@ -415,14 +557,78 @@ function drawChart(band0) {
     c.addEventListener("mouseleave", () => { tip.hidden = true; });
     c.addEventListener("click", () => { S.titer = p.i; render(); });
   });
-  $("chart-table").innerHTML = `<thead><tr><th class="r">Titer g/L</th><th class="r">${UNIT ? "$ per " + D.equiv[prodKey()].per : "$/kg"}</th><th>Status</th></tr></thead><tbody>` +
-    pts.map(p => `<tr><td class="r">${p.t}</td><td class="r">${UNIT ? "$" + p.v[0].toFixed(3) : money(p.v[0])}</td><td>${FLAG[p.v[1]][1]}</td></tr>`).join("") + "</tbody>";
+  $("chart-table").innerHTML = `<thead><tr><th class="r">Titer g/L</th><th class="r">$ ${unitWord()}</th><th>Status</th></tr></thead><tbody>` +
+    pts.map(p => `<tr><td class="r">${p.t}</td><td class="r">${fmtU(p.v[0])}</td><td>${FLAG[p.v[1]][1]}</td></tr>`).join("") + "</tbody>";
+}
+
+function yourPrice() {
+  const x = parseFloat($("yourprice").value);
+  $("yp-out").textContent = x > 0 ? titerText(titerFor(x), x) : "";
+}
+
+function drawMarket(v) {
+  const svg = $("mkt"), W = 640, H = 260, m = {l: 52, r: 120, t: 14, b: 30};
+  const mk = marketNow(), cur = v ? v[0] * conv() : null;
+  const cols = ["var(--s1)", "var(--s2)", "var(--s3)"];
+  const Y0 = 2015, Y1 = 2026;
+  const vals = mk.series.flatMap(s_ => Object.values(s_.pts)).concat(mk.spot.map(p => p.value));
+  const top = Math.max(...vals, cur || 0) * 1.12;
+  const step = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500].find(x => top / x <= 6) || 1000;
+  const y1 = Math.ceil(top / step) * step;
+  const X = y => m.l + (y - Y0) / (Y1 - Y0) * (W - m.l - m.r);
+  const Y = x => H - m.b - x / y1 * (H - m.t - m.b);
+  const fmtT = x => x === 0 ? "$0" : x < 1 ? "$" + x.toFixed(2) : "$" + Math.round(x);
+  let s = "";
+  for (let t = 0; t <= y1 + 1e-9; t += step) {
+    s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--grid)"/>`;
+    s += `<text x="${m.l - 8}" y="${Y(t) + 4}" text-anchor="end">${fmtT(t)}</text>`;
+  }
+  for (let y = Y0; y <= Y1; y++) if (y % 2 === 1 || y === Y1) s += `<text x="${X(y)}" y="${H - m.b + 16}" text-anchor="middle">${y}</text>`;
+  s += `<line x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}" stroke="var(--axis)"/>`;
+  mk.series.forEach((ser, i) => {
+    const pts = Object.entries(ser.pts).map(([y, x]) => [+y, x]).sort((a, b) => a[0] - b[0]);
+    s += `<polyline fill="none" stroke="${cols[i % 3]}" stroke-width="2" points="${pts.map(p => X(p[0]) + "," + Y(p[1])).join(" ")}"/>`;
+    for (const p of pts) s += `<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3.5" fill="${cols[i % 3]}" stroke="var(--surface)" stroke-width="1.5"><title>${ser.label} ${p[0]}: ${fmtU(p[1])}</title></circle>`;
+  });
+  for (const p of mk.spot) {
+    const x = X(p.year), y = Y(p.value);
+    s += `<path d="M${x} ${y - 6}L${x + 6} ${y}L${x} ${y + 6}L${x - 6} ${y}Z" fill="var(--spot)"><title>${p.label}: ${fmtU(p.value)}</title></path>`;
+  }
+  if (cur != null) {
+    s += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(cur)}" y2="${Y(cur)}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+    s += `<text x="${W - m.r + 6}" y="${Y(cur) + 4}" class="lbl">this design ${fmtU(cur)}</text>`;
+  }
+  svg.innerHTML = s;
+  $("mkt-legend").innerHTML = mk.series.map((ser, i) => `<span><i class="sw" style="background:${cols[i % 3]}"></i>${ser.label}</span>`).join("") +
+    (mk.spot.length ? `<span><i class="sw" style="background:var(--spot);transform:rotate(45deg);width:9px;height:9px"></i>spot 2026</span>` : "") +
+    `<span><i class="sw" style="background:transparent;border-top:2px dashed var(--ink);height:0;width:14px;border-radius:0"></i>this design</span>`;
+  $("mkt-h").textContent = UNIT === 1 ? `${EQV().per === "egg" ? "Egg" : "Milk"} prices by year, and this design` : "Market prices by year, and this design";
+  const all = mk.series.flatMap(s_ => Object.values(s_.pts));
+  $("mkt-note").textContent = cur == null ? "" : UNIT === 1
+    ? `Prices of the natural source, ${unitWord()}, 2025 dollars; the design is the cost of replacing its protein.`
+    : `${mk.label}, ${unitWord()}, 2025 dollars. This design would have been cheaper than ${all.filter(p => p >= cur).length} of ${all.length} annual export prices.`;
+  const curP = v ? v[0] : null;   // $/kg protein, whatever the unit shown
+  $("ctx-table").innerHTML = `<thead><tr><th>Ingredient</th><th class="r">$/kg protein</th><th>Source</th><th>This design</th></tr></thead><tbody>` +
+    D.context.map(c => `<tr><td>${c.label}</td><td class="r">${money(c.lo)}–${money(c.hi)}</td><td>${c.when || "grade " + c.grade}</td><td>${curP == null ? "–" : curP < c.lo ? "cheaper" : curP <= c.hi ? "within the range" : curP < 1.05 * c.hi ? "at the top edge" : (curP / c.hi).toFixed(1) + "× the top"}</td></tr>`).join("") + "</tbody>";
+  const yrs = [...new Set(mk.series.flatMap(s_ => Object.keys(s_.pts)))].sort();
+  $("mkt-table").innerHTML = `<thead><tr><th>Year</th>${mk.series.map(s_ => `<th class="r">${s_.label}</th>`).join("")}</tr></thead><tbody>` +
+    yrs.map(y => `<tr><td>${y}</td>${mk.series.map(s_ => `<td class="r">${s_.pts[y] == null ? "–" : fmtU(s_.pts[y])}</td>`).join("")}</tr>`).join("") +
+    mk.spot.map(p => `<tr><td>${p.year} (spot)</td><td class="r" colspan="${mk.series.length}">${fmtU(p.value)}</td></tr>`).join("") + "</tbody>";
 }
 
 function drawRef() {
-  const PN = {blg: "β-lactoglobulin", ova: "Ovalbumin", lf: "Lactoferrin"};
-  $("ref").innerHTML = `<thead><tr><th>Case</th><th>Protein</th><th class="r">Titer g/L</th><th class="r">Price-anchored $/kg</th><th class="r">Design-report $/kg</th></tr></thead><tbody>` +
-    D.ref.map(r => `<tr><td>${r.label}</td><td>${PN[r.product]}</td><td class="r">${+r.titer.toFixed(2)}</td><td class="r">${money(r.humbird)}</td><td class="r">${money(r.light)}</td></tr>`).join("") + "</tbody>";
+  const rows = D.ref[REFP], mk = D.market[REFP], [lo, hi] = mk.band;
+  const pos = x => x == null ? "–" : x < lo ? "below" : x <= hi ? "inside" : x < 1.05 * hi ? "at the top edge" : (x / hi).toFixed(1) + "× the top";
+  const dash = x => x == null ? "–" : money(x);
+  let h = `<thead><tr><th>Case</th><th class="r">Titer g/L</th><th class="r">Price-anchored $/kg</th><th class="r">Design-report $/kg</th><th class="r">Aseptic vessels $/kg</th><th>Vs market range</th></tr></thead><tbody>`;
+  h += rows.map(r => `<tr><td>${r.label}</td><td class="r">${+r.titer.toFixed(2)}</td><td class="r">${money(r.humbird)}</td><td class="r">${dash(r.light)}</td><td class="r">${dash(r.aseptic)}</td><td>${pos(r.humbird)}</td></tr>`).join("");
+  (mk.comparators || []).forEach(c => { h += `<tr class="mkt"><td>${c.label}</td><td class="r">10</td><td class="r" colspan="3">cost of production ${money(c.value)} (ours: ${dash(c.ours)})</td><td>${pos(c.value)}</td></tr>`; });
+  const yrs = mk.years ? `${mk.years[0]}–${mk.years[1]}` : "2013–2025";
+  h += `<tr class="mkt"><td>Market: ${mk.label}, ${yrs}</td><td></td><td class="r" colspan="3">${money(lo)}–${money(hi)} per kg protein</td><td></td></tr></tbody>`;
+  $("ref").innerHTML = h;
+  $("ref-note").textContent = REFP === "lf"
+    ? "Lactoferrin: 250 t/yr (a world market of roughly 0.3–1.6 kt/yr); reported dairy prices in 2025 dollars. Intelligen's figures are costs of production (depreciation, no return on capital), set against ours; the report reconciles them line by line. Not selectable above: the explorer's grid covers BLG and OVA."
+    : "10 kt/yr, US Midwest unless noted; $/kg of protein, 2025 dollars. 'Vs market range' places the price-anchored cost against the 2015–2025 export unit values per kg protein.";
 }
 
 function init() {
@@ -432,12 +638,18 @@ function init() {
     $(a).addEventListener("input", e => { S[a] = +e.target.value; render(); });
   }
   for (const a of ["product", "convention", "site"]) {
-    document.querySelectorAll(`input[name=${a}]`).forEach(el => el.addEventListener("change", e => { S[a] = +e.target.value; render(); }));
+    document.querySelectorAll(`input[name=${a}]`).forEach(el => el.addEventListener("change", e => {
+      S[a] = +e.target.value;
+      if (a === "product") { REFP = prodKey(); $("r-" + REFP).checked = true; drawRef(); }   // the table follows the protein
+      render();
+    }));
   }
   document.querySelectorAll("input[name=unit]").forEach(el => el.addEventListener("change", e => { UNIT = +e.target.value; render(); }));
+  document.querySelectorAll("input[name=refp]").forEach(el => el.addEventListener("change", e => { REFP = e.target.value; drawRef(); }));
+  $("yourprice").addEventListener("input", yourPrice);
   $("reset").addEventListener("click", () => {
     S = Object.assign({}, BASE, {product: S.product});
-    document.querySelectorAll("input[type=radio]").forEach(el => { el.checked = +el.value === (el.name === "unit" ? UNIT : S[el.name]); });
+    document.querySelectorAll("input[type=radio]").forEach(el => { if (el.name !== "refp") el.checked = +el.value === (el.name === "unit" ? UNIT : S[el.name]); });
     render();
   });
   $("gen").textContent = `Model runs generated ${D.generated}. Grid: ${G.values.length.toLocaleString("en-US")} runs of the full model (repository pf-tea).`;
@@ -448,6 +660,12 @@ init();
 </script>
 """
 
-out = ROOT / "docs/explorer.html"
-out.write_text(HTML.replace("__DATA__", json.dumps(DATA, separators=(",", ":"))))
-print("wrote", out.relative_to(ROOT), f"{out.stat().st_size / 1e3:.0f} kB")
+ING = R["equivalents"].get("ingredient_per_unit")
+egg_rng = (f"${min(ING['dried_egg_white_per_egg'].values()):.3f}–{max(ING['dried_egg_white_per_egg'].values()):.3f} per egg"
+           if ING else "(not yet computed)")
+whey_rng = (f"was {min(ING['whey_share_of_farm_milk'].values()):.0%}–{max(ING['whey_share_of_farm_milk'].values()):.0%}"
+            if ING else "(not yet computed)")
+out = OUT
+out.write_text(HTML.replace("__DATA__", json.dumps(DATA, separators=(",", ":"))).replace("__EGGWHITE__", egg_rng)
+               .replace("__WHEYSHARE__", whey_rng))
+print("wrote", out, f"{out.stat().st_size / 1e3:.0f} kB")

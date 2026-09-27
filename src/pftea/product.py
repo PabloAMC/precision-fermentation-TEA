@@ -13,12 +13,13 @@
    Given a product yield Y_ps (g protein per g glucose through the product reaction):
        lam = M_p / (Y_ps M_glc) + nu_glc,anab       (nu_glc,anab < 0)
    so lam >= 0 requires Y_ps <= Y_anab = M_p / (-nu_glc,anab M_glc), the electron ceiling.
-4. Energetic ceiling. Protein synthesis costs n_ATP per residue: polymerisation ~4.3
-   (textbook) plus a net biosynthesis/secretion overhead. Respiring one glucose yields
-   Y_ATP ATP. Then
+4. Energetic ceiling. Protein synthesis costs n_ATP per residue (plant.atp_per_residue): the
+   peptide bond (4), the net cost of making the amino acid from glucose and NH4+ (Stouthamer,
+   ~0.3) and sulfate assimilation for the protein's sulfur. Respiring one glucose yields Y_ATP
+   ATP. Then
        lam_min = n_ATP (residues per C-mol) / Y_ATP,    Y_ps,max = M_p / ((lam_min - nu) M_glc)
-   Y_ps,max is the physical-limit product yield. Real processes run below it; the scenarios
-   set Y_ps directly and report Y_ps / Y_ps,max.
+   Transport, secretion, folding and turnover are not counted, so Y_ps,max is an upper bound;
+   real processes run below it. The scenarios set Y_ps directly and report Y_ps / Y_ps,max.
 """
 from __future__ import annotations
 

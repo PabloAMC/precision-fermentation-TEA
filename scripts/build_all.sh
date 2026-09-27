@@ -2,7 +2,7 @@
 # One command to rebuild everything from the data files:
 #   tests -> results/analyses.json -> figures -> explorer -> SI workbook -> report and memo PDFs.
 # Usage: scripts/build_all.sh [--fast]    (--fast: coarse Monte Carlo and physical-limit search)
-# Needs: .venv with the project installed (README), typst on PATH. About 45 min in full.
+# Needs: .venv with the project installed (README), typst on PATH. About 1.5 h in full.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 PY=.venv/bin/python

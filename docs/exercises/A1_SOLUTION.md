@@ -167,7 +167,7 @@ If it were feasible anyway: about **$33/kg (−15%)**, range $31–35.
 overall yield, and the 44% facility slice shrinks only with the six-tenths power of the
 broth volume. The full model gives a different answer at 10 kt/yr: cost falls roughly as 1/titer until
 the feasibility ceiling (report, section Q1). Doubling BLG titer from 30 to 60 g/L in a 72 h
-production phase cuts the price by nearly half ($29.4 → $16.2/kg, −45%). There, fermenters
+production phase cuts the price by nearly half ($21.2 → $11.9/kg, −44%). There, fermenters
 are numbered up, so their number halves with the broth volume, and at a fixed cell density
 fewer cells are grown per kg of product. In both
 views, doubling titer *at the same batch time* runs into the limits of PRIMER §5.
@@ -195,10 +195,10 @@ midpoints sum to $33.5/kg; on a protein basis, the powder's 94% ovalbumin conten
 ~$2.5/kg, which brings the total close to the gap.
 
 The report's cost bridge (section Q2) does this with the full model, from an NREL-style
-cellulase ($7.0/kg in 2025$) to the base BLG concentrate at 10 kt/yr ($29.4/kg). Its
-largest steps are the titer drop from 50 to 30 g/L (+$8.4), the capital convention (+$7.8)
-and downstream processing and drying (+$7.7). The ovalbumin isolate adds $5.7 more. Titer
-weighs far more there than in my split (+$2–4): at 10 kt/yr and a fixed cell density, both
+cellulase ($7.6/kg in 2025$) to the base BLG concentrate at 10 kt/yr ($21.2/kg). Its
+largest steps are downstream processing and drying (+$7.0), the titer drop from 50 to 30 g/L
+(+$5.1) and the capital convention (+$2.7). The ovalbumin isolate adds $4.7 more than the
+concentrate. Titer weighs more there than in my split (+$2–4): at 10 kt/yr and a fixed cell density, both
 fermenter capital and the sugar spent on cells scale with 1/titer.
 
 | Difference | NREL cellulase | Intelligen ovalbumin | Rough share of the gap |
@@ -222,7 +222,7 @@ fermenter capital and the sugar spent on cells scale with 1/titer.
    above NREL's 3.1 for its ethanol plant (NREL Table 28, p.62). The definitions
    differ: Intelligen's is DFC/PEC, NREL's FCI/PEC and Humbird's TCI/PEC. The full model
    brackets it with two conventions: Humbird's price-anchored one (effective Lang factor
-   ~5.2) and a design-report one (the published designs use 2.7–4; report, sections 2.5
+   ~6.5) and a design-report one (the published designs use 2.7–4; report, sections 2.5
    and 3). If the right class is 5–6, capital and the 44% slice are understated by 25–50%.
 
 The 99% purity from a single ammonium-sulfate precipitation is a close fourth.

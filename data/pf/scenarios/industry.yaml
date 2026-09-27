@@ -13,4 +13,4 @@ mc_paths: [strain.titer_g_L, strain.t_prod_h, strain.Y_ps_g_g, strain.X_prod_g_L
   dsp.membrane_skid_usd_m2, dsp.dryer_MJ_per_kg_water, dsp.spray_dryer_cost_2018usd, utilities.glucose_usd_kg,
   utilities.biomass_disposal_usd_t_dry, capital.cost_index_2018_to_2025, dsp.concentrate_target_frac_dry]
 mc_ranges:
-  strain.titer_g_L: {low: 24, high: 60}   # public-model average to upper private claims (gfi2025costs)
+  strain.titer_g_L: {low: 24, high: 54, grade: C}   # GFI 2025: public models 0.03-54 g/L, average ~24; private average 42 (grade C; the v2 60 was unsourced, review SC-8)

@@ -853,10 +853,16 @@
   quote: "In these chemostat cultures, the highest q_P of 0.64 mg g-1 h-1 was measured at the fastest D-setpoint of 0.17 h-1."
   read: html
   note: >
-    Bivalent VHH under the glucose-limit-induced P_G1-3 promoter (methanol-free). q_P INCREASES
-    monotonically with mu over D = 0.015-0.17 1/h; at near-zero growth (mu = 0.00047 1/h) it
-    collapses to 0.019 mg/gDCW/h, about fivefold below the chemostat extrapolation. Decoupling
-    production from growth does NOT work for this system.
+    Bivalent VHH under the glucose-limit-induced P_G1-3 promoter (methanol-free). q_P increases with
+    mu over D = 0.015-0.17 1/h. Retentostat (re-read 2026-09-27 via Europe PMC full text, review
+    FS-4): "q P decreased sharply from 0.23 to 0.06 mg g-1 h-1 over the first two days of
+    retentostat culturing, while mu dropped from 0.025 h-1 to 0.008 h-1. At mu below 0.0025 h-1,
+    q P stabilized, although at roughly fivefold lower levels than those inferred from chemostat
+    data"; "The average q P at the end of the retentostat was estimated at 0.019 mg g-1 h-1" (mu
+    0.00047 h-1). The authors attribute part of the decline to lower P_G1-3 activity ("A drop in
+    P G1-3 -activity ... might explain the significant decline in q P") and present decoupling
+    growth from production as an engineering target, so this is one strain and one promoter, not a
+    general law. The v2 note's "collapses ... does NOT work" overstated it.
 
 - key: kphaffii_qp_betagal_aox1_bechtel2024
   value: 1.53
@@ -1347,7 +1353,7 @@
     difference, or re-read Stouthamer. The same paper states peptide-bond synthesis is 61% of
     the cell's total ATP expenditure. Read via PMC7617979.
 
-- key: oxycaloric_equivalent
+- key: oxycaloric_equivalent_maskow2010
   value: 455
   low: 430
   high: 480
@@ -1466,17 +1472,25 @@
   unit: g/L
   grade: A
   host: kphaffii
-  source: "Li Y, Yang J, Tao L, Liu Q, Zheng Y, Cai M. Metab Eng (2026)"
+  source: "Li Y, Yang J, Tao L, Liu Q, Zheng Y, Cai M. Metab Eng 99:102555 (2026), with its Supplementary data"
   doi_or_url: 10.1016/j.ymben.2026.102555
-  locator: "abstract"
-  quote: "In the bioreactor, the ESPRIT system produced 5.14 g/L beta-lactoglobulin and 1.95 g/L brazzein on glucose, achieving 3.0-fold and 1.9-fold as compared to the commercial methanol-dependent PAOX1 system"
-  read: abstract
-  note: >
-    Highest verifiable ACADEMIC BLG titer in K. phaffii, and it is METHANOL-FREE (glucose). The
-    3.0x factor means the same strain under P_AOX1/methanol gave ~1.7 g/L - direct evidence that
-    methanol-free is no longer a titer penalty for BLG. The abstract gives no bioreactor scale,
-    duration, DCW or yield on glucose: those could not be obtained (no open full text found).
-    Abstract retrieved via Europe PMC (core result for DOI 10.1016/j.ymben.2026.102555).
+  locator: "Abstract; Sect. 2.7 (fed-batch method); Sect. 3.6 and Fig. 6B; Supplementary Table S4 (feed profile)"
+  quote: "the ESPRIT system produced 5.14 g/L beta-lactoglobulin and 1.95 g/L brazzein on glucose"
+  read: fulltext
+  values: {feed_g_per_h_per_L_broth: {"24-36": 2.5, "36-48": 3.0, "48-60": 3.5, "60-72": 4.0, "72-84": 4.5,
+           "84-96": 5.0, "96-108": 5.5, "108-120": 6.0, "120-132": 6.5},
+           batch_glucose_g_L: 40, start_volume_L: 2.5, duration_h: 132, overall_yield_g_g: [0.010, 0.020]}
+  note: >-
+    Full text and Supplementary data read 2026-09-27 (both were on disk; the earlier note said
+    abstract only). Single-copy, methanol-free BLG strain in a 5-L bioreactor started with 2.5 L of
+    medium holding 4% glucose; glucose fed from about 24 h at rates stepping up from 2.5 to 6.5 g per
+    hour per litre of broth until 132 h (Table S4); 30 C, DO kept at 20-30%; BLG quantified by
+    SDS-PAGE against standards. The same strain design on methanol (P_AOX1) reached 1.69 g/L.
+    Derived (our arithmetic): 486 g glucose fed per litre of broth plus 40 g/L in the batch. If the
+    rates refer to the current broth, the overall yield is ~1.0% g/g; if to the initial 2.5 L (the
+    broth would then end near 5 L with a ~500 g/L feed, which is not stated), ~2.0%. Feed
+    concentration and volume profile are not reported, hence the range; it is the only public
+    measure of a BLG yield on glucose we have, and a check on the academic 'blg_li2026' case.
 
 - key: blg_titer_highest_yao2026
   value: 13.88
@@ -1645,3 +1659,91 @@
     than S. cerevisiae) was NOT verified against a source in this pass - do not assert it without
     one. A measured Complex-I P/O exists for the related methylotroph Ogataea parapolymorpha
     (Appl Environ Microbiol 2020, PMC7376551) and would be the best grade-D analogy.
+
+- key: kphaffii_qp_max_gth1_glucose_fedbatch_prielhofer2018
+  value: 2.1
+  low: 0.6
+  high: 2.1
+  unit: mg product/g DCW/h (maximal specific secretion rate in the feed phase)
+  grade: A
+  host: kphaffii
+  source: "Prielhofer R, Reichinger M, Wagner N, et al. Superior protein titers in half the fermentation time: Promoter and process engineering for the glucose-regulated GTH1 promoter of Pichia pastoris. Biotechnol Bioeng 115:2479-2488 (2018)"
+  doi_or_url: 10.1002/bit.26800
+  locator: "Section 3 (production kinetics, Figure 7c) and Table 3"
+  quote: "a bell-shaped relationship for the production of the i-body with a maximum q P at a growth rate of about 0.1 h -1"
+  read: fulltext
+  note: >-
+    Read 2026-09-27 via Europe PMC (PMC6221138, CC BY-NC; review FS-4 follow-up). Table 3,
+    maximal specific secretion rate in the feed phase: 0.6, 1.8 and 2.1 mg/g/h (P_AOX1 standard,
+    P_GTH1 basic, P_GTH1 optimised). Lonza and BOKU;
+    a secreted antibody-like i-body under the glucose-regulated GTH1 promoter (methanol-free),
+    glucose fed-batch. Optimised process: "a final titer of 6.4 g·L-1 i-body in the supernatant
+    after 60 h total fermentation time" (3.5 g/L per litre of broth), YDM max 138 g/L, OUR max 148
+    mmol/L/h; the feed kept the growth rate falling "from µ = 0.15 to about 0.05 h-1". The best
+    secretion rate is about half the 4.75 mg/g/h of Intelligen's design, and it occurs near
+    mu = 0.1/h, not at the near-zero growth of that design.
+
+- key: kphaffii_qp_rises_with_mu_hsa_rebnegger2014
+  value: null
+  unit: qualitative (specific HSA secretion rate against growth rate, glucose-limited chemostats, mu 0.015-0.15/h)
+  grade: A
+  host: kphaffii
+  source: "Rebnegger C, Graf AB, Valli M, et al. In Pichia pastoris, growth rate regulates protein synthesis and secretion, mating and stress response. Biotechnol J 9:511-525 (2014)"
+  doi_or_url: 10.1002/biot.201300334
+  locator: "Abstract; Figure 1B"
+  quote: "We conclude that a high μ positively affects specific protein secretion rates by acting on multiple cellular processes."
+  read: fulltext
+  note: >-
+    Read 2026-09-27 via Europe PMC (PMC4162992, CC BY-NC-ND). Human serum albumin secreted in
+    glucose-limited chemostats at mu = 0.015-0.15/h; translation and secretion genes rise with mu,
+    proteolytic degradation of secretory proteins falls. With Nieto-Taype 2020, Garrigos-Martinez
+    2019, Prielhofer 2018 and Rebnegger 2024, the consistent picture is that secretion in K. phaffii
+    rises with growth, up to an optimum near 0.08-0.1/h.
+
+
+- key: kphaffii_glucose_hcd_fedbatch_heyland2010
+  value: 218
+  unit: g DCW/L at the end of a glucose fed-batch (2.6 L); constant growth only up to ~155 g/L
+  grade: A
+  host: kphaffii
+  source: "Heyland J, Fu J, Blank LM, Schmid A. Quantitative physiology of Pichia pastoris during glucose-limited high-cell density fed-batch cultivation for recombinant protein production. Biotechnol Bioeng 107:357-368 (2010)"
+  doi_or_url: 10.1002/bit.22836
+  locator: "p.358 (strain, feed), p.360 (batch growth), p.363 and Table I (fed-batch), p.366 (scale, heat)"
+  quote: "tested for their intracellular BapA activity"
+  read: fulltext
+  note: >-
+    Read 2026-09-27 (review H2). THE PRODUCT IS INTRACELLULAR: BapA from pGAPZ A (GAP promoter, no
+    secretion signal), assayed in crude extracts of sonicated cells; 0.03 g BapA/g DCW x 218 g/L =
+    the 6.5 g/L in the abstract. Not evidence for secretion, so never cite it for a secreted titer
+    or q_P. What it does show on glucose (SMD1168H): batch mu 0.28/h for the parent and 0.16/h for
+    the producer (p.360; Table I gives 0.28 and 0.15); fed-batch at mu 0.12/h with yields 0.55
+    (parent) and 0.50 g/g (producer) and glucose uptake 1.2 and 1.4 mmol/g/h (p.363); feed 73% (w/v)
+    glucose (p.358); growth constant up to about 155 g DCW/L, slowing above it, 218 g/L at 65 h,
+    stopped by reactor volume (p.363); the authors state such densities are reachable only in
+    small fermenters because oxygen transfer and heat removal limit larger ones (p.366). Their heat
+    illustration (1,000 L, 50 g/L, mu 0.1/h: 16 kW on glucose) is matched within 5% by the model's
+    460 kJ/mol O2 (H2's arithmetic, checked).
+
+- key: kphaffii_secretion_review_looser2015
+  value: 0.69
+  low: 0.004
+  high: 0.69
+  unit: mg secreted product/g DCW/h (maximal specific productivities compiled in Table 3)
+  grade: A
+  host: kphaffii
+  source: "Looser V, Bruhlmann B, Bumbak F, Stenger C, Costa M, Camattari A, Fotiadis D, Kovar K. Cultivation strategies to enhance productivity of Pichia pastoris: a review. Biotechnol Adv 33:1177-1193 (2015)"
+  doi_or_url: 10.1016/j.biotechadv.2015.05.008
+  locator: "Table 3; Table 2; text section on GAP-controlled production (accepted manuscript: its page numbers do not match the journal's 1177-1193)"
+  quote: "GAP-controlled production of secreted proteins is growth-associated"
+  read: fulltext
+  note: >-
+    Read 2026-09-27 (review H2; tables checked against the page images). Table 3 compiles q_P,max of
+    secreted proteins from 0.004 to 0.69 mg/g/h (0.69: trypsinogen on methanol:glucose). The four
+    GAP/glucose entries (Rebnegger 2014 HSA 0.15, Maurer 2006 Fab 0.049, Buchetics 2011 Fab 0.05,
+    Khasa 2007 hG-CSF 0.49) all peak at mu 0.15-0.20/h and are labelled growth-coupled. The text:
+    AOX1 (methanol) processes reached 0.1-0.26 mg/g/h at growth rates below 0.02/h; GAP processes
+    reach similar rates only near mu_max. Table 2: maintenance 0.011-0.03 g/g/h on methanol and
+    0.009-0.032 on glycerol, none on glucose; mu_max 0.28/h and Y 0.72 g/g for glucose (Paulova
+    2012). Intelligen's design point (4.75 mg/g/h at mu 0.0014/h) is 6.9x the table's maximum and
+    about 18x the 0.26 reached at low growth; Prielhofer 2018 (2.1, glucose fed-batch) is the
+    highest glucose value on file.

@@ -33,6 +33,7 @@ from .params import v
 ROOT = Path(__file__).resolve().parents[2]
 SCEN = ROOT / "data/pf/scenarios"
 LIGHT = {"capital.basis": "nrel"}          # the design-report ('light', NREL-style) capital convention
+ASEPTIC = {"capital.fermenter_quote": "acce_aseptic"}   # Humbird's aseptic cell-culture STR quotes (structural high)
 HARD_LIMITS = ("OUR", "heat", "reachable", "volume", "initial fill", "solubility", "energetic ceiling",
                "specific productivity", "did not reach")   # flags that make a design physically infeasible
 
@@ -176,13 +177,20 @@ def _best_titer(p: dict, X: float, tp: float, hi: float) -> dict | None:
 
 
 def physical_limit(product: str, extra: dict | None = None, fast: bool = False) -> dict | None:
+    """The physical-limit scenario's cheapest design (best_design on its parameters)."""
+    return best_design(scenario_params("physical_limit", product, extra), fast=fast)
+
+
+def best_design(p: dict, fast: bool = False) -> dict | None:
     """Minimise MSP_CCF over cell density and production time; the titer sits at its ceiling.
 
-    A coarse grid over (X_prod, t_prod) is followed by two rounds of coordinate refinement
-    (audit R4-1/R7-C2: the v1 grid left optima on its edges).
+    Everything else stays as in p (the physical-limit scenario, or the base case to ask what
+    process design alone can do; review SC-1). A coarse grid over (X_prod, t_prod) from
+    physical_limit.yaml is followed by two rounds of coordinate refinement (audit R4-1/R7-C2:
+    the v1 grid left optima on its edges).
     """
     s = load("physical_limit")
-    p = scenario_params("physical_limit", product, extra)
+    product = v(p, "plant.product")
     sols = [plant._opt(p, "plant.solubility_override_g_L"),
             (pr.load(product).get("solubility_practical_g_L") or {}).get("value")]
     t_hi = min([400.0] + [x for x in sols if x])
@@ -258,6 +266,10 @@ def tornado(p: dict, paths: list[str], capital_bar: bool = True) -> list[dict]:
         out.append(dict(path="capital.basis", base=base, grade="structural", low="design-report (NREL-style)",
                         high="price-anchored (Humbird)", msp_low=light, msp_high=base, truncated_low=False,
                         truncated_high=False, feasible_low=True, feasible_high=True, swing=abs(base - light)))
+        asep = plant.evaluate(params.override(p, ASEPTIC)).msp_ccf
+        out.append(dict(path="capital.fermenter_quote", base=base, grade="structural", low="vendor quote (base)",
+                        high="aseptic cell-culture STR (ACCE)", msp_low=base, msp_high=asep, truncated_low=False,
+                        truncated_high=False, feasible_low=True, feasible_high=True, swing=abs(asep - base)))
     return sorted(out, key=lambda d: -d["swing"])
 
 
@@ -265,32 +277,46 @@ def monte_carlo(p: dict, paths: list[str], n: int = 500, seed: int = 0, ranges: 
     """Triangular sampling of `paths`. `ranges` overrides low/high per path for the scenario.
 
     Draws that break a physical limit, or for which the model cannot build a plant (ValueError),
-    count as infeasible (audit R4-10); percentiles describe feasible plants only, and the
-    feasible fraction is reported alongside.
+    count as infeasible (audit R4-10). Percentiles are given for feasible plants and for every
+    draw with a cost (review SC-8: infeasible draws cost more), with the limit each infeasible
+    draw breaks first and the mean of each sampled input in feasible and infeasible draws.
     """
     if ranges:
         p = params.override(p, {k: dict(val) for k, val in ranges.items()})
     rng = np.random.default_rng(seed)
-    msp, feas = [], []
+    msp, feas, why, x = [], [], [], {k: [] for k in paths}
     for _ in range(n):
         q = params.sample(p, rng, paths)
+        for k in paths:
+            x[k].append(float(v(q, k)))
         try:
             r = plant.evaluate(q)
             msp.append(r.msp_ccf)
             feas.append(is_feasible(r))
+            why.append(None if feas[-1] else next((k for f in r.flags for k in HARD_LIMITS if k in f), "other"))
         except ValueError:
             msp.append(np.nan)
             feas.append(False)
+            why.append("no plant (model error)")
     msp, feas = np.array(msp), np.array(feas)
-    ok = msp[feas]
-    pct = (lambda q_: float(np.percentile(ok, q_))) if ok.size else (lambda q_: float("nan"))
-    return dict(msp=msp, feasible=feas, p10=pct(10), p50=pct(50), p90=pct(90))
+    ok, fin = msp[feas], msp[np.isfinite(msp)]
+    pct = lambda a, q_: float(np.percentile(a, q_)) if a.size else float("nan")   # noqa: E731
+    reasons = {}
+    for w in why:
+        if w:
+            reasons[w] = reasons.get(w, 0) + 1
+    means = {k: dict(feasible=float(np.mean(np.array(vals)[feas])) if feas.any() else None,
+                     infeasible=float(np.mean(np.array(vals)[~feas])) if (~feas).any() else None)
+             for k, vals in x.items()}
+    return dict(msp=msp, feasible=feas, p10=pct(ok, 10), p50=pct(ok, 50), p90=pct(ok, 90),
+                p10_all=pct(fin, 10), p50_all=pct(fin, 50), p90_all=pct(fin, 90),
+                infeasible_reasons=reasons, input_means=means)
 
 
 def scale_curve(p: dict, outputs_t) -> dict:
     out = {}
-    for label, ch in [("US, Humbird capital", {}), ("EU, Humbird capital", {"plant.location": "eu_nw"}),
-                      ("US, light capital", LIGHT), ("EU, light capital", {**LIGHT, "plant.location": "eu_nw"})]:
+    for label, ch in [("US, price-anchored", {}), ("EU, price-anchored", {"plant.location": "eu_nw"}),
+                      ("US, design-report", LIGHT), ("EU, design-report", {**LIGHT, "plant.location": "eu_nw"})]:
         q = params.override(p, ch)
         out[label] = [plant.evaluate(params.override(q, {"plant.annual_target_protein_t": float(o)})).msp_ccf
                       for o in outputs_t]
@@ -317,7 +343,7 @@ def bridge_steps() -> list[tuple[str, dict]]:
     reset = lambda *keys: {k: BASE for k in keys}   # noqa: E731
     return [
         ("NREL on-site cellulase (T. reesei), 2025 prices, NREL-style capital", start),
-        ("capital: Humbird convention (price-anchored)", reset("capital.basis")),
+        ("capital: price-anchored convention (Humbird factors and fixed costs)", reset("capital.basis")),
         ("food-grade indoor sanitary plant", reset("capital.facility_class")),
         ("host: K. phaffii stoichiometry and broth (no maintenance)", {"strain.host": "kphaffii",
                                                                      "hosts.kphaffii.maint_factor": 0.0,

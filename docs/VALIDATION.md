@@ -34,10 +34,22 @@ Findings from the port:
 3. **Compressor power** (found by the engineering evidence search). A.1's compressor formula
    (column BD) raises the bottom pressure to the power 1.4 and divides by 1.4. An ideal
    adiabatic compression uses the exponent (k−1)/k = 0.286 and the prefactor k/(k−1) = 3.5.
-   At 2.1 bar Humbird's form gives about 1.6× the adiabatic power at 80% efficiency. We keep
-   it (fidelity to anchor 1), so our compressor power is conservative. The effect is small:
-   compressors are ~0.2 of 1.1 kW/m³ of aeration power at OTR 150, i.e. roughly $0.1/kg
-   protein in the PF base case.
+   At 2.1 bar Humbird's form gives about 1.6× the adiabatic power at 80% efficiency (the US-unit
+   constant 8130 belongs to hp = scfm·T₁/(8130·a)·(r^a − 1) with a = (k−1)/k; the cell puts k where
+   a belongs). The port keeps it, to reproduce the workbook. Since the follow-up review (H1) the PF
+   model uses the textbook form (`fermentation.compressor_kW_adiabatic`, tested against the US-unit
+   form); the workbook formula is kept as `fermenter.compressor_formula: humbird_a1` and changes the
+   PF cost by about $0.02/kg (review HM-7 had estimated it at about zero; v2 said ~$0.1/kg).
+4. **kLa exponent in print.** The paper prints Eq. A.8 with a superficial-velocity exponent of 0.2;
+   the workbook (A.1!C95:F95) and our port use 0.7. The port follows the workbook (review HM, D1).
+5. **What the anchor constrains** (review SC-3/HM-2). Capital-related charges are less than half
+   of the yeast cost, and the market band depends on how Humbird's 33% margin is read ($1.47–1.88
+   if a share of the price, $1.65–2.11 if a mark-up). With a lighter, NREL-like capital set
+   (investment 3.2× listed equipment, fixed costs 1.2% + 0.7% a year) the workbook gives $1.37,
+   below both bands; with Humbird's factors and NREL-like fixed costs, $1.62. The anchor therefore
+   favours Humbird's factors and fixed costs, loosely, and says nothing about fermenter prices
+   beyond its own bubble column ($779k per 199 m³, 2018$). `results/analyses.json`,
+   `calibration.bakers_yeast_stacks`.
 
 ## Anchor 2: NREL 2011 on-site cellulase (consistency check)
 
@@ -52,23 +64,22 @@ salary, 90% labour burden, Area 400 nutrients). NREL's $4.24/kg is per kg of pro
 |---|---|---|---|
 | Glucose, kg/kg protein | 3.87 | 4.17 | −7.1% |
 | O₂, mol/kg protein | 83.1 | 84 | −1.0% |
-| Electricity, kWh/kg | 5.4 | 9 | −40% |
-| **Cost, $/kg protein, price-anchored (Humbird) capital** | **10.78** | **4.24** | **+154%, miss** |
-| Cost with NREL's own (design-report) capital convention | 5.75 | 4.24 | +36% |
+| Electricity, kWh/kg | 4.9 | 9 | −45% |
+| **Cost, $/kg protein, price-anchored (Humbird) capital** | **7.81** | **4.24** | **+84%, miss** |
+| Cost with NREL's own (design-report) capital convention | 6.08 | 4.24 | +43% |
 
-**Diagnosis.** Sugar and O₂ agree within 7%; electricity does not (below). The cost miss is
-capital structure:
-- **Fermenter purchase cost.** Humbird's ACCE STRFERM quotes, extrapolated above 196 m³ with
-  their own power-fit exponent 0.69, price a 300 m³ vessel with agitator at $2.9M (2007$).
-  NREL's vendor quotes (App. A, F-400 + A-400) are $0.99M: **2.9× lower**.
+**Diagnosis.** Sugar and O₂ agree within 7%; electricity does not (below). Since the Phase F review
+both conventions use NREL's own fermenter quote (App. A, F-400 + A-400, $0.99M per 300 m³ in 2007$;
+v2 priced Humbird's aseptic ACCE vessel at 2.9× that). The remaining cost miss is:
 - **Installation and indirect factors.** Humbird's least expensive (outdoor) class gives an
-  effective Lang factor of 4.4; NREL's installation factors plus Table 27 indirects give ~3.1
-  (our light convention, which keeps Humbird's buildings and missing-capital allowance, 3.8).
+  effective Lang factor of 5.1 here (with the 20% missing-equipment allowance); NREL's installation
+  factors plus Table 27 indirects give ~3.1 (our light convention, which keeps Humbird's buildings
+  and missing-capital allowance, 4.2).
 - **Maintenance plus insurance.** 9% of TCI per year in Humbird's convention, against about
   2% for NREL (3% of ISBL maintenance, 0.7% of FCI insurance).
-- **Result.** Capital-related cost is $7.6/kg (Humbird convention) against $2.5/kg with
-  NREL's convention; the rest of the +36% is labour ($0.45/kg), buildings and our cleaning
-  (CIP) cost, which NREL does not itemise.
+- **Result.** Capital-related cost is $4.6/kg (Humbird convention) against $2.8/kg with
+  NREL's convention; the rest of the +42% is labour ($0.45/kg), buildings, the 20%
+  missing-equipment allowance and our cleaning (CIP) cost, which NREL does not itemise.
 
 Electricity is lower because our aeration is power-optimal (about 0.3–0.5 vvm, 1–2 kW/m³);
 NREL's 800 hp agitators are sized for peak.
@@ -78,13 +89,14 @@ reports that Genencor and Novozymes quoted enzyme costs ~47% above its figure ($
 $0.34 per gallon of ethanol, i.e. ~$6.2/kg). Humbird's method is the one anchored to a real
 price (anchor 1), although that anchor rests on one product and an assumed 33% margin.
 
-The gap shows that **capital conventions alone move the cost of a crude secreted protein by
-a factor of ~2**. The results therefore carry a named structural sensitivity, *capital
-convention*:
-- price-anchored (Humbird/ACCE; base);
-- design-report (NREL-style): vendor-quote fermenters, lighter factors, ~2% fixed costs.
+The gap shows that **accounting conventions alone move the cost of a crude secreted protein by
+about 1.3×** once the fermenters are priced alike (2× in v2, when the aseptic vessel price was part
+of the gap). The results therefore carry two named structural sensitivities:
+- *capital convention*: price-anchored (Humbird factors and fixed costs; base) or design-report
+  (NREL-style factors, ~2% fixed costs);
+- *fermenter price basis*: vendor quote (base) or Humbird's aseptic cell-culture vessels.
 
-It appears as a bar in the tornado and as a step in the cost bridge.
+Both appear as bars in the tornado; the convention is also a step in the cost bridge.
 
 ## Anchor 3: Intelligen 2025 ovalbumin (consistency check)
 
@@ -96,18 +108,18 @@ construction; the growth phase, downstream and costs are independent.
 
 | Quantity | Ours | Intelligen | Difference |
 |---|---|---|---|
-| **Cost, $/kg powder (Humbird convention)** | **49.47** | **43.52** | **+13.7%** |
-| Total capital investment | $147M | $92M | +60% |
-| Glucose, kg/kg powder | 10.5 | 13.0 (syrup) | −19% |
-| Electricity, kWh/kg powder | 10.1 | 27.1 | −63% |
+| **Cost, $/kg powder (Humbird convention)** | **42.00** | **43.52** | **−3.5%** |
+| Total capital investment | $114M | $92M | +24% |
+| Glucose, kg/kg powder | 10.6 | 13.0 (syrup) | −19% |
+| Electricity, kWh/kg powder | 9.6 | 27.1 | −65% |
 
 **Diagnosis.** The differences trace to stated assumptions on one side or the other:
 - **Whole fermenters.** Our downstream recovers 0.82 of the protein against Intelligen's
-  0.86 (we keep Behm's 97.5% MF recovery and a 2% dryer loss), so the plant needs 5.07
-  vessel-equivalents: 6 whole fermenters against Intelligen's 5. With 5 (4.6 more operating
-  days per year) the miss is +6.8%.
-- **Capital.** Ours is higher: Humbird's facility factors give an effective Lang factor of ~5
-  against Intelligen's 4.
+  0.86 (we keep Behm's 97.5% MF recovery and a 2% dryer loss), so the plant needs 5.1
+  vessel-equivalents: 6 whole fermenters against Intelligen's 5.
+- **Capital.** Ours is higher: Humbird's facility factors and the 20% missing-equipment allowance
+  give an effective Lang factor of 6.0 against Intelligen's 4. With vendor-quote fermenters the
+  equipment itself is close to theirs; in v2, with aseptic vessel prices, our capital was +60%.
 - **Glucose.** Ours is lower in the growth phase: our thermodynamic growth yield (0.57 g/g
   maximum, ~0.53 effective with maintenance; the measured *K. phaffii* value is 0.50–0.56) beats
   Intelligen's assumed 0.40 g/g (Eq. 1). Intelligen's "glucose syrup" may also not be pure
@@ -136,17 +148,18 @@ Basis and method:
 
 | Quantity | Ours | Voutilainen | Difference |
 |---|---|---|---|
-| Sugar, kg/kg protein | 6.37 | 6.15 | +3.7% (by construction) |
-| Capital (ours TCI vs their FCI incl. sugar section) | 204 M€ | 128 M€ | +59% |
-| **Cost, €/t protein (their DCF)** | **21,880** | **9,007** | **+143%, miss** |
+| Sugar, kg/kg protein | 6.28 | 6.15 | +2.2% (by construction) |
+| Capital (ours TCI vs their FCI incl. sugar section) | 131 M€ | 128 M€ | +1.8% |
+| **Cost, €/t protein (their DCF)** | **16,345** | **9,007** | **+81%, miss** |
 
-**Diagnosis.** As for NREL, the conventions differ:
+**Diagnosis.** Capital now agrees within 2% (v2: +59%, from the aseptic fermenter prices). The
+miss is the fixed-cost rule and the factors:
 
 | Convention change | Result (€/t) |
 |---|---|
-| Our model as is | 21,880 |
-| Their fixed costs instead of Humbird's 9% of TCI (maintenance 1.5% of FCI, no insurance) | 15,610 |
-| Plus the NREL-style capital basis | **11,100 (+23%)** |
+| Our model as is | 16,345 |
+| Their fixed costs instead of Humbird's 9% of TCI (maintenance 1.5% of FCI, no insurance) | 12,329 (+37%) |
+| Plus the NREL-style capital basis | **11,423 (+27%)** |
 
 The remaining gap is mostly labour: 5.6 M€ in our Humbird attention model against their
 3.15 M€ (45 people). A further difference is their unitemised equipment list: 31.5 M€,
@@ -154,25 +167,27 @@ multiplied by 4.07.
 
 ## Summary: what the four anchors say
 
-1. **Our method is exactly Humbird's.** It reproduces his baker's-yeast cost to 0.004%, and
-   that cost sits on the market-implied price (anchor 1; one product, and the margin is his
-   assumption).
+1. **The port is exact; the PF extension is Humbird-style.** The port reproduces his baker's-yeast
+   cost to 0.004%, and that cost sits on the market-implied price (anchor 1; one product, and the
+   margin is his assumption). The anchor favours his capital factors and fixed costs over a lighter
+   set, loosely, and does not test fermenter prices (finding 5).
 2. **Sugar and O₂ agree with the two designs that state them independently** (NREL within
    7% and 1%; Voutilainen's sugar is matched by construction; Intelligen's expression phase is
    matched by construction and its growth phase differs by design). **Electricity does not**:
    ours is 40–63% lower, for the reasons given under each anchor. These are consistency
    checks, not calibration fits (audit R7-M6).
-3. **Published PF costs are 2.3–2.5× lower than our base on the same process.** The reason is
-   lighter capital and fixed-cost conventions (vendor-quote fermenters, Lang ~3–4, fixed costs
-   of 1.5–2% of capital), not different biology. With the light conventions our model still
-   lands above theirs, by +23% (Voutilainen) and +36% (NREL): the rest is our labour model,
-   buildings and cleaning. We are within 14% of Intelligen's total (7% with its five whole
-   fermenters), which uses Lang 4 and heavy SuperPro overheads.
-4. **We therefore report two capital conventions throughout.**
-   - *Price-anchored capital (Humbird method, base)*: anchored to one real product price.
-   - *Design-report capital (NREL-style)*: the convention of the published PF and enzyme TEAs.
-
-   Their spread is the largest structural uncertainty in PF protein economics.
+3. **Published designs are 1.8× lower than our base on the same process (NREL, Voutilainen),
+   and Intelligen's is within 4%.** With vendor-quote fermenters our capital matches Voutilainen's
+   within 1% and Intelligen's within 24% (their Lang factor is 4). The rest is accounting: fixed
+   costs of 1.5–2% of capital a year instead of Humbird's 9%, and lighter factors. With their
+   conventions our model still lands above theirs, by +27% (Voutilainen) and +42% (NREL): our
+   labour model, buildings, the missing-equipment allowance and cleaning.
+4. **We therefore report two capital conventions and two fermenter price bases throughout.**
+   - *Price-anchored capital (Humbird method, base)*: his factors and fixed costs, which his yeast
+     workbook needs to land in the market band.
+   - *Design-report capital (NREL-style)*: the convention of NREL-style design reports.
+   - *Fermenter prices*: an industrial vendor quote (base) or Humbird's aseptic cell-culture
+     vessels (v2's basis, a high case).
 
 ## Record of changes
 
@@ -211,3 +226,53 @@ anchors re-run, misses re-recorded, test bands tightened to ±5 points.
 | Intelligen, glucose | −28% | −19% | Production-phase stoichiometry now reproduces Eq. 2 |
 | Voutilainen, Humbird convention | +182% | +143% | Their own DCF conventions (R4-6); membranes and skid from sourced dairy costs (P-1); UF to their 28% dry matter |
 | Voutilainen, light convention | +37% | +23% | Same, plus maintenance on FCI rather than ISBL (R4-7) |
+
+**2026-09-27, Phase F AI pre-review (docs/REVIEW.md, docs/AUDIT.md).** Structure changed by the review
+decisions: vendor-quote fermenters in both conventions (BE-1/HM-2/SC-3), 20% missing-equipment
+allowance (BE-4), O₂ cap 200 per m³ of cell-free liquid (HM-3), coincident-peak chillers and
+compressors (BE-6), CIP chemicals inside Humbird's maintenance (HM-8), the membrane skid as an
+installed cost (BE-8), disposal at the paste's 15% solids (BE-9), feeds in g/L with ammonia at its
+density (FS-1/BE-2), inoculum 3 g/L (FS-11). Anchors re-run, misses re-recorded (±5-point test bands).
+
+| Anchor | Before | After | Cause |
+|---|---|---|---|
+| NREL, Humbird convention | +154% | +82% | Vendor-quote fermenters (the v2 aseptic quotes were 2.9× dearer), partly offset by the 20% allowance |
+| NREL, light convention | +36% | +42% | The 20% missing-equipment allowance (with 10% it is +35.5%) |
+| Intelligen, total | +13.7% | −3.6% | Vendor-quote fermenters |
+| Intelligen, TCI | +60% | +24% | Same |
+| Voutilainen, Humbird convention | +143% | +81% | Vendor-quote fermenters; capital now within 1% of their FCI |
+| Voutilainen, light convention | +23% | +27% | The 20% allowance |
+
+The mass balances did not move (glucose −7.1% NREL, −18.9% Intelligen; O₂ −1.0%).
+
+**2026-09-27, follow-up reading (docs/REVIEW.md, follow-up section).** Model changes: the PF model's
+compressor is the textbook adiabatic one (Humbird's workbook formula, kept in the A.1 port, would add
+$0.02/kg to the base BLG); the aeration
+search no longer fails at high DO; inoculum 0.88 g/L from 17.6 g/L seed broth (Intelligen's
+lactoferrin flowsheet; the Voutilainen anchor pins its own 10% seed train, 3 g/L from 30 g/L); cation
+exchange at 20 column volumes per hour (lactoferrin only). Anchors re-run and re-recorded:
+
+| Anchor | After |
+|---|---|
+| NREL, Humbird convention | +84.2% |
+| NREL, light convention | +43.4% |
+| NREL, electricity | −45.3% (the compressor correction) |
+| Intelligen, total | −3.5% |
+| Intelligen, TCI | +24.3% |
+| Voutilainen, Humbird convention | +81.5% |
+| Voutilainen, TCI vs FCI | +1.8% |
+| Voutilainen, light convention | +26.8% |
+
+**Aeration check (review H1).** With Humbird's compressor formula the model gives
+0.501 kWh of compressor and agitator power per kg O₂ at OUR 150 in the 200 m³
+vessel; his 2021 aeration sheet gives 0.501 (engineering.yaml aeration_power_humbird2021_fig13_200m3).
+With the textbook compressor, 0.385. Humbird, Davis & McMillan (2017) imply about
+twice his 2021 figure from process simulations without DO control (aeration_power_humbird2017_fig3).
+Holding DO at 50% of saturation adds $0.26/kg to the base BLG.
+
+**Lactoferrin reconciliation (review L).** Intelligen's own lactoferrin model gives unit production
+costs of $299 (UF/DF only) and $441 (cation exchange) per kg lactoferrin
+(2025$). Our cost of production on the same routes is $113 and $159; with their
+stated design inputs, $105 and $212. The rest is their unit prices and cost
+rules, category by category (report, lactoferrin reconciliation table; SI sheet
+Lactoferrin_reconciliation). A consistency check, not a calibration: we keep our sourced prices.

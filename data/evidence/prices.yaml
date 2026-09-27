@@ -206,7 +206,9 @@
   value: null
   low: 8.2
   high: 17.7
-  unit: "USD/kg product"
+  protein_low: 10.3
+  protein_high: 19.9
+  unit: "USD/kg product (protein_low/high: USD/kg protein)"
   grade: "C"
   source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
   doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
@@ -219,7 +221,9 @@
   value: null
   low: 1.2
   high: 17.7
-  unit: "USD/kg product"
+  protein_low: 6.7
+  protein_high: 19.9
+  unit: "USD/kg product (protein_low/high: USD/kg protein)"
   grade: "C"
   source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
   doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
@@ -232,7 +236,9 @@
   value: null
   low: 8.0
   high: 11.0
-  unit: "USD/kg product"
+  protein_low: 9.6
+  protein_high: 12.2
+  unit: "USD/kg product (protein_low/high: USD/kg protein)"
   grade: "C"
   source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
   doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
@@ -245,7 +251,9 @@
   value: null
   low: 1.6
   high: 14.0
-  unit: "USD/kg product"
+  protein_low: 15.6
+  protein_high: 59.4
+  unit: "USD/kg product (protein_low/high: USD/kg protein)"
   grade: "C"
   source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
   doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
@@ -253,6 +261,50 @@
   quote: "Egg white protein prices range from approximately $1.6 to $14.0/kg, depending on purity, with protein-adjusted prices between $15.6 and $59.4/kg-protein (Figure 12)."
   read: "fulltext"
   note: "Range spans liquid to powder; per kg protein 15.6-59.4 USD."
+
+
+- key: "soy_protein_price_range_gfi2025"
+  value: null
+  low: 3.0
+  high: 9.0
+  protein_low: 3.8
+  protein_high: 10.6
+  unit: "USD/kg product (protein_low/high: USD/kg protein)"
+  grade: "C"
+  source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
+  doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
+  locator: "section 1.3 (biomass), p.26"
+  quote: "Market price ranges for soy protein concentrates/isolates ranged in price from $3.0 to $9.0/kg and $3.8 to $10.6/kg-protein"
+  read: "fulltext"
+  note: "Nominal, about 2024-2025; market data as reported by GFI (context only, not a model input)."
+
+- key: "pea_protein_price_range_gfi2025"
+  value: null
+  low: 2.7
+  high: 8.0
+  protein_low: 3.8
+  protein_high: 10.6
+  unit: "USD/kg ingredient (protein_low/high: USD/kg protein)"
+  grade: "C"
+  source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
+  doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
+  locator: "section 1.3 (biomass), p.26"
+  quote: "pea protein concentrate/isolate prices ranged from $2.7 to $8.0/kg ingredient and $3.8 to $10.6/kg-protein"
+  read: "fulltext"
+  note: "Nominal, about 2024-2025 (context only)."
+
+- key: "collagen_gelatin_price_range_gfi2025"
+  value: null
+  low: 6.5
+  high: 9.3
+  unit: "USD/kg product at protein purities above 90%"
+  grade: "C"
+  source: "GFI & Hawkwood Biotech. Driving down costs of fermentation-derived ingredients (June 2025)"
+  doi_or_url: "10.62468/trxj5734 (local: references/reports/GFI_2025_driving_down_costs_fermentation.pdf)"
+  locator: "section 1.3.3, p.31"
+  quote: "Food-grade hydrolyzed collagen and gelatin typically range from $6.5 to $9.3/kg at protein purities above 90%."
+  read: "fulltext"
+  note: "Per kg protein at 90% protein (our conversion): $7.2-10.3; nominal, about 2024-2025 (context only)."
 
 - key: "egg_white_powder_price_intelligen2025"
   value: null

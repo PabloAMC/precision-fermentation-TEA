@@ -54,6 +54,12 @@ physical limits, and the performance needed for price parity.
 | **F. Review** | ~4, mostly waiting | Assumptions and figures sent to a GFI fermentation scientist, an enzyme-industry bioprocess engineer and a known sceptic (optionally Humbird); docs/REVIEW.md | Every comment answered or fixed |
 | **G. Release** | 2 | Report plus engrXiv preprint, SI (code, YAML, exported workbook), explorer (cultivated-meat pattern), one-page memo, scored priors | Public |
 
+**Status (2026-09-27, evening).** v2.1: the v2 draft was pre-reviewed by four simulated expert
+reviewers (AI; `docs/ai-review/`), every comment answered in `docs/REVIEW.md`, and the resulting
+changes made (`docs/AUDIT.md`, Phase F section), then checked against five further sources (decisions
+log below). The human review (Phase F proper) waits on Pablo's
+emails; the release (Phase G) waits on his go-ahead (`docs/RELEASE.md`).
+
 **Status (2026-09-27).** v1 was audited (docs/AUDIT.md) and v2 implements the findings; phases
 F (review packet) and G (release files) are being prepared. Earlier status, kept for the record:
 
@@ -71,6 +77,33 @@ Phase F (external review) has not started. Open items:
 - 9 parameters are still grade E (listed in the report's limitations).
 
 ## Decisions log
+
+- **2026-09-27, follow-up reading after the pre-review (Claude; for Pablo's review):**
+  - Five sources Pablo downloaded were read (Humbird 2017 aeration; Heyland 2010 and Looser 2015
+    physiology; Intelligen's lactoferrin report; Lv 2023), three of them by AI reading passes
+    whose findings were checked against the texts, table images and workbook cells.
+  - Corrected: the compressor formula (Humbird's workbook puts k where (k−1)/k belongs; the PF
+    model now uses the textbook form, the A.1 port keeps his); a latent failure of the aeration
+    search at high DO; the lactoferrin comparison (Intelligen's figures are costs of production,
+    $292 is its UF/DF-only case; now reconciled by category); the cation-exchange flow (Intelligen's
+    20 CV/h replaces a guess); seed density and inoculum (Intelligen's flowsheet, 17.6 and 0.88 g/L).
+  - Kept, with reasons (REVIEW.md, follow-up section): the 40 mg/g/h secretion ceiling of the
+    best case, the production-maintenance range, our lactoferrin design and prices.
+  - Added: `tests/test_data.py` (every data file parses; evidence schema and unique keys), after
+    a malformed evidence entry was found.
+
+- **2026-09-27, Phase F AI pre-review (Claude, under the "no mistakes" mandate; for Pablo's review):**
+  - Four simulated reviewers (fermentation scientist, bioprocess engineer, sceptic, method author's
+    perspective) reviewed v2; each comment was re-checked before acting (`docs/REVIEW.md`).
+  - Fermenters are now priced from NREL's industrial vendor quote in both conventions; Humbird's
+    aseptic cell-culture vessel prices, used in v2, are a named high case. This moves the base BLG
+    from $29.4 to about $21/kg; see AUDIT.md for the evidence.
+  - Humbird's air-sparged STR O₂ value (200 mol/m³/h per m³ of cell-free liquid) replaces the
+    bubble-column 150 per m³ of broth; missing-equipment allowance 20% (his A.1 value).
+  - The physical-limit scenario is presented as a best case conditional on an assumed secretion
+    rate; "secretion without growth" is the report's lead caveat.
+  - Kept, with reasons: Humbird's 9% fixed-cost rule, Intelligen's 500 g/L feed as the base, and the
+    exclusion of start-up, working capital and failed batches.
 
 - **2026-09-26/27, audit and v2 (Claude, at Pablo's request "make sure there are no mistakes",
   then "close the gaps"; for Pablo's review):**

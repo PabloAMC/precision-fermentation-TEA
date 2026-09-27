@@ -29,11 +29,29 @@ incumbents:
 
 reported_prices:           # products without a trade code: price points from reports and trade press (benchmarks.reported_prices)
   lactoferrin:
-    label: "dairy bovine lactoferrin (reports and trade press, nominal US$)"
+    label: "dairy bovine lactoferrin (reports and trade press, 2025 US$)"
     compare_to: lf
     evidence: lactoferrin      # data/evidence/lactoferrin.yaml
     keys: [blf_price_trade_press_series, blf_price_range_gfi2025, blf_price_gfieurope2025, blf_price_mao2023]
     grade: C
+    deflate: true              # each point's year -> incumbents.money_year with the CPI deflator (review SC-6)
+    comparators: [lf_cost_intelligen2026_case_a_ufdf, lf_cost_intelligen2026_case_b_cex]   # published model costs (not prices)
+    comparator_cases:          # our case on the same route; compare cost of production (SuperPro's unit cost has
+      lf_cost_intelligen2026_case_a_ufdf: lf_ufdf_only    # depreciation and no return on capital)
+      lf_cost_intelligen2026_case_b_cex: lf
+
+
+
+context:                   # protein ingredients for context (benchmarks.context_prices; report Q1, explorer, fig 11)
+  - {label: "Pea protein concentrate/isolate", key: pea_protein_price_range_gfi2025, basis: protein, grade: C, group: plant, when: "GFI 2025, nominal"}
+  - {label: "Soy protein concentrate/isolate", key: soy_protein_price_range_gfi2025, basis: protein, grade: C, group: plant, when: "GFI 2025, nominal"}
+  - {label: "Collagen and gelatin (>90% protein)", key: collagen_gelatin_price_range_gfi2025, basis: product, protein_frac: 0.90, grade: C, group: animal, when: "GFI 2025, nominal"}
+  - {label: "Casein", key: casein_price_range_gfi2025, basis: protein, grade: C, group: dairy, when: "GFI 2025, nominal"}
+  - {label: "Whey proteins, all grades", key: whey_protein_price_range_gfi2025, basis: protein, grade: C, group: dairy, when: "GFI 2025, nominal"}
+  - {label: "WPC80 and WPI", key: wpc80_wpi_price_range_gfi2025, basis: protein, grade: C, group: dairy, when: "GFI 2025, nominal"}
+  - {label: "Whey protein >80%, export unit values", incumbent: whey, grade: A, group: dairy}
+  - {label: "Dried egg white, export unit values", incumbent: egg, grade: A, group: egg}
+  - {label: "Egg white protein, all purities", key: egg_white_price_range_gfi2025, basis: protein, grade: C, group: egg, when: "GFI 2025, nominal"}
 
 equivalents:               # the model's $/kg protein expressed per litre of milk and per egg (benchmarks.equivalents)
   # Composition from data/evidence/milk_egg.yaml (entry derived_protein_per_litre_and_per_egg, by field).
@@ -62,24 +80,26 @@ titer_markers:             # (product in titers.csv, source_key, host) -> max ti
   blg:
     - {product: blg, source_key: Yao2026, host: K. phaffii, label: "best published BLG (Yao 2026; ethanol induction)"}
     - {product: blg, source_key: Li2026, host: K. phaffii, label: "best published BLG on glucose (Li 2026)"}
-    - {product: "other:PF-average-published", source_key: gfi2025costs, host: various, label: "published-TEA average (GFI 2025)"}
-    - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "private average (GFI 2025 survey)"}
+    - {product: "other:PF-average-published", source_key: gfi2025costs, host: various, label: "average in published cost models (GFI 2025)"}
+    - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
     - {product: blg, source_key: behm2022, host: T. reesei, label: "design titer (Behm 2022; NREL cellulase)"}
   ova:
-    - {product: ova, source_key: Beck2025, host: E. coli EcN, label: "best published OVA (Beck 2025, 3 L)"}
+    - {product: ova, source_key: Aro2023, host: T. reesei, label: "best public secreted OVA (Aro 2023; incl. a clipped form)"}
+    - {product: ova, source_key: Beck2025, host: E. coli EcN, label: "OVA, intracellular E. coli (Beck 2025, 3 L)"}
     - {product: ova, source_key: intelligen_ovalbumin2025, host: K. phaffii, label: "Intelligen design; EVERY ovomucoid patent"}
-    - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "private average (GFI 2025 survey)"}
-    - {product: ova, source_key: intelligen_ovalbumin2025, host: T. reesei, label: "Onego claim (press, grade C)"}
+    - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
+    - {product: ova, source_key: intelligen_ovalbumin2025, host: T. reesei, label: "Onego platform claim (protein not specified; press)"}
 
 claims:                    # Q5: is the claimed titer reachable within O2/heat limits, and in how long?
   # model: the host and cell density we run it with (T. reesei at the academic OVA scenario's density)
+  # t_prod_h: the claim's own production phase where the source gives one (else 72 h is used)
   - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, model_host: kphaffii, model_product: blg,
-     label: "GFI 2025 private-sector average"}
+     label: "average titer in private companies' cost models (GFI 2025)"}
   - {product: "other:PF-average-published", source_key: gfi2025costs, host: various, model_host: kphaffii, model_product: blg,
-     label: "GFI 2025 published-TEA average"}
-  - {product: blg, source_key: behm2022, host: T. reesei, model_host: treesei, model_product: blg,
-     label: "Behm 2022 BLG design titer (T. reesei)"}
+     label: "average titer in published cost models (GFI 2025)"}
+  - {product: blg, source_key: behm2022, host: T. reesei, model_host: treesei, model_product: blg, t_prod_h: 120,
+     label: "Behm 2022 BLG design titer (T. reesei, 120 h)"}
   - {product: "other:homologous-secreted-protein", source_key: behm2022, host: T. reesei, model_host: treesei, model_product: blg,
      label: "T. reesei homologous secreted protein (Behm 2022, grade C)"}
   - {product: ova, source_key: intelligen_ovalbumin2025, host: T. reesei, model_host: treesei, model_product: ova,
-     label: "Onego ovalbumin claim (press, grade C)"}
+     label: "Onego platform claim (protein not specified; tested as OVA; press, grade C)"}

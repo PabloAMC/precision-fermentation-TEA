@@ -4,10 +4,13 @@
 - Received and filed: 1 (Li), 2 (Yao), 3 (Aro), 4 (Järviö, article and Supplementary
   Information), 5 (Nielsen), FDA GRN 1056, plus Shukla 2026, Behm 2022, Zhang 2024, Yamanie 2026,
   Risner 2023, Puetz 2019, Klein-Marcuschamer 2012 and Voutilainen 2021 with its SI.
-- Still needed, in order of usefulness: **P4** (new: sources behind v2 values that were read only
-  as abstracts), **P1c** (supplementary files with the missing process data), **P1b** 14–15
-  (lactoferrin design basis and titer), 6 (Jin 2024), 7 (the other FDA GRAS notices), P2 (8–13).
-  P3 is optional.
+- Received and read on 2026-09-27: Heyland 2010 and Looser 2015 (P4 25–26), Humbird, Davis &
+  McMillan 2017 (aeration), Intelligen's lactoferrin report (February 2026; P1b 14 / P5 36), Lv 2023
+  (Green Chem), Prielhofer 2018, Rebnegger 2014, and the Li 2026 Supplementary data (P1c 21). What
+  each changed is in docs/REVIEW.md (follow-up section).
+- Still needed, in order of usefulness: **P1c** 22 (Yao 2026 Supplementary data: feed amounts, for a
+  second measured BLG yield on sugar), P5 35, the rest of **P4**, P1b 15 (Liu 2026), 6 (Jin 2024), 7 (the
+  other FDA GRAS notices), P2 (8–13), P5 37–38 (books, library). P3 is optional.
 
 Save PDFs into `references/papers/` (articles) or `references/reports/` (FDA notices), with
 the filename given. Both folders are git-ignored, so nothing copyrighted is published. DOIs
@@ -64,6 +67,15 @@ text we can check the quote, or replace the value. DOIs checked against Crossref
 | 32 | Hu C, Shen W, Xia Y, Zhou L, Yang H, Chen X. Efficient production of the recombinant human lactoferrin in an engineered *Trichoderma reesei*. J Agric Food Chem 73:32795–32806 (2025) | 10.1021/acs.jafc.5c11534 | `papers/Hu2025_lactoferrin_treesei.pdf` | Lactoferrin titer table |
 | 33 | Towler G, Sinnott R. Chemical Engineering Design, 2nd ed. Elsevier (2013), ch. 7 "Capital cost estimating" (a library copy is fine) | 10.1016/B978-0-08-096659-5.00007-9 | `papers/TowlerSinnott2013_ch7_capital_cost.pdf` | Location factors and installation factors, a textbook cross-check of the capital conventions |
 | 34 | Huntington JA, Stein PE. Structure and properties of ovalbumin. J Chromatogr B 756:189–198 (2001) | 10.1016/S0378-4347(01)00108-6 | `papers/Huntington2001_ovalbumin_structure.pdf` | Optional: ovalbumin properties (currently an unverified lead) |
+
+## P5 — raised by the Phase F AI pre-review (added 2026-09-27)
+
+| # | Document | DOI / where | Save as | Why |
+|---|---|---|---|---|
+| 35 | Lv X, Cui S, Chen J, et al. Cascaded de novo biosynthesis of lacto-proteins from CO₂ by engineered *Pichia pastoris*. Green Chemistry 25:5460–5469 (2023). (The file saved as `papers/Lv2023.pdf` on 2026-09-27 is a different paper by the same group, on lactoferricin; it can stay but is not this one.) | 10.1039/d3gc00867c | `papers/Lv2023_lacto-proteins_greenchem.pdf` | A review cites "P_AOX1 lacto-protein 5.4 g/L" from it; if that protein is BLG it is the highest public BLG titer (methanol-induced) |
+| 36 | Da Gama Ferreira R, Misailidis N, Petrides D. Lactoferrin production via precision fermentation (Intelligen, 2024) — same as item 14, now more useful | ResearchGate 382686507 | `reports/Intelligen_2024_lactoferrin_TEA.pdf` | Their cost of production is $292/kg against our $123–203; their operating-cost breakdown would show where the models differ |
+| 37 | Cheryan M. Ultrafiltration and Microfiltration Handbook. Technomic (1998), chapters on whey and on diafiltration (library copy) | ISBN 978-1566765985 | `papers/Cheryan1998_UF_MF_handbook_excerpt.pdf` | Whey-protein UF and diafiltration fluxes at scale; the reviewer's 10–20 L/m²/h would replace our single patent value (5) |
+| 38 | Peters MS, Timmerhaus KD, West RE. Plant Design and Economics for Chemical Engineers, 5th ed. McGraw-Hill (2003), ch. 6 (library copy) | ISBN 978-0072392661 | `papers/Peters2003_ch6_cost_estimation.pdf` | Standard ranges for maintenance, insurance, local taxes and plant overhead, to test Humbird's 9% rule |
 
 ## P2 — engineering cross-checks
 
