@@ -110,7 +110,7 @@ sheet("Parameters", ["path", "label", "value (US)", "value (EU)", "low", "high",
 
 # ---------------------------------------------------------------- Scenarios
 rows = []
-for name in ("academic", "industry", "physical_limit", "lactoferrin"):
+for name in ("academic", "industry", "physical_limit", "lactoferrin", "casein"):
     s = yaml.safe_load((ROOT / f"data/pf/scenarios/{name}.yaml").read_text())
     for blk, body in s.items():
         if blk in ("description", "search", "mc_paths"):
@@ -290,7 +290,7 @@ sheet("Market_context", ["ingredient", "low $/kg protein", "high $/kg protein", 
 with (ROOT / "data/titers.csv").open() as fh:
     t = list(csv.reader(fh))
 sheet("Titers", t[0], t[1:], [14, 14, 10, 10, 8, 10, 12, 20, 6, 50, 20, 12, 8, 8, 50])
-for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin"):
+for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein"):
     E = yaml.safe_load((ROOT / f"data/evidence/{f}.yaml").read_text())
     rows = [[e.get("key"), num(e.get("value")) if not isinstance(e.get("value"), (dict, list)) else json.dumps(e.get("value")),
              num(e.get("low")), num(e.get("high")), e.get("unit", ""), e.get("grade", ""), e.get("source", ""),

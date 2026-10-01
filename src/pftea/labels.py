@@ -70,6 +70,15 @@ LABELS = {
     "dsp.cex_resin_life_cycles": "ion-exchange resin life (cycles)",
     "dsp.cex_hardware_usd_per_L_resin": "ion-exchange columns and skid ($/L resin, 2018)",
     "dsp.cex_target_frac_dry": "lactoferrin share of the powder",
+    "dsp.dryer_feed_solids_cas": "dryer feed solids, sodium caseinate",
+    "dsp.acid_h3po4_kg_per_m3": "acid to precipitate casein (kg H3PO4/m3)",
+    "dsp.acid_precip_temperature_C": "casein precipitation temperature",
+    "dsp.acid_heat_recovery": "precipitation heater heat recovery",
+    "dsp.acid_precip_recovery": "casein precipitation recovery",
+    "dsp.acid_wash_L_per_kg": "casein curd wash water (L/kg)",
+    "dsp.acid_curd_solids": "casein curd solids",
+    "dsp.acid_naoh_kg_per_kg": "NaOH to caseinate (kg/kg)",
+    "dsp.acid_target_frac_dry": "casein share of the powder",
 }
 
 

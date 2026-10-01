@@ -47,14 +47,14 @@ New to bioprocessing? Read [docs/PRIMER.md](docs/PRIMER.md).
 
 ```
 data/pf/base.yaml           all parameters: value, range, grade, source (US and EU prices)
-data/pf/scenarios/          academic, industry, physical_limit, lactoferrin overrides
+data/pf/scenarios/          academic, industry, physical_limit, lactoferrin, casein overrides
 data/pf/benchmarks.yaml     incumbent prices and literature titers shown on the figures
-data/evidence/              hosts, dsp, engineering, prices, placeholders, milk_egg, lactoferrin:
+data/evidence/              hosts, dsp, engineering, prices, placeholders, milk_egg, lactoferrin, casein:
                             graded evidence with quotes
 data/calibration/           the four calibration cases
 data/prices/                one-series CSVs behind prices.yaml
 data/titers.csv             every public titer/yield data point
-data/products/              BLG, OVA, lactoferrin, cellulase: sequences and formulas
+data/products/              BLG, OVA, beta-casein, lactoferrin, cellulase: sequences and formulas
 src/pftea/thermo.py         black-box stoichiometry, Heijnen dissipation, Tijhuis maintenance
 src/pftea/fermentation.py   Humbird's A.1 fermenter (bubble column), compressor, chillers
 src/pftea/humbird_yeast.py  anchor 1: exact port of Humbird's baker's-yeast workbook

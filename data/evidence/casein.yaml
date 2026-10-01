@@ -1,0 +1,732 @@
+# data/evidence/casein.yaml: evidence for adding CASEIN as a pf-tea product (research pass 2026-10-01).
+# Format: data/evidence/README.md. Grades: A measured/official; B published design basis or patent
+# example; C company claim/survey/trade press; D analogy; E guess.
+# Everything below was read as raw text: UniProt REST JSON, FSANZ and FDA PDFs via pdftotext,
+# Europe PMC full-text XML, publisher HTML read in the browser pane, Google Patents description HTML,
+# the Internet Archive scan of the Tetra Pak Dairy Processing Handbook, UN Comtrade JSON.
+# No summarising web-fetch tool supplied any number or quote. Items with `quote: null` are leads.
+# Downloads kept in references/inbox/casein/ (git-ignored): FSANZ A1342 (application, CfS, SD1, SD2,
+# admin assessment, executive summary), FDA GRN 1312 and GRN 1228 + cease letter, Mora Vasquez 2025,
+# Biermann 2025, Southward NZIC 'Casein products', Tetra Pak handbook OCR text, Standing Ovation PR.
+#
+# Titer rows live in the companion file (scratchpad) casein_titers.csv, in data/titers.csv format.
+# Prices are NOT re-done here: see data/evidence/prices.yaml (casein_acid_us_dmn_annual,
+# casein_rennet_us_dmn_annual, casein_food_eu_export_unit_value, casein_price_range_gfi2025) and
+# data/evidence/milk_egg.yaml (milk_casein_tetrapak, milk_casein_share_heck2009).
+
+# =======================================================================================
+# 1. Product identity: the four bovine caseins, sequences, PTMs, variants, shares
+# =======================================================================================
+
+- key: casein_beta_uniprot_mature_chain
+  value: "P02666 chain 16-224"
+  unit: residue range of the mature secreted chain (precursor numbering)
+  grade: A
+  source: "UniProtKB P02666 (CASB_BOVIN), Beta-casein, Bos taurus; entry version 195, sequence version 2, last annotation update 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02666.json
+  locator: "features: Signal 1-15; Chain 16-224 'Beta-casein'; 5 'Modified residue' = Phosphoserine at 30, 32, 33, 34, 50; comment POLYMORPHISM"
+  quote: "Leu-152 is present in the variants F and G; Gln-190 and Glu-210 are present in the variant H. The sequence shown is the A2 variant"
+  read: fulltext
+  note: >-
+    209 residues after the 15-residue signal peptide. UNIPROT CARRIES A2: the A1/A2 site is
+    precursor residue 82 (mature 67), listed as a Natural variant "P -> H in variants A1, B, C, F
+    and G", so the reference sequence (Pro82) is A2 - exactly what Eden Brew expresses and what
+    Fermify's withdrawn dossier used. 5 phosphoserines (mature numbering 15, 17, 18, 19, 35; the
+    first four are the phosphate centre). NO cysteine, so no disulfides, and no N-glycosylation
+    sequon. Computed here from the mature chain: C1080H1692N268O310S6, average MW 23,583 Da
+    unphosphorylated and 23,983 Da with 5 phosphates (+79.97 Da each); 15.92 wt% N, so N x 6.28 =
+    protein (the dairy factor N x 6.38 overstates beta-casein protein by ~1.6%, much less than for
+    lactoferrin); 35 prolines = 16.7% of residues, which is why it has almost no secondary
+    structure and is protease-sensitive. Mature sequence (becomes data/products/casein_beta.yaml):
+    RELEELNVPGEIVESLSSSEESITRINKKIEKFQSEEQQQTEDELQDKIHPFAQTQSLVYPFPGPIPNSLPQNIPPLTQTPVVVPPFLQPEVMGVSKVKEAMAPKHKEMPFPKYPVEPFTESQSLTLTDVENLHLPLPLLQSWMHQPHQPLPPTVMFPPQSVLSLSQSKVLPVPQKAVPYPQRDMPIQAFLLYQEPVLGPVRGPFPIIV
+
+- key: casein_as1_uniprot_mature_chain
+  value: "P02662 chain 16-214"
+  unit: residue range of the mature secreted chain (precursor numbering)
+  grade: A
+  source: "UniProtKB P02662 (CASA1_BOVIN), Alpha-S1-casein, Bos taurus; entry version 178, sequence version 2, last annotation update 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02662.json
+  locator: "features: Signal 1-15; Chain 16-214; 9 'Modified residue' = Phosphoserine at 56, 61, 63, 79, 81, 82, 83, 90, 130; Natural variant 29-41 'in variant A'"
+  quote: "{\"type\":\"Signal\",\"location\":{\"start\":{\"value\":1},\"end\":{\"value\":15}}} ... {\"type\":\"Chain\",\"description\":\"Alpha-S1-casein\",\"location\":{\"start\":{\"value\":16},\"end\":{\"value\":214}}}"
+  read: fulltext
+  note: >-
+    199 residues. UniProt lists NINE phosphoserines (mature 41, 46, 48, 64, 66, 67, 68, 75, 115),
+    whereas FDA GRN 1312 and Farrell et al. 2004 describe the mature protein as phosphorylated at
+    EIGHT sites with a ninth (Ser115, "alpha-s1-casein 9P") only in a minor species - use 8 for the
+    mass balance and say so. No cysteine. The B variant is the reference; variant A lacks precursor
+    residues 29-41 (mature 14-26), the 13-residue deletion that Mortes et al. 2026 show changes the
+    interfacial configuration and foam stability; variant C is Glu192->Gly (mature 177). Computed
+    here: C1035H1587N265O317S5, 22,975 Da unphosphorylated, 23,615 Da with 8 phosphates (GRN 1312
+    quotes 22.98 kDa and 23.6 kDa, which matches); 16.16 wt% N, N x 6.19 = protein. Mature sequence:
+    RPKHPIKHQGLPQEVLNENLLRFFVAPFPEVFGKEKVNELSKDIGSESTEDQAMEDIKQMEAESISSSEEIVPNSVEQKHIQKEDVPSERYLGYLEQLLRLKKYKVPQLEIVPNSAEERLHSMKEGIHAQQKEPMIGVNQELAYFYPELFRQFYQLDAYPSGAWYYVPLGTQYTDAPSFSDIPNPIGSENSEKTTMPLW
+
+- key: casein_as2_uniprot_mature_chain
+  value: "P02663 chain 16-222"
+  unit: residue range of the mature secreted chain (precursor numbering)
+  grade: A
+  source: "UniProtKB P02663 (CASA2_BOVIN), Alpha-S2-casein, Bos taurus; entry version 159, sequence version 2, last annotation update 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02663.json
+  locator: "features: Signal 1-15; Chain 16-222; 13 'Modified residue' = Phosphoserine at 23, 24, 25, 28, 46, 71, 72, 73, 76, 144, 146, 150, 158; comment POLYMORPHISM"
+  quote: "At least two alleles exist. The sequence of the A allele is shown here. The D allele sequence differs from that shown in having a deletion of nine residues, which may be 49-58, 50-59, or 51-60"
+  read: fulltext
+  note: >-
+    207 residues, the most heavily phosphorylated casein: 13 phosphoserines in UniProt (mature 8, 9,
+    10, 13, 31, 56, 57, 58, 61, 129, 131, 135, 143); the classical literature range is 10-13 P.
+    TWO CYSTEINES (precursor 51 and 56; mature 36 and 41) but UniProt lists NO disulfide-bond
+    feature for them - in milk alpha-s2 occurs as a disulfide-linked dimer, so a recombinant
+    monomer/dimer mixture is a real product-quality question, not a settled fact. Computed here:
+    C1083H1707N287O338S6, 24,349 Da unphosphorylated, 25,228 Da with 11 P; 16.51 wt% N,
+    N x 6.06 = protein. Mature sequence:
+    KNTMEHVSSSEESIISQETYKQEKNMAINPSKENLCSTFCKEVVRNANEEEYSIGSSSEESAEVATEEVKITVDDKHYQKALNEINQFYQKFPQYLQYLYQGPIVLNPWDQVKRNAVPITPTLNREQLSTSEENSKKTVDMESTEVFTKKTKLTEEEKNRLNFLKKISQRYQKFALPQYLKTVYQHQKAMKPWIQPKTKVIPYVRYL
+
+- key: casein_kappa_uniprot_mature_chain
+  value: "P02668 chain 22-190"
+  unit: residue range of the mature secreted chain (precursor numbering)
+  grade: A
+  source: "UniProtKB P02668 (CASK_BOVIN), Kappa-casein, Bos taurus; entry version 175, sequence version 1, last annotation update 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02668.json
+  locator: "features: Signal 1-21; Chain 22-190; Site 126-127 'Cleavage; by chymosin/rennin'; Disulfide bond 32-109 (plus interchain forms); 8 'Glycosylation' O-linked (GalNAc) at 142, 152, 153, 154, 157, 163, 170, 186; Modified residue Phosphoserine 148, 170, 187 and Phosphothreonine 166"
+  quote: "Kappa-casein stabilizes micelle formation, preventing casein precipitation in milk"
+  read: fulltext
+  note: >-
+    169 residues and the odd one out in every respect. 21-residue signal peptide (not 15). The
+    N-terminal Gln22 is a pyrrolidone carboxylic acid (cyclised Gln) in the mature protein.
+    ONE INTRACHAIN DISULFIDE Cys32-Cys109 (mature 11 and 88), and UniProt also lists both cysteines
+    as INTERCHAIN disulfides "in linked form", i.e. kappa-casein polymerises through them.
+    EIGHT O-GalNAc sites, all in the C-terminal macropeptide region (mature 121-165), one of them
+    (Ser170 / mature 149) alternately phosphorylated or glycosylated: no microbial host reproduces
+    this mucin-type glycosylation. Only 1-2 phosphates. Chymosin cuts between precursor 126 and 127
+    (mature Phe105-Met106), releasing glycomacropeptide - the reaction all rennet cheese depends on.
+    Computed here: C849H1323N223O262S4, 18,974 Da unphosphorylated and unglycosylated
+    (glycans add ~0.6-2 kDa per site in milk); 16.46 wt% N, N x 6.07 = protein. Mature sequence:
+    QEQNQEQPIRCEKDERFFSDKIAKYIPIQYVLSRYPSYGLNYYQQKPVALINNQFLPYPYYAKPAAVRSPAQILQWQVLSNTVPAKSCQAQPTTMARHPHPHLSFMAIPPKKNQDKTEIPTINTIASGEPTSTPTTEAVESTVATLEDSPEVIESPPEINTVQVTSTAV
+
+- key: casein_signal_peptides_confirmed_by_patent
+  value: {as1: 15, as2: 15, beta: 15, kappa: 21}
+  unit: signal-peptide length (residues) removed to give the mature chain
+  grade: B
+  source: "Standing Ovation. US 2024/0251812 A1, 'Method for producing casein and uses thereof', Table 1; Perfect Day US 11,457,649 B2 Example 1"
+  doi_or_url: https://patents.google.com/patent/US20240251812A1/en
+  locator: "US20240251812A1 Table 1 'Sequences of natural caseins (precursors) and of the related recombinant proteins'; US11457649 Example 1 'Vectors'"
+  quote: "removed 15 or 21-residue signal peptide from N-terminal end; added XhoI (CTC GAG) endonuclease recognition sequence and KEX endopeptidase recognition sequence (AAA AGA) to 5' end of DNA"
+  read: fulltext
+  note: >-
+    Independent confirmation that industry uses exactly the UniProt chain boundaries: the quote is
+    Perfect Day (K. lactis, alpha-MF fusion, KEX2 processing), and Standing Ovation's Table 1 shows
+    the same mature sequences with a single added N-terminal Met for cytoplasmic E. coli expression
+    (MRELEELN... for beta, MRPKHPIK... for alpha-s1, MKNTMEHV... for alpha-s2). Eden Brew's K.
+    phaffii product instead carries a four-residue EAEA extension from incomplete signal cleavage
+    (see casein_beta_eden_brew_identity), and Formo's E. coli product carries the extra Met
+    (200 aa instead of 199).
+
+- key: casein_shares_of_total_casein
+  value: {as1: 41.9, as2: 13.5, beta: 34.4, kappa: 10.2}
+  unit: "% of total casein (w/w), derived from g/100 g true protein"
+  grade: A
+  source: "Heck JML, van Valenberg HJF, Dijkstra J, van Hooijdonk ACM. Seasonal variation in the Dutch bovine raw milk composition. J Dairy Sci 92(10):4745-4755 (2009), Table 3"
+  doi_or_url: 10.3168/jds.2009-2146
+  locator: "Table 3 (already in data/evidence/milk_egg.yaml as milk_blg_ala_share_true_protein_heck2009)"
+  quote: "alpha_s1_cn 33.5, alpha_s2_cn 10.8, beta_cn 27.5, kappa_cn 8.2 (g/100 g of true protein)"
+  read: fulltext
+  note: >-
+    DERIVED (mine): the four caseins sum to 80.0 g/100 g true protein, so within total casein
+    alpha-s1 41.9%, alpha-s2 13.5%, beta 34.4%, kappa 10.2%. Cross-checks: Eden Brew's dossier says
+    "Beta-casein, as a family, makes up approximately 35% of the total casein content in bovine
+    milk" (FSANZ A1342 Application p.42) and FSANZ SD1 says beta-casein is "approximately 30% of
+    the total milk protein content" (that second figure is too high - 27.5/100 of true protein is
+    the measured value). Absolute concentrations, using 26 g total casein/kg milk (Tetra Pak, in
+    milk_egg.yaml): alpha-s1 10.9, alpha-s2 3.5, beta 8.9, kappa 2.7 g/kg milk (mine). A1/A2 is a
+    beta-casein allele, not a quantity: variant frequency does not change the share.
+
+- key: casein_a1_a2_variant_site
+  value: 67
+  unit: mature-chain residue where A1 (His) and A2 (Pro) differ
+  grade: A
+  source: "FSANZ. Supporting document 1 - Risk and technical assessment, Application A1342 (Eden Brew), 9 July 2026, sect. 5.2"
+  doi_or_url: https://www.foodstandards.gov.au/sites/default/files/2026-07/A1342%20Supporting%20document%201_Risk%20and%20technical%20assessment.pdf
+  locator: "sect. 5.2 'Bovine beta-casein', p.14"
+  quote: "Among its naturally occurring variants, A1 and A2 are most common and differ by a single amino acid at position 67 (Cieslinska et al 2022)."
+  read: fulltext
+  note: >-
+    Mature residue 67 = precursor residue 82, the UniProt Natural variant "P -> H in variants A1,
+    B, C, F and G". UniProt's reference sequence is therefore A2. Eden Brew's dossier adds the
+    commercial logic: "A2 Beta-casein is one of two naturally occurring genetic variants, the other
+    being A1 that is the predominant form found in milk produced in Australia. Due to its
+    prevalence and consumer preference, the A2 variant was selected" and claims A2 is "commonly
+    associated with improved coagulation properties and firmer curd formation". For the model this
+    is a labelling/price-premium question, not a process parameter: the two sequences differ by one
+    residue and 40 Da.
+
+# =======================================================================================
+# 2. Commercial PF casein: who makes what, in which host, with what regulatory document
+# =======================================================================================
+
+- key: casein_beta_eden_brew_process
+  value: null
+  unit: qualitative process train (commercial PF beta-casein, K. phaffii, methanol-free)
+  grade: A
+  source: "FSANZ Application A1342 (Eden Brew Pty Ltd), 'Beta-casein Protein Preparation Produced via Precision Fermentation'; Supporting document 1, sect. 2.1; Application sect. B.1"
+  doi_or_url: https://www.foodstandards.gov.au/food-standards-code/applications/a1342-beta-casein-protein-preparation-gm-komagataella-phaffii
+  locator: "SD1 sect. 2.1 p.5; Application sect. B.1 p.38 (Figure 1 flow chart)"
+  quote: "The expressed beta-casein protein is secreted into the fermentation medium in soluble form. Fermentation medium containing the beta-casein protein is separated from the yeast biomass by centrifugation and then subjected to micro-filtration, pH adjustment and heat treatment prior to concentration by ultrafiltration, and diafiltration to exchange the fermentation medium for water. In the final step, the pH is adjusted and the preparation dried."
+  read: fulltext
+  note: >-
+    THE KEY DOCUMENT for a methanol-free, secreted, UF/DF-only casein route, and the first
+    PF-casein dossier anywhere with a public risk assessment. Flow sheet: seed -> production
+    fermenter -> centrifuge -> microfiltration -> pH adjust + heat treat -> UF -> DF (into water)
+    -> pH adjust -> dry. NO chromatography and NO isoelectric precipitation. Strain EB-ST-537 from
+    K. phaffii NRRL Y-7556: one copy of bovine CSN2 "under the control of a synthetic promoter that
+    is activated under methanol free conditions", one S. cerevisiae helper gene, two synthetic
+    transcription modulators, and two endogenous protease ORFs deleted. Assessed under the General
+    Procedure; call for submissions 9 July - 20 August 2026; FSANZ accepted it in Dec 2025 as
+    Australia's first PF novel-food application. Titer, batch size above 500 L, feed composition
+    and recoveries are all Confidential Commercial Information.
+
+- key: casein_beta_eden_brew_spec
+  value: {protein_frac: 0.2245, beta_casein_frac_of_protein: 0.25, beta_casein_frac_powder: 0.055, carbohydrate_frac: 0.683, ash_frac: 0.021, moisture_frac: 0.054, fat_frac: 0.0165}
+  unit: mass fractions of the spray-dried powder (means of 4 commercial 500 L batches)
+  grade: A
+  source: "FSANZ A1342 (Eden Brew), Application Table 3 'Proximate and sugar analysis of BCPP1 from EB-ST-537' and sect. B.5; FSANZ SD1 Table 1 (proposed Code specification)"
+  doi_or_url: https://www.foodstandards.gov.au/sites/default/files/2026-07/A1342%20Application.pdf
+  locator: "Application Table 3, p.24 and sect. B.5 p.47 (Table 12); SD1 Table 1, pp.7-8"
+  quote: "Beta-casein comprised approximately 5-6 % of the total weight in each sample, with Beta-casein purity, expressed as a proportion of total protein, ranging from 22-28 %. Total protein content across the three batches was consistent, measuring at 22.7 %, 21.6 %, and 22.5 % respectively."
+  read: fulltext
+  note: >-
+    THE SINGLE MOST IMPORTANT SPEC FINDING FOR THE MODEL, and it cuts against the lactoferrin
+    analogy: the first commercial PF casein going through a regulator is NOT a purified protein.
+    It is 22% protein, of which only ~25% is beta-casein (so ~5.5 wt% product), 68% yeast-derived
+    carbohydrate ("presumed to be fermentation-derived mannans, beta-glucans and chitin fragments
+    originating from the host organism's cell wall"), 2.1% ash, 5.4% moisture. FSANZ's proposed
+    Code specification is deliberately loose: total protein 20-24%, carbohydrate <=70%, fat <=3%,
+    ash <=3%, moisture <=6%, total sugars <=1%, beta-casein ">4% of BCPP1" (the applicant had asked
+    for ">20% of total protein"), residual host DNA <10 ng/g, Pb/As/Hg/Cd each <=0.05 mg/kg.
+    Energy 1602 kJ/100 g; PDCAAS 0.46-0.61 across batches. Consequence for pf-tea: a UF/DF-only
+    train on a K. phaffii broth co-concentrates mannan with the product, and the achievable powder
+    purity is ~25% of protein, not the >90% of the lactoferrin CEX train. Reaching a dairy-casein
+    spec (>=90% protein) needs a capture step this process does not have.
+
+- key: casein_beta_eden_brew_identity
+  value: null
+  unit: qualitative (PTMs and N-terminus of commercial K. phaffii beta-casein)
+  grade: A
+  source: "FSANZ A1342 (Eden Brew), SD1 sects. 5.2.1-5.2.2; Application sect. B.6"
+  doi_or_url: https://www.foodstandards.gov.au/sites/default/files/2026-07/A1342%20Supporting%20document%201_Risk%20and%20technical%20assessment.pdf
+  locator: "SD1 pp.14-15; Application pp.50-51 (Table 14)"
+  quote: "In contrast, O-linked glycosylation was consistently observed at five distinct serine (S) or threonine (T) residues (Table 14). ... The glycan structures identified at these positions were simple mannose-based units typical of glycosylation patterns in K. phaffii-derived proteins."
+  read: fulltext
+  note: >-
+    Two deviations from native beta-casein, both disclosed: (i) N-terminus - LC-MS/MS and Edman
+    both find a predominant form with a four-residue EAEA extension from the alpha-MF-type signal,
+    plus a minor species lacking the initial Arg; (ii) five O-linked mannose glycans and NO
+    credible N-glycosylation. PHOSPHORYLATION IS NOT REPORTED ANYWHERE IN THE DOSSIER - the
+    applicant describes the native protein as "23.6 kDa for the primary structure prior to
+    post-translational phosphorylation, and 24.0 kDa following phosphorylation of 5 Ser residues"
+    but gives no phospho-analysis of its own product, and FSANZ does not ask for one. Treat Eden
+    Brew's beta-casein as of UNKNOWN phosphorylation (most likely low), and note that the dossier
+    cites Choi & Jimenez-Flores 2001 for the claim that K. phaffii glycosylates up to 30% of
+    beta-casein - the same paper that reports normal phosphorylation in that host.
+
+- key: casein_as1_formo_newmilkbuzz_process
+  value: null
+  unit: qualitative process train (commercial PF alpha-s1-casein, E. coli, isoelectric precipitation)
+  grade: A
+  source: "Formo Foods GmbH & NewMilkBuzz BV. FDA GRAS Notice GRN 1312, 'Recombinant alphaS1-casein from Bos taurus produced by Escherichia coli DSM 35603', 19 December 2025; sect. 2.3.1 and Figure 6"
+  doi_or_url: https://downloads.regulations.gov/FDA-2026-N-1832-0021/attachment_1.pdf
+  locator: "sect. 2.3.1 'Description of the method of manufacture', p.20; Figure 6 flow chart p.21"
+  quote: "The downstream processing begins with harvesting the fermentation broth under controlled conditions, followed by washing the biomass using microfiltration to reduce impurities, with the pH adjusted to 5.5. Proteins are then extracted through acid extraction and heat treatment, where the pH is lowered to 1.8 before heating. After biomass removal via centrifugation, lipopolysaccharides (LPS) are precipitated by raising the pH to 10.5 using sodium hydroxide (NaOH). The stream is then clarified through filtration. The target protein is precipitated by lowering the pH to 4 using phosphoric acid and recovered using filtration or decanting equipment. Finally, the recovered solids are dried to achieve the desired moisture content."
+  read: fulltext
+  note: >-
+    THE REFERENCE PRECIPITATION ROUTE, and the answer to "does any PF dossier precipitate at the
+    isoelectric point?": yes - pH 4 with phosphoric acid, recovered by filtration or DECANTING,
+    i.e. the dairy acid-casein unit operations applied to a fermentation broth. Flow: inoculation
+    -> fermentation -> whole-cell-broth harvest -> biomass washing (MF, pH 5.5) -> acid + heat
+    extraction at pH 1.8 -> biomass removal (centrifuge) -> LPS precipitation at pH 10.5 (NaOH) ->
+    polishing filtration -> casein precipitation at pH 4 (H3PO4) -> drying. No chromatography, no
+    UF/DF. The chemical bill is therefore acid down to 1.8, NaOH up to 10.5, H3PO4 down to 4 -
+    three large pH swings on the whole broth, which in a cost model is a reagent and
+    salt/wastewater line, not a membrane line. Host is engineered E. coli Nissle 1917 (strain
+    F1238 = DSM 35603), arabinose-induced, chemically defined medium, no antibiotics. FDA letter
+    still "Pending" (page last updated 24 Sep 2026); the joint Formo/Those Vegan Cowboys filing was
+    submitted Dec 2025 and published for review in 2026.
+
+- key: casein_as1_formo_spec
+  value: {protein_min_frac: 0.90, as1_min_frac_of_protein: 0.97, moisture_max: 0.05, fat_max: 0.02, ash_max: 0.05}
+  unit: mass fractions of the powder
+  grade: A
+  source: "FDA GRAS Notice GRN 1312 (Formo Foods / NewMilkBuzz), Table 3 'Specifications for aS1-CN' and Table 4 batch analysis"
+  doi_or_url: https://downloads.regulations.gov/FDA-2026-N-1832-0021/attachment_1.pdf
+  locator: "Table 3, p.24; Table 4, pp.26-27; Appendix I CoAs"
+  quote: "Moisture <= 5 g/100g | Crude protein >= 90 g/100g | as1-casein % of protein > 97 g/100g | Total fat <= 2 g/100g | Ash < 5 g/100g"
+  read: fulltext
+  note: >-
+    This is the spec a precipitation route CAN hit, and it is close to the dairy acid-casein
+    standard (Southward: 85.4% protein as-is, i.e. ~96% dry basis; Tetra Pak extra grade: 95%
+    protein dry basis, <=10% moisture, <=2.2% ash). Three non-consecutive batches: crude protein
+    (N x 6.25) 93.16 / 96.54 / 95.31 g/100 g, moisture 1.0 / 0.8 / 0.3 g/100 g, pH 3.68-4.18 (the
+    product is left at its precipitation pH, acid casein - NOT a caseinate), all heavy metals
+    below LOQ. Endotoxin 6-105 EU/mg is the price of an E. coli host (the dossier devotes several
+    pages to it). Use level sought: up to 25 g/100 g in cheese analogues. CONTRAST WITH EDEN BREW:
+    same product class, 90% vs 22% protein, because one precipitates and the other only ultrafilters.
+
+- key: casein_as1_formo_no_phosphorylation
+  value: 0
+  unit: phosphorylation sites detected in the commercial recombinant alpha-s1-casein
+  grade: A
+  source: "FDA GRAS Notice GRN 1312 (Formo Foods / NewMilkBuzz), sect. 2.1.2.1 peptide fingerprinting by LC-MS/MS"
+  doi_or_url: https://downloads.regulations.gov/FDA-2026-N-1832-0021/attachment_1.pdf
+  locator: "sect. 2.1.2.1, p.14 (Figure 7)"
+  quote: "No phosphorylation was detected in the recombinant aS1-casein protein across any of the analyzed batches of aS1-CN. In contrast, in native bovine aS1-casein, phosphorylation was observed at three of the reported phosphorylation sites"
+  read: fulltext
+  note: >-
+    The cleanest public statement that a commercial PF casein is completely unphosphorylated, from
+    the notifier's own mass spectrometry. Note the comparison is unflattering to the method as well:
+    only 3 of 8-9 sites were seen even in the native dairy control, so "no phosphorylation" means
+    none detected by trypsin/AspN peptide fingerprinting, and the company nevertheless sells it for
+    cheese analogues at up to 25%. Together with casein_function_phosphorylation_needed below, this
+    is the central scientific tension in the whole product category.
+
+- key: casein_beta_fermify_grn1228_withdrawn
+  value: null
+  unit: qualitative (withdrawn GRAS notice; inclusion-body route; liquid product)
+  grade: A
+  source: "Fermify GmbH. FDA GRAS Notice GRN 1228, 'beta-casein produced by E. coli DSM 35048', 14 October 2024; FDA cease-evaluation letter, 13 June 2025"
+  doi_or_url: https://downloads.regulations.gov/FDA-2025-N-1927-0069/attachment_1.pdf
+  locator: "GRN 1228 sects. 2.1, 2.3.1, 2.4 (pp.12-17); FDA letter https://www.fda.gov/media/192477/download"
+  quote: "The cells harvested by centrifugation at the end of the fermentation are disrupted by high pressure homogenization and subsequently washed by resuspension in fresh buffer. ... Centrifugation is then performed to separate and remove cell debris and obtain inclusion bodies (IBs). The IBs separated from cell debris are solubilized to yield crude, soluble beta-casein. The solution is subjected to sequential precipitation and flocculation steps for the removal of impurities ... Tangential flow filtration is performed to adjust protein titer and for final product formulation."
+  read: fulltext
+  note: >-
+    The third public PF-casein route, and the only INCLUSION-BODY one: homogenise, wash, recover
+    IBs, solubilise, precipitate/flocculate impurities, UF to concentration. The product is a
+    LIQUID at min 2% protein (1.5-4% w/w) in sodium phosphate buffer, pH 6.5-7.5, >=75% of protein
+    being beta-casein, stored at <=4 C - i.e. Fermify did not dry it, and the dossier even says
+    "Users may therefore need to concentrate beta-casein produced by E. coli stF_24_139 to reach
+    the desired use level". That is exactly what killed the notice: FDA's cease letter says "the
+    sodium level in the ingredient is high and the levels of sodium and heavy metals will be
+    substantially increased if the beta-casein is to be further concentrated" and asked for
+    information on the concentrating process; Fermify requested withdrawal 3 June 2025. Endotoxin
+    up to 660,000 EU/g dry matter. T7lac promoter, IPTG/lactose-inducible. Unphosphorylated.
+    LESSON FOR THE MODEL: for a bacterial intracellular route the salt load of the formulation
+    buffer is a product-quality constraint, not just a cost.
+
+- key: casein_other_companies_status
+  value: null
+  unit: qualitative register of PF-casein developers and their public documents
+  grade: C
+  source: "GFI. 2026 State of the Industry Report: Fermentation (sections on commercial landscape, ingredient characterization and regulation); company press releases; trade press (Protein Production Technology, Green Queen, FoodNavigator)"
+  doi_or_url: "local: references/text/GFI_2026_state_of_industry_fermentation.txt (lines 1457-1495, 1585-1640, 2560-2580)"
+  locator: "GFI 2026 SOTI, 'Precision fermentation ingredient characterization' and 'Government and regulation'"
+  quote: "In December 2025, FSANZ accepted Australia's first novel food application for a precision-fermentation ingredient, submitted by Eden Brew for the company's animal-free beta-casein protein preparation."
+  read: fulltext
+  note: >-
+    Register as of 2026-10-01, all company-claim grade unless a dossier exists:
+    (a) Eden Brew - beta-casein A2, K. phaffii, FSANZ A1342, methanol-free, dossier public [A];
+    (b) Formo + NewMilkBuzz - alpha-s1, E. coli Nissle, GRN 1312 pending, dossier public [A];
+    NewMilkBuzz also has a patent family on casein in filamentous fungi and yeast (WO2023242273A1,
+    WO2024256611A1, EP4623075A1 "Improved casein secretion by non-mammalian host cells") - NOT READ,
+    Google Patents rate-limited;
+    (c) Fermify - beta-casein, E. coli, GRN 1228 withdrawn 13 Jun 2025 [A]; GFI reports Fermify and
+    BOKU showing "non-phosphorylated precision beta-casein forms stronger acid-induced gels than
+    native casein" and "authentic cheese formulations with non-phosphorylated beta-casein produced
+    from bacteria" via "a patent-pending enzymatic process rather than full replication of casein
+    micelles" [C]; patent WO2024200234A1 "Non-micellar casein emulsion gel" NOT READ;
+    (d) New Culture - self-affirmed GRAS Feb 2024 (first for casein), mozzarella with Pizzeria
+    Mozza; host NOT disclosed publicly, but its patent US2023/0404098A1 exemplifies L. lactis
+    (nisin and P170 promoters), B. subtilis and E. coli, and reports alpha-s1 secreting poorly
+    while kappa-casein "showed near-complete secretion" [B];
+    (e) Those Vegan Cowboys - joint GRAS filing with Formo (Dec 2025), 2026 US launch planned [C];
+    (f) Standing Ovation - three caseins (alpha-s1, alpha-s2, beta) from acid whey / whey permeate
+    as feedstock with Bel Group at industrial scale, eight patent families, $34.2M Series B
+    Mar 2026, US launch 2026 and EU/Asia from end-2027; EFSA dossier "about to be submitted" per
+    trade press; patent examples are E. coli BL21(DE3) (see casein_titers.csv) [B/C];
+    (g) Daisy Lab (NZ) - EPA containment approval, yeast hosts, patents WO2024049307A1 and
+    WO2025046472A1 NOT READ [C];
+    (h) Vivici - NO casein product found: its two launched Vivitein ingredients are
+    beta-lactoglobulin and lactoferrin [C, absence of evidence];
+    (i) Perfect Day - casein composition patents (US 11,457,649; US 11,076,615; US 12,324,444;
+    US 12,478,079) with a K. lactis four-casein cassette, but no casein product on the market and
+    no casein titer in the patents [B];
+    (j) Alpine Roads / Nobell and Mozza Foods - PLANT (soy, Nicotiana) casein expression, out of
+    scope for pf-tea, but their patents are the ones that pursue Fam20C co-expression
+    (US12139737B2 "Host cells comprising a recombinant casein protein and a recombinant kinase
+    protein", WO2023092005A1) [B];
+    (k) EU: NO EFSA novel-food opinion or authorisation exists for any PF casein (or any other PF
+    milk protein) as of 2026-10-01 - the 2026 CRFSFS review states "so far, no precision-fermented
+    protein ingredient has been authorized there"; the EU route assesses the production organism,
+    the modification and the product under Regulation (EU) 2015/2283 [A for the regulation, C for
+    the absence].
+
+# =======================================================================================
+# 3. Titers (full rows in casein_titers.csv) - the summary that matters for the base case
+# =======================================================================================
+
+- key: casein_titer_state_of_the_art
+  value: 3
+  low: 0.0569
+  high: 3
+  unit: g/L (best public casein titer, any host; low = best public secreted-and-phosphorylation-relevant bioreactor number)
+  grade: B
+  source: "Standing Ovation US 2024/0251812 A1 Example 3 (3 g/L beta-casein, E. coli BL21(DE3), 42 L); Wang Y et al. GCB Bioenergy 13:640-655 (2021) (1.45 g/L human alpha-s1, E. coli, 2 L); Choi BK & Jimenez-Flores R, J Agric Food Chem 44:358-364 (1996) (0.7-1.0 g/L bovine beta-casein, P. pastoris); Biermann L et al. Microorganisms 13:60 (2025) (56.9 mg/L alpha-s1, B. subtilis, 12 L)"
+  doi_or_url: "see casein_titers.csv for per-row DOIs"
+  locator: "casein_titers.csv (18 rows)"
+  quote: "Recombinant casein production was estimated to be in the range of 3 g/L of bacterial culture."
+  read: fulltext
+  note: >-
+    THE HEADLINE: public casein titers are 1-2 orders of magnitude below the BLG state of the art
+    in this repo (13.88 g/L, Yao2026) and 1-2 orders below the 10 g/L lactoferrin design basis.
+    Ranking of what is actually public: 3 g/L (patent example, E. coli, intracellular, insoluble,
+    visual SDS-PAGE quantification); 1.45 g/L (peer-reviewed, E. coli, inclusion bodies, HUMAN
+    alpha-s1, and it decayed to 0.7 g/L by the end of the run); 1.13 g/L (same paper, bovine
+    alpha-s1, shake flask); 0.7-1.0 g/L (P. pastoris, methanol, 1996, abstract only); 0.5 g/L
+    (human beta-casein phosphorylated via CK2 co-expression); 0.245 g/L (P. pastoris, 5-day
+    methanol, the only report of native-like phosphorylation AND glycosylation); 56.9 mg/L
+    (B. subtilis, the only paper with a full fed-batch mass balance); 0.24 mg/L (kappa-casein,
+    A. oryzae - the only kappa titer in any host). NO COMPANY HAS DISCLOSED A TITER: Eden Brew,
+    Formo, Fermify, Standing Ovation (beyond its patent), New Culture and Daisy Lab all withhold
+    it. There is also NO public yield on sugar for any casein except Biermann's 0.32 mg/g glucose
+    and my derived bounds. Every verified casein titer except Choi's P. pastoris work and the
+    A. oryzae kappa work is INTRACELLULAR, and most is in inclusion bodies - the opposite of the
+    secreted BLG/LF lineage the repo is built on.
+
+# =======================================================================================
+# 4. Downstream physics: pI, solubility, and the incumbent acid-casein process with numbers
+# =======================================================================================
+
+- key: casein_isoelectric_point
+  value: 4.6
+  low: 4.0
+  high: 4.8
+  unit: pH of the isoelectric point of whole casein (precipitation pH)
+  grade: A
+  source: "Tetra Pak. Dairy Processing Handbook, chapter 20 'Casein' (Internet Archive scan of the printed edition); Southward CR, 'Casein products', New Zealand Institute of Chemistry, III-Dairy-E"
+  doi_or_url: "https://archive.org/download/DairyProcessingHandbookTetrapak/Dairy-Processing-Handbook-Tetrapak_djvu.txt ; https://nzic.org.nz/unsecure_files/book/3E.pdf"
+  locator: "Tetra Pak ch.20 'Acid casein'; Southward 'Introduction' and 'Extraction of casein from milk'"
+  quote: "The milk is acidified to the isoelectric point of casein, which is usually reckoned to be pH 4.6, but it is shifted by the presence of neutral salts in solution and may be anywhere within a range extending from pH 4.0 to pH 4.8."
+  read: fulltext
+  note: >-
+    Whole casein, as precipitated industrially. Per-protein values differ and the phosphates are
+    why: computed here from the mature sequences (Henderson-Hasselbalch, standard pKa, phosphoserine
+    as a diprotic group pKa ~1.5/6.0) - alpha-s1 pI 4.69 unphosphorylated and 4.18 with 8 P;
+    beta 4.94 and 4.42 with 5 P; alpha-s2 8.45(!) unphosphorylated and 4.70 with 11 P; kappa 5.88
+    and 5.42 with 1 P. CHECK THESE: they are my arithmetic, not measured, and the alpha-s2 result
+    is the one to look at twice - without its phosphates alpha-s2 is a BASIC protein, so an
+    unphosphorylated recombinant alpha-s2 would not co-precipitate with the others at pH 4.6 at all.
+    Published measured ranges (WAO guidance, quoted by secondary sources): alpha-s1 4.9-5.0,
+    alpha-s2 5.2-5.4, beta 5.1-5.4, kappa 5.4-5.6; Sigma's sheet gives alpha-s1 4.2-4.7 and
+    beta 4.6-5.1. The practical consequence is the same in all accounts: an UNPHOSPHORYLATED
+    recombinant casein has a pI 0.3-0.5 units LOWER than its native counterpart, so an isoelectric
+    precipitation step must be tuned to the recombinant protein, and Formo's pH 4 (not 4.6) is
+    consistent with that.
+
+- key: casein_solubility_vs_ph_and_calcium
+  value: null
+  unit: qualitative (solubility of casein vs pH; the acid-vs-caseinate distinction)
+  grade: A
+  source: "Southward CR, 'Casein products', New Zealand Institute of Chemistry, Table 1 and 'Properties of casein products'; FDA GRN 1312 sect. 6.1"
+  doi_or_url: https://nzic.org.nz/unsecure_files/book/3E.pdf
+  locator: "Southward Table 1 'Composition of casein and caseinates' and section 'Solubility'; GRN 1312 p.49"
+  quote: "Acid and rennet casein are insoluble in water. Virtually all applications of casein products require them to be dissolved first. Consequently, before use, acid casein must be dissolved using an alkali to produce a solution with a pH of 6.5 or higher."
+  read: fulltext
+  note: >-
+    The physics the whole product choice rests on. Table 1: solubility in water 0% for acid casein
+    and 0% for rennet casein, 100% for sodium caseinate, 90-98% for calcium caseinate. GRN 1312
+    states it compactly: "Caseins are heat-stable but precipitate at their isoelectric point
+    (pH ~4.6) at 20 C (Farrell et al., 2004)" and are insoluble at pH 4.6 while whey proteins stay
+    soluble. Calcium: the calcium-sensitive caseins (alpha-s1, alpha-s2, beta) are precipitated by
+    Ca2+ in the millimolar range THROUGH their phosphoserine clusters; kappa-casein is not
+    calcium-sensitive and protects the others. I did NOT find a quantitative solubility-vs-pH or
+    solubility-vs-[Ca2+] curve for UNPHOSPHORYLATED recombinant casein in any public source -
+    that is a genuine gap (see the E-list in the report). The closest public statements are
+    (i) Eden Brew's product claim: "It tolerates a pH range of approximately 4.0 to 7.0 ... In
+    refrigerated storage (up to 6 weeks at 4 C), no precipitation, sedimentation, or visible phase
+    separation has been observed" and "Formulation trials with pH endpoints between 4.2 and 4.5
+    confirmed that the ingredient does not precipitate" (FSANZ A1342 Application pp.28-29) - note
+    this is a 22%-protein, mannan-rich powder, not pure casein; and (ii) Standing Ovation's patent,
+    which precipitates recombinant beta-casein fully only by combining pH 4 WITH heat (below).
+
+- key: casein_pf_patent_acid_precipitation_and_neutralisation
+  value: 4
+  unit: pH used to precipitate recombinant beta-casein from a clarified E. coli lysate
+  grade: B
+  source: "Standing Ovation. US 2024/0251812 A1, 'Method for producing casein and uses thereof', Example 7"
+  doi_or_url: https://patents.google.com/patent/US20240251812A1/en
+  locator: "Example 7 'Purification of Recombinant Beta Casein by Heating and Acid Precipitation'"
+  quote: "the pH of the supernatant was decreased to pH 4 with a solution of 0.1 M of HCl and then heated at 40 C or 90 C for 20 min. The suspension was then centrifuged for 20 min at 3220 g ... heating in such acidic conditions resulted in partial precipitation of casein beta at 40 C and full precipitation at 90 C."
+  read: fulltext
+  note: >-
+    The most useful single experiment in any PF-casein document for parameterising a precipitation
+    route, and a warning: at 40 C precipitation at pH 4 is only PARTIAL; full precipitation needed
+    90 C for 20 min. Dairy practice agrees - Tetra Pak holds mineral-acid curd at 40-45 C after
+    acidifying at ~82 C. The same example gives the complete caseinate finish: "the pellet
+    containing the precipitated casein was washed once with a solution of H2SO4 pH 4, once with
+    sterile water, and resuspended in sterile H2O and the pH adjusted to 7 with 1 M Ca(OH)2,
+    resulting in a calcium caseinate suspension", i.e. ONE acid wash + ONE water wash + lime
+    neutralisation. Upstream of it, Examples 4-5 replace mechanical lysis with THERMAL lysis:
+    95 C for 30-90 min on a water-resuspended cell slurry both lyses the cells and denatures/removes
+    host protein, after which "about 3 g of recombinant protein per liter of culture could be
+    observed" and the 0.2 um filtrate is "significantly enriched in recombinant protein, which
+    eventually represented most of the protein in the preparation" (23% of the dried solids was
+    beta-casein in Example 6). Caseins are intrinsically disordered and heat-stable, so heat is a
+    purification step for them in a way it is not for BLG or lactoferrin. Also: "Heating in acidic
+    conditions is known to promote DNA degradation" - the same step clears host DNA.
+
+- key: casein_dairy_acid_process_tetrapak
+  value: null
+  unit: qualitative + numbers for the incumbent acid-casein line
+  grade: A
+  source: "Tetra Pak. Dairy Processing Handbook, chapter 20 'Casein' (printed edition, Internet Archive scan)"
+  doi_or_url: https://archive.org/download/DairyProcessingHandbookTetrapak/Dairy-Processing-Handbook-Tetrapak_djvu.txt
+  locator: "ch.20, sections 'Mineral acidification - acid casein', 'Continuous washing', 'Sodium caseinate', Table 20.1"
+  quote: "The milk is heated to the required temperature, approx. 82 C. Mineral acid is then added to bring the pH of the milk to 4.3 - 4.6. Following the pH check, the milk is heated to 40 - 45 C in a plate heat exchanger and held for about two minutes, when smooth aggregates of casein are formed. To remove as much as possible of the whey before washing starts, the whey/casein mixture is passed through a decanter."
+  read: fulltext
+  note: >-
+    The incumbent design basis, with the numbers the model needs:
+    ACID: HCl or H2SO4 to pH 4.3-4.6 (Southward: dilute 0.25 mol/L acid at ~20 C to pH 4.6);
+    PRECIPITATION TEMPERATURE: acidify at ~82 C then hold 40-45 C for ~2 min (lactic route: 50-55 C
+    after a 14-16 h fermentation at 22-28 C);
+    SEPARATION: decanter centrifuge for dewheying and between washes, "either on inclined static
+    strainers or in decanters";
+    WASHES: "Washing takes place in two or three stages at a temperature between 45 and 60 C",
+    countercurrent, fresh water in the last stage only, minimum two stages;
+    WASH WATER: "The latter system uses one litre of water per litre of skimmilk, whereas only about
+    0.3 - 0.4 litre of water per litre of skimmilk is needed in countercurrent washing";
+    CURD SOLIDS: "After washing, the casein is dewatered in a decanter to a DM content of 45-40%"
+    (Southward: "about 55% moisture", i.e. 45% DM - the two agree);
+    DRYING: to 10-12% moisture (rennet route quoted as 12%; two-stage air 50-55 C then ~65 C);
+    MILLING: 40/60/80 mesh (40 mesh = 0.64 mm);
+    SPEC: Table 20.1 acid casein extra grade - moisture <=10%, fat <=1.5%, ash <=2.2%, protein
+    95% dry basis, plate count <=30,000/g.
+    CASEINATE: NaOH 2.5 M (10%), "The quantity of NaOH required is generally 1.7 - 2.2% by weight
+    of the casein solids in order to reach a final pH, generally about 6.7" (Southward: ~2% w/w);
+    dissolve at 60-75 C, 30-60 min batch; colloid-mill the curd BEFORE adding alkali; curd dewatered
+    to ~45% solids then rediluted to 25-30% solids for milling.
+    SPRAY-DRYER FEED SOLIDS: "The very high viscosity of sodium caseinate solutions of moderate
+    concentration limits their solids content for spray drying to about 20%", preheated to 90-95 C
+    just before atomisation to cut viscosity (Southward: ">15% solids ... are very viscous", and
+    the economic pull is to the maximum achievable). USE 20% w/w AS THE CASEINATE DRYER FEED, versus
+    the 12-32% range dsp.yaml carries for MPC/WPC.
+
+- key: casein_dairy_yield_from_skim_milk
+  value: 3
+  unit: kg commercial casein per 100 kg skim milk
+  grade: A
+  source: "Southward CR, 'Casein products', New Zealand Institute of Chemistry, section 'Yield'"
+  doi_or_url: https://nzic.org.nz/unsecure_files/book/3E.pdf
+  locator: "section 'Yield' (III-Dairy-E-Casein-6)"
+  quote: "The yield of commercial casein is about 3 kg/100 kg skim milk."
+  read: fulltext
+  note: >-
+    Commercial casein at 10-12% moisture, so ~2.65-2.70 kg dry casein per 100 kg skim milk.
+    Against 26 g total casein per kg milk (Tetra Pak, milk_egg.yaml), that is a RECOVERY of
+    ~102-104% of the casein nitrogen on an as-is basis and ~97-102% on a dry basis - i.e. the
+    dairy acid-casein process recovers essentially all the casein, with the moisture and the small
+    residual fat/lactose/ash (Southward Table 1: acid casein 85.4% protein, 11.4% moisture, 1.8%
+    ash, 1.3% fat, 0.1% lactose as sold) making up the difference. CROSS-CHECK from an independent
+    source (mine): the Nestle continuous process patent US4075196A Example 1 runs 10,000 L/h skim
+    milk and discharges "613 kg/h of a washed curd with a TC of approximately 45%", i.e. 276 kg/h
+    dry casein = 2.67 kg per 100 kg milk - the same number. For pf-tea the usable conclusion is
+    that the incumbent's protein recovery is ~95-100% and a PF precipitation route should be
+    modelled at NO BETTER than that, with 90-95% a defensible assumption and the true figure for a
+    broth (where the protein is 100x more dilute than the curd) unverified.
+
+- key: casein_dairy_acid_and_wash_water_per_kg
+  value: {hcl_100pct_kg_per_kg_dry_casein: 0.065, wash_water_L_per_kg_dry_casein_concurrent: 36, wash_water_L_per_kg_dry_casein_countercurrent: 11, wash_water_L_per_L_skim_milk_countercurrent: 0.35}
+  unit: per kg of dry casein unless stated
+  grade: B
+  source: "Nestec/Societe d'Assistance Technique pour Produits Nestle. US 4,075,196 'Production of casein and caseinates', Example 1; wash-water ratio from Tetra Pak Dairy Processing Handbook ch.20"
+  doi_or_url: https://patents.google.com/patent/US4075196A/en
+  locator: "US4075196A Example 1; Tetra Pak ch.20 'Continuous washing'"
+  quote: "An acid injector positioned at the output end of the cooling tube introduces approximately 180 kg/h of 10% hydrochloric acid into the skimmed milk whose pH falls to 4.6 ... approximately 670 kg/h of curd with a TC of approximately 45% to which 10,000 l/h of water at 50 C are added ... 613 kg/h of a washed curd with a TC of approximately 45%."
+  read: fulltext
+  note: >-
+    DERIVED (mine), and the only quantitative acid dose I could find anywhere: 180 kg/h of 10% HCl
+    = 18 kg/h of HCl (100% basis) for 276 kg/h of dry casein = 0.065 kg HCl per kg dry casein
+    (0.49 kg of 10% acid per kg casein; 1.8 g HCl per L of skim milk = 0.049 mol/L, which is the
+    buffering capacity of milk between pH 6.6 and 4.6 and is the number to sanity-check).
+    Wash water in that example is 10,000 L/h for 10,000 L/h of milk = 1 L/L milk = 36 L/kg dry
+    casein for a SINGLE concurrent wash; Tetra Pak's countercurrent figure of 0.3-0.4 L/L milk
+    gives 11-15 L/kg dry casein, so use ~11 L/kg (2-3 stages, countercurrent, 45-60 C) and
+    36 L/kg as the sloppy bound. Equivalent NaOH for sodium caseinate: 0.017-0.022 kg NaOH per kg
+    casein solids (Tetra Pak) or ~0.02 (Southward). CHECK THIS ARITHMETIC before use; the acid
+    figure in particular is from one patent example on one milk composition, and a PF broth has a
+    completely different buffering capacity (phosphate medium, ammonia titrant), so the dairy
+    number is a floor, not a design value. Energy duties are NOT given in either source.
+
+- key: casein_broth_ph_precipitation_risk
+  value: null
+  unit: qualitative (does fermentation at pH 4-6 precipitate secreted casein?)
+  grade: C
+  source: "FSANZ A1342 (Eden Brew) SD1 sect. 2.1 and Application sect. A.6; Perfect Day US 11,457,649 B2 Example 1 'Casein Protein Purification'"
+  doi_or_url: https://www.foodstandards.gov.au/sites/default/files/2026-07/A1342%20Application.pdf
+  locator: "A1342 SD1 p.5; Application pp.28-29; US11457649 col.57-58"
+  quote: "The following casein proteins a-s1casein, a-s2casein, and B-casein are inherently hydrophobic, which precipitate out when secreted from the yeast and come into contact with water. Purification from the reactor media involves collection of the protein from the surface of the media, followed by drying to isolate pure protein."
+  read: fulltext
+  note: >-
+    DIRECT ANSWER TO THE QUESTION, and the two public sources disagree. Perfect Day's patent says
+    the calcium-sensitive caseins precipitate IN THE REACTOR (K. lactis, pH not stated) and makes
+    that the recovery mechanism - skim the floating/precipitated protein and dry it; only
+    kappa-casein, "inherently hydrophilic", needs pH 4.6 + centrifugation. Eden Brew's dossier says
+    the opposite for its own strain: the beta-casein "is secreted into the fermentation medium in
+    soluble form" and the biomass is removed by centrifugation with the product in the supernatant,
+    and the product tolerates pH 4.0-7.0 in use. NO patent or dossier found states a fermentation
+    pH set-point for a casein process, nor any pH-control measure taken to avoid in-fermenter
+    precipitation. So for a K. phaffii casein base case the honest position is: Eden Brew
+    demonstrates that a secreted, soluble casein at K. phaffii broth pH is achievable (their broth
+    pH is CCI), while Perfect Day warns that the same proteins can precipitate on contact with
+    water - the difference is probably glycosylation, pH, ionic strength and the absence of
+    calcium. For T. reesei (pH 4-5 in the Aro2023 process already in this repo) the risk is higher
+    because that is at or just below the recombinant pI, and NO casein has ever been reported from
+    T. reesei. Grade C and flagged: this is a judgement from two conflicting company documents.
+
+# =======================================================================================
+# 5. Function: do you need micelles and phosphorylation?
+# =======================================================================================
+
+- key: casein_function_phosphorylation_needed
+  value: null
+  unit: qualitative (is phosphorylation required for micelles and cheese?)
+  grade: A
+  source: "Antuma LJ, Steiner I, Garamus VM, Boom RM, Keppler JK. Engineering artificial casein micelles for future food: Is casein phosphorylation necessary? Food Res Int 173:113315 (2023)"
+  doi_or_url: 10.1016/j.foodres.2023.113315
+  locator: abstract
+  quote: "dephosphorylated casein was hardly incorporated into artificial casein micelles ... the presence of increasing amounts of dephosphorylated casein resulted in increasingly poor rennet coagulation behaviour ... Therefore, phosphorylation of future recombinant casein is essential to allow its use in the production of animal-free dairy products."
+  read: abstract
+  note: >-
+    The strongest published "yes". Mechanism: the phosphoserine clusters are what bind the
+    amorphous calcium phosphate nanoclusters that hold a micelle together, so without them the
+    protein adsorbs onto the nanocluster surface instead of being incorporated, giving larger,
+    less hydrated particles and a gel network that rennet cannot build. Supporting structural work
+    (Raynes JK et al., J Struct Biol X 8:100096, 2024, abstract read) adds that kappa-casein is
+    distributed THROUGHOUT the micelle rather than forming a surface coat, "in quantitative
+    agreement with the multivalent-binding model" - i.e. a cheese micelle needs kappa AND
+    phosphorylated calcium-sensitive caseins AND calcium phosphate, not just a shell.
+
+- key: casein_function_phosphorylation_workarounds
+  value: null
+  unit: qualitative (what the companies and the newest work say instead)
+  grade: A
+  source: "Mora Vasquez S et al. Heterologous caseins: the role of phosphorylation in their functionality and how to achieve it. Biomolecules 15:1031 (2025); Balasubramanian S et al. Production of phosphorylated and functional alphas1-casein in Escherichia coli. Trends Biotechnol 43:2304-2322 (2025); New Culture US 2023/0404098 A1 Example 6; GFI 2026 State of the Industry (Fermentation)"
+  doi_or_url: "10.3390/biom15071031 ; 10.1016/j.tibtech.2025.05.015"
+  locator: "Mora Vasquez sects. 2, 4.1, 5 (PMC12292773); Balasubramanian abstract; US20230404098A1 Tables 4-5; GFI 2026 SOTI 'Casein structure-function advances'"
+  quote: "We successfully phosphorylated alphas1-casein in Escherichia coli using bacterial kinases, achieving phosphorylation at all native sites. To complement this approach, we developed an alternative phosphomimetic strategy by substituting serine residues with aspartate to mimic phosphorylation."
+  read: abstract
+  note: >-
+    Four public routes around the Fam20C problem, in increasing order of evidence:
+    (1) THE CAUSE. Mora Vasquez (open access, full text read): "the absence of the mammalian-specific
+    kinase Fam20C in plant and yeast systems and the broader lack of secretory kinase machinery in
+    bacteria ... collectively contribute to impaired phosphorylation fidelity". Fam20C is the Golgi
+    secretory-pathway kinase identified in 2012 as the real casein kinase.
+    (2) KINASE CO-EXPRESSION. Works for HUMAN beta-casein with CK2 (500 mg/L, Thurmond 1997), but
+    "bovine beta-casein co-expressed with CK2 achieved a much lower phosphorylation level compared
+    to the fully phosphorylated 5P state" because only some bovine sites are canonical CK2 motifs.
+    Balasubramanian 2025 (DTU/Wageningen) instead uses the B. subtilis kinases PrkD and YabT in
+    E. coli and reports ALL native alpha-s1 sites phosphorylated with native-like calcium binding,
+    digestibility and structure - no titer reported. Nobell/Mozza patent the plant equivalent with
+    Fam20C itself.
+    (3) PHOSPHOMIMETIC Ser->Asp substitution (same paper) - but that is no longer bio-identical,
+    which is a regulatory and labelling problem, not a technical one.
+    (4) GIVE UP MICELLES. New Culture's patent measures it: hybrid micelles of UNPHOSPHORYLATED
+    recombinant bovine alpha-s1 with recombinant goat kappa give mozzarella yields of 156% vs 135%
+    for dairy kappa, and hypophosphorylated (2-3 P) alpha + kappa gives 173-184% vs 175-187% for
+    native alpha, i.e. "reduced phosphorylation on alpha-casein has only a slight effect on cheese
+    yields ... within 10% of the control value", although "reduced phosphorylation on alpha-casein
+    leads to larger micelle size" and the hypophosphorylated curd was "weaker/partially shattered".
+    GFI 2026 reports Fermify + BOKU finding that non-phosphorylated beta-casein forms STRONGER
+    acid-induced gels than native casein (good for drinks and yoghurt) and selling cheese made by
+    "a patent-pending enzymatic process rather than full replication of casein micelles".
+    MY READ (judgement, not a sourced claim): phosphorylation is required for a classical
+    rennet-coagulated micellar cheese, and is avoidable for acid gels, beverages and
+    engineered-structure cheese analogues - which is exactly the application Formo's GRN 1312 asks
+    for (25% in cheese ANALOGUES) with a completely unphosphorylated protein.
+
+- key: casein_function_kappa_requirement
+  value: null
+  unit: qualitative (is kappa-casein needed?)
+  grade: B
+  source: "New Culture Inc. US 2023/0404098 A1, 'Dairy-like compositions and related methods', Examples 6-11"
+  doi_or_url: https://patents.google.com/patent/US20230404098A1/en
+  locator: "Examples 6-9 (hybrid micelles, Tables 2-5); Example 11 and claim-support paragraph [0407]"
+  quote: "10.4 mg/ml of alpha-casein was mixed with 3.6 mg/ml kappa casein, and micelles were induced using phosphate, citrate and calcium salts at the following final concentrations: phosphate 12.4 mM, citrate 6.15 mM, calcium 18.5 mM."
+  read: fulltext
+  note: >-
+    The most quantitative public recipe for an artificial casein micelle, and it answers "which
+    caseins do I actually have to make?": a 2.9:1 alpha:kappa mass ratio (Perfect Day's patent
+    claims 2.0:1 to 5.5:1 beta:kappa) plus calcium phosphate/citrate salts was enough for curds
+    that pass a tube-inversion test, melt and stretch. Cheese was made by citric-acid
+    acidification to pH 5.0-5.2 then 0.15% rennet at room temperature, curds spun at 1000 x g,
+    stretched at 65 C. Truncated kappa (C-terminal 16 aa removed, i.e. part of the macropeptide)
+    raises the micelle pI so acidification "had to be set at higher pH (~5.8) during the
+    acidification step to prevent protein precipitation", and that cheese melted but did not
+    stretch. So: kappa-casein (or a kappa surrogate) IS needed for a stretching cheese, at roughly
+    a quarter of the alpha/beta mass - which is awkward, because kappa is the one casein with a
+    disulfide, O-glycans, a pyroglutamate N-terminus and essentially no public recombinant titer
+    (0.24 mg/L in A. oryzae). A pf-tea casein product is therefore honestly a SINGLE-CASEIN
+    ingredient (beta or alpha-s1) sold into blends, not a drop-in cheese system.
+
+# =======================================================================================
+# 6. Market: how much casein the world makes, and in what form
+# =======================================================================================
+
+- key: casein_world_trade_volume_comtrade
+  value: 244
+  low: 208
+  high: 282
+  unit: kt/yr of casein and caseinates EXPORTED worldwide (HS 3501), 2019-2024
+  grade: A
+  source: "UN Comtrade, annual HS 3501 ('Casein, caseinates and other casein derivatives; casein glues'), world exports, all reporters, partner World"
+  doi_or_url: "https://comtradeapi.un.org/public/v1/preview/C/A/HS?period=2023&partnerCode=0&cmdCode=3501&flowCode=X&customsCode=C00&motCode=0&partner2Code=0"
+  locator: "sum over reporters of netWgt and primaryValue; 2023 and 2024 queried 2026-10-01"
+  quote: "2023: 81 reporters, sum netWgt 243,971,564 kg, sum primaryValue 2,625,880,425 USD; 2024: 207,700,000 kg, 2.179e9 USD; 2021: 281,600,000 kg, 2.453e9 USD; 2019: 248,200,000 kg, 1.562e9 USD"
+  read: html
+  note: >-
+    TRADE, NOT PRODUCTION, and it is an export sum so intra-EU flows are double-counted; several
+    reporters file no weight (6-8 of ~80 rows), so the true figure is slightly higher. DERIVED
+    (mine): 2023 world export unit value 10.76 USD/kg, 2024 10.49 USD/kg - consistent with the
+    8-11 USD/kg wholesale range in prices.yaml (casein_price_range_gfi2025) and with the EU
+    extra-EU export unit value of 6.91-7.27 EUR/kg for CN 3501 10 90 already recorded there.
+    Largest exporters 2023 by weight: reporter 554 (New Zealand) 83.9 kt, 372 (Ireland) 57.1 kt,
+    251 (France) 33.7 kt, 276 (Germany) 18.0 kt, 616 (Poland) 11.3 kt, 528 (Netherlands) 6.9 kt.
+    HS 3501 subheadings (350110 casein, 350190 caseinates and other derivatives) returned no rows
+    at world level in this API preview, so the acid/rennet split is NOT obtainable from Comtrade.
+    Comtrade's 2020 and 2022 world queries returned zero rows (API artefact, not zero trade).
+
+- key: casein_world_market_volume_report
+  value: 442.8
+  unit: kt/yr global casein market volume, 2025
+  grade: C
+  source: "IMARC Group. Casein Market Report by Product Type (Rennet Casein, Acid Casein), End Use, and Region 2026-2034, report SR112026A708, last updated 23 April 2026"
+  doi_or_url: https://www.imarcgroup.com/casein-market
+  locator: "'Casein Market Size' and the Report Attribute table on the public landing page"
+  quote: "The global casein market size reached 442.8 Kilo Tons in 2025. Looking forward, IMARC Group expects the market to reach 600.0 Kilo Tons by 2034, exhibiting a growth rate (CAGR) of 3.33% during 2026-2034."
+  read: html
+  note: >-
+    A paywalled market report's public teaser, hence grade C, but it is the only world PRODUCTION-
+    scale figure found and it is consistent with the trade data (443 kt made, 208-282 kt crossing a
+    border). It segments by rennet vs acid casein but gives NO public split. Earlier survey figure
+    in docs/PROTEIN_CANDIDATES.md ("ADL: 486 kt at $7/kg") is the same order. On the acid/rennet
+    question the only sourced qualitative statements I found are Tetra Pak's "Acid casein dominates
+    the world markets" (ch.20, 'Uses of caseins and caseinates') and Southward's note that lactic
+    acid casein is the usual NZ product while HCl dominates in Australia and Europe and H2SO4 in
+    New Zealand (because HCl is expensive there and H2SO4 is a fertiliser-industry by-product).
+    A QUANTITATIVE ACID-VS-RENNET SPLIT WAS NOT FOUND - see the E-list in the report.
+    SCALE CHECK (mine): 443 kt/yr of casein at 26 g casein per kg milk implies ~17 Mt of skim milk
+    per year, ~2% of world milk; and a single 100 m3 PF plant at 10 g/L, 328 batches/yr and 85%
+    recovery would make ~0.28 kt/yr, i.e. 0.06% of the casein market - the market is not the
+    constraint, cost is.
+
+- key: casein_pf_use_level_cheese_analogue
+  value: 0.25
+  unit: mass fraction of recombinant casein in a cheese analogue (maximum intended use)
+  grade: A
+  source: "FDA GRAS Notice GRN 1312 (Formo Foods / NewMilkBuzz), intended use; GRN 1228 (Fermify) intended use"
+  doi_or_url: https://www.hfpappexternal.fda.gov/scripts/fdcc/index.cfm?set=GRASNotices&id=1312
+  locator: "FDA GRAS inventory entry for GRN 1312; GRN 1228 sect. 3.1 p.19"
+  quote: "Intended for use as an ingredient at up to 25g per 100g in cheese analogs (excluding use in infant formula and products under the jurisdiction of the U.S. Department of Agriculture)."
+  read: html
+  note: >-
+    Sets the cost-in-use arithmetic: at 25% inclusion, 1 kg of PF casein makes 4 kg of cheese
+    analogue, so a 10 USD/kg casein contributes 2.5 USD/kg to the analogue. Fermify's withdrawn
+    notice sought up to 15 g/100 g in cheese and cheese analogues and 3.8 g/100 g in beverages,
+    dairy analogues, frozen desserts, milk products and plant-protein products; Eden Brew seeks a
+    general permission for "a wide range of foods" with no numeric maximum (FSANZ assessed a mean
+    dietary intake rather than a use level). Note the exclusion of infant formula in GRN 1312 -
+    the high-value application lactoferrin enjoys is explicitly NOT on the table for casein yet.

@@ -78,6 +78,24 @@ Phase F (external review) has not started. Open items:
 
 ## Decisions log
 
+- **2026-10-01, β-casein added (Pablo: "casein was the next"; Claude built it, for Pablo's review):**
+  - Product `cas`: bovine β-casein A2 (UniProt P02666), *K. phaffii*, methanol-free, secreted, as in
+    Eden Brew's FSANZ A1342. Evidence in `data/evidence/casein.yaml` (29 entries) and 18 titer rows.
+  - Base case: base.yaml's design point (30 g/L, 72 h, 10 kt/yr), as for BLG, on a new downstream
+    route `acid`: isoelectric precipitation of the MF permeate (pH 4, H₃PO₄, 90 °C), decanter
+    washes, sodium caseinate, spray drying from 20% solids. Spec by analogy with Formo's GRN 1312
+    (≥90% protein, >97% casein of protein), the only public PF casein that precipitates. The UF/DF-only
+    route (Eden Brew: 22% protein, ~5.6% β-casein in the powder) is the variant `cas_ufdf_edenbrew`.
+  - Scenarios: academic 3 g/L (Standing Ovation patent, *E. coli*, intracellular: the best public casein
+    titer in any host, used as an analogy); variant 0.245 g/L (best *K. phaffii* β-casein, methanol);
+    industry 42 g/L (flagged: no company discloses a casein titer); physical limit at 100 kt/yr.
+  - Grade D/E inputs to check: the acid dose (milk's buffer capacity per m³, D), the precipitation
+    recovery (95%, D) and the heater's heat recovery (90%, E). Together they move the base by less than
+    $3/kg. Decanters are costed on the disk-stack centrifuge curve (no decanter quote on file).
+  - Incumbent: casein trade and USDA import series (`benchmarks.yaml`; USDA quotes per lb now read
+    with `per: lb`).
+  - `PRODUCTS` is now read from `data/pf/products.yaml`, and the tornado's off-route parameters are
+    derived from each product's route (a test checks that every skipped leaf leaves the price unchanged).
 - **2026-10-01, lactoferrin and the next proteins (Claude; for Pablo's review):**
   - Lactoferrin now runs through every analysis that BLG and OVA do, on its own base case
     (`data/pf/products.yaml`: Intelligen's 10 g/L design, cation exchange, 250 t/yr). The figures

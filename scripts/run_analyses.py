@@ -175,7 +175,7 @@ def constants() -> dict:
         Yx_max=g.bio.mw / (-g.growth.of("Glucose (s)") * pf.MW["glc"]),
         m_s_tijhuis=host.m_s_tijhuis,
         gamma_biomass=g.bio.gamma, gamma_blg=pr.protein("blg").species.gamma, gamma_ova=pr.protein("ova").species.gamma,
-        gamma_lf=pr.protein("lf").species.gamma,
+        gamma_lf=pr.protein("lf").species.gamma, gamma_cas=pr.protein("cas").species.gamma,
         atp_per_glucose=v_(BASE, "energetics.substrate_atp_per_glucose") + 12 * v_(BASE, "hosts.kphaffii.po_ratio"),
         otr_aeration_only=pf.otr_physical(dataclasses.replace(vessel, heat_max_kW_m3=None), cond),
         otr_with_heat=pf.otr_physical(vessel, cond),
@@ -213,6 +213,9 @@ def s_scenarios(res):
     # methanol-free best (Yen 2024)
     res["scenarios"]["academic/lf_lv2023"] = summary(sc.run("academic", "lf", variant="lf_lv2023"))
     res["scenarios"]["academic/lf_lv2023/light"] = summary(sc.run("academic", "lf", sc.LIGHT, variant="lf_lv2023"))
+    # academic casein: the best K. phaffii beta-casein (methanol, a secondary quote) beside the any-host best
+    res["scenarios"]["academic/cas_kphaffii"] = summary(sc.run("academic", "cas", variant="cas_kphaffii"))
+    res["scenarios"]["academic/cas_kphaffii/light"] = summary(sc.run("academic", "cas", sc.LIGHT, variant="cas_kphaffii"))
 
 
 def s_physical_limit(res):
@@ -427,15 +430,11 @@ def s_policy(res):
 def s_tornado(res):
     """Industry-benchmark case of each product; the scenario's own ranges (mc_ranges) replace base ranges
     where given. Parameters of other products and routes are skipped (they do not enter the plant)."""
-    other_route = {"blg": ("dsp.cex_", "dsp.dryer_feed_solids_ova", "dsp.dryer_feed_solids_lf"),
-                   "ova": ("dsp.cex_", "dsp.dryer_feed_solids_blg", "dsp.dryer_feed_solids_lf"),
-                   "lf": ("dsp.dryer_feed_solids_blg", "dsp.dryer_feed_solids_ova", "dsp.concentrate_target_frac_dry",
-                          "dsp.diafiltration_volumes", "dsp.ammonium_sulfate")}
     res["tornado"], res["tornado_by_product"] = None, {}
     for prod in PRODUCTS:
         _, ranges = sc.mc_config("industry", prod)
         p = params.override(sc.scenario_params("industry", prod), {k: dict(val) for k, val in ranges.items()})
-        skip = ("plant.", "hosts.treesei", "energetics.") + other_route[prod]
+        skip = ("plant.", "hosts.treesei", "energetics.") + sc.unused_paths(p)
         paths = [x for x in params.ranged_leaves(p) if not x.startswith(skip)]
         res["tornado_by_product"][prod] = sc.tornado(p, paths)
     res["tornado"] = res["tornado_by_product"]["blg"]
@@ -594,13 +593,27 @@ def s_lactoferrin(res):
     res["lactoferrin"] = out
 
 
+def s_casein(res):
+    """Casein-only results: the UF/DF-only route (Eden Brew) and the precipitation levers whose
+    evidence is weakest (acid dose, recovery, heat recovery; base.yaml dsp.acid_*). Its base, scenario,
+    physical-limit, required-titer, tornado and Monte Carlo results sit with the other products'."""
+    out = {"cases": {}}
+    for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
+        out["cases"][f"cas_ufdf_edenbrew/{label}"] = summary(sc.run("casein", "cas", extra, variant="cas_ufdf_edenbrew"))
+    p = sc.base_params("cas")
+    out["levers"] = {f"{k}={x}": plant.evaluate(params.override(p, {k: x})).msp_ccf
+                     for k in ("dsp.acid_h3po4_kg_per_m3", "dsp.acid_precip_recovery", "dsp.acid_heat_recovery",
+                               "dsp.acid_wash_L_per_kg") for x in params.bounds(p, k)}
+    res["casein"] = out
+
+
 SECTIONS = {"base": s_base, "scenarios": s_scenarios, "physical_limit": s_physical_limit, "demonstrated": s_demonstrated,
             "cost_vs_titer": s_cost_vs_titer, "bridge": s_bridge, "required": s_required, "ceiling": s_ceiling,
             "claims": s_claims,
             "policy": s_policy,
             "tornado": s_tornado,
             "monte_carlo": s_monte_carlo, "scale": s_scale, "calibration": s_calibration,
-            "equivalents": s_equivalents, "lactoferrin": s_lactoferrin}
+            "equivalents": s_equivalents, "lactoferrin": s_lactoferrin, "casein": s_casein}
 
 if __name__ == "__main__":
     t0 = time.time()

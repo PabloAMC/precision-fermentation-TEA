@@ -1,8 +1,10 @@
 """Scenario runs and the analyses behind the report figures.
 
-Products: BLG, OVA and lactoferrin (PRODUCTS). Each product's base case is base.yaml plus its
-block in data/pf/products.yaml (lactoferrin: its own design titer, cation-exchange route and a
-market-sized plant; BLG and OVA: no change).
+Products: the keys of data/pf/products.yaml (PRODUCTS), each with data/products/<key>.yaml. Each
+product's base case is base.yaml plus its block there (lactoferrin: its own design titer,
+cation-exchange route and a market-sized plant; BLG and OVA: no change). Adding a product is a
+data change: its product file, its products.yaml block, its scenario blocks and its dryer-feed
+solids leaf (dsp.dryer_feed_solids_<key>).
 
 Scenarios (docs/SCOPE.md; never merged): academic, industry, required (inverse),
 physical-limit. Each is the product's base case plus the overrides in
@@ -36,7 +38,7 @@ from .params import v
 
 ROOT = Path(__file__).resolve().parents[2]
 SCEN = ROOT / "data/pf/scenarios"
-PRODUCTS = ("blg", "ova", "lf")
+PRODUCTS = tuple(yaml.safe_load((ROOT / "data/pf/products.yaml").read_text()))   # blg, ova, lf, ...
 LIGHT = {"capital.basis": "nrel"}          # the design-report ('light', NREL-style) capital convention
 ASEPTIC = {"capital.fermenter_quote": "acce_aseptic"}   # Humbird's aseptic cell-culture STR quotes (structural high)
 HARD_LIMITS = ("OUR", "heat", "reachable", "volume", "initial fill", "solubility", "energetic ceiling",
@@ -55,6 +57,27 @@ def load(name: str) -> dict:
 def product_base(product: str) -> dict:
     """The product's block in data/pf/products.yaml (changes to base.yaml)."""
     return yaml.safe_load((ROOT / "data/pf/products.yaml").read_text()).get(product) or {}
+
+
+def unused_paths(p: dict) -> tuple[str, ...]:
+    """Parameter-path prefixes that do not enter this plant: other products' dryer-feed solids and
+    the leaves of downstream routes other than plant.spec (plant.evaluate reads them only on their
+    route). The tornado skips them, so no zero bars."""
+    key, spec = v(p, "plant.product"), v(p, "plant.spec")
+    out = [f"dsp.dryer_feed_solids_{k}" for k in PRODUCTS if k != key]
+    if spec != "cex":
+        out.append("dsp.cex_")
+    else:
+        out.append("dsp.diafiltration_volumes")      # the cex route diafilters dsp.cex_diafiltration_volumes
+    if spec != "isolate":
+        out += ["dsp.isolate_", "dsp.ammonium_sulfate", "dsp.precip_recovery"]
+    if spec != "concentrate":
+        out.append("dsp.concentrate_target_frac_dry")
+    if spec != "acid":
+        out.append("dsp.acid_")
+    else:                                            # the acid route precipitates the MF permeate: no UF/DF
+        out += ["dsp.uf_", "dsp.df_flux", "dsp.diafiltration_"]
+    return tuple(out)
 
 
 def base_params(product: str, extra: dict | None = None, p: dict | None = None) -> dict:

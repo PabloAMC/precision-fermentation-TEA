@@ -28,6 +28,15 @@ Blocks (data in data/pf/base.yaml; equations in each block's comments):
       Recovery R_cex.
    d. Isolate only: ammonium-sulfate precipitation and washed basket centrifuges; the dryer is
       fed the cake (solids fraction s_cake).
+   d'. 'acid' spec only (casein): isoelectric precipitation of the MF permeate, no UF/DF (the dairy
+      acid-casein line; Formo GRN 1312). Acid: H3PO4 = a_acid x V_perm (the permeate's buffer
+      capacity, per m3). Heat-and-hold at T_p for t_hold: steam = V_perm rho cp (T_p - T_ferm)
+      (1 - h_rec) / dH_vap. Curd recovery R_acid. Countercurrent washes in n_w decanter passes,
+      wash water = w x casein (L/kg); the acid whey and the wash water go to wastewater. The curd
+      (solids s_curd) is redissolved with NaOH (b x casein solids) to the caseinate dryer feed s_in,
+      adding water = solids (1/s_in - 1/s_curd). Decanters are costed on the disk-stack centrifuge
+      curve (analogy: no decanter quote on file) for the feed V_perm + n_w x wash; the heater on the
+      HTST sterilizer curve; holding and dissolving tanks for their residence times.
    e. Spray dryer: water evaporated = solids (1 - s_in)/s_in; recovery R_dry.
    f. Cleaning in place (all specs): CIP solution per kg product (Intelligen), counted as water,
       wastewater and chemicals (the chemicals only in the design-report convention: Humbird's 4%
@@ -246,12 +255,14 @@ def evaluate(p, keep_series=False) -> Result:
             naoh_kg = resin_cyc * v(p, "dsp.cex_cip_cv") * v(p, "dsp.cex_cip_naoh_kg_m3")
             etoh_kg = resin_cyc * v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_etoh_kg_m3")
             P_uf *= v(p, "dsp.cex_recovery")
-        # c. ultrafiltration + diafiltration
+        # c. ultrafiltration + diafiltration (not on the 'acid' route: the permeate is precipitated)
         sigma = v(p, "dsp.uf_rejection")
         C_in = P_uf / V_uf                                 # kg/m3 into UF
-        purity = v(p, {"isolate": "dsp.isolate_target_frac_dry", "cex": "dsp.cex_target_frac_dry"}.get(
-            spec, "dsp.concentrate_target_frac_dry"))
-        if spec == "isolate":
+        purity = v(p, {"isolate": "dsp.isolate_target_frac_dry", "cex": "dsp.cex_target_frac_dry",
+                       "acid": "dsp.acid_target_frac_dry"}.get(spec, "dsp.concentrate_target_frac_dry"))
+        if spec == "acid":
+            V_ret = V_uf
+        elif spec == "isolate":
             V_ret = P_uf / v(p, "dsp.isolate_uf_end_g_L")
         else:                                              # end volume holds the dryer-feed solids
             s_in = v(p, f"dsp.dryer_feed_solids_{key}")
@@ -260,13 +271,17 @@ def evaluate(p, keep_series=False) -> Result:
             V_ret = max(V_ret, P_uf / sol["value"])        # cannot concentrate above solubility
         V_ret = min(V_ret, V_uf)
         CF = V_uf / V_ret
-        C_df = min(v(p, "dsp.diafiltration_conc_g_L"), P_uf / V_ret)
-        V_df = max(min(P_uf / C_df, V_uf), V_ret)          # volume while diafiltering
-        N_dv = v(p, "dsp.cex_diafiltration_volumes" if spec == "cex" else "dsp.diafiltration_volumes")
-        perm_c = V_uf - V_df                               # concentration to C_df, at J_UF
-        df_water = N_dv * V_df
-        perm_df = df_water + (V_df - V_ret)                # diafiltration + final concentration, at J_DF
-        R_uf = CF ** -(1 - sigma) * math.exp(-N_dv * (1 - sigma))
+        if spec == "acid":                                 # no membrane concentration
+            N_dv = perm_c = df_water = perm_df = 0.0
+            R_uf = 1.0
+        else:
+            C_df = min(v(p, "dsp.diafiltration_conc_g_L"), P_uf / V_ret)
+            V_df = max(min(P_uf / C_df, V_uf), V_ret)      # volume while diafiltering
+            N_dv = v(p, "dsp.cex_diafiltration_volumes" if spec == "cex" else "dsp.diafiltration_volumes")
+            perm_c = V_uf - V_df                           # concentration to C_df, at J_UF
+            df_water = N_dv * V_df
+            perm_df = df_water + (V_df - V_ret)            # diafiltration + final concentration, at J_DF
+            R_uf = CF ** -(1 - sigma) * math.exp(-N_dv * (1 - sigma))
         target = P_uf * R_uf
     permeate = perm_c + perm_df
     if spec == "isolate":
@@ -276,6 +291,16 @@ def evaluate(p, keep_series=False) -> Result:
         wash_m3 = v(p, "dsp.isolate_wash_volumes") * V_ret
     else:
         AS_kg, wash_m3 = 0.0, 0.0
+    acid_kg = acid_steam_kg = whey_m3 = dissolve_m3 = 0.0   # isoelectric precipitation ('acid' spec only)
+    if spec == "acid":
+        target *= v(p, "dsp.acid_precip_recovery")
+        acid_kg = v(p, "dsp.acid_h3po4_kg_per_m3") * V_ret
+        dT = v(p, "dsp.acid_precip_temperature_C") - v(p, f"hosts.{v(p, 'strain.host')}.temperature_C")
+        acid_steam_kg = V_ret * 1000 * 4.1868 * dT / 2410 * (1 - v(p, "dsp.acid_heat_recovery"))
+        whey_m3 = V_ret                                    # acid whey (the precipitated permeate)
+        wash_m3 = v(p, "dsp.acid_wash_L_per_kg") * target / purity / 1000
+        naoh_kg += v(p, "dsp.acid_naoh_kg_per_kg") * target / purity
+        dissolve_m3 = target / purity / 1000 * (1 / v(p, f"dsp.dryer_feed_solids_{key}") - 1 / v(p, "dsp.acid_curd_solids"))
     if crude:
         purity, water_evap = target / (target + b.cells_kg), 0.0
         powder = target
@@ -283,6 +308,8 @@ def evaluate(p, keep_series=False) -> Result:
         solids = target / purity                           # kg dry solids to the dryer
         if spec == "isolate":
             dryer_in_solids = v(p, "dsp.isolate_cake_solids")     # washed precipitate cake
+        elif spec == "acid":
+            dryer_in_solids = v(p, f"dsp.dryer_feed_solids_{key}")    # redissolved caseinate
         else:
             dryer_in_solids = solids / (V_ret * 1000 + solids)    # UF/NF end volume
         water_evap = solids / dryer_in_solids * (1 - dryer_in_solids)
@@ -335,10 +362,11 @@ def evaluate(p, keep_series=False) -> Result:
     steril_L_h = (n_batches * b.W_end) / H * 1000 * v(p, "utilities.sterilizer_peak_factor")
     steam_kg_batch = 0.015184926543637378 * (vessel.volume_m3 * 1000 + sum(s * 1000 for s in seeds))  # SIP [A.1]
     steam_kg_batch += b.W0 * 1000 * 4.1868 * 105 / 2410 * 0.1   # media heat-up, 90% HTST heat recovery
+    steam_kg_batch += acid_steam_kg                         # casein precipitation heater ('acid' spec)
     cip_m3 = cip_kg / 1000
     dilution_m3 = W * (dil - 1)
     proc_water_m3_batch = (b.feed_water_kg / 1000 + b.W0 + dilution_m3 + V_wash + df_water + wash_m3 + cip_m3
-                           + buffer_m3)
+                           + buffer_m3 + dissolve_m3)
     water_m3_h = n_batches * proc_water_m3_batch / H
 
     # ---------------------------------------------------------------- 6. capital (2018$)
@@ -389,6 +417,16 @@ def evaluate(p, keep_series=False) -> Result:
     if spec == "isolate":
         isbl["precipitation + basket centrifuges"] = (eq.tank(min(V_ret, 100)) * 2
                                                       + eq.centrifuge(min(150, V_ret * 1000 / 3.785 / 60 / 4)) * 3)
+    if spec == "acid":                                     # heater, holding tank, decanters, caseinate tank
+        perm_m3_h = n_batches * V_ret / H
+        n_h, h_size = eq.units(perm_m3_h * 1000, eq.MAX["sterilizer_L_h"])
+        dec_gpm = n_batches * (V_ret + v(p, "dsp.acid_wash_stages") * wash_m3) * 1000 / 3.785 / (H * 60)
+        n_dc, dc = eq.units(dec_gpm, eq.MAX["centrifuge_gpm"])
+        tanks = lambda V: eq.tank(min(V, 100)) * math.ceil(V / 100)   # noqa: E731
+        sol_m3_h = n_batches * target / purity / v(p, f"dsp.dryer_feed_solids_{key}") / 1000 / H
+        isbl["precipitation heater + decanters"] = (eq.sterilizer(h_size) * n_h + eq.centrifuge(dc) * n_dc
+                                                    + tanks(max(perm_m3_h * v(p, "dsp.acid_hold_h"), 1.0))
+                                                    + tanks(max(sol_m3_h * v(p, "dsp.acid_dissolve_h"), 1.0)))
     n_ac, ac = eq.units(air_acmh, eq.MAX["compressor_acmh"])
     osbl["air compressors"] = eq.compressor(ac) * n_ac
     n_ch, chs = eq.units(heat_peak_kW, eq.MAX["chiller_kW"])
@@ -426,7 +464,7 @@ def evaluate(p, keep_series=False) -> Result:
     batch_fte = (v(p, f"{L}.attention_production") * N_prod + v(p, f"{L}.attention_seed") * sum(seed_units)) / v(p, f"{L}.worker_efficiency")
     cont = v(p, f"{L}.continuous_fte_per_shift")
     skip = {"isolate_extra", "chromatography"} | ({"centrifuges", "membranes", "dryer"} if crude else set())
-    cont_fte = (sum(val for k, val in cont.items() if k not in skip) + (cont["isolate_extra"] if spec == "isolate" else 0)
+    cont_fte = (sum(val for k, val in cont.items() if k not in skip) + (cont["isolate_extra"] if spec in ("isolate", "acid") else 0)
                 + (cont.get("chromatography", 0.0) if spec == "cex" else 0))
     trains = max(1.0, N_prod / v(p, f"{L}.fermenters_per_continuous_crew"))
     operators = batch_fte + cont_fte * trains
@@ -463,7 +501,8 @@ def evaluate(p, keep_series=False) -> Result:
     glc_kg = n_batches * (b.glucose_kg + seed_glc)
     elec_kWh = n_batches * (b.comp_kWh + b.agit_kWh + b.heat_kWh * c.rt_refrig + seed_kWh)
     if not crude:
-        elec_kWh += n_batches * (v(p, "dsp.centrifuge_kWh_m3") * V1 * n_st
+        elec_kWh += n_batches * (v(p, "dsp.centrifuge_kWh_m3") * (V1 * n_st + (V_ret + v(p, "dsp.acid_wash_stages") * wash_m3
+                                                                  if spec == "acid" else 0.0))
                                  + v(p, "dsp.membrane_kWh_m3_permeate") * (permeate + V_clar)
                                  + v(p, "dsp.dryer_fan_kWh_kg_water") * water_evap)
     elec_kWh += total_area * v(p, f"{U}.building_W_m2") / 1000 * H
@@ -472,7 +511,7 @@ def evaluate(p, keep_series=False) -> Result:
     steam_price = _opt(p, f"{U}.steam_usd_t") or v(p, f"{U}.natural_gas_usd_GJ") * v(p, f"{U}.steam_gas_GJ_per_t")
     cw_makeup_m3 = (heat_avg_kW * (1 + c.rt_refrig) * H * 3600 / 2400 / 1000) * 1.3
     water_m3 = n_batches * proc_water_m3_batch + cw_makeup_m3
-    ww_m3 = n_batches * (permeate + wash_m3 + cip_m3 + buffer_m3 - (V_uf if spec == "cex" else 0.0))
+    ww_m3 = n_batches * (permeate + wash_m3 + cip_m3 + buffer_m3 + whey_m3 - (V_uf if spec == "cex" else 0.0))
     # membrane permeates, cake wash, CIP and the column buffers other than the eluate (which goes to UF)
     cells_t = 0.0 if crude else n_batches * b.cells_kg / 1000   # crude broth keeps its cells (used on site)
     nb_maint = (isbl_tdc * idx * nb["maintenance_frac_isbl"] + tci * nb.get("maintenance_frac_fci", 0.0))
@@ -487,7 +526,7 @@ def evaluate(p, keep_series=False) -> Result:
                                             + v(p, "media.methanol_kg_per_kg_product") * P_in * v(p, "media.methanol_price_usd_kg")),
         "DSP chemicals": n_batches * (AS_kg * v(p, "dsp.ammonium_sulfate_usd_kg") + cip_chem * cip_kg * v(p, "dsp.cip_price_usd_kg")
                                       + nacl_kg * v(p, "dsp.nacl_usd_kg") + naoh_kg * v(p, "dsp.naoh_usd_kg")
-                                      + etoh_kg * v(p, "dsp.ethanol_usd_kg")),
+                                      + etoh_kg * v(p, "dsp.ethanol_usd_kg") + acid_kg * v(p, "media.h3po4_price_usd_kg")),
         "chromatography resin": (n_batches * resin_cyc / v(p, "dsp.cex_resin_life_cycles") * 1000
                                  * v(p, "dsp.cex_resin_usd_L")) if spec == "cex" else 0.0,
         "membranes": (mf_m2 + uf_m2) * v(p, "dsp.membrane_price_usd_m2") / v(p, "dsp.membrane_life_y"),
@@ -530,6 +569,8 @@ def evaluate(p, keep_series=False) -> Result:
                   powder_per_batch_kg=powder, purity_dry=purity, otr_max=omax, our_peak=b.our_max,
                   heat_peak_kW_m3=b.heat_max_kW_m3, seeds_m3=seeds, seed_units=seed_units, mf_m2=mf_m2,
                   uf_m2=uf_m2, CF=CF, evap_kg_h=evap_kg_h, resin_m3=resin_m3, cex_cycle_h=cex_cycle_h, cex_load_cv=load_cv,
+                  acid_kg_batch=acid_kg, acid_steam_kg_batch=acid_steam_kg, whey_m3_batch=whey_m3,
+                  wash_m3_batch=wash_m3, dissolve_m3_batch=dissolve_m3, naoh_kg_batch=naoh_kg,
                   heat_plant_peak_kW=heat_peak_kW, heat_sum_of_peaks_kW=running * b.heat_max_kW,
                   dryer_inlet_solids=(0.0 if crude else dryer_in_solids),
                   fte=fte, area_m2=total_area, lang_effective=tci / (idx * (isbl_pec + osbl_pec)),

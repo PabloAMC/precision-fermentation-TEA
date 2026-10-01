@@ -7,7 +7,8 @@
 # initial fill); 400 m3 vessels, 8 h turnaround; a 90% concentrate; contract sugar; 100 kt/yr.
 # Lactoferrin (cation-exchange route, 90% lactoferrin powder as in its base case) is capped at the
 # largest world-market estimate, 1,588 t/yr, instead of 100 kt/yr; the yield 0.535 is the same for all
-# three products (0.92 of lactoferrin's ceiling 0.580).
+# products (0.92 of lactoferrin's ceiling 0.580; 0.96 of beta-casein's 0.557, the lowest). Casein keeps
+# 100 kt/yr, inside its ~0.2-0.44 Mt/yr market (casein.yaml).
 # Capital stays on the base (price-anchored) convention; the design-report convention is shown
 # separately. The search picks cell density and production time; the titer sits at its feasibility
 # ceiling, because cost falls with titer until a limit binds (scenarios.physical_limit). Where it

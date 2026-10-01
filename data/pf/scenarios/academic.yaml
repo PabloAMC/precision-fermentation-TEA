@@ -39,6 +39,16 @@ lf_lv2023:                               # variant: Lv et al. 2023, the highest 
   # FLAG: methanol-induced (P_AOX1), outside the methanol-free product (GRN 1219, 1284); costed as
   # glucose-equivalent as for Yao's ethanol phase. No dry cell weight usable (the paper's 331 g/L is
   # probably wet weight), so the base cell density is kept.
+cas:                                     # Standing Ovation US 2024/0251812 A1: the best public casein titer in any host
+  strain.titer_g_L: 3.0                  # verified in the full text (titers.csv): 'about 3 g of recombinant protein per liter of culture',
+  # 42 L fed-batch, beta-casein. FLAG: E. coli BL21(DE3), IPTG, INTRACELLULAR, quantified by eye on SDS-PAGE (grade B);
+  # costed here as secreted from K. phaffii (an analogy, D). Time, cells and yield: the base case (none published).
+  # No company discloses a casein titer (casein.yaml casein_titer_state_of_the_art).
+cas_kphaffii:                            # variant: the best public beta-casein titer in K. phaffii (Choi & Jimenez-Flores 2001)
+  strain.titer_g_L: 0.245                # 245 mg/L, five-day methanol culture, GS115; quoted in a full-text review (titers.csv), the primary is paywalled
+  strain.t_prod_h: 120                   # 'five-day culture'
+  # FLAG: methanol-induced, outside the methanol-free product (Eden Brew); costed as glucose-equivalent as for
+  # lf_lv2023. The only report of a yeast phosphorylating casein 'to the same degree as native' (casein.yaml).
 mc_paths:
   common: [strain.Y_ps_g_g, fermenter.otr_cap_mol_m3_h, fermenter.turnaround_h, dsp.paste_extracellular_frac,
     dsp.mf_flux_LMH, dsp.uf_flux_LMH, dsp.df_flux_LMH, dsp.membrane_price_usd_m2, dsp.membrane_skid_usd_m2,
@@ -51,6 +61,9 @@ mc_paths:
   lf: [strain.X_prod_g_L, strain.mu_prod_per_h, hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_g_g_h,
     dsp.dryer_feed_solids_lf, dsp.cex_dbc_g_L, dsp.cex_cv_per_cycle, dsp.cex_flow_cv_per_h, dsp.cex_recovery,
     dsp.cex_resin_usd_L, dsp.cex_resin_life_cycles, dsp.cex_hardware_usd_per_L_resin, dsp.cex_target_frac_dry]
+  cas: [strain.X_prod_g_L, strain.mu_prod_per_h, hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_g_g_h,
+    dsp.dryer_feed_solids_cas, dsp.acid_h3po4_kg_per_m3, dsp.acid_precip_temperature_C, dsp.acid_heat_recovery,
+    dsp.acid_precip_recovery, dsp.acid_wash_L_per_kg, dsp.acid_curd_solids, dsp.acid_naoh_kg_per_kg, dsp.acid_target_frac_dry]
 mc_ranges:
   blg:
     strain.titer_g_L: {low: 13.88, high: 13.88}
@@ -60,3 +73,5 @@ mc_ranges:
     strain.X_prod_g_L: {low: 20, high: 50}   # T. reesei harvest range (same patent)
   lf:
     strain.titer_g_L: {low: 2.8, high: 2.8}
+  cas:
+    strain.titer_g_L: {low: 3.0, high: 3.0}

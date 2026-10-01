@@ -4,7 +4,7 @@ Price per kg protein, in dollars of `money_year` (2025, like the model):
     unit value [currency / kg product] x FX [USD per EUR, ECB annual average of the same year]
     / protein fraction of the product x CPI-U(money_year) / CPI-U(year)
 Trade unit values (UN Comtrade, Eurostat Comext) are official statistics but only proxies for
-contract prices (prices.yaml). Spot quotes are USD/lb product (x 1/0.45359237 lb per kg) and are
+contract prices (prices.yaml). Series quoted per lb of product (USDA casein) carry `per: lb`. Spot quotes are USD/lb product (x 1/0.45359237 lb per kg) and are
 kept in their own year's dollars (2026), which is stated wherever they are shown.
 """
 from __future__ import annotations
@@ -43,7 +43,8 @@ def incumbents() -> dict:
         for s in c["trade_series"]:
             e = ev[s["key"]]
             conv = (lambda y: fx[y]) if s["currency"] == "EUR" else (lambda y: 1.0)
-            series[s["key"]] = {int(y): float(val) * conv(int(y)) / pf * real(int(y)) for y, val in e["values"].items()
+            per = LB_PER_KG if s.get("per") == "lb" else 1.0     # USDA quotes are per lb of product
+            series[s["key"]] = {int(y): float(val) * per * conv(int(y)) / pf * real(int(y)) for y, val in e["values"].items()
                                 if y0 <= int(y) <= y1}
         allv = [x for s in series.values() for x in s.values()]
         latest = {k: s[max(s)] for k, s in series.items()}

@@ -182,6 +182,30 @@ dsp:
   ammonium_sulfate_recycled_frac: {value: 0.0, note: "Intelligen sells it on as fertiliser; base assumes no recovery credit"}
   isolate_cake_solids: {value: 0.20, grade: B, source: "intelligen p.8-9: 'a soft cake with a moisture content of approximately 80%', fed to the spray dryer (dsp.yaml precipitate_cake_retention_intelligen; audit R3-F4)"}
   isolate_wash_volumes: {value: 6, grade: B, source: "intelligen p.9: 'The protein cake is then washed with 6 volumes of purified water' (dsp.yaml precipitate_wash_volumes_intelligen); applied to the retentate volume"}
+  # d'. acid: isoelectric precipitation of casein (spec 'acid'; plant.py block 2d'). The dairy acid-casein
+  # line applied to the MF permeate, as in Formo's GRN 1312 (casein.yaml casein_as1_formo_newmilkbuzz_process);
+  # no UF/DF. The curd is redissolved with NaOH and spray-dried as sodium caseinate.
+  acid_h3po4_kg_per_m3: {value: 5.65, low: 2.3, high: 17.3, unit: kg H3PO4 (85%) per m3 of MF permeate, grade: D,
+    source: "derived (mine; check): milk takes 0.049 mol H+/L from pH 6.6 to 4.6 (Nestle US4075196A Ex. 1: 18 kg/h HCl for 10,000 L/h skim milk; casein.yaml casein_dairy_acid_and_wash_water_per_kg, B). Applied per m3 of permeate as an analogy (D): 49 mol/m3 x 98 g/mol, one proton per H3PO4 at pH 4 (pKa1 2.15, pKa2 7.2), / 0.85 for the 85% acid priced in media.h3po4_price_usd_kg. Formo acidifies with H3PO4 (GRN 1312). low/high = 20/150 mol H+/m3 (guess, E): a K. phaffii broth starts nearer pH 5.5 than milk's 6.6 (less acid), but its phosphate medium and ammonia titrant buffer it (more)"}
+  acid_precip_temperature_C: {value: 90, low: 82, high: 90, unit: C, grade: B,
+    source: "Standing Ovation US 2024/0251812 A1 Ex. 7: recombinant beta-casein at pH 4 'partial precipitation ... at 40 C and full precipitation at 90 C' for 20 min (casein.yaml casein_pf_patent_acid_precipitation_and_neutralisation). low = dairy practice, acidify at ~82 C then hold at 40-45 C (Tetra Pak ch.20, A)"}
+  acid_hold_h: {value: 0.333, unit: h, grade: B, source: "Standing Ovation Ex. 7: 20 min at 90 C (sizes the holding tank only)"}
+  acid_heat_recovery: {value: 0.90, low: 0.80, high: 0.95, grade: E,
+    source: "guess: regenerative heat exchange on the precipitation heater, set equal to the 90% heat recovery the model assumes for media HTST (plant.py block 5); no source on file for either. Steam = permeate x cp x (T_precip - T_ferm) x (1 - recovery)"}
+  acid_precip_recovery: {value: 0.95, low: 0.85, high: 0.99, grade: D,
+    source: "analogy: the dairy acid-casein line recovers essentially all the casein (3 kg commercial casein per 100 kg skim milk, Southward NZIC 'Casein products', A; ~97-102% of the casein on a dry basis, casein.yaml casein_dairy_yield_from_skim_milk, derived). value = 95% for a broth ~10x more dilute than milk and an unphosphorylated protein; low = 85% (guess, E). No PF casein recovery is published"}
+  acid_wash_L_per_kg: {value: 11, low: 11, high: 36, unit: L water per kg dry casein, grade: B,
+    source: "Tetra Pak ch.20: countercurrent washing in 'two or three stages' at 45-60 C uses 'about 0.3 - 0.4 litre of water per litre of skimmilk' = ~11 L/kg dry casein at 2.67 kg casein per 100 kg milk (casein.yaml casein_dairy_acid_and_wash_water_per_kg, derived). high = one concurrent wash, 1 L/L milk = 36 L/kg (Nestle US4075196A Ex. 1)"}
+  acid_wash_stages: {value: 3, grade: A, source: "Tetra Pak ch.20: 'Washing takes place in two or three stages'; each stage is a decanter pass (sizes the decanters)"}
+  acid_curd_solids: {value: 0.425, low: 0.40, high: 0.45, unit: mass fraction dry matter, grade: A,
+    source: "Tetra Pak ch.20: 'the casein is dewatered in a decanter to a DM content of 45-40%'; Southward: 'about 55% moisture'"}
+  acid_naoh_kg_per_kg: {value: 0.020, low: 0.017, high: 0.022, unit: kg NaOH per kg casein solids, grade: A,
+    source: "Tetra Pak ch.20: 'The quantity of NaOH required is generally 1.7 - 2.2% by weight of the casein solids' to pH ~6.7 (sodium caseinate); Southward ~2%"}
+  acid_dissolve_h: {value: 0.75, low: 0.5, high: 1.0, unit: h, grade: A, source: "Tetra Pak ch.20: caseinate dissolved at 60-75 C in a 30-60 min batch (sizes the dissolving tank only)"}
+  acid_target_frac_dry: {value: 0.90, low: 0.87, high: 0.94, grade: D,
+    source: "analogy from alpha-s1 casein (E. coli) to beta-casein (K. phaffii): FDA GRN 1312 (Formo) batches 93.2-96.5% crude protein at 0.3-1.0% moisture x >97% alpha-s1 of protein (~0.90-0.94 dry); low = its specification minimum, >=90% protein x >97% (casein.yaml casein_as1_formo_spec). The only public PF casein that precipitates"}
+  dryer_feed_solids_cas: {value: 0.20, low: 0.15, high: 0.20, unit: mass fraction dry matter, grade: A,
+    source: "Tetra Pak ch.20: 'The very high viscosity of sodium caseinate solutions of moderate concentration limits their solids content for spray drying to about 20%' (casein.yaml casein_dairy_acid_process_tetrapak); low = Southward, '>15% solids ... are very viscous'. Used by both casein routes (the UF/DF variant is a mannan-rich concentrate; analogy)"}
   # e. drying
   dryer_MJ_per_kg_water: {value: 4.87, low: 3.4, high: 6.0, unit: MJ/kg water, grade: A, source: "dsp.yaml: Baker & McKenzie survey average 4.87 GJ/t water evaporated; milk powder 3.4 (3-stage) to 4.9 (1-stage), Ramirez et al."}
   dryer_fan_kWh_kg_water: {value: 0.05, unit: kWh/kg water, grade: A,
@@ -244,7 +268,7 @@ labour:
   continuous_fte_per_shift:
     value: {media_prep: 0.5, centrifuges: 0.5, membranes: 1.0, dryer: 1.0, utilities: 1.0, maintenance: 1.0, qc_lab: 1.0, isolate_extra: 1.0, chromatography: 1.0}
     grade: D
-    source: "Humbird A.1 continuous-area FTE rules (0.25-1 per area) extended to the DSP areas; isolate_extra only for the isolate, chromatography only for the cex route"
+    source: "Humbird A.1 continuous-area FTE rules (0.25-1 per area) extended to the DSP areas; isolate_extra only for the precipitation routes (isolate; acid, by analogy), chromatography only for the cex route"
   fermenters_per_continuous_crew: {value: 12, grade: E, source: "guess: one crew for the continuous areas per ~12 production fermenters (v1 hard-coded value, audit R3-F13); Humbird's rules are per plant of 6-8 fermenters"}
 
 capital:
