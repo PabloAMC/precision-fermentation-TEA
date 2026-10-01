@@ -349,3 +349,83 @@ def test_lactoferrin_scenarios_feasible():
     for name in ("academic", "industry"):
         assert sc.is_feasible(sc.run(name, "lf"))
     assert sc.is_feasible(plant.evaluate(sc.base_params("lf")))
+
+
+@pytest.mark.parametrize("prod", sc.PRODUCTS)
+def test_unused_paths_do_not_enter_the_plant(prod):
+    """Every ranged leaf the tornado skips as off-route leaves the product's MSP unchanged."""
+    p = sc.base_params(prod)
+    base = plant.evaluate(p).msp_ccf
+    skipped = [x for x in params.ranged_leaves(p) if x.startswith(sc.unused_paths(p))]
+    assert skipped                                   # each product has off-route leaves
+    for x in skipped:
+        hi = params.bounds(p, x)[1]
+        assert plant.evaluate(params.override(p, {x: hi})).msp_ccf == pytest.approx(base, rel=1e-12), x
+
+
+def test_products_come_from_products_yaml():
+    import yaml
+    keys = tuple(yaml.safe_load((sc.ROOT / "data/pf/products.yaml").read_text()))
+    assert sc.PRODUCTS == keys and {"blg", "ova", "lf"} <= set(keys)
+    for k in keys:                                  # each product has a product file and a dryer-feed leaf
+        assert (sc.ROOT / f"data/products/{k}.yaml").exists()
+        v(sc.base_params(k), f"dsp.dryer_feed_solids_{k}")
+
+
+# ---------------------------------------------------------------- casein: isoelectric precipitation ('acid')
+def test_casein_formula_from_uniprot():
+    """Mature P02666 A2 (209 aa, no Cys): C1080 H1692 N268 O310 S6, 23,583 Da unphosphorylated (casein.yaml)."""
+    p = pr.protein("cas")
+    assert p.residues == 209
+    assert {k: round(x) for k, x in p.formula.items()} == {"C": 1080, "H": 1692, "N": 268, "O": 310, "S": 6}
+    assert p.mw_molecule == pytest.approx(23583, abs=1)
+
+
+@pytest.fixture(scope="module")
+def cas():
+    p = sc.base_params("cas")
+    return p, plant.evaluate(p)
+
+
+def test_acid_route_recovery_and_no_uf(cas):
+    """Recovery = cell removal x MF x precipitation x dryer; the permeate is precipitated, not ultrafiltered."""
+    p, r = cas
+    d = r.design
+    expect = (d["recovery_cell_removal"] * v(p, "dsp.mf_recovery") * v(p, "dsp.acid_precip_recovery")
+              * v(p, "dsp.dryer_recovery"))
+    assert d["recovery"] == pytest.approx(expect, rel=1e-12)
+    assert d["uf_m2"] == 0 and d["CF"] == 1.0 and d["mf_m2"] > 0
+    assert d["dryer_inlet_solids"] == v(p, "dsp.dryer_feed_solids_cas")
+    assert sc.is_feasible(r) and v(p, "plant.spec") == "acid"
+
+
+def test_acid_route_streams(cas):
+    """Acid and whey scale with the permeate volume; wash water and NaOH with the casein; the heater's
+    steam is the permeate's sensible heat net of regeneration; redissolving water takes the curd to the
+    dryer-feed solids."""
+    p, r = cas
+    d = r.design
+    V = d["whey_m3_batch"]
+    solids = d["target_per_batch_kg"] / v(p, "dsp.dryer_recovery") / d["purity_dry"]   # casein solids before the dryer
+    assert d["acid_kg_batch"] == pytest.approx(v(p, "dsp.acid_h3po4_kg_per_m3") * V, rel=1e-12)
+    assert d["wash_m3_batch"] == pytest.approx(v(p, "dsp.acid_wash_L_per_kg") * solids / 1000, rel=1e-12)
+    assert d["naoh_kg_batch"] == pytest.approx(v(p, "dsp.acid_naoh_kg_per_kg") * solids, rel=1e-12)
+    dT = v(p, "dsp.acid_precip_temperature_C") - v(p, "hosts.kphaffii.temperature_C")
+    assert d["acid_steam_kg_batch"] == pytest.approx(V * 1000 * 4.1868 * dT / 2410 * (1 - v(p, "dsp.acid_heat_recovery")),
+                                                     rel=1e-12)
+    assert d["dissolve_m3_batch"] == pytest.approx(
+        solids / 1000 * (1 / v(p, "dsp.dryer_feed_solids_cas") - 1 / v(p, "dsp.acid_curd_solids")), rel=1e-12)
+    # doubling the acid dose adds exactly its cost to the DSP chemicals line
+    r2 = plant.evaluate(params.override(p, {"dsp.acid_h3po4_kg_per_m3": 2 * v(p, "dsp.acid_h3po4_kg_per_m3")}))
+    extra = d["n_batches"] * d["acid_kg_batch"] * v(p, "media.h3po4_price_usd_kg")
+    assert r2.annual["DSP chemicals"] - r.annual["DSP chemicals"] == pytest.approx(extra, rel=1e-9)
+
+
+def test_casein_scenarios():
+    """Casein runs the base design point on its own route; the Eden Brew variant is a low-purity UF/DF concentrate."""
+    assert v(sc.scenario_params("academic", "cas"), "strain.titer_g_L") == 3.0
+    assert v(sc.scenario_params("industry", "cas"), "plant.spec") == "acid"
+    eb = sc.run("casein", "cas", variant="cas_ufdf_edenbrew")
+    assert eb.design["purity_dry"] == pytest.approx(0.058) and eb.design["uf_m2"] > 0
+    for name in ("academic", "industry"):
+        assert sc.is_feasible(sc.run(name, "cas"))

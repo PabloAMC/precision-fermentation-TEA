@@ -16,9 +16,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+from pftea.scenarios import PRODUCTS  # noqa: E402
 
 AXES = {
-    "product": ["blg", "ova", "lf"],
+    "product": list(PRODUCTS),
     "convention": ["humbird", "light", "aseptic"],
     "site": ["us_midwest", "eu_nw"],
     "titer": [2, 3, 5, 8, 12, 20, 30, 42, 60, 80, 110],

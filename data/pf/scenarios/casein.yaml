@@ -1,0 +1,8 @@
+# 'casein': route variants for beta-casein. The base case (data/pf/products.yaml: base.yaml's design point,
+# isoelectric precipitation to a sodium caseinate) and its academic, industry and physical-limit cases sit
+# with the other products'. The variant is the only public K. phaffii beta-casein process.
+description: "Beta-casein route variants (base case: data/pf/products.yaml)"
+cas_ufdf_edenbrew:                    # Eden Brew (FSANZ A1342): centrifuge, MF, pH/heat, UF/DF, spray dryer; no precipitation
+  plant.spec: concentrate
+  dsp.concentrate_target_frac_dry: 0.058   # beta-casein 5.5% of the powder at 5.4% moisture (A1342 Table 3; casein.yaml
+                                           # casein_beta_eden_brew_spec): 0.055 / 0.946, derived. 22% protein, 68% yeast carbohydrate

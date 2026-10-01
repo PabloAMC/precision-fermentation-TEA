@@ -1,0 +1,19 @@
+# Bovine beta-casein, A2 variant (as in Eden Brew's FSANZ A1342, K. phaffii, methanol-free). Sequence:
+# UniProt P02666 (CASB_BOVIN), mature chain 16-224 (signal peptide 1-15 removed), 209 residues; UniProt's
+# reference sequence is A2 (Pro at mature 67; A1 has His). data/evidence/casein.yaml casein_beta_uniprot_mature_chain.
+# No cysteine (no disulfides), no N-glycosylation sequon. Five phosphoserines in milk (mature 15, 17, 18, 19,
+# 35): ignored in the elemental formula (1.7% of mass), and yeast and bacteria do not add them (Fam20C is
+# absent; GRN 1312 found no phosphorylation in its E. coli alpha-s1). Eden Brew's protein carries five
+# O-mannose glycans and an EAEA N-terminal extension (casein.yaml casein_beta_eden_brew_identity): ignored.
+name: beta-casein
+key: cas
+uniprot: P02666
+mature_sequence: >-
+  RELEELNVPGEIVESLSSSEESITRINKKIEKFQSEEQQQTEDELQDKIHPFAQTQSLVYPFPGPIPNSLPQNIPPLTQTPVVVPPFLQPEVMGVSKVKEAMAPKHKEMPFPKYPVEPFTESQSLTLTDVENLHLPLPLLQSWMHQPHQPLPPTVMFPPQSVLSLSQSKVLPVPQKAVPYPQRDMPIQAFLLYQEPVLGPVRGPFPIIV
+disulfides: 0
+post_translational: "phosphoserines (5 in milk, none expected in yeast) and Eden Brew's O-mannosylation ignored in the elemental formula"
+spec:                       # base = the only public PF casein spec reached by precipitation (GRN 1312, alpha-s1, E. coli), by analogy
+  protein_min_frac_powder: {value: 0.90, grade: D, source: "analogy with FDA GRN 1312 (Formo, alpha-s1 casein): 'Crude protein >= 90 g/100g' (casein.yaml casein_as1_formo_spec); dairy acid casein extra grade 95% dry basis (Tetra Pak Table 20.1)"}
+  target_min_frac_protein: {value: 0.97, grade: D, source: "analogy with GRN 1312: 'as1-casein % of protein > 97'"}
+  moisture_max: {value: 0.05, grade: D, source: "analogy with GRN 1312: 'Moisture <= 5 g/100g'"}
+solubility_practical_g_L: {value: null, note: "not limiting at neutral pH (sodium caseinate); the practical limit is the caseinate's viscosity at the dryer (dsp.dryer_feed_solids_cas)"}

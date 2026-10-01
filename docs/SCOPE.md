@@ -112,7 +112,10 @@ the review changes (FS-1, FS-2, HM-3). The scenario keeps its pre-registered nam
 
 ## Out of scope for v1
 
-- Casein and micelle formation (v2).
+- Micelle formation, κ-casein and casein phosphorylation (v2). *Changed 2026-10-01 at Pablo's
+  request:* β-casein as a single protein is now a product on the same footing as BLG and OVA
+  (base.yaml's design point; isoelectric precipitation to sodium caseinate), compared with dairy
+  casein. Whether a cheese made from it performs like dairy cheese is outside the model.
 - Other products. *Added 2026-09-26 at Pablo's request:* lactoferrin as a high-value contrast
   case (report Q8), and milk and egg equivalents of the costs (report Q7).
 - Strain engineering.

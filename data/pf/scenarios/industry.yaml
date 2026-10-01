@@ -12,6 +12,9 @@ lf:
   strain.titer_g_L: 42            # same survey average. FLAG: no lactoferrin company discloses a titer (Helaina,
                                   # TurtleTree, All G; lactoferrin.yaml), and lactoferrin (76 kDa, 16 disulfides,
                                   # glycosylated) is harder to secrete than BLG; the public best is 2.8-5.4 g/L
+cas:
+  strain.titer_g_L: 42            # same survey average. FLAG: no casein company discloses a titer (Eden Brew, Formo,
+                                  # Fermify, New Culture, Standing Ovation; casein.yaml); the public best is 3 g/L
 mc_paths:
   common: [strain.titer_g_L, strain.t_prod_h, strain.Y_ps_g_g, strain.X_prod_g_L, strain.mu_prod_per_h,
     hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_g_g_h, fermenter.otr_cap_mol_m3_h, fermenter.turnaround_h,
@@ -22,6 +25,8 @@ mc_paths:
   ova: [dsp.concentrate_target_frac_dry]
   lf: [dsp.dryer_feed_solids_lf, dsp.cex_dbc_g_L, dsp.cex_cv_per_cycle, dsp.cex_flow_cv_per_h, dsp.cex_recovery,
     dsp.cex_resin_usd_L, dsp.cex_resin_life_cycles, dsp.cex_hardware_usd_per_L_resin, dsp.cex_target_frac_dry]
+  cas: [dsp.dryer_feed_solids_cas, dsp.acid_h3po4_kg_per_m3, dsp.acid_precip_temperature_C, dsp.acid_heat_recovery,
+    dsp.acid_precip_recovery, dsp.acid_wash_L_per_kg, dsp.acid_curd_solids, dsp.acid_naoh_kg_per_kg, dsp.acid_target_frac_dry]
 mc_ranges:
   common:
     strain.titer_g_L: {low: 24, high: 54, grade: C}   # GFI 2025: public models 0.03-54 g/L, average ~24; private average 42 (grade C; the v2 60 was unsourced, review SC-8)

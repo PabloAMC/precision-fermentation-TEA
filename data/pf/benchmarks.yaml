@@ -23,6 +23,16 @@ incumbents:
     protein_frac: {value: 0.811, grade: A,
       source: "USDA FoodData Central, SR Legacy fdcId 172204 'Egg, white, dried': protein 81.1 g, water 5.8 g per 100 g (API record, fetched 2026-09-26). Voutilainen 2021 SI lists 78%"}
     spot: []
+  casein:
+    label: "casein (acid and rennet casein, caseinates)"
+    compare_to: cas
+    trade_series:
+      - {key: casein_food_eu_export_unit_value, currency: EUR}
+      - {key: casein_acid_us_dmn_annual, currency: USD, per: lb}     # USDA Dairy Market News, U.S. import prices
+      - {key: casein_rennet_us_dmn_annual, currency: USD, per: lb}
+    protein_frac: {value: 0.854, low: 0.83, high: 0.90, grade: A,
+      source: "Southward, 'Casein products' (NZ Institute of Chemistry) Table 1: acid casein as sold 85.4% protein, 11.4% moisture (casein.yaml casein_dairy_yield_from_skim_milk). low/high = the conversion GFI 2025 implies, $8.0-11.0/kg product to $9.6-12.2/kg protein (0.83-0.90; C)"}
+    spot: []
   years: [2015, 2025]      # window for the trade-value band
   money_year: 2025         # trade values are deflated to this year's dollars (the model's money year)
   deflator: cpi_u_us       # BLS CPI-U annual average, data/evidence/prices.yaml
@@ -97,9 +107,16 @@ titer_markers:             # (product in titers.csv, source_key, host) -> max ti
     - {product: lactoferrin, source_key: intelligen_lactoferrin2024, host: K. phaffii, label: "Intelligen design titer (methanol)"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
 
+  cas:                     # no company discloses a casein titer (casein.yaml); Wang 2021's 1.13 g/L is bovine, its 1.45 human
+    - {product: casein, source_key: StandingOvation_US20240251812A1, host: "E. coli BL21(DE3) pET25b+", label: "best public casein, intracellular E. coli (Standing Ovation patent)"}
+    - {product: casein, source_key: Wang2021, host: "E. coli BL21(DE3) pET22b", label: "alpha-s1 casein, E. coli (Wang 2021; human)"}
+    - {product: casein, source_key: Choi1996, host: "K. phaffii (P. pastoris) GS115", label: "beta-casein, K. phaffii, methanol (Choi 1996; abstract)"}
+    - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
+
 required_targets:          # target $/kg target protein for the required-titer analysis (report Q3)
   blg: [10, 20, 50]        # round numbers across the whey band ($8.7-17.8/kg protein, 2015-2025) and above it
   ova: [10, 20, 50]        # same, across the egg-white band ($9.7-21.2)
+  cas: [10, 20, 50]        # same, across the casein band (GFI 2025: $9.6-12.2/kg protein)
   lf: [100, 200, 400]      # 100 ~ the 'PF average price' GFI Europe/ADL assume for the lactoferrin archetype ($105); 200 = the bottom of the
                            # reported dairy range (2016 trade press, nominal); 400 = GFI Europe's average market price (lactoferrin.yaml; all grade C)
 

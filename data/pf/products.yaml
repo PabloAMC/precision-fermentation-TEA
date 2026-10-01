@@ -7,6 +7,8 @@
 # low/high removes the range (no sampling or tornado bar).
 blg: {}
 ova: {}
+cas:                        # beta-casein: base.yaml's design point (titer, time, 10 kt/yr) as for BLG; its own route
+  plant.spec: {value: acid, note: "isoelectric precipitation of the MF permeate, decanter washes, sodium caseinate, spray dryer (the dairy acid-casein line; Formo GRN 1312 precipitates at pH 4). UF/DF only (Eden Brew, FSANZ A1342) is the variant scenarios/casein.yaml cas_ufdf_edenbrew"}
 lf:
   plant.spec: {value: cex, note: "cation exchange between MF and UF/DF (the dairy route and every commercial PF route: TurtleTree GRN 1219, All G GRN 1284, Helaina; data/evidence/lactoferrin.yaml). UF/DF only (Intelligen case a) is the optimistic route variant (scenarios/lactoferrin.yaml lf_ufdf_only)"}
   plant.annual_target_protein_t:

@@ -1694,7 +1694,7 @@ and locators. Calibration cases are in `data/calibration/`. The audit is `docs/A
     align: (left,) + (right,) * 6,
     table.header([*Evidence file*], [*A*], [*B*], [*C*], [*D*], [*E*], [*Total*]),
     hline,
-    ..for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin") {
+    ..for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein") {
       let c = gcount("../data/evidence/" + f + ".yaml")
       ([`data/evidence/`#f`.yaml`], ..("A", "B", "C", "D", "E").map(g => str(c.at(g))),
        str(c.values().sum()))

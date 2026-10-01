@@ -21,6 +21,9 @@ all of `references/inbox/`). File them into `references/` with an INDEX row befo
 
 Adding any of these is a scope change: record it in docs/SCOPE.md and the PLAN.md decisions log first.
 
+**Update 2026-10-01:** Pablo chose casein first. β-casein is now a product (`cas`), with its evidence in
+`data/evidence/casein.yaml`; §5 below is the earlier, unverified status note (PLAN.md decisions log).
+
 ---
 
 
