@@ -276,7 +276,7 @@ def test_lactoferrin_formula_from_uniprot():
 
 def test_cex_buffers_scale_with_throughput_not_resin_volume():
     """Resin replacement and buffers depend on protein / capacity only; the cycle time sets capital."""
-    p = sc.scenario_params("lactoferrin", "lf")
+    p = sc.base_params("lf")
     r1 = plant.evaluate(p)
     r2 = plant.evaluate(params.override(p, {"dsp.cex_flow_cv_per_h": v(p, "dsp.cex_flow_cv_per_h") / 2}))
     for k in ("chromatography resin", "DSP chemicals", "water & wastewater"):
@@ -287,7 +287,7 @@ def test_cex_buffers_scale_with_throughput_not_resin_volume():
 
 def test_cex_cycle_includes_loading():
     """Cycle = (buffer CVs + load CVs) / flow, load CVs = capacity / feed concentration (review BE-12)."""
-    p = sc.scenario_params("lactoferrin", "lf")
+    p = sc.base_params("lf")
     d = plant.evaluate(p).design
     assert d["cex_cycle_h"] == pytest.approx((v(p, "dsp.cex_cv_per_cycle") + d["cex_load_cv"])
                                              / v(p, "dsp.cex_flow_cv_per_h"), rel=1e-12)
@@ -295,7 +295,7 @@ def test_cex_cycle_includes_loading():
 
 
 def test_cex_recovery_in_total(blg):
-    p = sc.scenario_params("lactoferrin", "lf")
+    p = sc.base_params("lf")
     r = plant.evaluate(p)
     d = r.design
     sigma, N = v(p, "dsp.uf_rejection"), v(p, "dsp.cex_diafiltration_volumes")
@@ -311,3 +311,41 @@ def test_equivalents_units():
     milk = e["milk"]["prices"]["US farm milk (all-milk price)"]
     assert milk[2025] == pytest.approx(21.19 / 45.359237 * 1.0313, rel=1e-9)     # $/cwt -> $/L, 2025$
     assert e["egg"]["target_g"] == pytest.approx(1.96)
+
+
+# ---------------------------------------------------------------- products on an equal footing
+def test_product_base_cases():
+    """BLG and OVA run on base.yaml unchanged; lactoferrin on its own design (products.yaml)."""
+    for k in ("blg", "ova"):
+        assert sc.product_base(k) == {}
+    p = sc.base_params("lf")
+    assert (v(p, "plant.product"), v(p, "plant.spec")) == ("lf", "cex")
+    assert v(p, "strain.titer_g_L") == 10 and v(p, "plant.annual_target_protein_t") == 250
+    assert params.bounds(p, "plant.annual_target_protein_t") is None      # no range outside the market
+
+
+def test_scenarios_apply_on_the_product_base():
+    """Each scenario changes only what its product block says: the lactoferrin industry case keeps
+    the cation-exchange route and the market-sized plant; the physical limit caps it at the market."""
+    ind = sc.scenario_params("industry", "lf")
+    assert v(ind, "strain.titer_g_L") == 42 and v(ind, "plant.spec") == "cex"
+    assert v(ind, "plant.annual_target_protein_t") == 250 and v(ind, "strain.t_prod_h") == 90
+    assert v(sc.scenario_params("physical_limit", "lf"), "plant.annual_target_protein_t") == 1588
+    assert v(sc.scenario_params("physical_limit", "blg"), "plant.annual_target_protein_t") == 100000
+    acad = sc.scenario_params("academic", "lf")
+    assert v(acad, "strain.titer_g_L") == 2.8 and v(acad, "plant.spec") == "cex"
+
+
+@pytest.mark.parametrize("name", ["academic", "industry"])
+@pytest.mark.parametrize("prod", sc.PRODUCTS)
+def test_monte_carlo_config_samples(name, prod):
+    """Every product's Monte Carlo paths have ranges that contain the scenario's value."""
+    paths, ranges = sc.mc_config(name, prod)
+    p = params.override(sc.scenario_params(name, prod), {k: dict(x) for k, x in ranges.items()})
+    params.sample(p, np.random.default_rng(0), paths)
+
+
+def test_lactoferrin_scenarios_feasible():
+    for name in ("academic", "industry"):
+        assert sc.is_feasible(sc.run(name, "lf"))
+    assert sc.is_feasible(plant.evaluate(sc.base_params("lf")))

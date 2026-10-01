@@ -7,6 +7,7 @@ references/papers/*.pdf
 references/patents/*.pdf
 references/reports/*.pdf
 references/**/*.xlsx
+references/**/*.docx
 references/text/
 .DS_Store
 references/inbox/

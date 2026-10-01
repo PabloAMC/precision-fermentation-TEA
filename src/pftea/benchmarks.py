@@ -178,6 +178,11 @@ def titer_markers() -> dict:
     return out
 
 
+def required_targets() -> dict:
+    """{product: [target $/kg target protein]} for the required-titer analysis (benchmarks.yaml)."""
+    return yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())["required_targets"]
+
+
 def claims() -> list[dict]:
     """Claimed titers (data/titers.csv via data/pf/benchmarks.yaml) with the host/product to model them."""
     cfg = yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())["claims"]

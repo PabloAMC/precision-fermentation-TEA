@@ -5,6 +5,9 @@
 # maintenance in both phases; no growth in production; a denser sugar feed; production limited only
 # by O2 transfer, heat removal, the specific-productivity ceiling and the vessel (volume, minimum
 # initial fill); 400 m3 vessels, 8 h turnaround; a 90% concentrate; contract sugar; 100 kt/yr.
+# Lactoferrin (cation-exchange route, 90% lactoferrin powder as in its base case) is capped at the
+# largest world-market estimate, 1,588 t/yr, instead of 100 kt/yr; the yield 0.535 is the same for all
+# three products (0.92 of lactoferrin's ceiling 0.580).
 # Capital stays on the base (price-anchored) convention; the design-report convention is shown
 # separately. The search picks cell density and production time; the titer sits at its feasibility
 # ceiling, because cost falls with titer until a limit binds (scenarios.physical_limit). Where it
@@ -23,6 +26,8 @@ common:
   fermenter.turnaround_h: 8              # Humbird A.1
   utilities.glucose_usd_kg: 0.31         # contract dextrose $0.25/kg (humbird2021 p.40, 2019$) x CPI-U 1.2593 (audit R5-3)
   dsp.concentrate_target_frac_dry: 0.90
+lf:
+  plant.annual_target_protein_t: 1588    # GFI Europe 2025: world lactoferrin market 1,588 t (the larger of two estimates ~5x apart; lactoferrin.yaml blf_price_gfieurope2025, C)
 search:
   X_prod_g_L: [20, 30, 45, 60, 80, 100, 130]
   t_prod_h: [12, 24, 36, 48, 72, 96]

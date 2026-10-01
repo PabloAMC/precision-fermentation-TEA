@@ -27,6 +27,7 @@ OUT = ROOT / "results"
 OUT.mkdir(exist_ok=True)
 BASE = params.load()
 P_IND = sc.scenario_params("industry", "blg")
+PRODUCTS = sc.PRODUCTS                    # blg, ova, lf (each on its own base case, data/pf/products.yaml)
 
 
 def summary(r: plant.Result) -> dict:
@@ -40,6 +41,11 @@ def summary(r: plant.Result) -> dict:
 
 def ev(changes: dict, p: dict = BASE) -> dict:
     return summary(plant.evaluate(params.override(p, changes)))
+
+
+def evp(prod: str, changes: dict | None = None) -> dict:
+    """Summary of a product's base case with changes."""
+    return summary(plant.evaluate(sc.base_params(prod, changes)))
 
 
 def clean(x):
@@ -59,9 +65,9 @@ def clean(x):
 
 # ---------------------------------------------------------------- sections
 def s_base(res):
-    res["base"] = {prod: ev({"plant.product": prod}) for prod in ("blg", "ova")}
-    res["base_light"] = {prod: ev({"plant.product": prod, **sc.LIGHT}) for prod in ("blg", "ova")}
-    res["base_aseptic"] = {prod: ev({"plant.product": prod, **sc.ASEPTIC}) for prod in ("blg", "ova")}
+    res["base"] = {prod: evp(prod) for prod in PRODUCTS}
+    res["base_light"] = {prod: evp(prod, sc.LIGHT) for prod in PRODUCTS}
+    res["base_aseptic"] = {prod: evp(prod, sc.ASEPTIC) for prod in PRODUCTS}
     # the gap between the conventions, step by step (review SC-3/BE-3): fixed-cost rates, then factors
     steps = [("price-anchored (base)", {}),
              ("+ NREL fixed-cost rates (maintenance 3% of installed ISBL, insurance 0.7%)", {"finance.fixed_cost_rule": "nrel"}),
@@ -69,8 +75,18 @@ def s_base(res):
     dec = [dict(step=label, msp=plant.evaluate(params.override(BASE, {"plant.product": "blg", **ch})).msp_ccf)
            for label, ch in steps]
     res["convention_steps"] = dec
-    res["base_eu"] = {prod: ev({"plant.product": prod, "plant.location": "eu_nw"}) for prod in ("blg", "ova")}
+    res["base_eu"] = {prod: evp(prod, {"plant.location": "eu_nw"}) for prod in PRODUCTS}
     res["base_isolate"] = {prod: ev({"plant.product": prod, "plant.spec": "isolate"}) for prod in ("blg", "ova")}
+    # lactoferrin at BLG's and OVA's 10 kt/yr, for a like-for-like comparison (its market is 0.3-1.6 kt/yr):
+    # at its own design titer and time, and on the BLG/OVA base process (base.yaml titer and time)
+    kt = {"plant.annual_target_protein_t": params.v(BASE, "plant.annual_target_protein_t")}
+    res["lf_at_base_scale"] = {
+        "design titer": evp("lf", kt),
+        "BLG/OVA base titer and time": evp("lf", {**kt, "strain.titer_g_L": params.v(BASE, "strain.titer_g_L"),
+                                                   "strain.t_prod_h": params.v(BASE, "strain.t_prod_h")}),
+        "BLG/OVA base titer and time, design-report capital": evp("lf", {
+            **kt, "strain.titer_g_L": params.v(BASE, "strain.titer_g_L"), "strain.t_prod_h": params.v(BASE, "strain.t_prod_h"),
+            **sc.LIGHT})}
     res["benchmarks"] = {"incumbents": bm.incumbents(), "titer_markers": bm.titer_markers(), "context": bm.context_prices()}
     # one-change sensitivities of the base BLG quoted in the text and the review log
     vf = params.v(BASE, "capital.vendor_fermenter")
@@ -117,7 +133,7 @@ def constants() -> dict:
     r = plant.evaluate(params.override(BASE, {"plant.product": "blg"}))
     cap = {f"cap_per_broth_{x}": vessel.cap_per_broth(x) for x in (80, 107, 150)}
     ceil = {}
-    for k in ("blg", "ova"):
+    for k in PRODUCTS:
         q = params.override(BASE, {"plant.product": k})
         ceil[k] = dict(atp_per_residue=plant.atp_per_residue(q), ceiling=plant.energetic_ceiling(q),
                        polymerisation_only=pr.energetic_ceiling(pr.protein(k), th.get("Glucose (s)"),
@@ -127,8 +143,8 @@ def constants() -> dict:
     # the most production-phase maintenance the base expression phase can carry with the product made
     # at the energetic ceiling (review H2): same glucose per hour, m_s + q_p/Y_ps = m_max + q_p/ceiling
     ms_max = {}
-    for k in ("blg", "ova"):
-        rk = r if k == "blg" else plant.evaluate(params.override(BASE, {"plant.product": k}))
+    for k in PRODUCTS:
+        rk = r if k == "blg" else plant.evaluate(sc.base_params(k))
         qp = rk.design["q_p_mg_g_h"] / 1000
         ms_max[k] = (v_(BASE, "hosts.kphaffii.m_s_prod_g_g_h")
                      + qp * (1 / v_(BASE, "strain.Y_ps_g_g") - 1 / ceil[k]["ceiling"]))
@@ -159,6 +175,7 @@ def constants() -> dict:
         Yx_max=g.bio.mw / (-g.growth.of("Glucose (s)") * pf.MW["glc"]),
         m_s_tijhuis=host.m_s_tijhuis,
         gamma_biomass=g.bio.gamma, gamma_blg=pr.protein("blg").species.gamma, gamma_ova=pr.protein("ova").species.gamma,
+        gamma_lf=pr.protein("lf").species.gamma,
         atp_per_glucose=v_(BASE, "energetics.substrate_atp_per_glucose") + 12 * v_(BASE, "hosts.kphaffii.po_ratio"),
         otr_aeration_only=pf.otr_physical(dataclasses.replace(vessel, heat_max_kW_m3=None), cond),
         otr_with_heat=pf.otr_physical(vessel, cond),
@@ -176,14 +193,14 @@ def constants() -> dict:
         # protein as if it were biomass
         heijnen_protein_yield={k: (lambda gm: pr.protein(k).species.mw / (-gm.growth.of("Glucose (s)") * pf.MW["glc"]))(
             th.GrowthModel(pr.protein(k).species, th.get("Glucose (s)"), v_(BASE, "hosts.kphaffii.temperature_C")))
-            for k in ("blg", "ova")},
+            for k in PRODUCTS},
     )
 
 
 def s_scenarios(res):
     res["scenarios"] = {}
     for name in ("academic", "industry"):
-        for prod in ("blg", "ova"):
+        for prod in PRODUCTS:
             res["scenarios"][f"{name}/{prod}"] = summary(sc.run(name, prod))
             res["scenarios"][f"{name}/{prod}/light"] = summary(sc.run(name, prod, sc.LIGHT))
             res["scenarios"][f"{name}/{prod}/aseptic"] = summary(sc.run(name, prod, sc.ASEPTIC))
@@ -192,6 +209,10 @@ def s_scenarios(res):
     res["scenarios"]["academic/blg_li2026"] = summary(sc.run("academic", "blg", variant="blg_li2026"))
     res["scenarios"]["academic/blg_li2026/light"] = summary(sc.run("academic", "blg", sc.LIGHT, variant="blg_li2026"))
     res["scenarios"]["academic/ova_intact_1gL"] = summary(sc.run("academic", "ova", variant="ova_intact_1gL"))
+    # academic lactoferrin: the highest secreted titer in any host (human LF, methanol, ELISA) beside the
+    # methanol-free best (Yen 2024)
+    res["scenarios"]["academic/lf_lv2023"] = summary(sc.run("academic", "lf", variant="lf_lv2023"))
+    res["scenarios"]["academic/lf_lv2023/light"] = summary(sc.run("academic", "lf", sc.LIGHT, variant="lf_lv2023"))
 
 
 def s_physical_limit(res):
@@ -202,7 +223,7 @@ def s_physical_limit(res):
         if pl:
             res["physical_limit"][key] = dict(summary(pl["result"]), X_prod=pl["X_prod"], t_prod=pl["t_prod"],
                                               titer=pl["titer"], binding=pl["binding"])
-    for prod in ("blg", "ova"):
+    for prod in PRODUCTS:
         for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
             put(f"{prod}/{label}", sc.physical_limit(prod, extra, fast=FAST))
     # the specific-productivity ceiling (grade D) that binds at the floor (review FS-3/SC-2: from the
@@ -214,12 +235,16 @@ def s_physical_limit(res):
     put("ova/humbird/solubility_50", sc.physical_limit("ova", {"plant.solubility_override_g_L": 50.0}, fast=FAST))
     # what process design alone can do with base biology, capital and scale (review SC-1): cell
     # density, production time and titer free, everything else at base; by secretion ceiling
-    res["best_design_base"] = {}
+    res["best_design_base"], res["best_design_base_lf"] = {}, {}
     for q in (5, 10, 20, 40):
         pl = sc.best_design(params.override(BASE, {"plant.product": "blg", "strain.q_p_max_mg_g_h": float(q)}), fast=True)
         if pl:
             res["best_design_base"][str(q)] = dict(summary(pl["result"]), X_prod=pl["X_prod"], t_prod=pl["t_prod"],
                                                    titer=pl["titer"], binding=pl["binding"])
+    pl = sc.best_design(sc.base_params("lf"), fast=True)          # lactoferrin: base biology, its own plant
+    if pl:
+        res["best_design_base_lf"]["40"] = dict(summary(pl["result"]), X_prod=pl["X_prod"], t_prod=pl["t_prod"],
+                                                titer=pl["titer"], binding=pl["binding"])
 
 
 def s_demonstrated(res):
@@ -235,6 +260,15 @@ def s_demonstrated(res):
     if bd:
         res.setdefault("best_design_base", {})[str(q)] = dict(summary(bd["result"]), X_prod=bd["X_prod"], t_prod=bd["t_prod"],
                                                               titer=bd["titer"], binding=bd["binding"])
+    # the same ceiling for lactoferrin (no lactoferrin-specific secretion rate is published)
+    pl = sc.physical_limit("lf", {"strain.q_p_max_mg_g_h": q}, fast=True)
+    if pl:
+        res.setdefault("physical_limit", {})[f"lf/humbird/q_p_max_{q}"] = dict(
+            summary(pl["result"]), X_prod=pl["X_prod"], t_prod=pl["t_prod"], titer=pl["titer"], binding=pl["binding"])
+    bd = sc.best_design(sc.base_params("lf", {"strain.q_p_max_mg_g_h": q}), fast=True)
+    if bd:
+        res.setdefault("best_design_base_lf", {})[str(q)] = dict(summary(bd["result"]), X_prod=bd["X_prod"], t_prod=bd["t_prod"],
+                                                                 titer=bd["titer"], binding=bd["binding"])
 
 
 def s_cost_vs_titer(res):
@@ -242,8 +276,8 @@ def s_cost_vs_titer(res):
     titers = [2, 3, 5, 8, 12, 20, 30, 42, 60, 80, 110, 150]
     t_prods = [48, 72, 120]
     res["cost_vs_titer"] = {}
-    for prod in ("blg", "ova"):
-        p = params.override(BASE, {"plant.product": prod})
+    for prod in PRODUCTS:
+        p = sc.base_params(prod)
         m = sc.cost_map(p, titers, t_prods)
         ml = sc.cost_map(params.override(p, sc.LIGHT), titers, [72])
         # the end of each curve: the highest feasible titer (O2/heat ceiling) and its cost
@@ -268,8 +302,9 @@ def s_required(res):
     how the 72 h ceiling moves with the yield and the production-phase maintenance (audit R7-C1).
     """
     t_prods = [36, 48, 60, 72, 96, 120]
-    targets = [10, 20, 50]
+    targets_by = bm.required_targets()
     res["required_t_prods"] = t_prods
+    res["required_targets"] = targets_by
     res["required"], res["titer_ceiling"], res["titer_ceiling_v2basis"], res["titer_ceiling_feed600"] = {}, {}, {}, {}
     v2 = {"fermenter.otr_cap_basis": "broth", "fermenter.otr_cap_mol_m3_h": 150.0}
     f600 = {"fermenter.feed_glucose_g_L": 600.0}
@@ -283,8 +318,9 @@ def s_required(res):
                   if T else None)
             rows.append(dict(titer=T, feasible=T is not None, ceiling=ceil, q_p_mg_g_h=qp))
         return rows
-    for prod in ("blg", "ova"):
-        p0 = params.override(BASE, {"plant.product": prod})
+    for prod in PRODUCTS:
+        p0 = sc.base_params(prod)
+        targets = targets_by[prod]
         res["titer_ceiling"][prod] = [sc.max_feasible_titer(p0, tp) for tp in t_prods]
         res["titer_ceiling_v2basis"][prod] = [sc.max_feasible_titer(params.override(p0, v2), tp) for tp in t_prods]
         res["titer_ceiling_feed600"][prod] = [sc.max_feasible_titer(params.override(p0, f600), tp) for tp in t_prods]
@@ -292,7 +328,7 @@ def s_required(res):
             p = params.override(p0, extra)
             res["required"][f"{prod}/{label}"] = {str(tg): rows_for(p, tg, res["titer_ceiling"][prod]) for tg in targets}
             res["required"][f"{prod}/{label}/feed600"] = {
-                str(tg): rows_for(params.override(p, f600), tg, res["titer_ceiling_feed600"][prod]) for tg in (10, 20)}
+                str(tg): rows_for(params.override(p, f600), tg, res["titer_ceiling_feed600"][prod]) for tg in targets[:2]}
     p0 = params.override(BASE, {"plant.product": "blg"})
     yields = [0.28, 0.35, 0.40, 0.465, 0.50, 0.535]
     maint = [0.0023, 0.00437, 0.008, 0.0161]
@@ -389,18 +425,27 @@ def s_policy(res):
 
 
 def s_tornado(res):
-    """Industry-benchmark BLG; the scenario's own ranges (mc_ranges) replace base ranges where given."""
-    p = params.override(P_IND, {k: dict(val) for k, val in sc.load("industry").get("mc_ranges", {}).items()})
-    skip = ("plant.", "hosts.treesei", "dsp.cex_", "dsp.dryer_feed_solids_ova", "dsp.dryer_feed_solids_lf", "energetics.")
-    paths = [x for x in params.ranged_leaves(p) if not x.startswith(skip)]
-    res["tornado"] = sc.tornado(p, paths)
+    """Industry-benchmark case of each product; the scenario's own ranges (mc_ranges) replace base ranges
+    where given. Parameters of other products and routes are skipped (they do not enter the plant)."""
+    other_route = {"blg": ("dsp.cex_", "dsp.dryer_feed_solids_ova", "dsp.dryer_feed_solids_lf"),
+                   "ova": ("dsp.cex_", "dsp.dryer_feed_solids_blg", "dsp.dryer_feed_solids_lf"),
+                   "lf": ("dsp.dryer_feed_solids_blg", "dsp.dryer_feed_solids_ova", "dsp.concentrate_target_frac_dry",
+                          "dsp.diafiltration_volumes", "dsp.ammonium_sulfate")}
+    res["tornado"], res["tornado_by_product"] = None, {}
+    for prod in PRODUCTS:
+        _, ranges = sc.mc_config("industry", prod)
+        p = params.override(sc.scenario_params("industry", prod), {k: dict(val) for k, val in ranges.items()})
+        skip = ("plant.", "hosts.treesei", "energetics.") + other_route[prod]
+        paths = [x for x in params.ranged_leaves(p) if not x.startswith(skip)]
+        res["tornado_by_product"][prod] = sc.tornado(p, paths)
+    res["tornado"] = res["tornado_by_product"]["blg"]
 
 
 def s_monte_carlo(res):
     n = 60 if FAST else 400
     res["monte_carlo"] = {}
     for name in ("academic", "industry"):
-        for prod in ("blg", "ova"):
+        for prod in PRODUCTS:
             p = sc.scenario_params(name, prod)
             paths, ranges = sc.mc_config(name, prod)
             mc = sc.monte_carlo(p, paths, n=n, seed=1, ranges=ranges)
@@ -417,6 +462,9 @@ def s_monte_carlo(res):
 
 def s_scale(res):
     res["scale"] = sc.scale_curve(P_IND, [1000, 2500, 5000, 10000, 25000, 50000, 100000])
+    # lactoferrin on its base case (design titer), from 100 t/yr through the market estimates (0.3-1.6 kt/yr)
+    # to BLG's 10 kt/yr
+    res["scale_lf"] = sc.scale_curve(sc.base_params("lf"), [100, 250, 500, 1000, 1588, 2500, 5000, 10000])
 
 
 def s_calibration(res):
@@ -509,18 +557,17 @@ def s_equivalents(res):
 
 
 def s_lactoferrin(res):
-    """Contrast case: bovine lactoferrin at 250 t/yr (data/pf/scenarios/lactoferrin.yaml)."""
+    """Lactoferrin-only results: reported prices, the UF/DF-only route, resin levers and the
+    reconciliation with Intelligen's model (data/pf/scenarios/lactoferrin.yaml). Its base, scenario,
+    physical-limit, required-titer, tornado and Monte Carlo results sit with BLG and OVA's."""
     out = {"reported_prices": bm.reported_prices()["lactoferrin"], "cases": {}}
-    for var in ("lf", "lf_academic", "lf_ufdf_only"):
-        for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
-            out["cases"][f"{var}/{label}"] = summary(sc.run("lactoferrin", "lf", extra, variant=var))
-    p = sc.scenario_params("lactoferrin", "lf")
+    for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
+        out["cases"][f"lf_ufdf_only/{label}"] = summary(sc.run("lactoferrin", "lf", extra, variant="lf_ufdf_only"))
+    p = sc.base_params("lf")
+    # cost vs titer at the design production time (Fig. 9); cost_vs_titer['lf'] is at 48/72/120 h like BLG and OVA
     titers = [1, 2.8, 5, 10, 20, 30]
     out["cost_vs_titer"] = dict(titers=titers, msp=[plant.evaluate(params.override(p, {"strain.titer_g_L": float(T)})).msp_ccf
                                                     for T in titers])
-    scales = [100, 250, 1000, 2500]
-    out["cost_vs_scale"] = dict(t_per_yr=scales, msp=[plant.evaluate(params.override(p, {"plant.annual_target_protein_t": float(x)})).msp_ccf
-                                                       for x in scales])
     out["resin"] = {f"{k}={x}": plant.evaluate(params.override(p, {k: x})).msp_ccf
                     for k, xs in (("dsp.cex_resin_life_cycles", (125, 1000)), ("dsp.cex_resin_usd_L", (100, 2000)),
                                   ("dsp.cex_hardware_usd_per_L_resin", (300, 3000))) for x in xs}

@@ -56,12 +56,12 @@ ref = {"blg": rows_ok(
          SC.get("industry/ova/aseptic")),
     lambda: case("Physical-limit best case, 100 kt/yr (secretion at 40 mg/g/h)", PLR["ova/humbird"], PLR["ova/light"])),
     "lf": rows_ok(
-    lambda: case("Design titer, cation exchange (Intelligen's design)", R["lactoferrin"]["cases"]["lf/humbird"],
-         R["lactoferrin"]["cases"]["lf/light"]),
+    lambda: case("Design titer, cation exchange (Intelligen's design)", R["base"]["lf"],
+         R["base_light"]["lf"], R["base_aseptic"]["lf"]),
     lambda: case("Design titer, UF/DF only (optimistic)", R["lactoferrin"]["cases"]["lf_ufdf_only/humbird"],
          R["lactoferrin"]["cases"]["lf_ufdf_only/light"]),
-    lambda: case("Best public methanol-free titer (porcine LF, Yen 2024)", R["lactoferrin"]["cases"]["lf_academic/humbird"],
-         R["lactoferrin"]["cases"]["lf_academic/light"]))}
+    lambda: case("Best public methanol-free titer (porcine LF, Yen 2024)", SC["academic/lf"],
+         SC["academic/lf/light"], SC.get("academic/lf/aseptic")))}
 LFP = R.get("lactoferrin", {}).get("reported_prices", {"band": [0, 0], "points": []})
 SERIES_LABEL = {"whey_protein_gt80_us_export_unit_value": "US exports", "whey_protein_gt80_eu_export_unit_value": "EU exports",
                 "egg_albumin_dried_eu_export_unit_value": "EU exports"}

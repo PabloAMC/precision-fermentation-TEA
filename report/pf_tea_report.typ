@@ -76,7 +76,11 @@
 #let swing(path) = { let t = tor(path); calc.abs(t.msp_high - t.msp_low) }
 #let capshare(d) = (d.per_kg.at("capital charge") + d.per_kg.maintenance + d.per_kg.at("insurance")) / d.msp_ccf
 #let LF = R.lactoferrin
-#let LFC(k) = LF.cases.at(k)
+#let LFC(k) = (
+  // lactoferrin cases: base and academic runs sit with BLG and OVA's; route variants in R.lactoferrin
+  "lf/humbird": R.base.lf, "lf/light": R.base_light.lf,
+  "lf_academic/humbird": R.scenarios.at("academic/lf"), "lf_academic/light": R.scenarios.at("academic/lf/light"),
+) + LF.cases).at(k)
 #let REC(k) = LF.reconciliation.at(k)
 #let IA = LF.reported_prices.comparators.find(c => c.key == "lf_cost_intelligen2026_case_a_ufdf")
 #let IB = LF.reported_prices.comparators.find(c => c.key == "lf_cost_intelligen2026_case_b_cex")
@@ -1335,7 +1339,7 @@ hardware per litre of resin.
   ),
   caption: [Lactoferrin, \$/kg lactoferrin (2025). Resin life is the largest downstream lever: at 125
   cycles (biopharma practice) the design case costs #usd0(LF.resin.at("dsp.cex_resin_life_cycles=125")).
-  Scale: #LF.cost_vs_scale.t_per_yr.zip(LF.cost_vs_scale.msp).map(((x, m)) => usd0(m) + " at " + str(x) + " t/yr").join(", ").],
+  Scale: #R.scale_lf.outputs.zip(R.scale_lf.curves.at("US, price-anchored")).map(((x, m)) => usd0(m) + " at " + str(x) + " t/yr").join(", ").],
 ) <tab-lf>
 
 #let recrow(label, k, ik) = ([#label], [#usd(ipk(IA, ik), d: 1)], [#usd(REC("lf_intelligen_a").per_kg.at(k), d: 1)],

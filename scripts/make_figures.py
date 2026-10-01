@@ -424,6 +424,10 @@ save(fig, "fig8_equivalents.png")
 
 # ------------------------------------------------------------------ Fig 9 lactoferrin contrast case
 lf = R["lactoferrin"]
+# lactoferrin cases: its base and academic runs sit with BLG and OVA's; route variants in R["lactoferrin"]
+LFC = {"lf/humbird": R["base"]["lf"], "lf/light": R["base_light"]["lf"],
+       "lf_academic/humbird": R["scenarios"]["academic/lf"], "lf_academic/light": R["scenarios"]["academic/lf/light"],
+       **lf["cases"]}
 fig, ax = plt.subplots(figsize=(7.4, 4.3))
 lo, hi = lf["reported_prices"]["band"]
 ax.axhspan(lo, hi, color=BAND["egg"], zorder=0, lw=0)
@@ -442,7 +446,7 @@ pts = [("lf/humbird", "design titer 10 g/L (Intelligen)", CAT[0], "D"), ("lf/lig
        ("lf_ufdf_only/humbird", "10 g/L, UF/DF only (optimistic)", CAT[2], "D")]
 DX = {"lf/light": 0.965, "lf_ufdf_only/humbird": 1.035}     # side by side at 10 g/L, so no marker hides another
 for key, lab, col, mk in pts:
-    d = lf["cases"][key]
+    d = LFC[key]
     ax.plot([d["design"]["titer"] * DX.get(key, 1.0)], [d["msp_ccf"]], marker=mk, ms=7, color=col, mec=SURF, mew=1.2,
             ls="none", zorder=4, label=f"{lab}: ${d['msp_ccf']:.0f}/kg")
 ax.set_xscale("log"); ax.set_yscale("log")
@@ -454,7 +458,7 @@ ax.yaxis.set_minor_formatter(NullFormatter())
 money(ax.yaxis)
 ax.set_xlabel("titer at harvest (g/L)")
 ax.set_ylabel("$/kg lactoferrin, 2025")
-_m = lf["cases"]["lf/humbird"]["msp_ccf"]
+_m = LFC["lf/humbird"]["msp_ccf"]
 _pos = "below" if _m < lo else ("inside" if _m <= hi else "above")
 ax.set_title(f"A high-value contrast: at a design titer, PF lactoferrin costs {_pos} the reported dairy price range")
 ax.legend(fontsize=6.8, loc="lower left")
@@ -478,9 +482,9 @@ panels = [
         ("industry benchmark, 42 g/L", SC_["industry/ova"], SC_["industry/ova/light"]),
         ("physical-limit best case (40 mg/g/h)", PL_["ova/humbird"], PL_["ova/light"])]),
     ("lf", "Lactoferrin vs dairy lactoferrin", None, [
-        ("best public titer, 2.8 g/L (Yen 2024)", LF_["cases"]["lf_academic/humbird"], LF_["cases"]["lf_academic/light"]),
-        ("design titer 10 g/L, cation exchange", LF_["cases"]["lf/humbird"], LF_["cases"]["lf/light"]),
-        ("design titer 10 g/L, UF/DF only", LF_["cases"]["lf_ufdf_only/humbird"], LF_["cases"]["lf_ufdf_only/light"])]),
+        ("best public titer, 2.8 g/L (Yen 2024)", LFC["lf_academic/humbird"], LFC["lf_academic/light"]),
+        ("design titer 10 g/L, cation exchange", LFC["lf/humbird"], LFC["lf/light"]),
+        ("design titer 10 g/L, UF/DF only", LFC["lf_ufdf_only/humbird"], LFC["lf_ufdf_only/light"])]),
 ]
 fig, axes = plt.subplots(3, 1, figsize=(9.2, 8.0), gridspec_kw=dict(height_ratios=[7, 5, 4.2], hspace=0.55))
 for ax, (key, title, incd, cases) in zip(axes, panels):

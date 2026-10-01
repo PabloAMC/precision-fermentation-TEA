@@ -62,6 +62,14 @@ LABELS = {
     "capital.basis": "capital convention (design-report vs price-anchored)",
     "capital.fermenter_quote": "fermenter price (vendor quote vs aseptic cell-culture spec)",
     "dsp.cex_flow_cv_per_h": "ion-exchange flow (column volumes/h)",
+    "dsp.dryer_feed_solids_lf": "dryer feed solids, lactoferrin",
+    "dsp.cex_dbc_g_L": "ion-exchange binding capacity (g/L resin)",
+    "dsp.cex_cv_per_cycle": "ion-exchange buffer per cycle (column volumes)",
+    "dsp.cex_recovery": "ion-exchange step recovery",
+    "dsp.cex_resin_usd_L": "ion-exchange resin price ($/L)",
+    "dsp.cex_resin_life_cycles": "ion-exchange resin life (cycles)",
+    "dsp.cex_hardware_usd_per_L_resin": "ion-exchange columns and skid ($/L resin, 2018)",
+    "dsp.cex_target_frac_dry": "lactoferrin share of the powder",
 }
 
 
