@@ -19,7 +19,7 @@
 #let req(key, tg, t) = R.required.at(key).at(str(tg)).at(R.required_t_prods.position(x => x == t))
 #let blg = R.base.blg
 #let LF = R.lactoferrin
-#let LFC(k) = (
+#let LFC(k) = ((
   // lactoferrin cases: base and academic runs sit with BLG and OVA's; route variants in R.lactoferrin
   "lf/humbird": R.base.lf, "lf/light": R.base_light.lf,
   "lf_academic/humbird": R.scenarios.at("academic/lf"), "lf_academic/light": R.scenarios.at("academic/lf/light"),
