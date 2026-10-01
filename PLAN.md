@@ -78,6 +78,14 @@ Phase F (external review) has not started. Open items:
 
 ## Decisions log
 
+- **2026-10-01, lactoferrin and the next proteins (Claude; for Pablo's review):**
+  - Lactoferrin now runs through every analysis that BLG and OVA do, on its own base case
+    (`data/pf/products.yaml`: Intelligen's 10 g/L design, cation exchange, 250 t/yr). The figures
+    and report text still treat it as the Q8 contrast case, and SCOPE.md has not changed.
+  - [docs/PROTEIN_CANDIDATES.md](docs/PROTEIN_CANDIDATES.md) surveys what to add next (branch
+    `protein-candidates`). Its proposal: the egg-white mix centred on ovomucoid, then food-grade
+    albumin for cultivated-meat media; casein stays in v2; heme gets a cost-in-use note only.
+    Nothing from it enters the model until its quotes are verified and SCOPE.md records the change.
 - **2026-09-27, follow-up reading after the pre-review (Claude; for Pablo's review):**
   - Five sources Pablo downloaded were read (Humbird 2017 aeration; Heyland 2010 and Looser 2015
     physiology; Intelligen's lactoferrin report; Lv 2023), three of them by AI reading passes
