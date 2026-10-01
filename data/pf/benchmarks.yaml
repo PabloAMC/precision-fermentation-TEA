@@ -89,6 +89,19 @@ titer_markers:             # (product in titers.csv, source_key, host) -> max ti
     - {product: ova, source_key: intelligen_ovalbumin2025, host: K. phaffii, label: "Intelligen design; EVERY ovomucoid patent"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
     - {product: ova, source_key: intelligen_ovalbumin2025, host: T. reesei, label: "Onego platform claim (protein not specified; press)"}
+  lf:                      # no company discloses a lactoferrin titer (lactoferrin.yaml); Iglesias 2016's 3.5 g/L is a lysate yield, not shown
+    - {product: lactoferrin, source_key: Yen2024, host: K. phaffii, label: "best public methanol-free LF (Yen 2024; porcine)"}
+    - {product: lactoferrin, source_key: Lv2023b, host: K. phaffii, label: "best public secreted LF (Lv 2023; human, methanol, ELISA)"}
+    - {product: lactoferrin, source_key: Liu2026, host: K. phaffii, label: "human LF, methanol (Liu 2026)"}
+    - {product: lactoferrin, source_key: Hu2025, host: T. reesei, label: "human LF, T. reesei (Hu 2025)"}
+    - {product: lactoferrin, source_key: intelligen_lactoferrin2024, host: K. phaffii, label: "Intelligen design titer (methanol)"}
+    - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
+
+required_targets:          # target $/kg target protein for the required-titer analysis (report Q3)
+  blg: [10, 20, 50]        # round numbers across the whey band ($8.7-17.8/kg protein, 2015-2025) and above it
+  ova: [10, 20, 50]        # same, across the egg-white band ($9.7-21.2)
+  lf: [100, 200, 400]      # 100 ~ the 'PF average price' GFI Europe/ADL assume for the lactoferrin archetype ($105); 200 = the bottom of the
+                           # reported dairy range (2016 trade press, nominal); 400 = GFI Europe's average market price (lactoferrin.yaml; all grade C)
 
 claims:                    # Q5: is the claimed titer reachable within O2/heat limits, and in how long?
   # model: the host and cell density we run it with (T. reesei at the academic OVA scenario's density)

@@ -1,8 +1,12 @@
 """Scenario runs and the analyses behind the report figures.
 
+Products: BLG, OVA and lactoferrin (PRODUCTS). Each product's base case is base.yaml plus its
+block in data/pf/products.yaml (lactoferrin: its own design titer, cation-exchange route and a
+market-sized plant; BLG and OVA: no change).
+
 Scenarios (docs/SCOPE.md; never merged): academic, industry, required (inverse),
-physical-limit. Each is base.yaml plus the overrides in data/pf/scenarios/<name>.yaml
-('common' plus the product block).
+physical-limit. Each is the product's base case plus the overrides in
+data/pf/scenarios/<name>.yaml ('common', then the product block or a named variant block).
 
 Analyses:
   cost_map       MSP over titer x production time, with feasibility per cell (Fig. 1)
@@ -32,6 +36,7 @@ from .params import v
 
 ROOT = Path(__file__).resolve().parents[2]
 SCEN = ROOT / "data/pf/scenarios"
+PRODUCTS = ("blg", "ova", "lf")
 LIGHT = {"capital.basis": "nrel"}          # the design-report ('light', NREL-style) capital convention
 ASEPTIC = {"capital.fermenter_quote": "acce_aseptic"}   # Humbird's aseptic cell-culture STR quotes (structural high)
 HARD_LIMITS = ("OUR", "heat", "reachable", "volume", "initial fill", "solubility", "energetic ceiling",
@@ -47,11 +52,22 @@ def load(name: str) -> dict:
     return yaml.safe_load((SCEN / f"{name}.yaml").read_text())
 
 
+def product_base(product: str) -> dict:
+    """The product's block in data/pf/products.yaml (changes to base.yaml)."""
+    return yaml.safe_load((ROOT / "data/pf/products.yaml").read_text()).get(product) or {}
+
+
+def base_params(product: str, extra: dict | None = None, p: dict | None = None) -> dict:
+    """The product's base case: base.yaml (or p) + its products.yaml block + extra."""
+    return params.override(params.load() if p is None else p,
+                           {"plant.product": product, **product_base(product), **(extra or {})})
+
+
 def scenario_params(name: str, product: str, extra: dict | None = None, variant: str | None = None) -> dict:
-    """base.yaml + the scenario's 'common' block + its product block (or a named variant block)."""
+    """The product's base case + the scenario's 'common' block + its product block (or a named variant)."""
     s = load(name)
-    ch = {"plant.product": product, **s.get("common", {}), **s.get(variant or product, {}), **(extra or {})}
-    return params.override(params.load(), ch)
+    return params.override(base_params(product),
+                           {**s.get("common", {}), **s.get(variant or product, {}), **(extra or {})})
 
 
 def run(name: str, product: str, extra: dict | None = None, variant: str | None = None) -> plant.Result:
@@ -64,7 +80,7 @@ def mc_config(name: str, product: str) -> tuple[list[str], dict]:
     paths, ranges = s.get("mc_paths", []), s.get("mc_ranges", {})
     if isinstance(paths, dict):
         paths = paths.get("common", []) + paths.get(product, [])
-    if ranges and any(k in ranges for k in ("common", "blg", "ova")):
+    if ranges and any(k in ranges for k in ("common",) + PRODUCTS):
         ranges = {**ranges.get("common", {}), **ranges.get(product, {})}
     return paths, ranges
 
@@ -365,7 +381,8 @@ def bridge_steps() -> list[tuple[str, dict]]:
 
 
 VARIANTS = [("ovalbumin concentrate", {"plant.product": "ova"}),
-            ("ovalbumin isolate (ammonium-sulfate precipitation)", {"plant.product": "ova", "plant.spec": "isolate"})]
+            ("ovalbumin isolate (ammonium-sulfate precipitation)", {"plant.product": "ova", "plant.spec": "isolate"}),
+            ("lactoferrin, cation exchange (same titer, time and scale)", {"plant.product": "lf", "plant.spec": "cex"})]
 
 
 def bridge() -> list[dict]:

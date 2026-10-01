@@ -250,7 +250,8 @@ sheet("Equivalents", ["source", "price series", "year", f"$ per unit (2025$)", "
 L_ = R["lactoferrin"]
 rows = [[k, d["design"]["titer"], d["msp_ccf"], d["cop"], d["per_kg_powder"], d["tci"]] for k, d in L_["cases"].items()]
 rows += [[f"titer {T} g/L (price-anchored)", T, m, None, None, None] for T, m in zip(L_["cost_vs_titer"]["titers"], L_["cost_vs_titer"]["msp"])]
-rows += [[f"scale {x} t/yr (price-anchored)", 10, m, None, None, None] for x, m in zip(L_["cost_vs_scale"]["t_per_yr"], L_["cost_vs_scale"]["msp"])]
+rows += [[f"scale {x} t/yr (price-anchored)", 10, m, None, None, None]
+         for x, m in zip(R["scale_lf"]["outputs"], R["scale_lf"]["curves"]["US, price-anchored"])]
 rows += [[f"sensitivity {k}", 10, m, None, None, None] for k, m in L_["resin"].items()]
 sheet("Lactoferrin", ["case", "titer g/L", "MSP_CCF $/kg LF", "cost of production $/kg LF", "$/kg powder", "TCI $"], rows,
       [52, 10, 16, 16, 14, 16],

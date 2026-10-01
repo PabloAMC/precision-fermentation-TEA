@@ -1,0 +1,32 @@
+# Product base cases: what each product changes in data/pf/base.yaml before any scenario applies.
+# base.yaml is written around Intelligen's ovalbumin design (30 g/L in 72 h, UF/DF concentrate,
+# 10 kt/yr), which serves BLG and OVA unchanged. Lactoferrin's base case is its own design report
+# (Intelligen's lactoferrin design) on its own purification route, at a plant size that fits its
+# market. Scenario files (academic, industry, physical_limit) are applied on top of these blocks
+# (scenarios.scenario_params). Leaves replace the base.yaml leaf's value, range and source; a null
+# low/high removes the range (no sampling or tornado bar).
+blg: {}
+ova: {}
+lf:
+  plant.spec: {value: cex, note: "cation exchange between MF and UF/DF (the dairy route and every commercial PF route: TurtleTree GRN 1219, All G GRN 1284, Helaina; data/evidence/lactoferrin.yaml). UF/DF only (Intelligen case a) is the optimistic route variant (scenarios/lactoferrin.yaml lf_ufdf_only)"}
+  plant.annual_target_protein_t:
+    value: 250
+    low: null
+    high: null
+    unit: t/yr
+    grade: B
+    source: "Intelligen's lactoferrin design makes 251 t/yr of 90% powder (David 2026 Table 2; GFI 2025 App. 2: 251.304 t), inside the world bovine-lactoferrin market of >300 t (2021; Mao 2023) to 1,588 t (GFI Europe 2025): the two sources disagree ~5x (lactoferrin.yaml). A 10 kt/yr plant would exceed the market; the report shows one at 10 kt/yr for comparison with BLG and OVA only"
+  strain.titer_g_L:
+    value: 10
+    low: 2.8
+    high: 42
+    unit: g/L
+    grade: B
+    source: "Intelligen's lactoferrin design: 'a titre of 10 g/L achieved over a 5-day fermentation period' (David 2026 Sect. 2.1; Feb 2026 report p.4; lactoferrin.yaml lf_intelligen_design_basis). Their design induces with methanol; this methanol-free base (as FDA GRN 1219 and 1284) borrows the titer. low = best public methanol-free secreted LF (Yen 2024, porcine, 2.8 g/L; academic scenario); high = GFI 2025 private-sector average over unspecified proteins (42 g/L; industry scenario, C)"
+  strain.t_prod_h:
+    value: 90
+    low: 48
+    high: 120
+    unit: h
+    grade: B
+    source: "Intelligen's 5-day lactoferrin batch (p.4) less the model's ~30 h growth phase; range as base.yaml"

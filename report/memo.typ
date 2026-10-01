@@ -19,6 +19,11 @@
 #let req(key, tg, t) = R.required.at(key).at(str(tg)).at(R.required_t_prods.position(x => x == t))
 #let blg = R.base.blg
 #let LF = R.lactoferrin
+#let LFC(k) = (
+  // lactoferrin cases: base and academic runs sit with BLG and OVA's; route variants in R.lactoferrin
+  "lf/humbird": R.base.lf, "lf/light": R.base_light.lf,
+  "lf_academic/humbird": R.scenarios.at("academic/lf"), "lf_academic/light": R.scenarios.at("academic/lf/light"),
+) + LF.cases).at(k)
 #let where(x, band) = {
   let (lo, hi) = (band.at(0), band.at(1))
   if x < lo { "below" } else if x <= hi { "inside" } else { "above" }
@@ -62,7 +67,7 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
   secrete 40 mg/g/h; at 10 mg/g/h BLG costs #usd(QP(10).msp_ccf, d: 1), and at the best rate demonstrated in a
   public glucose fed-batch (2.1 mg/g/h) #usd(QP(2.1).msp_ccf, d: 1).
 - *Lactoferrin shows the other side.* At a design titer of 10 g/L, PF lactoferrin costs
-  #usd(LF.cases.at("lf/light").msp_ccf)–#usd(LF.cases.at("lf/humbird").msp_ccf)/kg, against
+  #usd(LFC("lf/light").msp_ccf)–#usd(LFC("lf/humbird").msp_ccf)/kg, against
   #usd(LF.reported_prices.band.at(0))–\$#thou(LF.reported_prices.band.at(1))/kg reported for the dairy product.
   Intelligen's own model of the same route costs #fx(IB.value_money_year / LF.reconciliation.lf.cop, d: 1)×
   ours to produce, mostly through its unit prices; even so it sits #where(IB.value_money_year, LF.reported_prices.band)
