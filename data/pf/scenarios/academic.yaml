@@ -1,4 +1,7 @@
-# 'academic': only peer-reviewed or patent-example evidence (grades A/B), per product.
+# 'academic': the best titer published in a peer-reviewed full text (SCOPE.md), per product; patent examples
+# (grade B) are named variants. Production times are the source's total less the model's growth phase
+# (K. phaffii ~37 h, T. reesei ~38 h at the base inoculum; audit R10-1), or the source's induction phase where it
+# reports one (BLG, casein).
 # Titers are the best public numbers (docs/LITERATURE.md; data/titers.csv). Where no product-specific
 # value exists (yield, maintenance) the base-case values (grade B, derived from Intelligen) are kept:
 # no public measured BLG or OVA yield on sugar exists (audit NP-6).
@@ -20,16 +23,16 @@ ova_intact_1gL:                          # variant: intact OVA only. Aro's purif
   strain.titer_g_L: 1.0                  # OVA is plausibly well under the 2 g/L sum (review FS-8); 1 g/L is a judgment (D)
   strain.X_prod_g_L: 35
   strain.mu_prod_per_h: 0.0
-  strain.t_prod_h: 110
+  strain.t_prod_h: 95
 ova:                                     # Aro et al. 2023 (T. reesei)
   strain.host: treesei
   strain.titer_g_L: 2.0                  # full-length + a 36 kDa clipped form summed; an upper bound for intact OVA (audit NP-3)
   strain.X_prod_g_L: 35                  # T. reesei harvest 20-50 g DCW/L (PerfectDay2023-hypo [0248], grade B)
   strain.mu_prod_per_h: 0.0              # no production-phase growth (audit R6-C4)
-  strain.t_prod_h: 110                   # total ~133 h (Aro's last sample) less the model's ~23 h growth phase
+  strain.t_prod_h: 95                    # total ~133 h (Aro's last sample) less the model's 38 h growth phase (audit R10-1)
 lf:                                      # Yen et al. 2024 (K. phaffii, glucose-inducible G1 promoter): the best public methanol-free secreted LF
   strain.titer_g_L: 2.8                  # verified in the full text, 5 L fed-batch; PORCINE lactoferrin, an analogy for bovine (lactoferrin.yaml)
-  strain.t_prod_h: 114                   # 144 h total less the model's ~30 h growth phase
+  strain.t_prod_h: 107                   # 144 h total less the model's 37 h growth phase (audit R10-1)
   # Cell density: the paper gives OD600 ~350 at harvest and no dry weight; the base 107 g/L is kept.
   # Bovine 3.5 g/L (Iglesias-Figueroa 2016) is a lysate yield after purification, not used. Plant: the
   # product base case (250 t/yr, cation exchange; data/pf/products.yaml).
@@ -39,16 +42,27 @@ lf_lv2023:                               # variant: Lv et al. 2023, the highest 
   # FLAG: methanol-induced (P_AOX1), outside the methanol-free product (GRN 1219, 1284); costed as
   # glucose-equivalent as for Yao's ethanol phase. No dry cell weight usable (the paper's 331 g/L is
   # probably wet weight), so the base cell density is kept.
-cas:                                     # Standing Ovation US 2024/0251812 A1: the best public casein titer in any host
-  strain.titer_g_L: 3.0                  # verified in the full text (titers.csv): 'about 3 g of recombinant protein per liter of culture',
-  # 42 L fed-batch, beta-casein. FLAG: E. coli BL21(DE3), IPTG, INTRACELLULAR, quantified by eye on SDS-PAGE (grade B);
+ovd:                                     # Kim, Jin & Kim 2025: the best peer-reviewed ovomucoid titer
+  strain.titer_g_L: 0.929                # '929 mg/L' secreted, high-cell-density culture. FLAG: ABSTRACT ONLY (paywalled; not
+  # verified in the full text, an exception to PLAN.md point 4 made because no other peer-reviewed ovomucoid titer above
+  # 0.03 g/L exists). Scale, mode and duration unknown: the base production time and cells are kept.
+ovd_patent:                              # variant: EVERY US 2024/0209383 A1 Ex. 9, the best public ovomucoid titer (a patent example, B)
+  strain.titer_g_L: 30.19                # verified in the full text: 'an average broth titer of 30.19 g/L EWP4' (ovomucoid)
+  strain.t_prod_h: 103                   # end of run at ~140 h EFT (FIG. 22) less the model's 37 h growth phase (EVERY grows ~36 h)
+  # Feeding regime of this run not stated (ovomucoid.yaml); EVERY's cleared strain (GRN 967) is methanol-induced. Vessel
+  # size, cell density and assay not stated, so the base cell density is kept. The same patent is Intelligen's OVA titer basis.
+cas:                                     # Choi & Jimenez-Flores 1996: the best peer-reviewed beta-casein titer in K. phaffii
+  strain.titer_g_L: 1.0                  # verified in the full text: 'approximately 0.7-1.0 g/L' (Results p.361), the top of the range
+  strain.t_prod_h: 120                   # methanol induction optimised to 120 h (Choi 2001 p.1762, verified)
+  # FLAG: INTRACELLULAR (15-18% of soluble cell protein; secretion ~1/20,000 of it), methanol-induced, shake flask;
+  # costed as if secreted on glucose, an analogy. No secreted casein titer is public for any yeast or fungus
+  # (casein.yaml casein_titer_state_of_the_art). Choi 2001's 0.245 g/L (used before 2026-10-01) is one glycoform
+  # in a cell lysate, not a titer. The best peer-reviewed casein titer in any host is 1.45 g/L of human alpha-s1 in
+  # E. coli (Wang 2021); Choi 1996 is kept for its host and protein.
+cas_patent:                              # variant: Standing Ovation US 2024/0251812 A1, the best public casein titer (a patent example, B)
+  strain.titer_g_L: 3.0                  # verified in the full text: 'about 3 g of recombinant protein per liter of culture',
+  # 42 L fed-batch, beta-casein. FLAG: E. coli BL21(DE3), IPTG, INTRACELLULAR, quantified by eye on SDS-PAGE;
   # costed here as secreted from K. phaffii (an analogy, D). Time, cells and yield: the base case (none published).
-  # No company discloses a casein titer (casein.yaml casein_titer_state_of_the_art).
-cas_kphaffii:                            # variant: the best public beta-casein titer in K. phaffii (Choi & Jimenez-Flores 2001)
-  strain.titer_g_L: 0.245                # 245 mg/L, five-day methanol culture, GS115; quoted in a full-text review (titers.csv), the primary is paywalled
-  strain.t_prod_h: 120                   # 'five-day culture'
-  # FLAG: methanol-induced, outside the methanol-free product (Eden Brew); costed as glucose-equivalent as for
-  # lf_lv2023. The only report of a yeast phosphorylating casein 'to the same degree as native' (casein.yaml).
 mc_paths:
   common: [strain.Y_ps_g_g, fermenter.otr_cap_mol_m3_h, fermenter.turnaround_h, dsp.paste_extracellular_frac,
     dsp.mf_flux_LMH, dsp.uf_flux_LMH, dsp.df_flux_LMH, dsp.membrane_price_usd_m2, dsp.membrane_skid_usd_m2,
@@ -61,6 +75,8 @@ mc_paths:
   lf: [strain.X_prod_g_L, strain.mu_prod_per_h, hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_g_g_h,
     dsp.dryer_feed_solids_lf, dsp.cex_dbc_g_L, dsp.cex_cv_per_cycle, dsp.cex_flow_cv_per_h, dsp.cex_recovery,
     dsp.cex_resin_usd_L, dsp.cex_resin_life_cycles, dsp.cex_hardware_usd_per_L_resin, dsp.cex_target_frac_dry]
+  ovd: [strain.X_prod_g_L, strain.mu_prod_per_h, hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_g_g_h,
+    dsp.dryer_feed_solids_ovd]
   cas: [strain.X_prod_g_L, strain.mu_prod_per_h, hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_g_g_h,
     dsp.dryer_feed_solids_cas, dsp.acid_h3po4_kg_per_m3, dsp.acid_precip_temperature_C, dsp.acid_heat_recovery,
     dsp.acid_precip_recovery, dsp.acid_wash_L_per_kg, dsp.acid_curd_solids, dsp.acid_naoh_kg_per_kg, dsp.acid_target_frac_dry]
@@ -74,4 +90,6 @@ mc_ranges:
   lf:
     strain.titer_g_L: {low: 2.8, high: 2.8}
   cas:
-    strain.titer_g_L: {low: 3.0, high: 3.0}
+    strain.titer_g_L: {low: 1.0, high: 1.0}
+  ovd:
+    strain.titer_g_L: {low: 0.929, high: 0.929}

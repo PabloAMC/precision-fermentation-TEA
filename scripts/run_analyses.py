@@ -76,7 +76,8 @@ def s_base(res):
            for label, ch in steps]
     res["convention_steps"] = dec
     res["base_eu"] = {prod: evp(prod, {"plant.location": "eu_nw"}) for prod in PRODUCTS}
-    res["base_isolate"] = {prod: ev({"plant.product": prod, "plant.spec": "isolate"}) for prod in ("blg", "ova")}
+    res["base_isolate"] = {prod: evp(prod, {"plant.spec": "isolate"}) for prod in PRODUCTS
+                           if params.v(sc.base_params(prod), "plant.spec") == "concentrate"}
     # lactoferrin at BLG's and OVA's 10 kt/yr, for a like-for-like comparison (its market is 0.3-1.6 kt/yr):
     # at its own design titer and time, and on the BLG/OVA base process (base.yaml titer and time)
     kt = {"plant.annual_target_protein_t": params.v(BASE, "plant.annual_target_protein_t")}
@@ -175,7 +176,7 @@ def constants() -> dict:
         Yx_max=g.bio.mw / (-g.growth.of("Glucose (s)") * pf.MW["glc"]),
         m_s_tijhuis=host.m_s_tijhuis,
         gamma_biomass=g.bio.gamma, gamma_blg=pr.protein("blg").species.gamma, gamma_ova=pr.protein("ova").species.gamma,
-        gamma_lf=pr.protein("lf").species.gamma, gamma_cas=pr.protein("cas").species.gamma,
+        **{f"gamma_{k}": pr.protein(k).species.gamma for k in PRODUCTS if k not in ("blg", "ova")},
         atp_per_glucose=v_(BASE, "energetics.substrate_atp_per_glucose") + 12 * v_(BASE, "hosts.kphaffii.po_ratio"),
         otr_aeration_only=pf.otr_physical(dataclasses.replace(vessel, heat_max_kW_m3=None), cond),
         otr_with_heat=pf.otr_physical(vessel, cond),
@@ -213,14 +214,15 @@ def s_scenarios(res):
     # methanol-free best (Yen 2024)
     res["scenarios"]["academic/lf_lv2023"] = summary(sc.run("academic", "lf", variant="lf_lv2023"))
     res["scenarios"]["academic/lf_lv2023/light"] = summary(sc.run("academic", "lf", sc.LIGHT, variant="lf_lv2023"))
-    # academic casein: the best K. phaffii beta-casein (methanol, a secondary quote) beside the any-host best
-    res["scenarios"]["academic/cas_kphaffii"] = summary(sc.run("academic", "cas", variant="cas_kphaffii"))
-    res["scenarios"]["academic/cas_kphaffii/light"] = summary(sc.run("academic", "cas", sc.LIGHT, variant="cas_kphaffii"))
+    # patent examples (grade B) beside the peer-reviewed academic titers: EVERY's ovomucoid, Standing Ovation's casein
+    for prod in ("ovd", "cas"):
+        res["scenarios"][f"academic/{prod}_patent"] = summary(sc.run("academic", prod, variant=f"{prod}_patent"))
+        res["scenarios"][f"academic/{prod}_patent/light"] = summary(sc.run("academic", prod, sc.LIGHT, variant=f"{prod}_patent"))
 
 
 def s_physical_limit(res):
     """Cost floors, their binding constraints, and the sensitivities to the limits that bind."""
-    res["physical_limit"] = {}
+    res["physical_limit"] = {k: x for k, x in res.get("physical_limit", {}).items() if k.endswith("q_p_max_2.1")}   # kept: s_demonstrated
 
     def put(key, pl):
         if pl:
@@ -255,23 +257,21 @@ def s_demonstrated(res):
     (Prielhofer et al. 2018: q_P,max 2.1 mg/g/h near mu 0.1/h; data/evidence/hosts.yaml), as a secretion
     ceiling for the best-case and base-biology searches (added after the Phase F review)."""
     q = 2.1
-    pl = sc.physical_limit("blg", {"strain.q_p_max_mg_g_h": q}, fast=True)
-    if pl:
-        res.setdefault("physical_limit", {})[f"blg/humbird/q_p_max_{q}"] = dict(
-            summary(pl["result"]), X_prod=pl["X_prod"], t_prod=pl["t_prod"], titer=pl["titer"], binding=pl["binding"])
-    bd = sc.best_design(params.override(BASE, {"plant.product": "blg", "strain.q_p_max_mg_g_h": q}), fast=True)
-    if bd:
-        res.setdefault("best_design_base", {})[str(q)] = dict(summary(bd["result"]), X_prod=bd["X_prod"], t_prod=bd["t_prod"],
-                                                              titer=bd["titer"], binding=bd["binding"])
-    # the same ceiling for lactoferrin (no lactoferrin-specific secretion rate is published)
-    pl = sc.physical_limit("lf", {"strain.q_p_max_mg_g_h": q}, fast=True)
-    if pl:
-        res.setdefault("physical_limit", {})[f"lf/humbird/q_p_max_{q}"] = dict(
-            summary(pl["result"]), X_prod=pl["X_prod"], t_prod=pl["t_prod"], titer=pl["titer"], binding=pl["binding"])
-    bd = sc.best_design(sc.base_params("lf", {"strain.q_p_max_mg_g_h": q}), fast=True)
-    if bd:
-        res.setdefault("best_design_base_lf", {})[str(q)] = dict(summary(bd["result"]), X_prod=bd["X_prod"], t_prod=bd["t_prod"],
-                                                                 titer=bd["titer"], binding=bd["binding"])
+    pick = lambda d: dict(summary(d["result"]), X_prod=d["X_prod"], t_prod=d["t_prod"], titer=d["titer"],  # noqa: E731
+                          binding=d["binding"])
+    res.setdefault("best_design_base_by_product", {})
+    for prod in PRODUCTS:                                  # no product-specific secretion rate is published
+        pl = sc.physical_limit(prod, {"strain.q_p_max_mg_g_h": q}, fast=True)
+        if pl:
+            res.setdefault("physical_limit", {})[f"{prod}/humbird/q_p_max_{q}"] = pick(pl)
+        bd = sc.best_design(sc.base_params(prod, {"strain.q_p_max_mg_g_h": q}), fast=True)
+        if bd:
+            res["best_design_base_by_product"].setdefault(prod, {})[str(q)] = pick(bd)
+    # the keys the report read before the products were generalised
+    if "blg" in res["best_design_base_by_product"]:
+        res.setdefault("best_design_base", {})[str(q)] = res["best_design_base_by_product"]["blg"][str(q)]
+    if "lf" in res["best_design_base_by_product"]:
+        res.setdefault("best_design_base_lf", {})[str(q)] = res["best_design_base_by_product"]["lf"][str(q)]
 
 
 def s_cost_vs_titer(res):
@@ -460,7 +460,12 @@ def s_monte_carlo(res):
 
 
 def s_scale(res):
-    res["scale"] = sc.scale_curve(P_IND, [1000, 2500, 5000, 10000, 25000, 50000, 100000])
+    """Fig. 6: each product's industry-benchmark case over plant output, US vs EU, both conventions.
+    Lactoferrin's range covers its market (~0.3-1.6 kt/yr) up to the others' 10 kt/yr."""
+    outputs = {k: [100, 250, 500, 1000, 1588, 2500, 5000, 10000] if k == "lf" else [1000, 2500, 5000, 10000, 25000, 50000, 100000]
+               for k in PRODUCTS}
+    res["scale_by_product"] = {k: sc.scale_curve(sc.scenario_params("industry", k), outputs[k]) for k in PRODUCTS}
+    res["scale"] = res["scale_by_product"]["blg"]
     # lactoferrin on its base case (design titer), from 100 t/yr through the market estimates (0.3-1.6 kt/yr)
     # to BLG's 10 kt/yr
     res["scale_lf"] = sc.scale_curve(sc.base_params("lf"), [100, 250, 500, 1000, 1588, 2500, 5000, 10000])
@@ -513,28 +518,23 @@ def s_equivalents(res):
     prices of milk and eggs, and the titer at which PF protein matches them (72 h production)."""
     eq = bm.equivalents()
     out = {"sources": eq, "cases": {}, "break_even_titer_72h": {}}
-    for name, prod in (("milk", "blg"), ("egg", "ova")):
-        d = eq[name]
-        cases = {"base": {}, "base, design-report capital": sc.LIGHT}
-        rows = {}
-        for label, extra in cases.items():
-            msp = plant.evaluate(params.override(BASE, {"plant.product": prod, **extra})).msp_ccf
-            rows[label] = dict(msp=msp, target_per_unit=msp * d["target_g"] / 1000,
-                               all_protein_per_unit=msp * d["all_protein_g"] / 1000)
-        for scen in ("industry", "academic"):
-            msp = sc.run(scen, prod).msp_ccf
-            rows[scen] = dict(msp=msp, target_per_unit=msp * d["target_g"] / 1000,
-                              all_protein_per_unit=msp * d["all_protein_g"] / 1000)
-        out["cases"][name] = rows
-        p = params.override(BASE, {"plant.product": prod})
-        ceil = sc.max_feasible_titer(p, 72)
-        be = {}
-        for lab, series in d["protein_equivalent"].items():
-            for tag, target in (("2025", series[max(series)]), ("band low", min(series.values())),
-                                ("band high", max(series.values()))):
-                T = sc.required_titer(p, target, 72, hi=ceil) if ceil else None
-                be[f"{lab} [{tag}]"] = dict(target_usd_kg=target, titer=T)
-        out["break_even_titer_72h"][name] = dict(ceiling=ceil, rows=be)
+    for name, d in eq.items():
+        for prod in d["compare_to"]:                       # cases keyed source/product: milk/blg, milk/cas, egg/ova
+            tg = d["target_g"][prod]
+            unit = lambda m: dict(msp=m, target_per_unit=m * tg / 1000, all_protein_per_unit=m * d["all_protein_g"] / 1000)  # noqa: E731
+            rows = {"base": unit(evp(prod)["msp_ccf"]), "base, design-report capital": unit(evp(prod, sc.LIGHT)["msp_ccf"])}
+            for scen in ("industry", "academic"):
+                rows[scen] = unit(sc.run(scen, prod).msp_ccf)
+            out["cases"][f"{name}/{prod}"] = rows
+            p = sc.base_params(prod)
+            ceil = sc.max_feasible_titer(p, 72)
+            be = {}
+            for lab, series in d["protein_equivalent"].items():
+                for tag, target in (("2025", series[max(series)]), ("band low", min(series.values())),
+                                    ("band high", max(series.values()))):
+                    T = sc.required_titer(p, target, 72, hi=ceil) if ceil else None
+                    be[f"{lab} [{tag}]"] = dict(target_usd_kg=target, titer=T)
+            out["break_even_titer_72h"][f"{name}/{prod}"] = dict(ceiling=ceil, rows=be)
     # what the same protein costs bought as the incumbent ingredient, per unit and year (review SC-10):
     # dried egg white per egg, and a litre's whey protein at WPC80/WPI prices as a share of the
     # farm milk price in the same year

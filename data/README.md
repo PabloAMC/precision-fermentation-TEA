@@ -2,7 +2,7 @@
 
 ## titers.csv — every public titer/yield/purity data point
 One row per reported number. Columns:
-- product: blg | ova | leghemoglobin | lactoferrin | casein | other
+- product: blg | ova | ovomucoid | leghemoglobin | lactoferrin | casein | other
 - host: organism, e.g. "K. phaffii", "T. reesei"
 - titer_g_per_L, yield_g_per_g (g protein / g sugar), purity (fraction), scale_L
 - mode: shake | batch | fed-batch | unknown

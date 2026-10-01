@@ -27,6 +27,16 @@ AXES = {
     "X_prod": [40, 80, 107, 140],
     "Y_ps": [0.28, 0.40, 0.465, 0.535],
 }
+# every product's base point is on the grid (lactoferrin: its own titer and production time; products.yaml)
+import yaml  # noqa: E402
+_base = yaml.safe_load((ROOT / "data/pf/base.yaml").read_text())["strain"]
+_prod = yaml.safe_load((ROOT / "data/pf/products.yaml").read_text())
+for _k in PRODUCTS:
+    _b = _prod.get(_k) or {}
+    for _ax, _leaf in (("titer", "titer_g_L"), ("t_prod", "t_prod_h")):
+        _x = _b.get(f"strain.{_leaf}", {}).get("value", _base[_leaf]["value"])
+        if _x not in AXES[_ax]:
+            AXES[_ax] = sorted(AXES[_ax] + [_x])
 GROUPS = {"capital": ["capital charge"], "maintenance + insurance": ["maintenance", "insurance"],
           "labour": ["labour"], "glucose": ["glucose"],
           "other materials": ["ammonia", "salts & other media", "DSP chemicals", "membranes", "chromatography resin",

@@ -102,3 +102,17 @@ text we can check the quote, or replace the value. DOIs checked against Crossref
 | Liu K et al. Reprogrammed *Komagataella phaffii* for enhanced secretory expression of human lactoferrin. J Biotechnol (2026) | 10.1016/j.jbiotec.2026.07.011 | `papers/Liu2026_lactoferrin.pdf` |
 
 Items 25–34 came from the v2 placeholder and lactoferrin searches. More will be added if the review finds gaps.
+
+## P6 — casein (added 2026-10-01; for the β-casein product)
+
+Save patents in `references/patents/`, articles in `references/papers/` (both git-ignored).
+
+| # | Document | Where | Save as | Why |
+|---|---|---|---|---|
+| 39 | NewMilkBuzz patent family: WO2024256611A1, WO2023242273A1, EP4623075A1, EP4676233A1, WO2025109136A1 | patents.google.com/patent/<number>/en ("Download PDF") | `patents/NewMilkBuzz_<number>.pdf` | Most likely public source of a yeast or fungal casein titer and a casein purification route |
+| 40 | Choi BK, Jiménez-Flores R. J Agric Food Chem 44:358 (1996) | 10.1021/jf950339i | `papers/Choi1996_bcasein_pichia.pdf` | Best β-casein titer in *K. phaffii* (0.7–1.0 g/L), read only as an abstract |
+| 41 | Choi BK, Jiménez-Flores R. J Agric Food Chem (2001) | 10.1021/jf001298f | `papers/Choi2001_bcasein_pichia_phospho.pdf` | The only yeast casein reported phosphorylated like milk casein; the academic variant (0.245 g/L) |
+| 42 | Animal-free caseins by precision fermentation: technical challenges and perspectives. Trends Food Sci Technol (2026) | 10.1016/j.tifs.2026.105878 | `papers/TIFS2026_animal_free_caseins.pdf` | Best single review of the field |
+| 43 | Fermify WO2024200234A1 (non-micellar casein gel) | patents.google.com | `patents/Fermify_WO2024200234A1.pdf` | Cheese without micelles: does unphosphorylated casein work? |
+| 44 | Balasubramanian et al. Trends Biotechnol 43:2304 (2025) | journal page | `papers/Balasubramanian2025_phospho_as1_ecoli.pdf` | Fully phosphorylated αs1-casein in *E. coli*; may give a titer |
+| 45 | FDA GRN 967 and GRN 1104 full notices (EVERY: ovomucoid; egg-white protein) | FDA GRAS Notice Inventory | `reports/FDA-GRN967_ovomucoid.pdf`, `reports/FDA-GRN1104_egg-white.pdf` | Specs and process for the next product (ovomucoid / egg-white mix) |

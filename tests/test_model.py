@@ -310,7 +310,7 @@ def test_equivalents_units():
     e = bm.equivalents()
     milk = e["milk"]["prices"]["US farm milk (all-milk price)"]
     assert milk[2025] == pytest.approx(21.19 / 45.359237 * 1.0313, rel=1e-9)     # $/cwt -> $/L, 2025$
-    assert e["egg"]["target_g"] == pytest.approx(1.96)
+    assert e["egg"]["target_g"]["ova"] == pytest.approx(1.96) and e["milk"]["target_g"]["cas"] == pytest.approx(9.2)
 
 
 # ---------------------------------------------------------------- products on an equal footing
@@ -329,7 +329,7 @@ def test_scenarios_apply_on_the_product_base():
     the cation-exchange route and the market-sized plant; the physical limit caps it at the market."""
     ind = sc.scenario_params("industry", "lf")
     assert v(ind, "strain.titer_g_L") == 42 and v(ind, "plant.spec") == "cex"
-    assert v(ind, "plant.annual_target_protein_t") == 250 and v(ind, "strain.t_prod_h") == 90
+    assert v(ind, "plant.annual_target_protein_t") == 250 and v(ind, "strain.t_prod_h") == 83
     assert v(sc.scenario_params("physical_limit", "lf"), "plant.annual_target_protein_t") == 1588
     assert v(sc.scenario_params("physical_limit", "blg"), "plant.annual_target_protein_t") == 100000
     acad = sc.scenario_params("academic", "lf")
@@ -387,14 +387,19 @@ def cas():
     return p, plant.evaluate(p)
 
 
-def test_acid_route_recovery_and_no_uf(cas):
-    """Recovery = cell removal x MF x precipitation x dryer; the permeate is precipitated, not ultrafiltered."""
+def test_acid_route_recovery_and_concentration(cas):
+    """The permeate is ultrafiltered (no diafiltration) to skim milk's casein concentration, then precipitated:
+    recovery = cell removal x MF x UF retention CF^-(1-sigma) x precipitation x dryer, and the precipitation
+    feed holds the casein that entered UF at the target concentration (audit R9-1)."""
     p, r = cas
     d = r.design
-    expect = (d["recovery_cell_removal"] * v(p, "dsp.mf_recovery") * v(p, "dsp.acid_precip_recovery")
-              * v(p, "dsp.dryer_recovery"))
+    sigma = v(p, "dsp.uf_rejection")
+    expect = (d["recovery_cell_removal"] * v(p, "dsp.mf_recovery") * d["CF"] ** -(1 - sigma)
+              * v(p, "dsp.acid_precip_recovery") * v(p, "dsp.dryer_recovery"))
     assert d["recovery"] == pytest.approx(expect, rel=1e-12)
-    assert d["uf_m2"] == 0 and d["CF"] == 1.0 and d["mf_m2"] > 0
+    P_uf = d["product_made_kg"] * d["recovery_cell_removal"] * v(p, "dsp.mf_recovery")
+    assert d["whey_m3_batch"] == pytest.approx(P_uf / v(p, "dsp.acid_precip_feed_g_L"), rel=1e-12)
+    assert d["CF"] > 1 and d["uf_m2"] > 0 and d["mf_m2"] > 0
     assert d["dryer_inlet_solids"] == v(p, "dsp.dryer_feed_solids_cas")
     assert sc.is_feasible(r) and v(p, "plant.spec") == "acid"
 
@@ -423,9 +428,34 @@ def test_acid_route_streams(cas):
 
 def test_casein_scenarios():
     """Casein runs the base design point on its own route; the Eden Brew variant is a low-purity UF/DF concentrate."""
-    assert v(sc.scenario_params("academic", "cas"), "strain.titer_g_L") == 3.0
+    assert v(sc.scenario_params("academic", "cas"), "strain.titer_g_L") == 1.0
+    assert v(sc.scenario_params("academic", "cas", variant="cas_patent"), "strain.titer_g_L") == 3.0
     assert v(sc.scenario_params("industry", "cas"), "plant.spec") == "acid"
     eb = sc.run("casein", "cas", variant="cas_ufdf_edenbrew")
     assert eb.design["purity_dry"] == pytest.approx(0.058) and eb.design["uf_m2"] > 0
     for name in ("academic", "industry"):
         assert sc.is_feasible(sc.run(name, "cas"))
+
+
+# ---------------------------------------------------------------- ovomucoid (UF/DF concentrate as EVERY's GRN 967)
+def test_ovomucoid_formula_from_uniprot():
+    """Mature P01005 (186 aa, 9 disulfides): C840 H1306 N240 O292 S20, 20,080 Da (ovomucoid.yaml)."""
+    p = pr.protein("ovd")
+    assert p.residues == 186
+    assert {k: round(x) for k, x in p.formula.items()} == {"C": 840, "H": 1306, "N": 240, "O": 292, "S": 20}
+    assert p.mw_molecule == pytest.approx(20080, abs=1)
+
+
+def test_ovomucoid_base_case():
+    """Ovomucoid runs base.yaml's design point on the membrane route with its own dossier purity; the egg
+    incumbent and the egg equivalent serve OVA and ovomucoid alike."""
+    from pftea import benchmarks as bm
+    p = sc.base_params("ovd")
+    assert (v(p, "plant.spec"), v(p, "strain.titer_g_L")) == ("concentrate", v(BASE, "strain.titer_g_L"))
+    assert v(p, "dsp.concentrate_target_frac_dry") == pytest.approx(0.76)
+    r = plant.evaluate(p)
+    assert sc.is_feasible(r) and r.design["purity_dry"] == pytest.approx(0.76)
+    assert "ovd" in bm.incumbents()["egg"]["compare_to"] and "ova" in bm.incumbents()["egg"]["compare_to"]
+    assert bm.equivalents()["egg"]["target_g"]["ovd"] == pytest.approx(0.40)
+    for name in ("academic", "industry"):
+        assert sc.is_feasible(sc.run(name, "ovd"))
