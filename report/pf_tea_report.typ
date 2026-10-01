@@ -76,7 +76,7 @@
 #let swing(path) = { let t = tor(path); calc.abs(t.msp_high - t.msp_low) }
 #let capshare(d) = (d.per_kg.at("capital charge") + d.per_kg.maintenance + d.per_kg.at("insurance")) / d.msp_ccf
 #let LF = R.lactoferrin
-#let LFC(k) = (
+#let LFC(k) = ((
   // lactoferrin cases: base and academic runs sit with BLG and OVA's; route variants in R.lactoferrin
   "lf/humbird": R.base.lf, "lf/light": R.base_light.lf,
   "lf_academic/humbird": R.scenarios.at("academic/lf"), "lf_academic/light": R.scenarios.at("academic/lf/light"),
