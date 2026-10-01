@@ -78,6 +78,30 @@ Phase F (external review) has not started. Open items:
 
 ## Decisions log
 
+- **2026-10-01 (night), ovomucoid added and casein evidence corrected (Claude, working overnight at
+  Pablo's request; for his review):**
+  - Ovomucoid (`ovd`, UniProt P01005), chosen first in docs/PROTEIN_CANDIDATES.md. Evidence:
+    data/evidence/ovomucoid.yaml (36 entries). EVERY's GRN 967 is a single-protein ovomucoid made in
+    methanol-induced *K. phaffii* by UF/DF alone (no chromatography); GRN 1104 is ovalbumin, not a mix.
+    Base: base.yaml's design point on the membrane route, with the dossier's purity (0.76 of dry matter,
+    A) and egg-white dryer feed (23%, C; EVERY dries from 5-6%, the low end). Academic: EVERY's 30.19 g/L
+    patent example (B; the best public titer); variant: Kim 2025's 0.93 g/L (abstract only). Incumbent and
+    egg equivalent shared with OVA (`compare_to` may now list several products).
+  - Casein, after reading Choi 1996/2001, Iaria 2026, Balasubramanian 2025 and the NewMilkBuzz/Fermify
+    patents: no secreted casein titer is public for any yeast or fungus; Choi's 0.7-1.0 g/L is
+    intracellular and 0.245 g/L was one glycoform in a lysate (cas_kphaffii now 1.0 g/L, flagged); the
+    recombinant beta-casein pI is ~5.5, higher than milk casein's (the report had the direction wrong);
+    acid_precip_recovery low 0.85 -> 0.67 (Chezan 2026); titers.csv: Chung 1991 corrected, 9 rows added.
+- **2026-10-01, all proteins on an equal footing in figures and report (Pablo: "all proteins in
+  equal footing insofar that is possible"; Claude built it, for Pablo's review):**
+  - SCOPE.md's question now covers β-casein and lactoferrin; Q8 becomes "how the downstream route
+    changes the product and its cost" (Fig. 9, routes and purity per product).
+  - Figures 1, 3, 4, 5, 6, 7 and 10 have one panel or row per product, read from the results; each
+    product on its own base plant and against its own incumbent. Lactoferrin differs only where its
+    market forces it: its own price axis, a 250 t/yr plant, targets of $100/200/400.
+  - run_analyses: scale curves, the demonstrated-secretion best case and the milk/egg equivalents
+    now run for every product (casein against a litre of milk); the bridge ends with a casein variant.
+  - The explorer and the SI workbook cover the four products. The report is rewritten as version 3.
 - **2026-10-01, β-casein added (Pablo: "casein was the next"; Claude built it, for Pablo's review):**
   - Product `cas`: bovine β-casein A2 (UniProt P02666), *K. phaffii*, methanol-free, secreted, as in
     Eden Brew's FSANZ A1342. Evidence in `data/evidence/casein.yaml` (29 entries) and 18 titer rows.

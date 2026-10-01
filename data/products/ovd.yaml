@@ -1,0 +1,18 @@
+# Hen ovomucoid (egg white), as in EVERY's FDA GRN 967 (K. phaffii, a single-protein ovomucoid product).
+# Sequence: UniProt P01005 (IOVO_CHICK), mature chain 25-210 (signal peptide 1-24 removed), 186 residues;
+# data/evidence/ovomucoid.yaml ovd_uniprot_mature_chain. Three Kazal domains, 9 disulfides (18 Cys), no Trp.
+# Glycans: native ovomucoid is 20-25% carbohydrate on 5 N-sites; EVERY's strain carries an EndoH-OCH1 fusion
+# that trims each glycan to a single GlcNAc (~4% of mass; ovd_kphaffii_glycoform_endoh): ignored in the
+# elemental formula, as for OVA. EVERY's EAEA N-terminal extension (+400 Da) is ignored.
+name: ovomucoid
+key: ovd
+uniprot: P01005
+mature_sequence: >-
+  AEVDCSRFPNATDKEGKDVLVCNKDLRPICGTDGVTYTNDCLLCAYSIEFGTNISKEHDGECKETVPMNCSSYANTTSEDGKVMVLCNRAFNPVCGTDGVTYDNECLLCAHKVEQGASVDKRHDGGCRKELAAVSVDCSEYPKPDCTAEDRPLCGSDNKTYGNKCNFCNAVVESNGTLTLSHFGKC
+disulfides: 9
+post_translational: "N-glycans (one GlcNAc per site after EndoH in EVERY's strain) and the EAEA extension ignored in the elemental formula"
+spec:                       # base = FDA GRN 967 (EVERY), the cleared PF ovomucoid concentrate
+  protein_min_frac_powder: {value: 0.75, grade: A, source: "FDA GRN 967 Table 3: 'Protein > 75%' (ovomucoid.yaml ovd_spec_grn967)"}
+  target_min_frac_protein: {value: 0.876, grade: A, source: "GRN 967 amendment Table 1: ovomucoid 87.6-92.6% of protein in three lots (ovd_spec_grn967_batches); no specification minimum is stated"}
+  moisture_max: {value: 0.10, grade: A, source: "GRN 967 Table 3: 'Moisture Maximum 10.0%'"}
+solubility_practical_g_L: {value: null, note: "not limiting: 300 g/L dissolves clear at pH 4.06 and 6.3 (US 12,096,784 Ex. 4; ovd_solubility_practical)"}

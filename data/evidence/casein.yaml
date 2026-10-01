@@ -13,6 +13,19 @@
 # Prices are NOT re-done here: see data/evidence/prices.yaml (casein_acid_us_dmn_annual,
 # casein_rennet_us_dmn_annual, casein_food_eu_export_unit_value, casein_price_range_gfi2025) and
 # data/evidence/milk_egg.yaml (milk_casein_tetrapak, milk_casein_share_heck2009).
+#
+# VERIFICATION PASS (2026-10-01, second session): full texts on disk in references/text/ (git-ignored):
+# Choi1996_bcasein_pichia.txt, Choi2001_bcasein_pichia_phospho.txt, Iaria2026_animal_free_caseins_TIFS.txt,
+# Balasubramanian2025_phospho_as1_ecoli.txt; patents in references/patents/ with text from the Google
+# Patents HTML (the WO PDFs are image scans with no text layer; the two EP A1 documents have no PDF on
+# Google Patents): NewMilkBuzz_{WO2023242273A1, WO2024256611A1, WO2025109136A1, EP4623075A1,
+# EP4676233A1}_gp_html.txt, Fermify_WO2024200234A1_gp_html.txt (the saved HTML sits next to them as
+# *_gp.html; the four WO PDFs are in references/patents/). Abstracts of Kim 2005 and Chezan 2026
+# read as Europe PMC JSON. New and changed titer rows: scratchpad casein_titers_update.csv.
+# New entries are in section 7; entries above that were changed by this pass say so in their note.
+# Quotes stay ASCII, as elsewhere in this file: Greek letters are transliterated (beta, alpha, kappa,
+# u for micro) and nothing else inside a quote is altered. Every section-7 quote was machine-checked
+# against the on-disk text with a column-aware matcher (two-column PDFs interleave the columns).
 
 # =======================================================================================
 # 1. Product identity: the four bovine caseins, sequences, PTMs, variants, shares
@@ -225,6 +238,11 @@
     Brew's beta-casein as of UNKNOWN phosphorylation (most likely low), and note that the dossier
     cites Choi & Jimenez-Flores 2001 for the claim that K. phaffii glycosylates up to 30% of
     beta-casein - the same paper that reports normal phosphorylation in that host.
+    UPDATED 2026-10-01: Choi 2001's 30% is N-glycosylation of an ENGINEERED L70S/P71S site, and its
+    phosphorylation claim is a urea-PAGE mobility test on that glycoform; NewMilkBuzz's mass
+    spectrometry finds NO phosphorylation of wild-type-sequence beta-casein made by K. phaffii without
+    a co-expressed Fam20C kinase (EP4623075A1 Example 8; section 7). "Most likely low" therefore
+    stands, now with a sourced reason.
 
 - key: casein_as1_formo_newmilkbuzz_process
   value: null
@@ -322,13 +340,16 @@
     (a) Eden Brew - beta-casein A2, K. phaffii, FSANZ A1342, methanol-free, dossier public [A];
     (b) Formo + NewMilkBuzz - alpha-s1, E. coli Nissle, GRN 1312 pending, dossier public [A];
     NewMilkBuzz also has a patent family on casein in filamentous fungi and yeast (WO2023242273A1,
-    WO2024256611A1, EP4623075A1 "Improved casein secretion by non-mammalian host cells") - NOT READ,
-    Google Patents rate-limited;
+    WO2024256611A1, WO2025109136A1, EP4623075A1, EP4676233A1) - READ 2026-10-01 (section 7): NO
+    titer in any of them; K. phaffii and A. oryzae examples, Fam20C co-expression for secretion, and a
+    pH 2 + 80 C acid extraction for intracellular E. coli casein;
     (c) Fermify - beta-casein, E. coli, GRN 1228 withdrawn 13 Jun 2025 [A]; GFI reports Fermify and
     BOKU showing "non-phosphorylated precision beta-casein forms stronger acid-induced gels than
     native casein" and "authentic cheese formulations with non-phosphorylated beta-casein produced
     from bacteria" via "a patent-pending enzymatic process rather than full replication of casein
-    micelles" [C]; patent WO2024200234A1 "Non-micellar casein emulsion gel" NOT READ;
+    micelles" [C]; patent WO2024200234A1 "Non-micellar casein emulsion gel" READ 2026-10-01: no titer,
+    no host data; examples use dairy beta-casein dephosphorylated with alkaline phosphatase as a
+    stand-in for bacterial casein (section 7, casein_fermify_dephosphorylated_gel_patent);
     (d) New Culture - self-affirmed GRAS Feb 2024 (first for casein), mozzarella with Pizzeria
     Mozza; host NOT disclosed publicly, but its patent US2023/0404098A1 exemplifies L. lactis
     (nisin and P170 promoters), B. subtilis and E. coli, and reports alpha-s1 secreting poorly
@@ -383,9 +404,19 @@
     A. oryzae - the only kappa titer in any host). NO COMPANY HAS DISCLOSED A TITER: Eden Brew,
     Formo, Fermify, Standing Ovation (beyond its patent), New Culture and Daisy Lab all withhold
     it. There is also NO public yield on sugar for any casein except Biermann's 0.32 mg/g glucose
-    and my derived bounds. Every verified casein titer except Choi's P. pastoris work and the
-    A. oryzae kappa work is INTRACELLULAR, and most is in inclusion bodies - the opposite of the
-    secreted BLG/LF lineage the repo is built on.
+    and my derived bounds. Every verified casein titer except the A. oryzae kappa work is
+    INTRACELLULAR, and most is in inclusion bodies - the opposite of the secreted BLG/LF lineage the
+    repo is built on.
+    UPDATED 2026-10-01 (full texts of both Choi papers read; section 7): Choi's P. pastoris numbers
+    are INTRACELLULAR too. 0.7-1.0 g/L (1996) is beta-casein in bead-beaten cell extract, with
+    secretion at 1/20000 of the intracellular level; 0.245 g/L (2001) is only the GLYCOSYLATED form
+    of an L70S/P71S mutant, in the cell lysate of a 1 L, 5-day shake culture - not a titer of total
+    beta-casein. So: NO public secreted whole-casein titer exists for any yeast or fungus (NewMilkBuzz
+    shows K. phaffii secretion with Fam20C co-expression on gels only, with no number). The only
+    >1 g/L number for a casein-derived sequence in yeast is 2.5 g/L secreted human CMP, a 64-residue
+    kappa-casein fragment (Kim 2005, S. cerevisiae fed-batch, abstract). Also corrected: Chung 1991
+    (S. cerevisiae, secreted) is ~50 ug/L, not 10 mg/L (three full texts agree; the 10 mg/L in
+    Mora Vasquez 2025 is probably Jimenez-Flores 1990's intracellular figure).
 
 # =======================================================================================
 # 4. Downstream physics: pI, solubility, and the incumbent acid-casein process with numbers
@@ -416,6 +447,14 @@
     recombinant casein has a pI 0.3-0.5 units LOWER than its native counterpart, so an isoelectric
     precipitation step must be tuned to the recombinant protein, and Formo's pH 4 (not 4.6) is
     consistent with that.
+    CORRECTION 2026-10-01: the sentence above has the sign wrong. Removing phosphates removes
+    negative charge, so the unphosphorylated pI is HIGHER (my own numbers above say so: beta 4.94
+    unphosphorylated vs 4.42 with 5 P). Now measured: recombinant (unphosphorylated) bovine
+    beta-casein has pI 5.5 vs 4.5 for native, and at pH 5.5 only ~67% of it is insoluble (Chezan 2026,
+    abstract; section 7, casein_recombinant_beta_pI_solubility). So Formo's pH 4 is NOT explained by
+    a lower pI; it is further from the recombinant pI, not closer. Fermify's patent states the same
+    direction ("the pI of the dephosphorylated protein is higher than phosphorylated"), and
+    NewMilkBuzz EP4676233A1 claims re-precipitation at pH 4.5-5.5.
 
 - key: casein_solubility_vs_ph_and_calcium
   value: null
@@ -435,7 +474,10 @@
     Ca2+ in the millimolar range THROUGH their phosphoserine clusters; kappa-casein is not
     calcium-sensitive and protects the others. I did NOT find a quantitative solubility-vs-pH or
     solubility-vs-[Ca2+] curve for UNPHOSPHORYLATED recombinant casein in any public source -
-    that is a genuine gap (see the E-list in the report). The closest public statements are
+    that is a genuine gap (see the E-list in the report). PARTLY FILLED 2026-10-01: Chezan et al.,
+    Food Hydrocolloids 171:111797 (2026) measured solubility vs pH and calcium sensitivity of
+    recombinant vs native beta-casein (abstract read; section 7). The curve itself is in the paywalled
+    full text, not read. The closest public statements are
     (i) Eden Brew's product claim: "It tolerates a pH range of approximately 4.0 to 7.0 ... In
     refrigerated storage (up to 6 weeks at 4 C), no precipitation, sedimentation, or visible phase
     separation has been observed" and "Formulation trials with pH endpoints between 4.2 and 4.5
@@ -621,7 +663,12 @@
     Balasubramanian 2025 (DTU/Wageningen) instead uses the B. subtilis kinases PrkD and YabT in
     E. coli and reports ALL native alpha-s1 sites phosphorylated with native-like calcium binding,
     digestibility and structure - no titer reported. Nobell/Mozza patent the plant equivalent with
-    Fam20C itself.
+    Fam20C itself. FULL TEXT READ 2026-10-01 (section 7, casein_as1_ecoli_kinase_balasubramanian):
+    the site-by-site LC-MS map ("PrkD phosphorylated all nine native sites") is from IN VITRO kinase
+    reactions; in vivo co-expression was shown only qualitatively (2D gel + Pro-Q stain), and the
+    kinases also hit non-native sites. NewMilkBuzz EP4623075A1 does the yeast version: Fam20C(+A)
+    co-expression in K. phaffii phosphorylates beta- and alpha-s1-casein at native peptide stretches
+    (MS) and switches on their secretion (section 7).
     (3) PHOSPHOMIMETIC Ser->Asp substitution (same paper) - but that is no longer bio-identical,
     which is a regulatory and labelling problem, not a technical one.
     (4) GIVE UP MICELLES. New Culture's patent measures it: hybrid micelles of UNPHOSPHORYLATED
@@ -730,3 +777,373 @@
     general permission for "a wide range of foods" with no numeric maximum (FSANZ assessed a mean
     dietary intake rather than a use level). Note the exclusion of infant formula in GRN 1312 -
     the high-value application lactoferrin enjoys is explicitly NOT on the table for casein yet.
+
+# =======================================================================================
+# 7. Verification pass 2026-10-01: full texts of Choi 1996/2001, Iaria 2026, Balasubramanian 2025,
+#    the NewMilkBuzz and Fermify patents; abstracts of Kim 2005 and Chezan 2026
+# =======================================================================================
+
+- key: casein_beta_kphaffii_choi1996_titer
+  value: 1.0
+  low: 0.7
+  high: 1.0
+  unit: g/L of culture, INTRACELLULAR beta-casein (cell extract), K. phaffii GS115, methanol, 4-6 d shaken culture
+  grade: A
+  source: "Choi BK, Jimenez-Flores R. Study of putative glycosylation sites in bovine beta-casein introduced by PCR-based site-directed mutagenesis. J Agric Food Chem 44:358-364 (1996)"
+  doi_or_url: 10.1021/jf950339i
+  locator: "Results 'Production of Mutant Bovine beta-Casein in P. pastoris', p.361; abstract p.358; Methods 'Culture Conditions' p.359"
+  quote: "The production of beta-casein was in the range of 15-18% of total soluble proteins, and the estimated beta-casein was approximately 0.7-1.0 g/L."
+  read: fulltext
+  note: >-
+    VERIFIED in the full text, and the context changes its meaning: the sentence before it reads
+    "The amounts of beta-casein produced intracellularly in P. pastoris were estimated using Collage
+    image analysis ... after Coomassie Blue staining of SDS-PAGE" of bead-beaten "yeast crude cell
+    extract". So 0.7-1.0 g/L is INTRACELLULAR, by Coomassie densitometry against a bovine
+    beta-casein marker. Host GS115 (his4), pHIL-D2, AOX1 promoter, native bovine signal peptide,
+    gene replacement at the AOX1 locus (His+ Mut-s). Culture: grown to OD600 1.2-2.0 at 30 C in
+    unbuffered minimal glycerol medium, then switched to minimal methanol medium, "followed by an
+    additional 4-6 day incubation with vigorous shaking (>250 rpm)", methanol held at 0.5% v/v; the
+    time course (Fig. 4) runs to day 8 and is still rising. No vessel size, no harvest cell density,
+    no yield on substrate, no bioreactor. Strains WT, M68 and M6873 were all "expressed at high
+    levels"; the paper does not say which one the range belongs to. Phosphorylation was NOT measured
+    in this paper (that is the 2001 one).
+
+- key: casein_beta_kphaffii_secretion_fraction
+  value: 0.00005
+  unit: secreted / intracellular beta-casein (ratio), K. phaffii, native bovine signal peptide
+  grade: A
+  source: "Choi BK, Jimenez-Flores R. J Agric Food Chem 44:358-364 (1996)"
+  doi_or_url: 10.1021/jf950339i
+  locator: "Results 'Localization of Mutant Bovine beta-Casein Produced in P. pastoris', p.362"
+  quote: "wild-type and mutant bovine beta-casein were largely produced intracellularly in P. pastoris and secreted into media at very low levels (1/20000 of the intracellular), even though the native bovine beta-casein signal sequence was linked to beta-casein cDNA."
+  read: fulltext
+  note: >-
+    DERIVED (mine): 0.7-1.0 g/L intracellular / 20000 = 35-50 ug/L secreted. Iaria 2026 restates it
+    as "0.005% of the intracellular level". This is why a secreted-casein K. phaffii process has no
+    public titer: the only g/L-scale yeast number is cell-bound. NewMilkBuzz (EP4623075A1 Ex. 1)
+    repeated the experiment with 15 yeast signal peptides and up to ~30 gene copies and reached the
+    same conclusion (see casein_kphaffii_fam20c_secretion).
+
+- key: casein_beta_kphaffii_choi2001_glyco_lysate
+  value: 0.245
+  unit: g glycosylated beta-casein (L70S/P71S) per L of culture, in the CELL LYSATE (start of purification)
+  grade: A
+  source: "Choi BK, Jimenez-Flores R. Expression and purification of glycosylated bovine beta-casein (L70S/P71S) in Pichia pastoris. J Agric Food Chem 49:1761-1766 (2001)"
+  doi_or_url: 10.1021/jf001298f
+  locator: "Table 1 'Purification of Recombinant Bovine beta-Casein Expressed in P. pastoris', p.1762; Methods p.1761-1762"
+  quote: "cell lysate 4711.5 245.0 5.2 1.0 100.0"
+  read: fulltext
+  note: >-
+    Table 1 row; the columns are total protein (mg) | glyco-beta-CN (mg) | purity (%) | fold
+    purification | yield (%), and the feed is "A 5-day culture grown in BMM medium (1 L)", harvested,
+    bead-beaten and clarified. So 245 mg/L is (i) INTRACELLULAR, (ii) only the N-GLYCOSYLATED
+    fraction of (iii) an engineered L70S/P71S mutant. It is NOT a titer of total beta-casein and NOT
+    secreted, contrary to how Biermann 2025 ("a titer of 245 mg/L") and the model's cas_kphaffii
+    variant use it. Glycosylation "was obtained in up to 30% of total beta-casein expressed"
+    (abstract). DERIVED (mine, check): 245/0.30 = 0.82 g/L of total beta-casein; and the glyco share
+    of lysate protein (5.2%) over the 15-18% total beta-casein share of Choi 1996 gives 29-35%
+    glycosylated - both consistent with 0.7-1.0 g/L total, so the two papers describe one expression
+    level. Time: "the incubation time for the maximum production of bovine beta-casein (L70S/P71S)
+    was optimized to 120 h". Medium: buffered BMG -> BMM (100 mM potassium phosphate pH 6.0, YNB,
+    biotin, 0.5% methanol held), 250 rpm, OD600 1.5-2.0 at the switch. Purification (4 C): 30%
+    (NH4)2SO4 cut 85.2% yield, Con A-Sepharose 46.9%, Mono Q 39.1% overall, 96.0 mg at 96.6% purity.
+
+- key: casein_beta_kphaffii_choi2001_phosphorylation
+  value: null
+  unit: qualitative (phosphorylation of K. phaffii beta-casein; urea-PAGE after phosphatase)
+  grade: A
+  source: "Choi BK, Jimenez-Flores R. J Agric Food Chem 49:1761-1766 (2001)"
+  doi_or_url: 10.1021/jf001298f
+  locator: "Results 'Phosphorylation State of Glycosylated beta-Casein (L70S/P71S)', p.1764; Fig. 4A; abstract p.1761"
+  quote: "this indicates that glycosylated beta-caseins were phosphorylated to the same degree as authentic bovine beta-casein."
+  read: fulltext
+  note: >-
+    VERIFIED verbatim, and the abstract wording quoted in the earlier titers row ("Glycosylated
+    bovine beta-casein was normally phosphorylated to the same degree as native bovine beta-casein")
+    is also in the full text. What the claim rests on: 500 ng of the PURIFIED GLYCOFORM,
+    deglycosylated with PNGase F, treated with calf intestinal phosphatase, then urea-PAGE - a
+    band-shift comparison against dairy beta-casein. No mass spectrometry, no site count, and it
+    covers only the ~30% glycosylated fraction of a mutant, not the other 70%. AGAINST IT:
+    NewMilkBuzz's peptide-mapping MS reports no phosphorylation of native-sequence beta-casein from
+    K. phaffii without a co-expressed kinase (casein_kphaffii_no_phosphorylation_without_kinase).
+    Grade A for the observation, but do not read it as "K. phaffii phosphorylates casein natively";
+    treat it as unconfirmed. Also from this paper, on broth pH: "In nonbuffered media (initial pH
+    5.5) such as MGY/MM, the pH of the culture medium at the end of induction dropped to 3.0, but
+    the pH of the buffered medium was maintained at ~6.0 during the induction period."
+
+- key: casein_kphaffii_no_phosphorylation_without_kinase
+  value: null
+  unit: qualitative (MS phosphorylation status of K. phaffii beta- and alpha-s1-casein, with and without Fam20C/A)
+  grade: B
+  source: "NewMilkBuzz BV. EP 4623075 A1 'Improved casein secretion by non-mammalian host cells' (priority 2022-11-22, published 2025-10-01; family WO2024110509A1), Example 8"
+  doi_or_url: https://patents.google.com/patent/EP4623075A1/en
+  locator: "Example 8 'Characterization of beta- and alphaS1-casein produced by K. phaffi'; Tables 3-4 are images and were not read"
+  quote: "Product from strain Pp0020: 1) no sign of product phosphorylation; 2) variable degree of O- mannosylation."
+  read: html
+  note: >-
+    Pp0020 = up to ~30 copies of His-tagged bovine beta-casein A2 (pAOX1, native signal) in GS115;
+    Pp0132 = the same plus human Fam20C + Fam20A (pGAP) in a pep4 yps1 background, of which the
+    patent says "some degree of protein phosphorylation observed" and "phosphate addition occurs on
+    the same peptide stretches that are also phosphorylated in the bovine betacasein"; Pp0178 adds a
+    pmt1 KO, with O-mannosylation "significantly reduced" and phosphorylation "increased compared to
+    Pp0132". For alpha-s1: no phosphorylation in Pp0121, "prominent levels" in Pp0163 (with the
+    kinases). Method: IMAC-purified INTRACELLULAR protein from 15 L (beta) or 1.5 L (alpha-s1)
+    methanol fed-batches, RPC-UV-MS plus tryptic peptide mapping. Site occupancies are in the
+    unread image tables. For the model: an unengineered K. phaffii makes UNPHOSPHORYLATED casein,
+    and native-like phosphorylation needs a Fam20C co-expression strain, which NewMilkBuzz has
+    patented.
+
+- key: casein_kphaffii_fam20c_secretion
+  value: null
+  unit: qualitative (Fam20C co-expression switches on casein secretion in K. phaffii; NO titer given)
+  grade: B
+  source: "NewMilkBuzz BV. EP 4623075 A1, Examples 1-7 and 9"
+  doi_or_url: https://patents.google.com/patent/EP4623075A1/en
+  locator: "Example 1 (15 signal peptides, no secretion); Examples 2-4 (beta-casein + Fam20C/A); Examples 5-7 (alpha-s1); Example 9 (yps' knock-out)"
+  quote: "Overall, the results indicated that co-expression of Fam20C, whether human or bovine, results in increased secretion of accumulated bovine beta-casein by K. phaffi."
+  read: html
+  note: >-
+    Without the kinase: "lack of secretion is rather an intrinsic feature for the K. phaffi-expressed
+    beta-casein, irrespective of the N-terminal signal peptide used to drive its secretion" (Ex. 1:
+    15 yeast signal peptides, 8 to ~30 gene copies), and the same for His-tagged alpha-s1 variant B
+    (Ex. 5). With human or bovine Fam20C under pGAP, secreted beta-casein and alpha-s1 appear on
+    western blots and, for tagless alpha-s1 in a pep4 yps1 strain, on Coomassie-stained gels, but
+    "still some of the product remains trapped within the cell". Two product-quality problems are
+    engineered away: proteolysis by yapsins (a yps' knock-out, Ex. 9) and extended O-mannosylation
+    (pmt1 knock-out). Screening format: BMGY 24 h then BMMY (1% methanol, pH 6.5-7) 48 h at 28 C
+    with pepstatin A and PMSF added. NO g/L, mg/L, yield or productivity figure appears anywhere in
+    the patent, so no titer can be taken from it; grade B for the qualitative result only.
+
+- key: casein_kphaffii_bioreactor_conditions_newmilkbuzz
+  value: {temperature_C: 24, pH: 6.8, DO_pct: 30, methanol_feed_g_L_h: 3.4, glycerol_feed_phase_h: 20, transition_h: 6}
+  unit: process set-points of a 15 L K. phaffii casein methanol fed-batch
+  grade: B
+  source: "NewMilkBuzz BV. EP 4623075 A1, Example 8"
+  doi_or_url: https://patents.google.com/patent/EP4623075A1/en
+  locator: "Example 8, paragraphs 1-3"
+  quote: "Fermentations were performed at 24 C and pH 6.8 while the dissolved oxygen was maintained at 30%. ... After this six hour transition period, methanol induction continued with a constant feeding of 3.4 g.L -1 .h -1 ."
+  read: html
+  note: >-
+    Beta-casein strains Pp0020/Pp0132 in a 15 L Biostat C-DCU: BMGY with 0.5% glycerol batch, then a
+    20 h biomass phase on 60% glycerol + 1.2% PTM1 at 0.3*t + 13.4 g/L/h, 600 mbar overpressure, a
+    6 h methanol transition, then 3.4 g/L/h methanol. Pp0178 in 1 L Dasgip vessels: 28 C, pH 6.8,
+    2.5% glycerol batch, 12 h at 12.5 g/L/h glycerol, then 6.09 g/L/h of 50% methanol. Alpha-s1
+    strains in 1.5 L: 24 C, pH 6.8, 2.01 g/L/h methanol. Induction length, harvest cell density and
+    titer are NOT given. Two uses for the model: (a) pH 6.8 is the first public fermentation pH for a
+    K. phaffii casein process, which was an explicit gap in casein_broth_ph_precipitation_risk, and
+    it sits ~1.3 units above the recombinant beta-casein pI of 5.5, so in-fermenter precipitation is
+    not expected; (b) the train is methanol-driven, i.e. outside the model's methanol-free base case
+    and usable only as an analogy.
+
+- key: casein_as1_variant_a_secretion_kphaffii
+  value: 4
+  unit: fold more secreted alpha-s1-casein, variant A vs variant B (densitometry), K. phaffii 1.5 L bioreactor
+  grade: B
+  source: "NewMilkBuzz BV. WO 2024/256611 A1 'Production of an alphaS1-casein in a yeast or a filamentous fungus host' (priority 2023-06-14), Examples 2-7"
+  doi_or_url: https://patents.google.com/patent/WO2024256611A1/en
+  locator: "Example 4 'Secretion of bovine AlphaS1-casein variant A versus variant B ... upon bioreactor cultivation'; Fig. 3"
+  quote: "Densitometric analysis of the casein related bands, running between 25 and 37 kDa, indicates at least a factor 4- fold difference in secreted casein levels between bovine AlphaSI -casein variant A versus B."
+  read: html
+  note: >-
+    A ratio, not a titer. Variant A alpha-s1 is secreted by K. phaffii WITHOUT any kinase: "To our
+    surprise, a significant degree of the bovine AlphaSI -casein variant A was secreted by several of
+    the selected Pichia transformants", while strains making the common variant B "did not secrete
+    the casein despite clear intracellular accumulation" (Ex. 2, deep-well). Strains: pep4 yps1
+    PPS-9010 background, 5-13 copies (A) against 13-28 copies (B), SP2 signal peptide, pAOX1.
+    Bioreactor: 1.5 L Dasgip, 24 C, DO 30%, minimal salts with 2.5% glycerol batch, 12 h at
+    10.12 mL/L/h of 60% glycerol, 6 h transition, then 2.79 mL/L/h of 75% methanol, with PMSF and
+    pepstatin A dosed daily. No induction length, cell density or titer. Examples 5-7 (repeated in
+    WO2025109136A1) remove proteolysis (yps', sbt100 knock-outs) and reduce O-mannosylation (pmt1 or
+    pmt4 knock-out, or co-expressed alpha-1,2-mannosidase; after a pmt4 knock-out "about half of the
+    secreted alphaSI -casein contains no O-glycosylation"). WO2025109136A1 'Expression of milk
+    caseins in non-mammalian cells' carries the same protease and glycosylation examples and has no
+    titer either. My caution (judgement): variant A is a minor natural alpha-s1 variant, and whether
+    it would pass as "bovine alpha-s1-casein" in a food dossier is untested.
+
+- key: casein_as1_aspergillus_newmilkbuzz
+  value: null
+  unit: qualitative (alpha-s1 and alpha-s2 secretion by A. oryzae; no titer)
+  grade: B
+  source: "NewMilkBuzz BV. WO 2023/242273 A1 'Expression of milk caseins in filamentous fungi' (priority 2022-06-14), Examples 1-4"
+  doi_or_url: https://patents.google.com/patent/WO2023242273A1/en
+  locator: "Examples 2-4; Figs. 1-3"
+  quote: "Full-size product was only detected at day 3 (and slightly at day 4) in the presence of pepstatin A, indicating the involvement of (acid) aspartyl proteases in the degradation of AlphaSI-casein."
+  read: html
+  note: >-
+    A. oryzae Ao0025 (prtT, lig4, oryA/alp1 deleted), alpha-s1 or alpha-s2 fused to an amylase C
+    carrier with or without a Kex2 site, pSES or pAmyC promoter, 2 mL deep-well plates and 20 mL
+    shake flasks of AoMM with 2% glucose or maltose, 28 C, 4-6 days. Product seen only by western
+    blot, with a persistent ~20 kDa degradation fragment from aspartyl and serine proteases. "By the
+    end of the cultivation, the pH of the medium had raised from 6 towards 8 - 8.5". NO titer, and
+    recovery is claimed only generically: centrifugation, "other recovery methods are suitable, such
+    as e.g. acid or salt precipitation and solvent extraction". Together with Panchanawaporn 2026
+    (0.24 mg/L kappa-casein, titers.csv), the whole public filamentous-fungus casein record is
+    western blots and sub-mg/L numbers.
+
+- key: casein_pf_patent_acid_extraction_ph2
+  value: 2.0
+  low: 1.0
+  high: 3.0
+  unit: pH of the acid + heat extraction that releases intracellular recombinant alpha-s1-casein (E. coli cell suspension)
+  grade: B
+  source: "NewMilkBuzz BV. EP 4676233 A1 'Enrichment of a casein in a composition' (priority 2023-03-10, published 2026-01-14; family WO2024188832A1), Examples 1-3 and claims 1-7"
+  doi_or_url: https://patents.google.com/patent/EP4676233A1/en
+  locator: "Example 2 'Extraction of alpha-S1-casein by thermolysis at pH 2'; Example 3; claims 5 and 7"
+  quote: "The pH of this suspension was 6.6 and was adjusted to pH 2.0 using concentrated phosphoric acid. The cell lysis started immediately, and alpha-S1 -casein (variant B) was released in the supernatant."
+  read: html
+  note: >-
+    THE PATENT BEHIND FORMO/NEWMILKBUZZ'S GRN 1312 ROUTE (pH 1.8 plus heat, then pH 4 with H3PO4;
+    casein_as1_formo_newmilkbuzz_process), and the logic is the inverse of the dairy one: below
+    pH 3 the casein stays SOLUBLE while host proteins, DNA and LPS precipitate - "lowering the pH of
+    a composition comprising a casein below the isoelectric point of the casein causes the
+    biomolecules present in the composition to precipitate while the casein remains in the soluble
+    fraction" - and the casein is recovered afterwards by raising the pH (claim 7: "the pH is raised
+    to about 4.5 to 5.5 to precipitate the casein"). Numbers: E. coli BL21(DE3)pLysS with pET26b+,
+    10 L Biostat on defined minimal medium plus 1% yeast extract, IPTG at OD600 1; the cell pellet is
+    resuspended in water to the original volume, taken from pH 6.6 to 2.0 with concentrated H3PO4
+    (HCl gave "a similar yield and purity"), heated to 80 C for 2 min, cooled to 25 C and
+    centrifuged: "A total of 10 liters yielded crude B variant alpha-S1 -casein having a purity above
+    80%." DNA in the crude extract falls from "258 pg/mL" (comparative: 90 C at pH 8) to "0.11
+    pg/mL" at pH 2 and 80 C; the printed units are probably an OCR slip for ug/mL, but the ~2300x
+    reduction is the robust part. Example 3, at room temperature on a 200 g cells/kg suspension:
+    pH 7 extracts 1.9 mg/mL alpha-s1 within 10 min and does not improve with time, while pH 2 gives
+    "at least 2x and up to 4x higher" with less proteolysis. Claimed windows: pH 1.0-3.0 (preferred
+    2.0-2.4), 60-90 C, 1-60 min. NOT GIVEN: acid quantity per volume, recovery of the
+    re-precipitation, wash water, drying. For the model's SECRETED K. phaffii base case this is at
+    best an analogy (D); it is the natural train for an INTRACELLULAR route.
+
+- key: casein_recombinant_beta_pI_solubility
+  value: 5.5
+  unit: pH (isoelectric point of recombinant, unphosphorylated bovine beta-casein; native is 4.5)
+  grade: A
+  source: "Chezan D, Fuhrmann PL, Bender D, Rennhofer H, Domig KJ, Dewi BPC. Physicochemical properties of native and precision fermentation-derived bovine beta-casein: structural and functional insights. Food Hydrocolloids 171:111797 (2026)"
+  doi_or_url: 10.1016/j.foodhyd.2025.111797
+  locator: "abstract (Europe PMC record; bibliographic data from Crossref); restated in Iaria 2026 sect. 4.2.1.2, p.9-10"
+  quote: "Its isoelectric point (pI) was shifted to a higher pH of 5.5 compared to 4.5 for native beta-casein. ... at pH 5.5, where recombinant beta-casein showed lower solubility (33.02 +/- 0.03 %) compared to native beta-casein (78.45 +/- 1.22 %)"
+  read: abstract
+  note: >-
+    The most consequential new number for the acid route, and it fixes a sign error in
+    casein_isoelectric_point. (1) Target pH: an isoelectric step on unphosphorylated recombinant
+    beta-casein should aim at ~5.5, not 4.6 and not Formo's 4 - and a smaller pH swing from a broth
+    at pH 5-6.8 means LESS acid than the model charges. (2) Recovery ceiling: the paper's percentages
+    are solubility, so at its own pI 33% of the recombinant protein is still SOLUBLE; DERIVED (mine):
+    at most ~67% would report to a precipitate in that buffer (50 mM sodium phosphate; protein concentration and
+    temperature not in the abstract). That is far below the model's 95% acid_precip_recovery. Note
+    though that this is an isothermal solubility measurement with no heat step, while Standing
+    Ovation needed 90 C for 20 min for "full precipitation" - heat, not pH alone, may be what closes
+    the gap (casein_pf_patent_acid_precipitation_and_neutralisation). Also in the abstract:
+    recombinant beta-casein has lower zeta potential, "demonstrated lower calcium sensitivity and
+    formed stronger self-supporting gels with earlier onset of acid-induced gelation", which is the
+    peer-reviewed version of the Fermify/BOKU claim in casein_function_phosphorylation_workarounds
+    (same group: Dewi is a co-author of both this paper and the Fermify patent). AUTHOR'S CAUTION,
+    paywalled full text NOT read: the recombinant protein's provenance (host, batch, purity) is not
+    in the abstract, and 50 mM phosphate is not a fermentation broth.
+
+- key: casein_as1_ecoli_kinase_balasubramanian
+  value: null
+  unit: qualitative (phosphorylation of alpha-s1-casein by bacterial kinases in E. coli; no titer)
+  grade: A
+  source: "Balasubramanian S, Kristensen JB, et al. Production of phosphorylated and functional alphas1-casein in Escherichia coli. Trends Biotechnol 43:2304-2322 (2025)"
+  doi_or_url: 10.1016/j.tibtech.2025.05.015
+  locator: "Results pp.2308-2309 (Figs 1-2); Methods 'Protein production' p.2320; Discussion p.2313"
+  quote: "PrkD phosphorylated all nine native sites [46,54,55], and YabT phosphorylated eight of them (Figure 2A), demonstrating that these two kinases not only exhibited the highest phosphorylation activity, but also closely replicated the native phosphorylation pattern."
+  read: fulltext
+  note: >-
+    NO TITER ANYWHERE IN THE PAPER - confirmed by reading it; the only g/L figure is a literature
+    aspiration for other proteins: "Literature suggests that high cell-density fermentation in
+    E. coli can yield up to 9.7 g/l of recombinant protein, a level that may be sufficient for
+    commercial applications" (p.2313), not their own result. Important qualification to the site map
+    quoted above: those nine sites were phosphorylated IN VITRO, with purified kinases, 32P-ATP and
+    purified casein; the IN VIVO version (co-expression of alpha-s1 with PrkD or YabT in pET15b) was
+    assessed only qualitatively, "alphas1-casein was heavily phosphorylated, yielding a signal
+    comparable with that of commercial native phosphorylated alpha-casein" on a 2D gel with Pro-Q
+    Diamond staining. The kinases also hit non-native residues, which the authors flag as a risk to
+    self-assembly: "their broader substrate specificity led to phosphorylation of few non-native
+    sites, which may influence casein self-assembly and functional properties". Process: E. coli at
+    37 C to OD600 0.8, induced with 0.5 mM IPTG at 30 C, harvested after 16 h, shake-flask scale;
+    His6-tagged, GroEL/GroES chaperone plasmid, sonication and HisTrap IMAC - a laboratory train, not
+    a food process (the His tag alone rules it out for food, cf. Iaria 2026 sect. 3.2.4). They also
+    make a phosphomimetic (all 8 Ser -> Asp) variant whose calcium binding is "comparable to the
+    control, with only a slight but statistically significant difference", while noting it is unclear
+    "whether phosphomimetic modifications can fully replicate the role of casein in micelle
+    formation".
+
+- key: casein_iaria2026_secretion_state_of_the_art
+  value: null
+  unit: qualitative (the best review's verdict on casein titers, secretion and DSP)
+  grade: A
+  source: "Iaria L, Bijl E, Hettinga K, Werten MWT. Animal-free caseins by precision fermentation: technical challenges and perspectives. Trends Food Sci Technol 175:105878 (2026)"
+  doi_or_url: 10.1016/j.tifs.2026.105878
+  locator: "sect. 3.3 and Table 2, pp.6-8; sect. 4.2.2 pp.10-11; sect. 3.2.4 p.5"
+  quote: "this yeast does not appear to be particularly effective for the secretion of similarly disordered caseins. This apparent discrepancy might be attributed to the relatively hydrophobic nature of caseins"
+  read: fulltext
+  note: >-
+    Open access (CC BY), Wageningen, and it is the cleanest external check on this repo's casein
+    numbers. Its Table 2 agrees with data/titers.csv on every row the two share, with ONE conflict
+    (Chung 1991 = 0.05 mg/L here vs 10 mg/L in Mora Vasquez 2025; three full texts back 0.05, see
+    casein_titers_update.csv) and one framing difference: it calls Wang 2021's 1.45 g/L "the highest
+    reported yield to date for recombinant caseins", because it does not count patent examples such
+    as Standing Ovation's 3 g/L. NO titer above 1 g/L exists in Table 2 for ANY yeast or fungus; the
+    whole-casein maximum in yeast is Choi's intracellular 0.7-1.0 g/L, and the only >1 g/L
+    yeast-secreted number in the review is 2.5 g/L of human CMP, a kappa-casein fragment, which the
+    authors use as evidence that hydrophobicity is what blocks casein secretion. Their explanation
+    for the failure to secrete: unfolded, hydrophobic chains that never release their chaperones,
+    triggering UPR/ERAD, possibly with intracellular micelle-like assemblies too large for the yeast
+    secretory pathway. DSP, directly relevant to the model's two route variants: "Caseins present
+    specific opportunities for downstream processing. They precipitate near pH 4.6 and this behavior
+    can be exploited as a simple and cost-effective separation strategy", and affinity tags "are
+    generally less suitable for industrial food applications" - so precipitation, not chromatography,
+    is the field's expected casein route, as pf-tea assumes. It also warns about scale, the right
+    way: "industrial precision fermentation processes can show reduced yields as compared to
+    lab-scale processes". Phosphorylation: "phosphorylation is a critical requirement for both casein
+    micelle formation and proper acid and rennet coagulation", but it is application-dependent, with
+    recombinant non-phosphorylated alpha-s1 shown to stabilise emulsions and foams (Mortes et al.
+    2026), and in vitro enzymatic phosphorylation in DSP dismissed as adding "additional unit
+    operations, further complicating the workflow and increasing costs". Bovine milk casein total:
+    "the average total casein concentration in milk typically ranges from 35 to 40 g/L".
+
+- key: casein_cmp_secreted_yeast_2500mgL
+  value: 2.5
+  unit: g/L secreted human caseinomacropeptide (kappa-casein residues 106-169), S. cerevisiae fed-batch
+  grade: A
+  source: "Kim YJ, Oh YK, Kang W, Lee EY, Park S. Production of human caseinomacropeptide in recombinant Saccharomyces cerevisiae and Pichia pastoris. J Ind Microbiol Biotechnol 32:402-408 (2005)"
+  doi_or_url: 10.1007/s10295-005-0010-2
+  locator: "abstract (read via Europe PMC); repeated in Iaria 2026 sect. 3.3.3 p.8 and sect. 4.2.2 p.10"
+  quote: "In a fed-batch bioreactor culture, 2.5 g/l of the recombinant hCMP was obtained from the S. cerevisiae at 97 h."
+  read: abstract
+  note: >-
+    DO NOT USE AS A CASEIN TITER. CMP is a 64-residue fragment of HUMAN kappa-casein, the hydrophilic
+    macropeptide released by chymosin - about a third of the chain, with none of the hydrophobic
+    core, and it is sold as a functional ingredient in its own right. It is in this file for one
+    reason: it is the only >1 g/L secreted number for any casein-derived sequence in a yeast, and
+    Iaria 2026 reads it as evidence that hydrophobicity, not the disordered structure, is what blocks
+    casein secretion in yeast. Alpha-factor signal, GAL promoter, 97 h fed-batch; the same paper's
+    P. pastoris constructs (GAP or AOX1) reached only ~50 mg/L in flasks. Full text not read.
+
+- key: casein_fermify_dephosphorylated_gel_patent
+  value: null
+  unit: qualitative (non-micellar, non-phosphorylated casein cheese route; no fermentation or DSP numbers)
+  grade: B
+  source: "Fermify GmbH. WO 2024/200234 A1 'Non-micellar casein emulsion gel and production thereof' (priority 2023-03-24, published 2024-10-03; inventors Dewi, Chezan, Sommer), Examples 1-2"
+  doi_or_url: https://patents.google.com/patent/WO2024200234A1/en
+  locator: "Examples 1-2; Figs 1-8; description paragraphs on pH and dephosphorylation"
+  quote: "Using non-phosphorylated caseins will improve the kinetics of gelation. More specifically, the kinetics of gelation will be faster, and the pl of the dephosphorylated protein is higher than phosphorylated, consequently, gel can be formed in higher pH."
+  read: html
+  note: >-
+    No titer, no host, no fermentation and no purification data: the patent is about the FOOD side.
+    It also does not use recombinant casein at all - the examples take dairy beta-casein or sodium
+    caseinate and strip the phosphates with alkaline phosphatase "to resemble such proteins", because
+    "Bacterial recombinant protein synthesis generally leads to proteins that are not
+    post-translationally modified". Route: 3% w/w non-micellar casein in sodium phosphate buffer plus
+    an oil phase, two-step homogenisation (15,000 rpm 5 min then 5,000 rpm 2 min), transglutaminase
+    cross-linking at 45-60 C for >=1 h, then slow acidification with glucono-delta-lactone at 45 C
+    for >=3 h down to "the isoelectric point (pl) of the non-micellar casein ... around pH 4.6 or
+    higher"; claimed gel pH window 3.5-7.0, preferred 4.8-5.4. Results claimed: dephosphorylated
+    gels look identical to phosphorylated ones by confocal microscopy, melt similarly, and stretch
+    BETTER (beta-casein cheese 15.5 cm by a fork test vs 10 cm for sodium caseinate and 12 cm for
+    commercial mozzarella, including 2 cm of plate). This is the patent behind the GFI claim in
+    casein_function_phosphorylation_workarounds, it independently supports the HIGHER pI of
+    unphosphorylated casein (casein_recombinant_beta_pI_solubility), and it is the clearest statement
+    that a cheese product can be built around an unphosphorylated single casein - which is the
+    product pf-tea actually models. Relevant to the model only as a quality argument: it adds a
+    transglutaminase and a GDL line to the FOOD maker's bill, not to the protein plant's.

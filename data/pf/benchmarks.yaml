@@ -17,7 +17,7 @@ incumbents:
       - {key: wpi_us_dmn_2026, protein_frac: 0.90, label: "WPI spot 2026"}
   egg:
     label: "dried egg white (egg albumin)"
-    compare_to: ova
+    compare_to: [ova, ovd]        # both replace egg-white protein (ovomucoid.yaml ovd_incumbent_price_basis)
     trade_series:
       - {key: egg_albumin_dried_eu_export_unit_value, currency: EUR}
     protein_frac: {value: 0.811, grade: A,
@@ -69,8 +69,8 @@ equivalents:               # the model's $/kg protein expressed per litre of mil
   evidence_key: derived_protein_per_litre_and_per_egg
   milk:
     per: "litre of cow's milk"
-    compare_to: blg
-    target_field: milk_blg_g_per_L             # BLG in a litre (3.3 g)
+    compare_to: [blg, cas]
+    target_field: {blg: milk_blg_g_per_L, cas: milk_beta_casein_g_per_L}   # BLG (3.3 g) and beta-casein (9.2 g) in a litre
     all_protein_field: milk_all_protein_g_per_L  # all milk protein in a litre (33.7 g)
     density_key: milk_density_fdc_sr_legacy    # kg/L, for prices per kg or per cwt
     prices:
@@ -79,8 +79,8 @@ equivalents:               # the model's $/kg protein expressed per litre of mil
       - {key: us_retail_milk_whole_bls, unit: usd_per_gal, label: "US retail whole milk"}
   egg:
     per: "US large egg"
-    compare_to: ova
-    target_field: ova_g_per_large_egg            # ovalbumin in an egg (1.96 g)
+    compare_to: [ova, ovd]
+    target_field: {ova: ova_g_per_large_egg, ovd: ovd_g_per_large_egg}   # ovalbumin (1.96 g) and ovomucoid (0.40 g) in an egg
     all_protein_field: egg_white_protein_g_per_large_egg   # egg-white protein in an egg (3.64 g)
     prices:
       - {key: us_wholesale_eggs_ny_ers, unit: usc_per_doz, label: "US wholesale eggs (New York, Grade A large)"}
@@ -96,7 +96,7 @@ titer_markers:             # (product in titers.csv, source_key, host) -> max ti
   ova:
     - {product: ova, source_key: Aro2023, host: T. reesei, label: "best public secreted OVA (Aro 2023; incl. a clipped form)"}
     - {product: ova, source_key: Beck2025, host: E. coli EcN, label: "OVA, intracellular E. coli (Beck 2025, 3 L)"}
-    - {product: ova, source_key: intelligen_ovalbumin2025, host: K. phaffii, label: "Intelligen design; EVERY ovomucoid patent"}
+    - {product: ova, source_key: intelligen_ovalbumin2025, host: K. phaffii, label: "Intelligen design (borrows EVERY's ovomucoid patent titer)"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
     - {product: ova, source_key: intelligen_ovalbumin2025, host: T. reesei, label: "Onego platform claim (protein not specified; press)"}
   lf:                      # no company discloses a lactoferrin titer (lactoferrin.yaml); Iglesias 2016's 3.5 g/L is a lysate yield, not shown
@@ -107,16 +107,21 @@ titer_markers:             # (product in titers.csv, source_key, host) -> max ti
     - {product: lactoferrin, source_key: intelligen_lactoferrin2024, host: K. phaffii, label: "Intelligen design titer (methanol)"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
 
+  ovd:                     # EVERY's patent example is the only ovomucoid titer above 1 g/L
+    - {product: ovomucoid, source_key: Every2024-HY, host: K. phaffii, label: "EVERY patent example"}
+    - {product: ovomucoid, source_key: Kim2025, host: K. phaffii, label: "best peer-reviewed (Kim 2025; abstract)"}
+    - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
   cas:                     # no company discloses a casein titer (casein.yaml); Wang 2021's 1.13 g/L is bovine, its 1.45 human
     - {product: casein, source_key: StandingOvation_US20240251812A1, host: "E. coli BL21(DE3) pET25b+", label: "best public casein, intracellular E. coli (Standing Ovation patent)"}
     - {product: casein, source_key: Wang2021, host: "E. coli BL21(DE3) pET22b", label: "alpha-s1 casein, E. coli (Wang 2021; human)"}
-    - {product: casein, source_key: Choi1996, host: "K. phaffii (P. pastoris) GS115", label: "beta-casein, K. phaffii, methanol (Choi 1996; abstract)"}
+    - {product: casein, source_key: Choi1996, host: "K. phaffii (P. pastoris) GS115, His+ Mut-s, pHIL-D2 AOX1 integrant", label: "beta-casein, K. phaffii, intracellular, methanol (Choi 1996)"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
 
 required_targets:          # target $/kg target protein for the required-titer analysis (report Q3)
   blg: [10, 20, 50]        # round numbers across the whey band ($8.7-17.8/kg protein, 2015-2025) and above it
   ova: [10, 20, 50]        # same, across the egg-white band ($9.7-21.2)
-  cas: [10, 20, 50]        # same, across the casein band (GFI 2025: $9.6-12.2/kg protein)
+  ovd: [10, 20, 50]        # same as OVA: the incumbent is dried egg white per kg protein
+  cas: [10, 20, 50]        # same, across the casein band ($7.9-18.7/kg protein, 2015-2025; benchmarks.incumbents)
   lf: [100, 200, 400]      # 100 ~ the 'PF average price' GFI Europe/ADL assume for the lactoferrin archetype ($105); 200 = the bottom of the
                            # reported dairy range (2016 trade press, nominal); 400 = GFI Europe's average market price (lactoferrin.yaml; all grade C)
 

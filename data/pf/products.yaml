@@ -7,6 +7,13 @@
 # low/high removes the range (no sampling or tornado bar).
 blg: {}
 ova: {}
+ovd:                        # ovomucoid: base.yaml's design point as BLG and OVA; its own purity from the cleared product
+  dsp.concentrate_target_frac_dry:
+    value: 0.76
+    low: 0.72
+    high: 0.81
+    grade: A
+    source: "FDA GRN 967 amendment Table 1 (EVERY): '% OVD in powder determined by HPLC 66 68 74' at 8.4-9.0% moisture = 0.72-0.81 of dry matter (derived); host protein 7-12% (ovomucoid.yaml ovd_spec_grn967_batches). The cleared route is UF/DF only, 'centrifugation followed by micro-filtration ... pH adjustments and ultra-filtration, before a drying step' (GRN 967 Sect. 2.4.3)"
 cas:                        # beta-casein: base.yaml's design point (titer, time, 10 kt/yr) as for BLG; its own route
   plant.spec: {value: acid, note: "isoelectric precipitation of the MF permeate, decanter washes, sodium caseinate, spray dryer (the dairy acid-casein line; Formo GRN 1312 precipitates at pH 4). UF/DF only (Eden Brew, FSANZ A1342) is the variant scenarios/casein.yaml cas_ufdf_edenbrew"}
 lf:
@@ -26,9 +33,9 @@ lf:
     grade: B
     source: "Intelligen's lactoferrin design: 'a titre of 10 g/L achieved over a 5-day fermentation period' (David 2026 Sect. 2.1; Feb 2026 report p.4; lactoferrin.yaml lf_intelligen_design_basis). Their design induces with methanol; this methanol-free base (as FDA GRN 1219 and 1284) borrows the titer. low = best public methanol-free secreted LF (Yen 2024, porcine, 2.8 g/L; academic scenario); high = GFI 2025 private-sector average over unspecified proteins (42 g/L; industry scenario, C)"
   strain.t_prod_h:
-    value: 90
+    value: 83
     low: 48
     high: 120
     unit: h
     grade: B
-    source: "Intelligen's 5-day lactoferrin batch (p.4) less the model's ~30 h growth phase; range as base.yaml"
+    source: "Intelligen's 5-day lactoferrin batch (p.4) less the model's 37 h growth phase (audit R10-1); range as base.yaml"

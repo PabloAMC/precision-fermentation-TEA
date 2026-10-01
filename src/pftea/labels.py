@@ -71,6 +71,7 @@ LABELS = {
     "dsp.cex_hardware_usd_per_L_resin": "ion-exchange columns and skid ($/L resin, 2018)",
     "dsp.cex_target_frac_dry": "lactoferrin share of the powder",
     "dsp.dryer_feed_solids_cas": "dryer feed solids, sodium caseinate",
+    "dsp.dryer_feed_solids_ovd": "dryer feed solids, ovomucoid",
     "dsp.acid_h3po4_kg_per_m3": "acid to precipitate casein (kg H3PO4/m3)",
     "dsp.acid_precip_temperature_C": "casein precipitation temperature",
     "dsp.acid_heat_recovery": "precipitation heater heat recovery",

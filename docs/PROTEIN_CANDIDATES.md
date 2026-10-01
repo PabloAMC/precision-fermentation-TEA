@@ -21,8 +21,13 @@ all of `references/inbox/`). File them into `references/` with an INDEX row befo
 
 Adding any of these is a scope change: record it in docs/SCOPE.md and the PLAN.md decisions log first.
 
-**Update 2026-10-01:** Pablo chose casein first. β-casein is now a product (`cas`), with its evidence in
-`data/evidence/casein.yaml`; §5 below is the earlier, unverified status note (PLAN.md decisions log).
+**Update 2026-10-01:** β-casein (`cas`) and ovomucoid (`ovd`) are now products, with their evidence in
+`data/evidence/casein.yaml` and `ovomucoid.yaml`; §5 and §6 below are the earlier, unverified notes.
+Corrections from the full texts: no secreted casein titer is public for any yeast or fungus (Choi's
+yeast numbers are intracellular); GRN 1104 is ovalbumin, not an egg-white mix; and a white-protein
+product displaces about 275 eggs per kg of egg-white protein, i.e. about 2.5 lives per kg on the
+Faunalytics basis (0.85 direct), roughly twice the whole-egg figure used below, because the yolk is a
+co-product a white-protein replacement does not displace (ovomucoid.yaml ovd_eggs_per_kg_egg_white_protein).
 
 ---
 

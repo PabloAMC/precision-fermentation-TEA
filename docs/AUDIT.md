@@ -391,3 +391,53 @@ workbook needs it to reach the market band), the diafiltration flux (the reviewe
 a source not on disk), a titer-dependent k_La (no source), a wider T. reesei maintenance range (no
 measured value), start-up, working capital and failed batches (not in the anchored method; listed as
 exclusions), and the base feed (Intelligen's 500 g/L kept; 600 g/L is the sensitivity).
+
+## v3 audit (2026-10-01/02, night): ovomucoid, β-casein and five products on an equal footing
+
+Three independent AI reviewers audited v3 read-only on a working copy, under the same rule (every
+finding backed by a computation, quote or code line): R9 the β-casein product and its `acid`
+route; R10 the five products' data, scenarios and benchmarks; R11 the report, memo, figures,
+explorer and SI workbook. Full reviews were kept with the session; this log records each finding
+of substance and the decision. Effects are on the base β-casein MSP unless noted.
+
+Verified independently: the ovomucoid and β-casein formulas (C840H1306N240O292S20, 20,080 Da;
+C1080H1692N268O310S6, 23,583 Da), the acid-dose arithmetic (49.4 mol H+/m3 → 5.69 kg 85% H3PO4,
+base.yaml rounds to 5.65), the heater steam, the water balance to the dryer, the recovery chain,
+the casein per-lb price conversion ($10.13/kg protein in 2025), the ovomucoid purity derivation
+(0.72–0.81 dry, mean 0.76), every titer marker against titers.csv, every results key the report
+reads for all five products, and the explorer's JavaScript in node for every product and unit.
+
+| ID | Finding | Decision | Effect |
+|---|---|---|---|
+| R9-1 | Precipitation recovery fixed at 0.95 whatever the casein concentration; the permeate is 9.7 g/L at base and 0.3–0.85 g/L in the academic cases, against 26 g/L in milk | Fix: the permeate is ultrafiltered (no diafiltration) to skim milk's casein concentration before precipitating (`dsp.acid_precip_feed_g_L`, D), so the dairy recovery and wash data apply; acid and heat now scale with the smaller feed | −2.9% ($22.71 → $22.05); academic −5% |
+| R9-2 | Acid dose per m3 of diluted permeate at milk's buffer capacity; source claimed ammonia buffers and a pH 5.5 start | Fix with R9-1 (dose per m3 of the concentrated feed); source corrected (pH 6.8 start; protein takes 14–17 H+ per molecule; ammonia does not buffer at pH 4–7) | in R9-1 |
+| R9-3 | H3PO4 costs several times more per mol H+ than H2SO4/HCl, and adds phosphorus to the effluent | Document (no sulfuric/hydrochloric acid price on file); stated as a lever in the source and limitations | −$0.45–0.50/kg if switched (reviewer's estimate) |
+| R9-4 | "Acidify at ~82 °C" is an OCR misreading (the text then heats to 40–45 °C) | Fix: low bound 45 °C, note in base.yaml | −$0.02 |
+| R9-5, R9-6 | Report said Formo needed heat for full precipitation and called pH 4 the isoelectric point | Fix text: only Standing Ovation heated; pH 4 is below the recombinant pI (~5.5) | none |
+| R9-7 | Dairy-practice values applied to PF casein graded A | Fix: graded C, as the dairy values for BLG | none |
+| R9-8, R9-13 | Wash high bound is one concurrent wash; value at the bottom of 11–15 L/kg | Fix: value 13 L/kg; note on the high bound | +0.2% |
+| R9-11 | 90% heat recovery on a 90 °C slurry optimistic | Fix: low bound 0.50 (E) | range only |
+| R9-12 | The model makes sodium caseinate; Formo sells acid casein | Document as a design choice | −1.6% if dried as acid casein |
+| R9-14 | Purity 0.90 below GRN 1312's batches and spec minimum on a dry basis | Fix: 0.925 (0.91–0.94), derived from the batches | −0.7% |
+| R10-1 | Academic production times subtracted ~23–30 h of growth; the model's growth phase is now 37–38 h, so batches ran longer than their sources | Fix: OVA 110 → 95 h, lactoferrin 114 → 107 h, lactoferrin base 90 → 83 h, ovomucoid patent 103 h; convention stated in academic.yaml | academic OVA −7.5%, academic LF −2.6%, base LF −0.1% |
+| R10-2 | Ovomucoid dryer-feed range used EVERY's 5% feed as its low end, OVA's does not; P-8 misdescribed | Fix: range 0.20–0.30 as OVA's; EVERY's 5% feed stated as for OVA | ovomucoid tornado bar −90% |
+| R10-3 | SCOPE.md defines `academic` as peer-reviewed full-text titers; the ovomucoid and casein academic cases were patent examples | Fix: academic ovomucoid = Kim 2025 (0.93 g/L, abstract only, flagged), academic casein = Choi 1996 (1.0 g/L, intracellular, flagged); the patent examples become variants `ovd_patent` and `cas_patent` | academic ovd $24 → $613; academic cas $198 → $590 |
+| R10-4 | "Methanol co-feed" stated for EVERY's Example 9; the source does not say | Fix: removed | none |
+| R10-5 | The Eden Brew UF/DF variant keeps a 6% purity that is physically impossible at 30 g/L (hundreds of g/L of non-protein solids) | Fix text: the comparison with precipitation holds only at low titer; the variant is an upper bound | none on base |
+| R10-6 | Academic Monte Carlo keeps the wide cell-density range for ovd, cas and lf (feasible shares 0.40–0.65), BLG's was narrowed on evidence | Document: no product-specific cell-density data | none |
+| R10-7 | Kim 2025 called "BEST VERIFIED" though abstract-only | Fix wording | none |
+| R10-8 | Physical-limit yield is 0.89 of ovomucoid's ceiling, not stated | Fix comment | none |
+| R10-9 | The milk equivalent's casein target was all casein, not β-casein | Fix: 9.2 g/L β-casein | target-per-litre only |
+| R11-1 | Report did not compile (MKT used before definition) | Fix | none |
+| R11-2, R11-7, R11-8 | Three comparison claims did not hold: the casein levers "move the base little" (recovery moves it up to +38%); ovomucoid "the exception" (still 1.1–2.4× its band); "the route matters most for casein" (lactoferrin's route effect is as large) | Fix text | none |
+| R11-3, R11-4, R11-5 | Ovomucoid is not "the second" egg-white protein; GRN 1219 is ≥80% protein; Choi labels stale | Fix | none |
+| R11-6 | Semicolons after inserted values swallowed by Typst in six sentences | Fix (`\;`) | none |
+| R11-9 to R11-11 | Explorer: one base point (30 g/L, 72 h) for every product; no grid/product check; missing reference rows | Fix: per-product base point (lactoferrin 10 g/L, 83 h; the grid includes every product's base point), a hard check, the missing rows | none |
+| R11-12, R11-13, R11-14 | SI workbook BLG-only sheets and old title; ovomucoid evidence missing; ~19 references missing | Fix | none |
+| R11-15, R11-16 | Ovomucoid left out of several passages; Fig. 11 labels overlapped | Fix | none |
+| R11-30 | `--only physical_limit` deleted the demonstrated-secretion entries | Fix | none |
+
+Not changed (documented): the decanters pooled across duties (R9-9, +0.65%), uncosted small heat
+duties (R9-10, < +$0.05), Beck's untraceable 3.2 g/L ovomucoid row kept at grade B as a
+secondary report (R10-15), and the minor equal-footing gaps of R10-18 (no ovomucoid bridge
+variant: the bridge varies base.yaml directly, so it could not carry ovomucoid's own purity).

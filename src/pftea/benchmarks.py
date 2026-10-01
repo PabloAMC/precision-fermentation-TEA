@@ -26,7 +26,7 @@ def _evidence() -> dict:
 
 
 def incumbents() -> dict:
-    """{name: {label, compare_to, series: {label: {year: $/kg protein}}, band: (lo, hi), latest, spot}}."""
+    """{name: {label, compare_to: [products], series: {label: {year: $/kg protein}}, band: (lo, hi), latest, spot}}."""
     cfg = yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())
     ev = _evidence()
     fx = {int(y): float(x) for y, x in ev["eurusd_annual_average"]["values"].items()}
@@ -52,7 +52,8 @@ def incumbents() -> dict:
                      low=ev[s["key"]].get("low", ev[s["key"]]["value"]) * LB_PER_KG / s["protein_frac"],
                      high=ev[s["key"]].get("high", ev[s["key"]]["value"]) * LB_PER_KG / s["protein_frac"],
                      year=ev[s["key"]].get("year")) for s in c.get("spot", [])]
-        out[name] = dict(label=c["label"], compare_to=c["compare_to"], protein_frac=pf, series=series,
+        cmp = c["compare_to"]
+        out[name] = dict(label=c["label"], compare_to=[cmp] if isinstance(cmp, str) else list(cmp), protein_frac=pf, series=series,
                          band=(min(allv), max(allv)), years=(y0, y1), latest=latest, spot=spot, money_year=my)
     return out
 
@@ -130,8 +131,8 @@ def equivalents() -> dict:
     would cost as much as the natural source per gram of protein: an upper bound on the value
     of the protein, because fat, lactose, yolk and the rest carry part of the source's price
     (and whey is a by-product; see the report).
-    Returns {name: {per, compare_to, target_g, all_protein_g, prices: {label: {year: $/unit}},
-    protein_equivalent: {label: {year: $/kg protein}}, money_year}}.
+    Returns {name: {per, compare_to: [products], target_g: {product: g per unit}, all_protein_g,
+    prices: {label: {year: $/unit}}, protein_equivalent: {label: {year: $/kg protein}}, money_year}}.
     """
     cfg = yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())
     inc = cfg["incumbents"]
@@ -158,7 +159,8 @@ def equivalents() -> dict:
                       for y, x in vals.items() if str(y).isdigit() and y0 <= int(y) <= y1}
             prices[s_["label"]] = series
             prot[s_["label"]] = {y: x / a_g * 1000 for y, x in series.items()}
-        out[name] = dict(per=c["per"], compare_to=c["compare_to"], target_g=float(comp[c["target_field"]]),
+        out[name] = dict(per=c["per"], compare_to=list(c["compare_to"]),
+                         target_g={k: float(comp[f]) for k, f in c["target_field"].items()},
                          all_protein_g=a_g, prices=prices, protein_equivalent=prot, money_year=my)
     return out
 

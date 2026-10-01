@@ -1,13 +1,15 @@
 # pf-tea — open techno-economic model for precision-fermented food proteins
 
-A transparent, public-data-only cost model for β-lactoglobulin (whey) and ovalbumin
-(egg white) made by precision fermentation, with lactoferrin as a high-value contrast case. It
+A transparent, public-data-only cost model for four food proteins made by precision
+fermentation, on an equal footing: β-lactoglobulin (whey), ovalbumin and ovomucoid (egg white),
+β-casein (the cheese protein) and lactoferrin (a scarce, high-value milk protein). It
 uses Humbird's (2021) method: element- and electron-balanced stoichiometry, an O₂-limited
 fed-batch fermenter, and Humbird's capital factors and fixed costs, which with his workbook land
 in the market-implied cost of baker's yeast. It is checked against NREL 2011, Intelligen 2025 and
 Voutilainen 2021.
 
-**Status (2026-09-27):** v2.1. The v1 draft was audited by eight independent AI reviewers, and v2
+**Status (2026-10-01):** v3 on branch `protein-candidates`: ovomucoid and β-casein added, and all five proteins
+on the same footing in the model, figures, explorer and report (not yet audited). v2.1 (2026-09-27): The v1 draft was audited by eight independent AI reviewers, and v2
 by four simulated AI expert reviewers (Phase F pre-review), followed by a reading of the sources
 they pointed to (aeration, strain physiology, Intelligen's lactoferrin model); every finding and fix is in
 [docs/AUDIT.md](docs/AUDIT.md) and [docs/REVIEW.md](docs/REVIEW.md). Built with an AI assistant
@@ -83,7 +85,7 @@ PLAN.md                     phases, honesty protocol, decisions log
 ```
 uv venv --python 3.12 .venv && uv pip install -p .venv/bin/python -e ".[dev]"
 .venv/bin/python -m pytest
-.venv/bin/python scripts/run_analyses.py        # about 1-1.5 h; --fast for a quick pass
+.venv/bin/python scripts/run_analyses.py        # about 2-3 h with four products; --fast for a quick pass
 .venv/bin/python scripts/make_figures.py
 .venv/bin/python scripts/explorer_grid.py && .venv/bin/python scripts/build_explorer.py
 .venv/bin/python scripts/build_si_workbook.py

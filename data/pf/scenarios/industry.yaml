@@ -12,6 +12,8 @@ lf:
   strain.titer_g_L: 42            # same survey average. FLAG: no lactoferrin company discloses a titer (Helaina,
                                   # TurtleTree, All G; lactoferrin.yaml), and lactoferrin (76 kDa, 16 disulfides,
                                   # glycosylated) is harder to secrete than BLG; the public best is 2.8-5.4 g/L
+ovd:
+  strain.titer_g_L: 42            # same survey average; EVERY's patent example (30.19 g/L) is the only ovomucoid figure on record
 cas:
   strain.titer_g_L: 42            # same survey average. FLAG: no casein company discloses a titer (Eden Brew, Formo,
                                   # Fermify, New Culture, Standing Ovation; casein.yaml); the public best is 3 g/L
@@ -23,6 +25,7 @@ mc_paths:
     utilities.biomass_disposal_usd_t_dry, capital.cost_index_2018_to_2025]
   blg: [dsp.concentrate_target_frac_dry]
   ova: [dsp.concentrate_target_frac_dry]
+  ovd: [dsp.concentrate_target_frac_dry, dsp.dryer_feed_solids_ovd]
   lf: [dsp.dryer_feed_solids_lf, dsp.cex_dbc_g_L, dsp.cex_cv_per_cycle, dsp.cex_flow_cv_per_h, dsp.cex_recovery,
     dsp.cex_resin_usd_L, dsp.cex_resin_life_cycles, dsp.cex_hardware_usd_per_L_resin, dsp.cex_target_frac_dry]
   cas: [dsp.dryer_feed_solids_cas, dsp.acid_h3po4_kg_per_m3, dsp.acid_precip_temperature_C, dsp.acid_heat_recovery,

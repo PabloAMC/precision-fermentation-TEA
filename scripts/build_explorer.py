@@ -7,6 +7,8 @@ Run:  .venv/bin/python scripts/build_explorer.py
 """
 import json
 import sys
+
+import yaml
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -54,33 +56,82 @@ ref = {"blg": rows_ok(
     lambda: case("Base case (Intelligen's design point)", R["base"]["ova"], R["base_light"]["ova"], R["base_aseptic"]["ova"], titer=30.0),
     lambda: case("Industry benchmark: titer assumed in private cost models", SC["industry/ova"], SC["industry/ova/light"],
          SC.get("industry/ova/aseptic")),
-    lambda: case("Physical-limit best case, 100 kt/yr (secretion at 40 mg/g/h)", PLR["ova/humbird"], PLR["ova/light"])),
+    lambda: case("Physical-limit best case, 100 kt/yr (secretion at 40 mg/g/h)", PLR["ova/humbird"], PLR["ova/light"]),
+    lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["ova/humbird/q_p_max_2.1"])),
+    "ovd": rows_ok(
+    lambda: case("Best peer-reviewed titer (Kim 2025; abstract only)", SC["academic/ovd"],
+         SC["academic/ovd/light"], SC.get("academic/ovd/aseptic")),
+    lambda: case("Best public titer (EVERY patent example, 30 g/L)", SC["academic/ovd_patent"], SC["academic/ovd_patent/light"]),
+    lambda: case("Base case (Intelligen's design point), UF/DF concentrate as cleared (GRN 967)", R["base"]["ovd"],
+         R["base_light"]["ovd"], R["base_aseptic"]["ovd"]),
+    lambda: case("Industry benchmark: titer assumed in private cost models", SC["industry/ovd"], SC["industry/ovd/light"],
+         SC.get("industry/ovd/aseptic")),
+    lambda: case("Physical-limit best case, 100 kt/yr (secretion at 40 mg/g/h)", PLR["ovd/humbird"], PLR["ovd/light"]),
+    lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["ovd/humbird/q_p_max_2.1"])),
+    "cas": rows_ok(
+    lambda: case("Best peer-reviewed beta-casein in K. phaffii (Choi 1996; intracellular, costed as if secreted)", SC["academic/cas"],
+         SC["academic/cas/light"], SC.get("academic/cas/aseptic")),
+    lambda: case("Best public casein titer (Standing Ovation patent; E. coli, intracellular)", SC["academic/cas_patent"],
+         SC["academic/cas_patent/light"]),
+    lambda: case("Base case (Intelligen's design point), isoelectric precipitation", R["base"]["cas"], R["base_light"]["cas"],
+         R["base_aseptic"]["cas"]),
+    lambda: case("Same, UF/DF only (Eden Brew; ~6% beta-casein in the powder)", R["casein"]["cases"]["cas_ufdf_edenbrew/humbird"],
+         R["casein"]["cases"]["cas_ufdf_edenbrew/light"]),
+    lambda: case("Industry benchmark: titer assumed in private cost models", SC["industry/cas"], SC["industry/cas/light"],
+         SC.get("industry/cas/aseptic")),
+    lambda: case("Physical-limit best case, 100 kt/yr (secretion at 40 mg/g/h)", PLR["cas/humbird"], PLR["cas/light"]),
+    lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["cas/humbird/q_p_max_2.1"])),
     "lf": rows_ok(
     lambda: case("Design titer, cation exchange (Intelligen's design)", R["base"]["lf"],
          R["base_light"]["lf"], R["base_aseptic"]["lf"]),
     lambda: case("Design titer, UF/DF only (optimistic)", R["lactoferrin"]["cases"]["lf_ufdf_only/humbird"],
          R["lactoferrin"]["cases"]["lf_ufdf_only/light"]),
     lambda: case("Best public methanol-free titer (porcine LF, Yen 2024)", SC["academic/lf"],
-         SC["academic/lf/light"], SC.get("academic/lf/aseptic")))}
+         SC["academic/lf/light"], SC.get("academic/lf/aseptic")),
+    lambda: case("Best public secreted titer (human LF, Lv 2023; methanol, ELISA)", SC["academic/lf_lv2023"],
+         SC["academic/lf_lv2023/light"]),
+    lambda: case("Industry benchmark: titer assumed in private cost models", SC["industry/lf"], SC["industry/lf/light"],
+         SC.get("industry/lf/aseptic")),
+    lambda: case("Physical-limit best case, 1.6 kt/yr (secretion at 40 mg/g/h)", PLR["lf/humbird"], PLR["lf/light"]),
+    lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["lf/humbird/q_p_max_2.1"]))}
+PRODS = list(R["base"])                       # products in results order (data/pf/products.yaml)
+if list(G["axes"]["product"]) != PRODS:          # a stale grid would mislabel products silently (audit R11-10)
+    sys.exit(f"explorer grid products {G['axes']['product']} != results products {PRODS}: rerun scripts/explorer_grid.py")
+# each product's base point on the grid: its base-case titer and production time (lactoferrin 10 g/L, 83 h)
+_base = yaml.safe_load((ROOT / "data/pf/base.yaml").read_text())["strain"]
+_prod = yaml.safe_load((ROOT / "data/pf/products.yaml").read_text())
+BASE_POINT = {p: dict(titer=(_prod.get(p) or {}).get("strain.titer_g_L", {}).get("value", _base["titer_g_L"]["value"]),
+                      t_prod=(_prod.get(p) or {}).get("strain.t_prod_h", {}).get("value", _base["t_prod_h"]["value"]))
+              for p in PRODS}
+NAMES = {"blg": "&beta;-lactoglobulin", "ova": "Ovalbumin", "ovd": "Ovomucoid", "cas": "&beta;-casein", "lf": "Lactoferrin"}
 LFP = R.get("lactoferrin", {}).get("reported_prices", {"band": [0, 0], "points": []})
 SERIES_LABEL = {"whey_protein_gt80_us_export_unit_value": "US exports", "whey_protein_gt80_eu_export_unit_value": "EU exports",
-                "egg_albumin_dried_eu_export_unit_value": "EU exports"}
-market = {
-    "blg": dict(label="Whey protein (WPC80/WPI)", frac=inc["whey"]["protein_frac"],
-                series=[dict(label=SERIES_LABEL.get(k, k), pts=v) for k, v in inc["whey"]["series"].items()],
-                spot=[dict(label="WPC80 spot, 2026 peak (USDA)", year=2026, value=inc["whey"]["spot"][0]["usd_kg_protein"])]
-                if inc["whey"]["spot"] else [], band=inc["whey"]["band"], years=inc["whey"]["years"]),
-    "ova": dict(label="Dried egg white", frac=inc["egg"]["protein_frac"],
-                series=[dict(label=SERIES_LABEL.get(k, k), pts=v) for k, v in inc["egg"]["series"].items()],
-                spot=[], band=inc["egg"]["band"], years=inc["egg"]["years"]),
-    "lf": dict(label="Dairy lactoferrin (reports and trade press, grade C)", frac=None, band=LFP["band"],
-               points=[dict(year=p[0], lo=p[1], hi=p[2]) for p in LFP["points"] if p[0]],
-               comparators=[dict(label="Intelligen's model, " + {"lf": "cation exchange", "lf_ufdf_only": "UF/DF only"}[c["ours"]],
-                                 value=c["value_money_year"],
-                                 ours=R["lactoferrin"].get("reconciliation", {}).get(c["ours"], {}).get("cop"))
-                            for c in LFP.get("comparators", []) if c.get("ours")]),
-}
-powder_frac = {p: R["base"][p]["per_kg_powder"] / R["base"][p]["msp_ccf"] for p in ("blg", "ova")}
+                "egg_albumin_dried_eu_export_unit_value": "EU exports", "casein_food_eu_export_unit_value": "EU exports",
+                "casein_acid_us_dmn_annual": "US imports, acid casein", "casein_rennet_us_dmn_annual": "US imports, rennet casein"}
+MKT_LABEL = {"whey": "Whey protein (WPC80/WPI)", "egg": "Dried egg white", "casein": "Casein (acid, rennet, caseinates)"}
+market = {}
+for name, d in inc.items():
+    spot = [dict(label=f"{x['label']} (USDA)", year=x.get("year"), value=x["usd_kg_protein"]) for x in d["spot"][:1]]
+    for prod in d["compare_to"]:
+        market[prod] = dict(label=MKT_LABEL.get(name, d["label"]), frac=d["protein_frac"],
+                            series=[dict(label=SERIES_LABEL.get(k, k), pts=v) for k, v in d["series"].items()],
+                            spot=spot, band=d["band"], years=d["years"])
+if "lf" in PRODS:
+    lo_, hi_ = {}, {}
+    for y, lo, hi, _ in LFP["points"]:
+        if y:
+            lo_[y], hi_[y] = min(lo, lo_.get(y, lo)), max(hi, hi_.get(y, hi))
+    yrs = sorted(lo_)
+    market["lf"] = dict(label="Dairy lactoferrin (reports and trade press, grade C)",
+                        frac=1.0,                 # reported per kg of product, read as per kg lactoferrin (as in the report)
+                        series=[dict(label="reported low", pts={str(y): lo_[y] for y in yrs}),
+                                dict(label="reported high", pts={str(y): hi_[y] for y in yrs})],
+                        spot=[], band=LFP["band"], years=[yrs[0], yrs[-1]] if yrs else [2013, 2025],
+                        comparators=[dict(label="Intelligen's model, " + {"lf": "cation exchange", "lf_ufdf_only": "UF/DF only"}[c["ours"]],
+                                          value=c["value_money_year"],
+                                          ours=R["lactoferrin"].get("reconciliation", {}).get(c["ours"], {}).get("cop"))
+                                     for c in LFP.get("comparators", []) if c.get("ours")])
+powder_frac = {p: R["base"][p]["per_kg_powder"] / R["base"][p]["msp_ccf"] for p in PRODS}
 EQ = R["equivalents"]["sources"]
 
 
@@ -89,25 +140,35 @@ def src_band(name, label):
     yr = max(ser, key=int)
     return dict(label=label, lo=min(ser.values()), hi=max(ser.values()), last=ser[yr], year=int(yr), pts=ser)
 
+
+EQ_BANDS = {"milk": ["US farm milk (all-milk price)", "US retail whole milk"],
+            "egg": ["US wholesale eggs (New York, Grade A large)", "US retail eggs (Grade A large)"]}
+EQ_WHAT = {"milk": ("litre of milk", "all the protein in a litre of milk"), "egg": ("egg", "the egg-white protein of one large egg")}
+equiv = {}
+for name, src in EQ.items():
+    for prod in src["compare_to"]:
+        equiv[prod] = dict(per=EQ_WHAT[name][0], grams=src["all_protein_g"], what=EQ_WHAT[name][1],
+                           bands=[src_band(name, b) for b in EQ_BANDS[name]])
+
 DATA = {
     "grid": G,
-    "bands": {"blg": dict(label="Whey protein (WPC80/WPI)", lo=inc["whey"]["band"][0], hi=inc["whey"]["band"][1],
-                          years=inc["whey"]["years"],
-                          spot=(inc["whey"]["spot"][0]["usd_kg_protein"] if inc["whey"]["spot"] else None)),
-              "ova": dict(label="Dried egg white", lo=inc["egg"]["band"][0], hi=inc["egg"]["band"][1],
-                          years=inc["egg"]["years"], spot=None)},
-    "ceiling": {p: dict(zip(map(str, R["required_t_prods"]), R["titer_ceiling"][p])) for p in ("blg", "ova")},
-    "equiv": {"blg": dict(per="litre of milk", grams=EQ["milk"]["all_protein_g"], what="all the protein in a litre of milk",
-                          bands=[src_band("milk", "US farm milk (all-milk price)"), src_band("milk", "US retail whole milk")]),
-              "ova": dict(per="egg", grams=EQ["egg"]["all_protein_g"], what="the egg-white protein of one large egg",
-                          bands=[src_band("egg", "US wholesale eggs (New York, Grade A large)"),
-                                 src_band("egg", "US retail eggs (Grade A large)")])},
+    "products": PRODS,
+    "base_point": BASE_POINT,
+    "bands": {p: dict(label=m["label"], lo=m["band"][0], hi=m["band"][1], years=m["years"],
+                      spot=m["spot"][0]["value"] if m["spot"] else None) for p, m in market.items()},
+    "ceiling": {p: dict(zip(map(str, R["required_t_prods"]), R["titer_ceiling"][p])) for p in PRODS},
+    "equiv": equiv,
+    "scale_t": {p: round(R["base"][p]["design"]["n_batches"] * R["base"][p]["design"]["target_per_batch_kg"] / 1000) for p in PRODS},
     "ref": ref,
     "market": market,
     "context": R["benchmarks"].get("context", []),
     "powder_frac": powder_frac,
     "generated": R["generated"],
 }
+PROD_RADIOS = "\n".join(f'            <input type="radio" name="product" id="p-{k}" value="{i}"{" checked" if i == 0 else ""}>'
+                        f'<label for="p-{k}">{NAMES.get(k, k)}</label>' for i, k in enumerate(PRODS))
+REF_RADIOS = "\n".join(f'        <input type="radio" name="refp" id="r-{k}" value="{k}"{" checked" if i == 0 else ""}>'
+                       f'<label for="r-{k}">{NAMES.get(k, k)}</label>' for i, k in enumerate(PRODS))
 
 HTML = r"""<title>Precision Fermentation Cost Explorer</title>
 <meta charset="utf-8">
@@ -119,7 +180,7 @@ HTML = r"""<title>Precision Fermentation Cost Explorer</title>
   --bg: #f4f6f4; --surface: #fcfcfb; --ink: #111513; --ink-2: #4b534e; --muted: #7b837e;
   --rule: #dde2dd; --grid: #e6e9e5; --axis: #c3c8c3;
   --accent: #1d6a86; --accent-soft: #e2eef3; --accent-ink: #ffffff;
-  --band-blg: #e3edf9; --band-ova: #fbe6dc; --spot: #898781;
+  --band-blg: #e3edf9; --band-ova: #fbe6dc; --band-ovd: #fbe6dc; --band-cas: #e6f4ec; --band-lf: #efe9f7; --spot: #898781;
   --good: #0a7d0a; --good-bg: #e5f3e5; --bad: #b3322f; --bad-bg: #f8e4e3; --warn: #9a5a0c; --warn-bg: #fbeedd;
   --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300;
   --shadow: 0 1px 2px rgba(17, 21, 19, .06);
@@ -130,7 +191,7 @@ HTML = r"""<title>Precision Fermentation Cost Explorer</title>
     --bg: #0e1110; --surface: #171a19; --ink: #f1f4f2; --ink-2: #c3c9c5; --muted: #8b928d;
     --rule: #2a302d; --grid: #242927; --axis: #383d3a;
     --accent: #62b3d2; --accent-soft: #1b2e36; --accent-ink: #0e1110;
-    --band-blg: #1b293a; --band-ova: #38251d; --spot: #9a9f9b;
+    --band-blg: #1b293a; --band-ova: #38251d; --band-ovd: #38251d; --band-cas: #1d3328; --band-lf: #2e2639; --spot: #9a9f9b;
     --good: #5cc45c; --good-bg: #16261a; --bad: #ef7a77; --bad-bg: #331a1a; --warn: #f0a85a; --warn-bg: #33261a;
     --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
     --shadow: none;
@@ -141,7 +202,7 @@ HTML = r"""<title>Precision Fermentation Cost Explorer</title>
   --bg: #0e1110; --surface: #171a19; --ink: #f1f4f2; --ink-2: #c3c9c5; --muted: #8b928d;
   --rule: #2a302d; --grid: #242927; --axis: #383d3a;
   --accent: #62b3d2; --accent-soft: #1b2e36; --accent-ink: #0e1110;
-  --band-blg: #1b293a; --band-ova: #38251d; --spot: #9a9f9b;
+  --band-blg: #1b293a; --band-ova: #38251d; --band-ovd: #38251d; --band-cas: #1d3328; --band-lf: #2e2639; --spot: #9a9f9b;
   --good: #5cc45c; --good-bg: #16261a; --bad: #ef7a77; --bad-bg: #331a1a; --warn: #f0a85a; --warn-bg: #33261a;
   --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
   --shadow: none;
@@ -232,9 +293,11 @@ tr.mkt td { color: var(--ink-2); background: var(--accent-soft); }
 <div class="wrap">
   <header>
     <h1>Precision Fermentation Cost Explorer</h1>
-    <p class="lede">Food-grade &beta;-lactoglobulin (the main whey protein) and ovalbumin (the main egg-white protein), made by a secreting
-    <i>K.&nbsp;phaffii</i> strain in 200&nbsp;m&sup3; fed-batch fermenters, 10&nbsp;kt of protein a year, dried to a concentrate.
-    Move the strain levers and see the minimum selling price, whether a real fermenter can run the design, and how the price compares with whey, egg white, milk and eggs.</p>
+    <p class="lede">Food-grade &beta;-lactoglobulin (the main whey protein), ovalbumin and ovomucoid (egg-white proteins), &beta;-casein
+    (the main cheese protein) and lactoferrin, made by a secreting <i>K.&nbsp;phaffii</i> strain in 200&nbsp;m&sup3; fed-batch fermenters
+    and dried: 10&nbsp;kt of protein a year (lactoferrin 250&nbsp;t, the size of its market). Each protein has its own purification:
+    membranes for BLG, ovalbumin and ovomucoid, isoelectric precipitation for casein, cation exchange for lactoferrin.
+    Move the strain levers and see the minimum selling price, whether a real fermenter can run the design, and how the price compares with whey, egg white, casein, lactoferrin, milk and eggs.</p>
   </header>
 
   <section class="summary" aria-live="polite">
@@ -260,8 +323,7 @@ tr.mkt td { color: var(--ink-2); background: var(--accent-soft); }
         <fieldset>
           <legend>Protein</legend>
           <div class="seg" role="radiogroup">
-            <input type="radio" name="product" id="p-blg" value="0" checked><label for="p-blg">&beta;-lactoglobulin</label>
-            <input type="radio" name="product" id="p-ova" value="1"><label for="p-ova">Ovalbumin</label>
+__PRODRADIOS__
           </div>
         </fieldset>
         <fieldset>
@@ -338,9 +400,7 @@ tr.mkt td { color: var(--ink-2); background: var(--accent-soft); }
   <section class="panel" style="margin-top:16px">
     <div class="panel-head"><h2>Reference cases from the report</h2>
       <div class="seg small" role="radiogroup" aria-label="Protein shown in the table">
-        <input type="radio" name="refp" id="r-blg" value="blg" checked><label for="r-blg">&beta;-lactoglobulin</label>
-        <input type="radio" name="refp" id="r-ova" value="ova"><label for="r-ova">Ovalbumin</label>
-        <input type="radio" name="refp" id="r-lf" value="lf"><label for="r-lf">Lactoferrin</label>
+__REFRADIOS__
       </div>
     </div>
     <div class="tablewrap"><table id="ref"></table></div>
@@ -359,12 +419,15 @@ tr.mkt td { color: var(--ink-2); background: var(--accent-soft); }
 <script>
 const D = __DATA__;
 const G = D.grid, AX = G.axes, ORDER = G.order;
-const LABELS = {product: ["blg", "ova"], convention: ["humbird", "light", "aseptic"], site: ["us_midwest", "eu_nw"]};
+const LABELS = {product: D.products, convention: ["humbird", "light", "aseptic"], site: ["us_midwest", "eu_nw"]};
 const BASE = {product: 0, convention: 0, site: 0, titer: AX.titer.indexOf(30), t_prod: AX.t_prod.indexOf(72), X_prod: AX.X_prod.indexOf(107), Y_ps: AX.Y_ps.indexOf(0.465)};
-let S = Object.assign({}, BASE);
+// each product's own base point (lactoferrin: 10 g/L, 83 h); falls back to 30 g/L, 72 h if not on the grid
+const baseFor = i => { const bp = D.base_point[D.products[i]] || {}, ti = AX.titer.indexOf(bp.titer), tp = AX.t_prod.indexOf(bp.t_prod);
+  return Object.assign({}, BASE, {product: i}, ti >= 0 ? {titer: ti} : {}, tp >= 0 ? {t_prod: tp} : {}); };
+let S = baseFor(0);
 let UNIT = 0;   // 0: $/kg protein; 1: per litre of milk (BLG) or per egg (OVA); 2: per kg powder
 let REFP = "blg";   // protein shown in the reference table
-const EQV = () => D.equiv[prodKey()];
+const EQV = () => D.equiv[prodKey()] || null;   // lactoferrin has no milk or egg unit
 const MKT = () => D.market[prodKey()];
 // model cost ($/kg protein) -> the unit shown; market price ($/kg protein) -> the unit shown
 const conv = () => UNIT === 1 ? EQV().grams / 1000 : UNIT === 2 ? D.powder_frac[prodKey()] : 1;
@@ -437,6 +500,9 @@ function chip(flag) {
 }
 
 function render() {
+  const hasEq = !!EQV();                       // the per-litre/per-egg unit exists for this protein?
+  $("u-src").disabled = !hasEq;
+  if (!hasEq && UNIT === 1) { UNIT = 0; $("u-kg").checked = true; }
   for (const a of ["titer", "t_prod", "X_prod", "Y_ps"]) { $(a).value = S[a]; $("o-" + a).textContent = fmtAxis(a, AX[a][S[a]]); }
   const v = at(S);
   const band = D.bands[prodKey()];
@@ -451,14 +517,14 @@ function render() {
     if (ceil && AX.X_prod[S.X_prod] === 107 && AX.Y_ps[S.Y_ps] === 0.465) chips.push(`<span class="chip plain">Feasibility ceiling at ${tp} h: about ${Math.round(ceil)} g/L</span>`);
   }
   $("chips").innerHTML = chips.join("");
-  const eq = EQV();
+  const eq = EQV() || {per: "litre of milk", what: "", grams: 0, bands: []};
   $("msp-unit").textContent = UNIT === 1 ? `per ${eq.per} (PF protein replacing ${eq.what}), 2025 dollars`
     : UNIT === 2 ? "per kg of powder, 2025 dollars" : "per kg protein, 2025 dollars";
   $("u-src-l").textContent = "per " + eq.per;
   $("u-hint").textContent = UNIT === 1 ? `Multiplies $/kg by ${eq.grams.toFixed(2)} g / 1000.`
     : UNIT === 2 ? `Our powder is ${Math.round(100 * D.powder_frac[prodKey()])}% target protein; market prices per kg of product (${Math.round(100 * MKT().frac)}% protein).` : "";
   // comparison panel: in the shown unit throughout
-  const base = at(Object.assign({}, BASE, {product: S.product}));
+  const base = at(Object.assign({}, baseFor(S.product), {convention: S.convention, site: S.site}));
   const mk = marketNow(), rows = [];
   if (v) {
     const cur = v[0] * conv(), [lo, hi] = mk.band;
@@ -469,7 +535,7 @@ function render() {
     } else {
       const all = mk.series.flatMap(s => Object.values(s.pts));
       const avg = all.reduce((a, b) => a + b, 0) / all.length;
-      rows.push([`${mk.label}, ${mk.years[0]}–${mk.years[1]} export prices`, `${fmtU(lo)}–${fmtU(hi)}`]);
+      rows.push([`${mk.label}, ${mk.years[0]}–${mk.years[1]} market prices`, `${fmtU(lo)}–${fmtU(hi)}`]);
       rows.push(["This design", pos]);
       rows.push(["Years this design would have been cheaper", `${all.filter(p => p >= cur).length} of ${all.length} annual prices`]);
       for (const p of mk.spot) rows.push([p.label, fmtU(p.value) + (cur <= p.value ? ", undercut" : ", not reached")]);
@@ -510,7 +576,7 @@ function drawChart(band0) {
   const lx = Math.log, X = t => m.l + (lx(t) - lx(2)) / (lx(110) - lx(2)) * (W - m.l - m.r);
   const Y = y => H - m.b - (lx(y) - lx(y0)) / (lx(y1) - lx(y0)) * (H - m.t - m.b);
   let s = "";
-  const bandCol = prodKey() === "blg" ? "var(--band-blg)" : "var(--band-ova)";
+  const bandCol = `var(--band-${prodKey()})`;
   $("band-sw").style.background = bandCol;
   $("band-lg").textContent = band.label + " price band";
   s += `<rect x="${m.l}" y="${Y(Math.min(band.hi, y1))}" width="${W - m.l - m.r}" height="${Math.max(0, Y(Math.max(band.lo, y0)) - Y(Math.min(band.hi, y1)))}" fill="${bandCol}"/>`;
@@ -627,7 +693,7 @@ function drawRef() {
   h += `<tr class="mkt"><td>Market: ${mk.label}, ${yrs}</td><td></td><td class="r" colspan="3">${money(lo)}–${money(hi)} per kg protein</td><td></td></tr></tbody>`;
   $("ref").innerHTML = h;
   $("ref-note").textContent = REFP === "lf"
-    ? "Lactoferrin: 250 t/yr (a world market of roughly 0.3–1.6 kt/yr); reported dairy prices in 2025 dollars. Intelligen's figures are costs of production (depreciation, no return on capital), set against ours; the report reconciles them line by line. Not selectable above: the explorer's grid covers BLG and OVA."
+    ? "Lactoferrin: 250 t/yr (a world market of roughly 0.3–1.6 kt/yr); reported dairy prices in 2025 dollars. Intelligen's figures are costs of production (depreciation, no return on capital), set against ours; the report reconciles them line by line."
     : "10 kt/yr, US Midwest unless noted; $/kg of protein, 2025 dollars. 'Vs market range' places the price-anchored cost against the 2015–2025 export unit values per kg protein.";
 }
 
@@ -640,7 +706,10 @@ function init() {
   for (const a of ["product", "convention", "site"]) {
     document.querySelectorAll(`input[name=${a}]`).forEach(el => el.addEventListener("change", e => {
       S[a] = +e.target.value;
-      if (a === "product") { REFP = prodKey(); $("r-" + REFP).checked = true; drawRef(); }   // the table follows the protein
+      if (a === "product") {                         // jump to the protein's own base point; the table follows the protein
+        S = Object.assign(baseFor(S.product), {convention: S.convention, site: S.site});
+        REFP = prodKey(); $("r-" + REFP).checked = true; drawRef();
+      }
       render();
     }));
   }
@@ -648,7 +717,7 @@ function init() {
   document.querySelectorAll("input[name=refp]").forEach(el => el.addEventListener("change", e => { REFP = e.target.value; drawRef(); }));
   $("yourprice").addEventListener("input", yourPrice);
   $("reset").addEventListener("click", () => {
-    S = Object.assign({}, BASE, {product: S.product});
+    S = baseFor(S.product);
     document.querySelectorAll("input[type=radio]").forEach(el => { if (el.name !== "refp") el.checked = +el.value === (el.name === "unit" ? UNIT : S[el.name]); });
     render();
   });
@@ -666,6 +735,7 @@ egg_rng = (f"${min(ING['dried_egg_white_per_egg'].values()):.3f}–{max(ING['dri
 whey_rng = (f"was {min(ING['whey_share_of_farm_milk'].values()):.0%}–{max(ING['whey_share_of_farm_milk'].values()):.0%}"
             if ING else "(not yet computed)")
 out = OUT
-out.write_text(HTML.replace("__DATA__", json.dumps(DATA, separators=(",", ":"))).replace("__EGGWHITE__", egg_rng)
+out.write_text(HTML.replace("__DATA__", json.dumps(DATA, separators=(",", ":"))).replace("__PRODRADIOS__", PROD_RADIOS)
+               .replace("__REFRADIOS__", REF_RADIOS).replace("__EGGWHITE__", egg_rng)
                .replace("__WHEYSHARE__", whey_rng))
 print("wrote", out, f"{out.stat().st_size / 1e3:.0f} kB")

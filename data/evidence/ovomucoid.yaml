@@ -1,0 +1,781 @@
+# data/evidence/ovomucoid.yaml: evidence for adding OVOMUCOID (hen egg-white ovomucoid, Gal d 1) and
+# the EVERY egg-white protein products as a product in pf-tea (research pass 2026-10-01).
+# Format: data/evidence/README.md. Grades: A measured/official; B published design basis or patent
+# example; C company claim/trade press/survey; D analogy; E guess.
+# Everything below was read as raw text: UniProt REST JSON, FDA GRAS PDFs (GRN 967 notice + its
+# April 2021 amendment + the agency letter; GRN 1104 with amendments + letter) converted with
+# pdftotext -layout, EVERY/Clara Foods patent full texts on disk, Europe PMC full-text XML,
+# FAOSTAT and UN Comtrade bulk data, USDA NASS PDF. One figure (US 2024/0209383 FIG. 22) was read
+# as a rendered page image. Items computed here are labelled "Derived (mine)" and carry quote: null.
+#
+# NOTE ON NAMING. Ovomucoid is abbreviated OVD by Clara Foods/EVERY and by FDA, OVM in the academic
+# literature, and "Gal d 1" in allergen nomenclature. EVERY's two FDA-cleared products are easy to
+# confuse: GRN 967 ("soluble egg-white protein", NSEWP, strain GSD-1209/DFB-003) is OVOMUCOID, and
+# GRN 1104 ("egg-white protein", NEWP, strain GSD-1235/DFB-004) is OVALBUMIN. Both are described by
+# FDA as "egg-white protein"; neither is a mixture of the two.
+
+# =======================================================================================
+# 1. Product identity, sequence, mass balance
+# =======================================================================================
+
+- key: ovd_uniprot_mature_chain
+  value: "P01005 chain 25-210"
+  unit: residue range of the mature secreted chain (precursor numbering)
+  grade: A
+  source: "UniProtKB P01005 (IOVO_CHICK), Ovomucoid, Gallus gallus; entry version 173, sequence version 1, last annotation update 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P01005.json
+  locator: "features: Signal 1-24; Chain 25-210 'Ovomucoid'; Domain 25-88, 89-153, 156-210 'Kazal-like 1/2/3'"
+  quote: "{\"type\":\"Chain\",\"description\":\"Ovomucoid\",\"location\":{\"start\":{\"value\":25},\"end\":{\"value\":210}}} ... {\"type\":\"Domain\",\"description\":\"Kazal-like 1\"} ... \"Avian ovomucoid consists of three homologous, tandem Kazal family inhibitory domains\""
+  read: fulltext
+  note: >-
+    186 residues after removal of the 24-residue signal peptide, matching every secondary source
+    ("Its polypeptide chain consists of 186 amino acids", GRN 967 p.6; Beck 2025 Table 1).
+    Mature sequence (put here so the product file can be built from this entry):
+    AEVDCSRFPNATDKEGKDVLVCNKDLRPICGTDGVTYTNDCLLCAYSIEFGTNISKEHDGECKETVPMNCSSYANTTSEDGKVMVLCNRAFNPVCGTDGVTYDNECLLCAHKVEQGASVDKRHDGGCRKELAAVSVDCSEYPKPDCTAEDRPLCGSDNKTYGNKCNFCNAVVESNGTLTLSHFGKC
+    Mature residue i = precursor residue i+24 (the usual off-by-n trap: UniProt's glycosylation
+    sites 34/77/93/99/199 are mature 10/53/69/75/175). Function: "Serine protease inhibitor.
+    Inhibits trypsin" (inhibits BOVINE, not human, trypsin: GRN 967 p.11, Travis 1971).
+    UniProt also lists a natural variant at precursor 158-159 "due to an ambiguous intron excision"
+    - ovomucoid from pooled egg white is a mixture of isoforms, which is one reason the native
+    protein runs as a smear on SDS-PAGE.
+
+- key: ovd_mature_formula_and_mw
+  value: {C: 840, H: 1306, N: 240, O: 292, S: 20}
+  unit: atoms per molecule of the unglycosylated mature chain (9 disulfides)
+  grade: A
+  source: "Derived (mine) from UniProtKB P01005 mature chain 25-210 (186 aa, 9 disulfide features)"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P01005.json
+  locator: "computed from the sequence; UniProt lists 9 'Disulfide bond' features and 18 cysteines"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - check the arithmetic. Residue sums + H2O, minus 2H per disulfide: average MW
+    20,080 Da; CH1.555N0.286O0.348S0.0238; 50.24 wt% C, 16.74 wt% N (so N x 5.97 = protein, while
+    the GRAS specs use the AOAC combustion factor N x 6.25, which overstates protein by ~4.7%).
+    Cross-checks: (a) my residue-sum method reproduces UniProt's own molWeight for the 210-aa
+    precursor, 22,591 Da, to 0.4 Da; (b) adding EVERY's EAEA N-terminal extension gives
+    C856H1330N244O300S20 = 20,480 Da, and GRN 967's amendment Table 3 states recombinant OVD is
+    "20.5 kDa" against native mature "20 kDa". So the sequence, the disulfide count and the
+    extension are all mutually consistent. Composition notes for the mass balance: NO tryptophan,
+    only 2 methionines, 18 cysteines (9 S-S) - ovomucoid is the most disulfide-dense food protein
+    in this repo (1 S-S per 20.7 residues vs 1 per 43 for bovine LF and 1 per 385 for OVA), which
+    is why hosts need folding help (see ovd_kphaffii_strain_engineering).
+
+- key: ovd_disulfides_and_domains
+  value: 9
+  unit: disulfide bonds in the mature chain (3 per Kazal domain)
+  grade: A
+  source: "UniProtKB P01005 features; corroborated by Beck F et al. BMC Biotechnol 25:1002 (2025) Table 1"
+  doi_or_url: 10.1186/s12896-025-01002-3
+  locator: "UniProt: Disulfide bond 29-68, 46-65, 54-86, 94-133, 111-130, 119-151, 162-192, 170-189, 178-210 (precursor numbering); Beck Table 1 row 'Ovomucoid'"
+  quote: "Ovomucoid 28 186 4.1 77 9 - N-glycosylated No Yes"
+  read: fulltext
+  note: >-
+    The Beck quote is the Table 1 row: MW 28 kDa (glycosylated), 186 aa, pI 4.1, denaturation
+    temperature 77 C, 9 disulfide bonds, N-glycosylated, no genetic polymorphism listed, allergenic.
+    Beck's review also flags the disulfides as the reason E. coli is a poor host: "Chaperones (Dsb
+    system), trxB/gor mutants ... e.g. ovotransferrin (15 bridges), ovomucoid (9 bridges)".
+    Each of the three Kazal domains carries 3 disulfides; the trypsin-reactive bond is at
+    precursor 113-114 (mature 89-90, domain 2).
+
+- key: ovd_glycosylation_sites_native
+  value: 5
+  low: 4
+  high: 5
+  unit: N-linked sites (precursor Asn34, 77, 93, 99, 199 = mature Asn10, 53, 69, 75, 175)
+  grade: A
+  source: "UniProtKB P01005 features; Benedé S et al. PLoS ONE 8(11):e80810 (2013) for occupancy"
+  doi_or_url: 10.1371/journal.pone.0080810
+  locator: "UniProt: 5 'Glycosylation' features, Asn199 annotated 'N-linked (GlcNAc...) asparagine; partial'; Benedé Introduction"
+  quote: "One particular characteristic of OM is its high carbohydrate content, which is between 20-25%, with two carbohydrate chains on each of the first and second domains and one chain present on about 50% of the third domain"
+  read: fulltext
+  note: >-
+    A sequon scan of the mature chain (mine) finds exactly six N-X-S/T motifs - mature 10, 53, 69,
+    75, 158, 175 - of which UniProt annotates five as used (mature 158 NKT is not annotated;
+    mature 69 is the unusual N-C-S sequon). Benedé's "two + two + one partial" matches
+    5 sites with the fifth ~50% occupied, i.e. 4.5 glycans per molecule on average. This is the
+    key physical difference from ovalbumin (2 sites, 1 usually occupied): ovomucoid is a heavily
+    glycosylated protein and the glycan is 20-25% of its mass.
+
+- key: ovd_carbohydrate_mass_fraction_native
+  value: 0.225
+  low: 0.20
+  high: 0.25
+  unit: mass fraction carbohydrate of native hen ovomucoid
+  grade: A
+  source: "Benedé S, Lopez-Exposito I, Molina E, Lopez-Fandino R. Influence of the carbohydrate moieties on the immunoreactivity and digestibility of the egg allergen ovomucoid. PLoS ONE 8(11):e80810 (2013)"
+  doi_or_url: 10.1371/journal.pone.0080810
+  locator: "Introduction, paragraph 2"
+  quote: "One particular characteristic of OM is its high carbohydrate content, which is between 20-25%"
+  read: fulltext
+  note: >-
+    Corroborated independently: "OVM possesses high thermal stability and limited denaturation as
+    the structure is made up of nine disulfide bonds and 25% carbohydrate" (Yang et al., Foods
+    11(2):238 (2022), PMC8774878, Discussion, A); "its high carbohydrate proportion (approximately
+    20-25%)" (Nam et al., Food Sci Anim Resour 46 (2026), PMC12995051, A); Beck 2025 gives the
+    composition as "sialic acid, ~4.5% mannose, and ~1.5% galactose". Derived (mine): at 22.5%
+    glycan the native glycoprotein mass is 20,080 / 0.775 = 25.9 kDa, consistent with the
+    "approximately 28.0 kDa" and "28-37 kDa" figures quoted for native OVD. THIS MATTERS FOR THE
+    MODEL: the K. phaffii product is NOT this molecule (next entry) - EVERY trims the glycan to a
+    single GlcNAc, so a kg of PF ovomucoid carries ~20% more polypeptide than a kg of native
+    ovomucoid, and the elemental balance must use the unglycosylated formula.
+
+- key: ovd_kphaffii_glycoform_endoh
+  value: 1
+  unit: GlcNAc residues left per occupied site in EVERY's K. phaffii product (vs branched glycans in native OVD)
+  grade: A
+  source: "Clara Foods Co. GRAS Notice (GRN) 967, 'Non-Animal Soluble Egg White Protein produced by Pichia pastoris', August 2020; FDA 'no questions' letter 9 Sep 2021"
+  doi_or_url: https://www.fda.gov/media/147830/download
+  locator: "Sect. 2.1.3, p.7 (glycosylation form); Sect. 2.2.2.2, pp.14-15 (EndoH-OCH1 fusion)"
+  quote: "The production organism has been modified by adding a glycohydrolase enzyme (EndoH, see Section 2.2.2.2) that cleaves the glycan form down to the core protein/glycan structure. The resulting protein as expressed in DFB-003, i.e. NSEWP, contains only the core glycosylation moiety, i.e. one N-acetylglucosamine unit"
+  read: fulltext
+  note: >-
+    This is a real process decision with mass-balance consequences. Without EndoH the same host
+    hyper-mannosylates: EVERY's own patent reports "eight different N-glycan structures ...
+    Man9GlcNAc2 ... Man9GlcNAc2Hex7" on untreated rOVD (US 12,096,784 B2 Ex. 2, Table 2, B).
+    The EndoH is expressed as a fusion to the first 48 residues of Pichia OCH1, which anchors it in
+    the Golgi so it is removed with the cells ("the fusion protein being intracellular and anchored
+    to cell components that are removed by the initial centrifugation purification step", GRN 967
+    p.19). Derived (mine): 4 occupied sites x 203.2 Da (GlcNAc residue) = 813 Da, i.e. ~3.8% of the
+    21.3 kDa glycoprotein - so EVERY's ovomucoid is ~96% polypeptide by molecule, against ~78% for
+    the native protein. The powder still tests 11-15.5% total carbohydrate (ovd_spec_grn967_batches),
+    which must therefore be mostly residual yeast-derived carbohydrate, not product glycan.
+
+- key: ovd_recombinant_identity_grn967
+  value: "mature OVD + EAEA N-terminal extension, 190 aa, 20.5 kDa, pI 4.36"
+  unit: identity of the recombinant protein in EVERY's GRN 967 product
+  grade: A
+  source: "Clara Foods Co. GRN 967 amendment, 'Response to Technical Review Questions', 2 April 2021, Table 3"
+  doi_or_url: https://www.fda.gov/media/152292/download
+  locator: "Response to Question 10, Table 3 'Physical characteristics of native and recombinant OVD', p.12-13"
+  quote: "Native OVD (mature form) ... 20 kDa ... 4.47 ... 5 ... N-acetyl glucosamine, mannose, galactose | Recombinant OVD ... 20.5 kDa ... 4.36 ... 4 ... N-acetyl glucosamine"
+  read: fulltext
+  note: >-
+    Columns are: amino-acid sequence of mature protein without glycosylation | molecular mass |
+    calculated isoelectric point without glycosylation | number of residues glycosylated |
+    carbohydrate identities. Confirms (a) the recombinant molecule is the 186-aa mature chain with
+    four extra residues EAEA from imprecise Kex2/Ste13 processing of the S. cerevisiae alpha-factor
+    pre-pro leader, (b) a minor fraction carries the longer extension EEGVSLEKREAEA (GRN 967 p.9),
+    (c) only 4 of the 5 sites carry the GlcNAc stub, (d) pI ~4.4 unglycosylated. My computed MW for
+    EAEA+mature is 20,480 Da, matching their 20.5 kDa. The same amendment corrects a common error:
+    "ovomucoid is listed at 28 kDa due to the presence of a secretion signal that is present in a
+    pro+mature form but removed during secretion to generate the mature only form with a molecular
+    weight of ~20 kDa" - the 28 kDa in the literature is the glycosylated native protein, not the
+    polypeptide.
+
+- key: ovd_share_of_egg_white_protein
+  value: 0.11
+  low: 0.095
+  high: 0.11
+  unit: mass fraction of total egg-white protein
+  grade: A
+  source: "Clara Foods Co. GRN 967, Sect. 2.1.2 p.6 and Part 3 p.27; corroborated by Li Z et al. Foods 11(16):2434 (2022) Table 1 (already in data/evidence/milk_egg.yaml ova_share_li2022) and Beck 2025"
+  doi_or_url: https://www.fda.gov/media/147830/download
+  locator: "GRN 967 Sect. 2.1.2, p.6"
+  quote: "Hen egg ovomucoid (OVD) is located in the egg white, comprises approximately 11% of the egg white protein, and has been consumed for as long as eggs have been used as a food source."
+  read: fulltext
+  note: >-
+    Three independent statements of 11%: GRN 967, Li 2022 Table 1 (in the repo already), and Beck
+    2025 ("Ovomucoid (OVM) is a glycoprotein that constitutes ~ 11% of egg white protein"). The
+    lower bound is from the 2025 purification review: "ovomucoid, OVM, makes up 9.5-11% of egg
+    white" (Foods 14:1944, PMC12154507, A). Derived (mine): at 3.64 g egg-white protein per US
+    large egg (milk_egg.yaml derived_protein_per_litre_and_per_egg), one large egg contains
+    0.40 g of ovomucoid, against 1.96 g of ovalbumin.
+
+# =======================================================================================
+# 2. Commercial PF products: EVERY (Clara Foods) GRN 967 and GRN 1104
+# =======================================================================================
+
+- key: ovd_grn967_product_definition
+  value: "single protein (ovomucoid) preparation, K. phaffii GSD-1209, methanol-induced"
+  unit: product definition of EVERY's GRN 967 ingredient
+  grade: A
+  source: "FDA. Agency response letter, GRAS Notice No. GRN 000967 (Clara Foods Co.), 9 September 2021"
+  doi_or_url: https://www.fda.gov/media/152289/download
+  locator: "p.1-2"
+  quote: "Clara describes soluble egg-white protein as a glycoprotein containing predominantly recombinant ovomucoid. Soluble egg-white protein is a white to off-white amorphous powder."
+  read: fulltext
+  note: >-
+    So GRN 967 is a SINGLE-PROTEIN product, not an egg-white mix: the only recombinant protein
+    expressed is ovomucoid. FDA's inventory entry names it "Soluble egg-white protein produced by
+    Komagataella phaffii strain GSD-1209", intended "as a substitute for egg-white protein in foods
+    containing eggs; and as a source of protein in nutritional powders and drinks; bars; and certain
+    snack foods", closed 9 Sep 2021 (hfpappexternal.fda.gov GRAS Notices id=967, read as HTML).
+    Commercially this is the product EVERY launched as EVERY ClearEgg and now sells as EVERY
+    Protein: "bio-identical to a glycoprotein contained in egg white ... a glycoprotein containing
+    predominantly recombinant ovomucoid", "highly soluble", "exclusively sold by Ingredion"
+    (FoodNavigator, 5 Oct 2021, read via web-fetch summary, C - not a verbatim-checked quote).
+    Strain lineage: NRRL Y-11430 -> BioGrammatics BG08 -> BG10 -> Clara's DFB-001 (mutS,
+    "methanol-utilization slow") -> DFB-003 = ATCC deposit GSD-1209.
+
+- key: ovd_grn967_strain_engineering
+  value: {ovd_copies: 11, hac1_copies: 3, endoh_och1_copies: 1}
+  unit: integrated expression cassettes in production strain DFB-003 (GSD-1209)
+  grade: A
+  source: "Clara Foods Co. GRAS Notice (GRN) 967, Sect. 2.2.2.3 'Genome Sequence of the Production Strain DFB-003'"
+  doi_or_url: https://www.fda.gov/media/147830/download
+  locator: "Sect. 2.2.2.3, p.17"
+  quote: "11 copies of OVD coding sequence were integrated into the genome as cassettes of methanol-inducible promoter :: ScAlphaFactor :: OVD :: AOX1term ... 3 copies of methanol-inducible promoter :: HAC1 :: AOX1term ... 1 copy of methanol-inducible promoter :: EndoH-OCH1 :: AOX1term"
+  read: fulltext
+  note: >-
+    All three cassettes are METHANOL-INDUCIBLE, and the strain is mutS. This is directly relevant
+    to the model's methanol switch: the public commercial ovomucoid process is a methanol process
+    (unlike Eden Brew's methanol-free casein). EVERY's later patent work moves away from it - the
+    30 g/L strain (next section) uses "late firing" / catabolite de-repression promoters (TLR1) and
+    the patent explicitly builds strains "that express goi's without the need for methanol as a
+    carbon source (in certain procedures, a small amount of methanol may be included as an inducer
+    molecule)" (US 2024/0209383 A1 [0359], B). US 12,096,784 B2 Ex. 2 describes the GRN 967-type
+    process as a glucose batch -> glucose-limited fed-batch -> "glucose and methanol" co-feed with
+    "methanol ... fed to maintain the methanol concentration at 1%".
+
+- key: ovd_spec_grn967
+  value: {protein_min_frac_powder: 0.75, protein_min_frac_dry: 0.80, moisture_max: 0.10, carbohydrate_max: 0.20, ash_max: 0.02, fat_max: 0.001}
+  unit: mass fractions of the powder as is (protein_min_frac_dry = % of dry weight)
+  grade: A
+  source: "Clara Foods Co. GRAS Notice (GRN) 967, Table 3 'Specification for non-animal soluble egg white protein (NSEWP) produced by P. pastoris DFB-003'"
+  doi_or_url: https://www.fda.gov/media/147830/download
+  locator: "Table 3, p.24"
+  quote: "Protein > 75% | Moisture Maximum 10.0% | Carbohydrate Maximum 20% | Ash Maximum 2.0% | Fat by Acid Hydrolysis < 0.1% | Hg < 1 ppm | Pb < 1 ppm | As < 1 ppm | Cd < 1 ppm"
+  read: fulltext
+  note: >-
+    FDA's letter restates it: "protein (> 75%), carbohydrate (<= 20%), fat (< 0.1%), moisture
+    (<= 10%), ash (<= 2%)". Specification basis is the Food Chemicals Codex 11th ed. Enzyme
+    Preparations monograph (there is no monograph for this product; GRN 967 amendment, answer 13).
+    The 2% ash ceiling is notable and is the strongest evidence for the downstream route: a
+    chromatographic elution in 1 M NaCl or an ammonium-sulfate precipitation leaves far more ash
+    than 2% unless it is diafiltered out (compare TurtleTree's lactoferrin isolate at <=9.5% ash).
+
+- key: ovd_spec_grn967_batches
+  value: {protein_frac: [0.7531, 0.7506, 0.7994], ovd_frac_of_protein: [0.876, 0.906, 0.926], moisture: [0.084, 0.09, 0.09], carbohydrate: [0.1553, 0.1528, 0.1106], ash: [0.0076, 0.0066, 0.004]}
+  unit: three production lots (SOL19303, SOL19317, SOL19351), mass fractions of the powder
+  grade: A
+  source: "Clara Foods Co. GRN 967 Table 4 (QC results) and the GRN 967 amendment Table 1 (% ovomucoid in total protein)"
+  doi_or_url: https://www.fda.gov/media/152292/download
+  locator: "GRN 967 Table 4, p.26; amendment Table 1 (Response to Question 9), p.8"
+  quote: "% Protein by combustion 75.31 75.06 79.94 | % OVD in powder determined by HPLC 66 68 74 | % OVD as % of protein (calculated) 87.6 90.6 92.6"
+  read: fulltext
+  note: >-
+    THE SINGLE MOST USEFUL NUMBER FOR THE MODEL: the delivered powder is 66-74% ovomucoid by HPLC,
+    i.e. 87.6-92.6% of the protein is product and ~7-12% is K. phaffii host protein (the amendment
+    states "Analysis of NSEWP lots showed that they contained ~7 to 12% host protein, w/w"). The
+    balance of the powder is 11-15.5% carbohydrate, 8.4-9% moisture and <0.8% ash. A UF/DF-only
+    route therefore delivers a CONCENTRATE (66-74% target protein in the powder), not an isolate -
+    strictly weaker than Intelligen's assumed 99% OVA after ammonium-sulfate precipitation and
+    weaker than the 90-94% that a CEX route gives for lactoferrin. Note the ash is very low
+    (0.4-0.76%), consistent with extensive diafiltration and with no salt-eluted chromatography.
+
+- key: ovd_dsp_route_grn967
+  value: "centrifugation -> microfiltration -> pH adjustment + ultrafiltration -> spray drying"
+  unit: downstream route of the commercial ovomucoid product
+  grade: A
+  source: "Clara Foods Co. GRN 967 Sect. 2.4.3; confirmed in FDA's response letter and in the GRN 967 amendment (answer 11)"
+  doi_or_url: https://www.fda.gov/media/147830/download
+  locator: "Sect. 2.4.3 'Purification', p.22; Figure 5 p.22"
+  quote: "The NSEWP was purified by separating the cells from the liquid medium by centrifugation followed by micro-filtration. Further purification is accomplished using pH adjustments and ultra-filtration, before a drying step to produce the final protein product."
+  read: fulltext
+  note: >-
+    NO CHROMATOGRAPHY AND NO PRECIPITATION in the cleared commercial ovomucoid process. The
+    amendment adds the dryer: "The NSEWP preparation is then centrifuged, washed and filtered ...
+    The purified preparation is then spray dried", and the quantitation method: "The concentration
+    of recombinant ovomucoid in the preparation is quantified using HPLC". Contrast GRN 1104
+    (ovalbumin), where a chromatography step is added: "Further purification is accomplished using
+    ultra-filtration, chromatography, and pH adjustments before a drying step" (GRN 1104 Sect.
+    2.4.3, p.23, A). This difference is the central modelling result of this pass: the ovomucoid
+    product is made with the model's 'concentrate' (UF/DF) route, the ovalbumin product is not.
+
+- key: ovd_dsp_route_patent_precipitation
+  value: "AS precipitation at 65% saturation, pH 4.0-4.1, redissolve, diafilter, 0.2 um, spray dry"
+  unit: alternative (patent) downstream route for rOVD
+  grade: B
+  source: "Clara Foods Co. (The EVERY Co.). Protein compositions and consumable products thereof. US 12,096,784 B2 (2024), Example 19 'Fermentation and Purification of rOVD'"
+  doi_or_url: https://patents.google.com/patent/US12096784B2/en
+  locator: "Example 19"
+  quote: "Fermentation broth was first brought to pH 3 and diluted with DI water. Cells were removed using bucket centrifugation. The collected supernatant was brought to pH 7 ... The permeates of the 0.2 μm were adjusted to pH 5 and then concentrated via 5 kDa TFF membrane. The 5 kDa retentate was precipitated using 65% saturation ammonium sulfate."
+  read: fulltext
+  note: >-
+    Full sequence: acidify broth to pH 3 and dilute -> centrifuge -> neutralise to pH 7 -> 0.2 um
+    filtration + 5 diavolumes of DI water -> pH 5 -> 5 kDa UF -> ammonium sulfate to 65% saturation,
+    pH adjusted to 4-4.1 with phosphoric acid, overnight at room temperature -> centrifuge ->
+    redissolve in DI water at pH 5 -> diafilter -> 0.2 um -> "A spray dryer was used to dehydrate
+    the rOVD solution into rOVD powder". Example 20 adds a bleaching step: concentrate to
+    "50-60 g/L using a 5 kDa TFF membrane", add H2O2 to 10% v/v for 1.5 h (the broth is
+    "a dark green-brown color" before treatment), then DF with 5 volumes, then the same AS
+    precipitation. So the model's 'isolate' route is also documented for ovomucoid - but it is NOT
+    the route FDA was shown for the commercial product, and EVERY's own recovery patent says
+    acidifying DURING salt precipitation gives "under 10% recovery" (dsp.yaml
+    acid_plus_salt_precipitation_recovery_every) while here they acidify to pH 4-4.1 after adding
+    the salt. Treat the patent's AS route as a variant, not the base case.
+
+- key: ovd_dsp_route_patent_cex
+  value: "SP400 cation exchange at pH 3.5 after 5 kDa UF to >30 g/L"
+  unit: alternative (patent) capture step for ovomucoid
+  grade: B
+  source: "Kale A, Patnaik R (Clara Foods Co. / The EVERY Co.). Purified protein compositions and methods of production. US 2024/0083940 A1 (2024), Example 2"
+  doi_or_url: https://patents.google.com/patent/US20240083940A1/en
+  locator: "Example 2, paras [0702]-[0706]"
+  quote: "transformations to express an illustrative protein, here ovomucoid ... The protein solution was then concentrated using a 5 kDa ultrafiltration membrane to over 30 g/L protein and diafiltered extensively ... adjusted to pH 3.5 using citrate and loaded on to a chromatography column. This column was packed with Cation exchange resin (SP400, Mitsubishi Chemicals, Japan)."
+  read: fulltext
+  note: >-
+    This is the ovomucoid example behind the CEX parameters already in dsp.yaml
+    (iex_binding_capacity_cex_every 50-100 g/L resin, iex_column_volumes_per_cycle_every, the
+    25 mM citrate / 1 M NaCl buffers in Table 4). Same example gives the fermentation conditions
+    quoted under ovd_fermentation_conditions_patent below. The patent's reason for chromatography
+    is not purity of the protein but removal of an "extracellular polysaccharide" (EPS): Table 1
+    reports the concentrate as 53% protein / 47% EPS w/w and the purified product as "98" % protein,
+    and Table 2 notes the EPS actually HELPS gelation ("removing the recombinant cell byproduct
+    (e.g., EPS) reduced the gel hardness and chewiness"). An anionic Capto Q variant is given in
+    Example 3 with "the feed is not pH modified here simplifying the process significantly".
+
+- key: ovd_fermentation_conditions_patent
+  value: {growth_h: 36, growth_pH: 5, induction_pH: 6}
+  unit: fermentation conditions for the ovomucoid example
+  grade: B
+  source: "Kale A, Patnaik R (Clara Foods Co. / The EVERY Co.). US 2024/0083940 A1 (2024), Example 2 [0703]"
+  doi_or_url: https://patents.google.com/patent/US20240083940A1/en
+  locator: "Example 2, para [0703]"
+  quote: "The resulting strain was grown in fermentation conditions in high-density growth conditions at about pH 5. After about 36 hours of growth under fermentation conditions, the pH was raised to about pH 6, and expression of the illustrative protein was induced by the addition of methanol to the culture."
+  read: fulltext
+  note: >-
+    Already in data/titers.csv as a conditions-only row (source_key Every2024-purif). 36 h growth
+    matches Intelligen's OVA design basis (36 h growth + 72 h induction) and EVERY's generic
+    bioreactor recipe in US 2024/0209383 A1 [0298]: "the culture may be grown for 24 hrs until all
+    glucose is consumed ... fed glucose at a glucose-limiting rate for 12 hours ... co-feed of
+    glucose and methanol for 96 hours" (24 + 12 = 36 h growth, then 96 h induction = 132 h total,
+    consistent with FIG. 22 running to 140 h EFT). Note the strain in this example is "mutM"
+    (non-methanol-utilising), not the mutS of GRN 967.
+
+- key: ovd_grn1104_is_ovalbumin_not_a_mix
+  value: "ovalbumin (Gal d 2), single protein, K. phaffii DFB-004 / ATCC GSD-1235"
+  unit: identity of the GRN 1104 product
+  grade: A
+  source: "Clara Foods Co. DBA The EVERY Company. GRAS Notice (GRN) 1104 with amendments, September 2022; FDA 'no questions' letter 17 October 2023"
+  doi_or_url: https://www.fda.gov/media/170789/download
+  locator: "GRN 1104 Sect. 2.1.2 p.8, Sect. 2.2.1 p.16; FDA letter p.2"
+  quote: "Clara describes egg-white protein as a phosphoglycoprotein containing predominantly recombinant ovalbumin."
+  read: fulltext
+  note: >-
+    Settles the question in the brief: GRN 1104 is NOT an egg-white protein mixture and contains no
+    ovomucoid - it is recombinant ovalbumin with the same EAEA extension (389 aa, 43.15 kDa,
+    pI 4.84; amendment answer 1 corrects the sequence length from 385 to 389). Strain DFB-004 adds
+    only HAC1 copies, with no EndoH, so the ovalbumin carries full yeast high-mannose glycans
+    ("a range of 8 to 14 mannose residues, with the highest percentage being 10 mannoses").
+    Spec (Table 3, p.27): protein >75% w/w, moisture <=10%, carbohydrate <=10%, ash <=5%, fat <0.4%;
+    three lots gave 81.9-86.1% protein, 87.4-92.8% protein on a dry basis, 3.95-7.34% carbohydrate,
+    0.82-4.48% ash. Thermal stability (amendment answer 3): "Gal d 2 74.4 +/- 0.07 | P2005 72.7 +/-
+    0.40 | P2023 72.6 +/- 0.05 | P2050 73.2 +/- 0.34" melting temperature (C). Commercially this is
+    EVERY EggWhite / OvoPro. The two products together give EVERY an ovomucoid line (soluble,
+    clear, beverages) and an ovalbumin line (foaming, gelling, baking).
+
+- key: ovd_other_companies
+  value: null
+  unit: other companies with a public recombinant ovomucoid product
+  grade: C
+  source: "FDA GRAS Notice Inventory (GRN 967, 1104, 1249); Beck F et al. BMC Biotechnol 25:1002 (2025)"
+  doi_or_url: https://www.fda.gov/food/generally-recognized-safe-gras/gras-notice-inventory
+  locator: "Beck 2025, section on recombinant OVM"
+  quote: "Two articles previously reported the successful recombinant production of OVM, with the EVERY Company [38] achieving a maximum titer of 3.2 g/L in K. phaffii"
+  read: fulltext
+  note: >-
+    NOT FOUND: any company other than EVERY (Clara Foods) with a recombinant ovomucoid product,
+    notice or patent. Onego Bio's GRN 1249 is ovalbumin from Trichoderma reesei (Bioalbumen);
+    The Protein Brewery's WO 2024/133849 is ovalbumin from Aspergillus; Mozza Foods'
+    WO 2023/201355 is egg-white proteins in plants. Searched: FDA GRAS inventory, Europe PMC
+    (6 hits for ovomucoid + Pichia/Komagataella, all academic), Google Patents citation graph of
+    WO 2016/077457. EVERY appears to be the only commercial ovomucoid producer, which also means
+    the product-definition evidence is single-sourced.
+
+# =======================================================================================
+# 3. Titers (rows are written to the scratch file ovomucoid_titers.csv in data/titers.csv format)
+# =======================================================================================
+
+- key: ovd_titer_every_patent_30g_L
+  value: 30.19
+  unit: g/L broth titer, K. phaffii, fed-batch bioreactor
+  grade: B
+  source: "Clara Foods Co. (The EVERY Co.). Systems and methods for high yielding recombinant microorganisms and uses thereof. US 2024/0209383 A1 (2024), Example 9 'Highly Productive Strains for Ovomucoid'"
+  doi_or_url: https://patents.google.com/patent/US20240209383A1/en
+  locator: "Example 9, paras [0376]-[0377]; FIG. 22 (Sheet 24 of 24)"
+  quote: "Strain 110 showed an average broth titer of 30.19 g/L EWP4, while strain 111 showed an average broth titer of 22.17 g/L and was unsuccessful"
+  read: fulltext
+  note: >-
+    VERIFIED AND EXTENDED in this pass. (a) EWP4 is ovomucoid: the example is titled "Highly
+    Productive Strains for Ovomucoid" and the enclosing patent uses EWP4 only in that example.
+    (b) FIG. 22 was read as a rendered page image: y-axis "Broth Titer (g/L)", x-axis "EFT (hrs)"
+    to 140 h, two runs per strain; strain 110 rises from ~0 at 18 h to ~8 (50 h), ~17.5 (72 h),
+    ~22 (90 h), ~28.5 (120 h) and ~30.2 at 140 h - so 30.19 g/L is an END-OF-RUN value at about
+    140 h elapsed fermentation time, and the curve has NOT plateaued. Strain 111 peaks ~24.5 at
+    120 h and falls to 22-23 at 140 h with "some cellular damage ... apparent by SDS-PAGE".
+    (c) Strain 110 is the parent strain 106 plus "4xTLR1-EWP4 inserted into chromosome 1" (one copy
+    truncated), under "late firing"/de-repression promoters, and it "performed better (5.8% better
+    broth titer) than the parental strain 106 using a standard fermentation process".
+    (d) NOT STATED ANYWHERE: vessel size, cell density, assay method, and whether methanol was fed
+    in this run. The bioreactors used elsewhere in the patent are "duplicate DASGIP 2 L reactors"
+    (Example 3), so 2 L is a plausible but unverified scale. (e) 30.19 g/L at ~140 h is
+    0.22 g/L/h average, and the model's OVA design basis (Intelligen, 30 g/L in 4.5 d) is the same
+    number at a shorter time. This is the single best public titer for any egg protein and it is
+    for OVOMUCOID, not ovalbumin - Intelligen's OVA TEA borrows it.
+
+- key: ovd_titer_every_grn967_secondary
+  value: 3.2
+  unit: g/L, K. phaffii, 168 h
+  grade: B
+  source: "Beck F, Noll P, Schweiggert-Weisz U, Henkel M. Scientific and technological challenges of recombinant egg protein production. BMC Biotechnol 25:1002 (2025), Table 2"
+  doi_or_url: 10.1186/s12896-025-01002-3
+  locator: "Table 2, row 'Komagataella phaffii | Ovomucoid | N/A | AOX1 | 3.2 g/L (168 h)'; main text"
+  quote: "Maximum titers of 3.2 g/L after 168 h of cultivation have been reported (Table 2)."
+  read: fulltext
+  note: >-
+    SECONDARY and the primary could not be verified. Beck's Table 2 attributes the row to
+    "The EVERY Company [38]" where [38] is WO 2016/077457 (Anchel, Clara Foods). I read the full
+    Google Patents text of WO 2016/077457 in this pass: its ten examples are all prophetic
+    ("can be", "is to be optimized") and contain NO titer at all - Example 2 only says P. pastoris
+    is "grown in glycerol-containing BMGY media for two days and switched to methanol-containing
+    BMMY media ... for two days to a week". The main text of Beck also cites GRN 967 [93] in the
+    same paragraph, and GRN 967 contains no titer either (checked by grep for "g/L"). So 3.2 g/L
+    at 168 h has no traceable public primary source; treat it as grade B company-adjacent and do
+    not use it as the academic anchor.
+
+- key: ovd_titer_academic_best
+  value: 0.929
+  unit: g/L extracellular ovomucoid, K. phaffii, high-cell-density cultivation
+  grade: A
+  source: "Kim H, Jin KC, Kim SK. Systematic engineering of Komagataella phaffii for the production of hen egg ovomucoid. Int J Biol Macromol 320:145813 (2025)"
+  doi_or_url: 10.1016/j.ijbiomac.2025.145813
+  locator: "abstract"
+  quote: "the highest concentration of ovomucoid, 23 mg/L, was obtained when a signal peptide derived from EPX1 ... and the GCW14 promoter were employed along with ... HAC1, and a protein disulfide isomerase, PDI1 ... Finally, the extracellular production of ovomucoid under high-cell density cultivation was maximized to 929 mg/L."
+  read: abstract
+  note: >-
+    THE BEST PEER-REVIEWED OVOMUCOID TITER (abstract only, not verified in the full text): 0.93 g/L secreted, K. phaffii, high-cell-density
+    cultivation. Not open access; only the abstract was read (full text would give the scale, mode,
+    duration, cell density and whether the GCW14 promoter route is methanol-free - GCW14 is a
+    constitutive GPI-anchored-protein promoter, so probably glucose/glycerol-based). The engineering
+    story matches the industrial one exactly: the bottleneck is secretion and ER folding of a 9-S-S
+    protein, fixed with a strong secretion leader plus HAC1 plus PDI1 - the same HAC1 that EVERY put
+    3 extra copies of in GSD-1209. 0.93 g/L is 32x below EVERY's patent example, the usual
+    academic-industrial gap in this repo.
+
+- key: ovd_titer_ecoli
+  value: 0.0045
+  low: 0.004
+  high: 0.005
+  unit: g/L, E. coli M15, after purification
+  grade: A
+  source: "Beck F et al. BMC Biotechnol 25:1002 (2025) Table 2, citing Rupa P, Mine Y. Biotechnol Lett 25:427-433 (2003)"
+  doi_or_url: 10.1023/a:1022489724910
+  locator: "Beck Table 2, row 'E. coli (M15) | Ovomucoid | pREP4 | T5 | ~ 4-5 mg/L (4 h; after purification)'"
+  quote: "Ovomucoid pREP4 T5 ~ 4-5 mg/L (4 h; after purification) Extra Soluble SDS-Page, Western blot [ 106 ]"
+  read: fulltext
+  note: >-
+    Secondary (Beck's table); the Rupa & Mine 2003 abstract was read and confirms the construct
+    ("cloned in Escherichia coli under the control of T5 promoter fused with six-Histidine tag ...
+    expressed the recombinant protein as a soluble fraction ... purified ... using Ni2+
+    nitrilotriacetic acid agarose") but gives no titer. Bacterial expression of full-length
+    ovomucoid is ~1000x below yeast and the product is non-glycosylated with altered secondary
+    structure ("the recombinant ovomucoid has more alpha-helix and less beta-structure than native
+    form"). E. coli is not a candidate host for this product.
+
+- key: ovd_titer_third_domain_pichia
+  value: 0.010
+  unit: g/L of the ovomucoid THIRD DOMAIN only (not the full protein), K. phaffii X-33, GAP promoter
+  grade: A
+  source: "Rupa P, Nakamura S, Mine Y. Genetically glycosylated ovomucoid third domain can modulate Immunoglobulin E antibody production and cytokine response in BALB/c mice. Clin Exp Allergy 37:918-928 (2007)"
+  doi_or_url: 10.1111/j.1365-2222.2007.02720.x
+  locator: "abstract, Methods"
+  quote: "The cDNA encoding the third domain of ovomucoid was inserted into the yeast genome and expressed in Pichia pastoris X-33 cells, under the control of the glyceraldehyde-3-phosphate (GAP) dehydrogenase promoter ... The recombinant protein was produced at 10 mg/L of the culture supernatant."
+  read: abstract
+  note: >-
+    CONTEXT ONLY - this is the 56-residue third Kazal domain, not the 186-residue protein, so it is
+    not a product titer. Included because Beck's Table 2 carries an unattributed "K. phaffii |
+    Ovomucoid | pGAPZalphaA | GAP | 1 g/L (4-6 days)" row whose reference cell is empty in the
+    published table (checked in the Europe PMC XML: the row has only five cells). pGAPZalphaA + GAP
+    is exactly this Rupa/Mine system, which published 10 mg/L, so the 1 g/L row is probably a
+    transcription error in Beck's table; it should not be used. Flagged as a data-quality problem
+    with the only review of this field.
+
+# =======================================================================================
+# 4. Downstream physics: solubility, heat stability, dryer feed
+# =======================================================================================
+
+- key: ovd_solubility_practical
+  value: 300
+  low: 200
+  high: 300
+  unit: g/L in water (w/v basis on protein), clear solution
+  grade: B
+  source: "Clara Foods Co. US 12,096,784 B2 (2024), Examples 3-5 and 13"
+  doi_or_url: https://patents.google.com/patent/US12096784B2/en
+  locator: "Example 4 (30% w/v at pH 4.06 and 6.3); Example 3 (4.23% w/v); Example 13 (species comparison)"
+  quote: "The rOVD was surprisingly soluble in deionized water at 30% (w/v based on protein amount) at either pH 4.06 or pH 6.3."
+  read: fulltext
+  note: >-
+    This is the most important downstream fact about ovomucoid and it breaks the 50 g/L
+    "practical solubility" that Intelligen assumes for ovalbumin. The same examples show the
+    solutions stay CLEAR (OD600 0.047 at 4.23% w/v vs 0.037 for water) and survive heat:
+    pasteurisation (72 C, 1 min) and hot fill (85 C, 30 s) leave OD600 essentially unchanged at
+    30% w/v, pH 4.06 or 6.3; only retorting (121 C, 15 min) coagulates it at pH 4 or 6. The
+    turkey-vulture and hummingbird orthologues dissolve to 20% and 10% w/v respectively
+    (Example 13), so 30% is specific to the chicken protein. For the model: ovomucoid's solubility
+    is NOT a constraint anywhere in the train - not at the UF retentate, not at the dryer feed.
+    A caveat: these are purified-powder redissolution experiments at low ionic strength, not
+    process streams, and EVERY nonetheless operates its own UF/DF at 50 g/L (dsp.yaml
+    df_flux_10kda_at_50gpl_every), presumably for viscosity/flux reasons rather than solubility.
+
+- key: ovd_heat_stability
+  value: 77
+  unit: C, denaturation temperature of native ovomucoid
+  grade: A
+  source: "Beck F et al. BMC Biotechnol 25:1002 (2025) Table 1"
+  doi_or_url: 10.1186/s12896-025-01002-3
+  locator: "Table 1 'Physicochemical properties of egg white and yolk proteins', row Ovomucoid"
+  quote: "Ovomucoid 28 186 4.1 77 9"
+  read: fulltext
+  note: >-
+    Columns: MW (kDa) | amino acids | pI | denaturation temperature Td (C) | disulfide bonds. For
+    comparison the same table gives ovalbumin Td 84 C and ovotransferrin 61 C; the 2025 isolation
+    review puts it differently - "OVM has the highest heat, acid, and enzymatic hydrolysis
+    stabilities of the four, making it the most allergenic" (Foods 14:1944, A). Note Td is not the
+    same as "survives boiling in solution": in the dilute, low-ionic-strength conditions of EVERY's
+    beverage tests it survives 85 C, and it is the protein that remains soluble when the rest of
+    egg white has set. Process consequences: (i) a heat step can be used for microbial reduction
+    before drying ("the resulting mixture is either microfiltered or heat treated for the final
+    microbial reduction step pre drying", US 2024/0083940 A1 Ex. 5-7, B); (ii) heat-denature-the-
+    host-protein polishing is an obvious option for this protein but NO PF example of it was found
+    (see ovd_heat_purification_egg_route).
+
+- key: ovd_heat_purification_egg_route
+  value: 65
+  unit: C for 20 min, heat polishing of ovomucoid in the classical egg-white fractionation route
+  grade: A
+  source: "Petrenko V et al. (eds). Insights into Isolation and Purification Strategies of Egg Allergens. Foods 14(11):1944 (2025), review of egg-protein fractionation"
+  doi_or_url: 10.3390/foods14111944
+  locator: "Section on co-purification of OVM and OVT (citing ref [59])"
+  quote: "OVM and OVT were sequentially separated through precipitation with a high concentration of ethanol (61%) and salts (2.5% ammonium sulfate and 2.5% citric acid). OVM was further purified by heating at 65 °C for 20 min to remove the impurities, yielding > 96% for OVM and >92% for OVT, both with purity levels above 88%"
+  read: fulltext
+  note: >-
+    FROM EGG WHITE, NOT FROM BROTH (grade A as data, grade D as an analogy for a PF train). The
+    classical ovomucoid route is exactly the one the physics suggests: precipitate the other
+    proteins with ethanol or TCA and leave ovomucoid in the supernatant, then heat to denature what
+    is left. The same review lists "OVA was precipitated with 5% trichloroacetic, and OVM was
+    isolated from the supernatant by ethanol precipitation. Yields for LYS, OVM, and OVA were 77%,
+    94%, and 98%", and a cation-exchange route (CM-Sepharose after pH 3.8 adjustment) giving 60.0%
+    OVM yield. None of these has been published for a fermentation broth, and ethanol or TCA at
+    these volumes would be a new unit operation in the model. If a cheaper-than-UF/DF polishing
+    step is ever wanted for ovomucoid, heat denaturation of K. phaffii host protein (which is what
+    the 7-12% host protein in GRN 967 consists of) is the first thing to cost - but it is at
+    present an unevidenced idea, not a route.
+
+- key: ovd_dryer_feed_solids
+  value: 0.05
+  low: 0.05
+  high: 0.30
+  unit: mass fraction dry matter in the spray-dryer feed
+  grade: C
+  source: "Clara Foods Co. US 12,096,784 B2 Ex. 20 and US 2024/0083940 A1 Ex. 8 (EVERY's own practice); upper bound by analogy with egg white and WPC80"
+  doi_or_url: https://patents.google.com/patent/US12096784B2/en
+  locator: "US 12,096,784 Ex. 20 ('50-60 g/L'); US 2024/0083940 Ex. 8 [0717] (drying conditions)"
+  quote: "Liquid rOVD was concentrated to 50-60 g/L using a 5 kDa TFF membrane ... The diafiltered retentate is then sterile filtered using a 0.2 um MF filter and spray dried with inlet temp around 165° C. and outlet temp not exceeding 80° C."
+  read: fulltext
+  note: >-
+    value = EVERY's documented practice, ~50-60 g/L protein, i.e. about 5-6% dry matter, which is
+    the SAME low feed concentration the repo already flags for rOVA (dsp.yaml
+    spray_dryer_feed_solids_wpc note: at 5% solids about 19 kg water is evaporated per kg solids,
+    against 1.8 kg at 36%). high = 0.30 by analogy with the repo's dryer_feed_solids_ova
+    (egg white is industrially ultrafiltered to 23% solids) and with WPC80 at ~36%; ovomucoid's
+    300 g/L solubility (ovd_solubility_practical) means there is no physical reason it cannot be
+    concentrated as far as flux and viscosity allow, so the high case is a process-design choice,
+    not a property limit. Drying energy is therefore the largest single modelling lever on this
+    product, and EVERY's own 5% feed is the pessimistic end. The 165 C inlet / <=80 C outlet pair
+    is a usable dryer specification.
+
+- key: ovd_host_protein_removal_by_ufdf
+  value: 0.10
+  low: 0.074
+  high: 0.124
+  unit: fraction of the powder's protein that is K. phaffii host protein after the UF/DF route
+  grade: A
+  source: "Clara Foods Co. GRN 967 amendment (2 April 2021), Response to Question 9 and Table 1"
+  doi_or_url: https://www.fda.gov/media/152292/download
+  locator: "Response to Question 9, p.7-8"
+  quote: "Analysis of NSEWP lots showed that they contained ~7 to 12% host protein, w/w"
+  read: fulltext
+  note: >-
+    Derived (mine) from the same table: OVD is 87.6/90.6/92.6% of the protein in the three lots, so
+    host protein is 7.4-12.4%, and the lots list 26 identified K. phaffii proteins (superoxide
+    dismutase, endochitinase, Kar2p, PDI, glucanases, cell-wall proteins). This is the quantitative
+    statement of what the 'concentrate' route cannot remove. GRN 1104's ovalbumin route, which adds
+    chromatography, reports that most host proteins are gone after the column (Table 2: 10 of 12
+    host proteins "Post-purification: No"), which is presumably why the column is there. For the
+    model: target_frac_of_protein ~0.90 for the UF/DF route, ~0.97+ for the chromatographic route.
+
+# =======================================================================================
+# 5. Incumbent product, market size and price
+# =======================================================================================
+
+- key: ovd_incumbent_price_basis
+  value: null
+  unit: see note (the incumbent is dried egg white, already in data/evidence/prices.yaml)
+  grade: A
+  source: "data/evidence/prices.yaml keys egg_albumin_dried_eu_export_unit_value, egg_albumin_dried_us_export_unit_value, egg_white_price_range_gfi2025, egg_white_powder_price_intelligen2025"
+  doi_or_url: "see those entries"
+  locator: "prices.yaml"
+  quote: "Egg white protein prices range from approximately $1.6 to $14.0/kg, depending on purity, with protein-adjusted prices between $15.6 and $59.4/kg-protein (Figure 12)."
+  read: fulltext
+  note: >-
+    No new incumbent price is needed: the quote is GFI's 2025 cost report (already in prices.yaml
+    as egg_white_price_range_gfi2025) and the repo also holds the Eurostat Comext unit value for
+    CN 3502 11 90 "Egg albumin, dried" (8.83 USD/kg in 2024, 7.9 in 2025) and Intelligen's claim
+    that "the current wholesale price of egg white powder manufactured in the United States is
+    nearly $100/kg" alongside "egg white powder can be found at approximately GBP 10/kg
+    (~US$13.5/kg)". For a PF ovomucoid product the right incumbent basis is dried egg white on a
+    PROTEIN basis, ~$16-60/kg protein (GFI), because the product substitutes for egg-white protein
+    powder, not for isolated ovomucoid.
+
+- key: ovd_own_price_no_bulk_market
+  value: 966
+  unit: USD/kg (ADL "average price", market size reported as 0)
+  grade: C
+  source: "GFI Europe & Arthur D. Little. Pathfinding the viability of precision fermentation (2025), appendix table 'Market size and prices for conventional and estimated PF molecules'"
+  doi_or_url: "references/text/GFIEurope_2025_pathfinding_precision_fermentation_viability.txt"
+  locator: "appendix table row 'Protein | Ovomucoid | P6 | 0 | 0 | 966 | 105', price data source 'Alibaba'; and the note on the market-size chart"
+  quote: "Protein Ovomucoid P6 0 0 966 105 ... Alibaba | Notes: Archetype P8 Molecules excluded due to lack of market size or price data: Ovomucoid"
+  read: fulltext
+  note: >-
+    Columns are market value (M USD) | market size (MT) | average price (USD/kg) | PF average price.
+    ADL records a market value and size of ZERO for ovomucoid and sources the $966/kg from Alibaba,
+    then excludes ovomucoid from its own market chart "due to lack of market size or price data".
+    Conclusion: THERE IS NO BULK MARKET FOR ISOLATED OVOMUCOID. Catalogue prices for the lab
+    reagent (trypsin inhibitor from chicken egg white) run roughly $160-530 per gram across
+    Sigma/Abnova/Biomol listings, i.e. $160,000-530,000/kg - a search-result level observation, not
+    a verified quote, so it is recorded here only to show the order of magnitude. Do not use either
+    figure as an incumbent price: price PF ovomucoid against dried egg-white protein.
+
+- key: ovd_world_egg_and_egg_white_protein_volume
+  value: 5.9
+  unit: Mt per year of hen egg-white protein embodied in world egg production (derived)
+  grade: A
+  source: "FAOSTAT, Production: Crops and livestock products (bulk download, accessed 2026-10-01), item 'Hen eggs in shell, fresh', World, 2023"
+  doi_or_url: https://bulks-faostat.fao.org/production/Production_Crops_Livestock_E_All_Data_(Normalized).zip
+  locator: "Area 'World', Item 'Hen eggs in shell, fresh', Elements Production and Laying, Year 2023"
+  quote: "Hen eggs in shell, fresh | Production | 2023 | 1745494143 | 1000 No; Hen eggs in shell, fresh | Production | 2023 | 92087899.64 | t; Hen eggs in shell, fresh | Laying | 2023 | 8530643 | 1000 An; Yield | 2023 | 205 | No/An"
+  read: fulltext
+  note: >-
+    FAO 2023, World: 1.745 trillion hen eggs, 92.09 Mt in shell, 8.53 billion laying hens,
+    205 eggs per hen per year (all flagged 'E', FAO estimate). Derived (mine, check): mean egg mass
+    = 92.09e6 t / 1.7455e12 = 52.8 g in shell; applying the USDA large-egg composition in
+    milk_egg.yaml (3.64 g egg-white protein per 56.7 g in-shell egg = 6.42% of in-shell mass) gives
+    1.745e12 x 3.39 g = 5.9 Mt of egg-white protein a year, of which ovomucoid at 11% is
+    ~0.65 Mt/yr. That is the theoretical ceiling of the market this product addresses; the TRADED
+    dried-egg-white market is three orders of magnitude smaller (next entry).
+
+- key: ovd_dried_egg_white_trade_volume
+  value: 25.1
+  low: 25.1
+  high: 32.1
+  unit: kt per year of dried egg albumin, world exports (HS 3502.11)
+  grade: A
+  source: "UN Comtrade public preview API (reporter = all, partner = World, flow = exports), HS 350211 'Egg albumin, dried' and HS 350219 'Egg albumin, other', 2022 and 2023"
+  doi_or_url: "https://comtradeapi.un.org/public/v1/preview/C/A/HS?period=2023&cmdCode=350211,350219&flowCode=X&partnerCode=0"
+  locator: "sum over all reporting countries; 2023: 54 reporters for 350211, 45 for 350219"
+  quote: "350211 (2023): 375.9 M USD, 25,120 t, unit value 14.97 USD/kg; 350211 (2022): 424.0 M USD, 32,130 t, 13.20 USD/kg; 350219 (2023): 142.3 M USD, 71,300 t, 2.00 USD/kg"
+  read: fulltext
+  note: >-
+    JSON API read in memory, accessed 2026-10-01 (the quote is my tabulation of the returned rows,
+    not a sentence in the source - the numbers are the sums). Largest exporters of dried egg
+    albumin by weight in 2023: India (7.1 kt), Argentina (5.6 kt), then Ukraine, Netherlands,
+    France, Germany. Unit values run 13-15 USD/kg, consistent with the Eurostat CN 3502 11 90
+    series already in prices.yaml. HS 3502.19 is the liquid/frozen albumin line, 71 kt at
+    2.00 USD/kg. CAVEAT: exports are not production - most dried egg white is consumed where it is
+    made, and 2022-2023 were avian-influenza years. As an order of magnitude, the traded dried
+    egg-white market is ~25-32 kt/yr of product (~20-25 kt of protein at 78% protein), against
+    5.9 Mt/yr of egg-white protein inside shell eggs.
+
+# =======================================================================================
+# 6. Function in food and use levels
+# =======================================================================================
+
+- key: ovd_function_and_uses_grn967
+  value: null
+  unit: intended uses of the ovomucoid product
+  grade: A
+  source: "Clara Foods Co. GRN 967, Sect. 1.4 and Part 4; FDA GRAS inventory entry for GRN 967"
+  doi_or_url: https://www.fda.gov/media/147830/download
+  locator: "Sect. 1.4 p.5; Part 4 'Self-limiting Levels of Use' p.30"
+  quote: "It's intended uses include but are not limited to protein fortification of conventional foods such as sports drinks, protein supplement powders, and nutritional bars ... The use of NSEWP is limited by the functionality of the protein in the food matrix, e.g. the solubility of the protein may limit the use in Ready to Drink Sports Drink"
+  read: fulltext
+  note: >-
+    Ovomucoid is sold for its SOLUBILITY AND CLARITY, not for foaming or gelling: clear high-protein
+    beverages, protein powders, bars, fruit snacks. The GRN 967 amendment gives maximum use levels
+    per serving: protein and nutritional powders 25 g, protein and nutritional drinks 30 g
+    (240 g serving = 12.5% w/w), protein cookies and bars 20 g per 40 g RACC, protein-supplemented
+    chips 19 g per 30 g, fruit snacks 3.2 g per 30 g (amendment Table 1, p.2). The cumulative
+    estimated intake FDA accepted is "21.5 g/p/d at the mean and 47.9 g/p/d at the 90th percentile".
+    EVERY's beverage patent claims rOVD "comprises less than about 3% w/w or w/v" as a wine/juice
+    fining agent (US 2024/0315285 A1, B). Contrast GRN 1104's ovalbumin, which is sold for
+    "foaming, gelation, and binding" at 2-25% inclusion in bakery, prepared foods and meat
+    analogues (GRN 1104 Table 5) - the two products do not compete for the same slot.
+
+- key: ovd_digestibility_and_trypsin_inhibition
+  value: 0.93
+  unit: in-vitro digestibility of the recombinant ovomucoid product (fraction)
+  grade: A
+  source: "Clara Foods Co. GRN 967, Tables 1 and 2"
+  doi_or_url: https://www.fda.gov/media/147830/download
+  locator: "Sect. 2.1.3, Table 1 (trypsin inhibition) and Table 2 (digestibility), pp.11-12"
+  quote: "SOL19303 8190 TIU / g | SOL19317 8180 TIU / g | SOL19351 8469 TIU / g | Native chicken OVD 13721 TIU / g ... SOL19303 93% | SOL19317 93% | SOL19351 93% | Native chicken OVD 92%"
+  read: fulltext
+  note: >-
+    Two product-quality facts that matter commercially rather than for cost. (1) The product retains
+    60% of native trypsin-inhibitor activity, lower "due to their lower glycosylation"; ovomucoid
+    inhibits BOVINE but not human trypsin (GRN 967 p.11, citing Travis 1971), which is why FDA
+    accepted it as a food protein. (2) In-vitro digestibility 93% vs 92% native. (3) The product
+    must still be labelled "Contains egg" (FALCPA) - a marketing constraint on an "animal-free"
+    ingredient that applies to every PF egg protein.
+
+# =======================================================================================
+# 7. Animal-welfare arithmetic (all derived; inputs are A-grade)
+# =======================================================================================
+
+- key: ovd_eggs_per_kg_egg_white_protein
+  value: 275
+  low: 256
+  high: 303
+  unit: US large eggs per kg of egg-white protein (derived)
+  grade: A
+  source: "Derived (mine) from data/evidence/milk_egg.yaml egg_white_protein_fdc_foundation and egg_large_white_mass_fdc_foundation"
+  doi_or_url: "https://api.nal.usda.gov/fdc/v1/foods?api_key=DEMO_KEY&fdcIds=747997&format=full"
+  locator: "milk_egg.yaml derived_protein_per_litre_and_per_egg: egg_white_protein_g_per_large_egg 3.64 (low 3.3, high 3.9)"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - check: 1000 g / 3.64 g per egg = 275 eggs per kg of egg-white protein
+    (low 1000/3.9 = 256, high 1000/3.3 = 303). On an ovomucoid basis, 1 kg of ovomucoid is the
+    ovomucoid content of 2,500 eggs (0.40 g per egg). Note which basis the model should use: a PF
+    ovomucoid or egg-white-protein product displaces egg-WHITE protein, so 275 eggs/kg is the right
+    figure; the whole-egg basis used in docs/PROTEIN_CANDIDATES.md (7.9 kg egg per kg protein at
+    12.6%) corresponds to 160 eggs per kg of whole-egg protein and understates the egg count by
+    ~1.7x for a white-protein product.
+
+- key: ovd_hen_years_per_tonne
+  value: 950
+  low: 950
+  high: 1340
+  unit: laying-hen-years per tonne of egg-white protein displaced (derived)
+  grade: A
+  source: "Derived (mine) from USDA NASS, Chickens and Eggs 2024 Summary (February 2025) and FAOSTAT 2023 world yield"
+  doi_or_url: https://esmis.nal.usda.gov/sites/default/release-files/1v53jw96n/4b29d373g/4455b918n/ckegan25.pdf
+  locator: "NASS 2024 Summary, 'United States Average Layers Down 2 Percent', p.5; FAOSTAT item 'Hen eggs in shell, fresh', Element Yield, World 2023"
+  quote: "Layers during 2024 averaged 375 million, down 2 percent from the year earlier. The annual average production per layer on hand in 2024 was 290 eggs, up 1 percent from 2023."
+  read: fulltext
+  note: >-
+    Derived (mine) - check: at the US rate of 290 eggs per layer-year, 275 eggs = 0.95 hen-years per
+    kg, i.e. 950 hen-years per tonne of egg-white protein. At the FAO world average of 205 eggs per
+    hen per year (ovd_world_egg_and_egg_white_protein_volume) it is 1.34 hen-years per kg, i.e.
+    1,340 per tonne. A 1,000 t/yr PF plant at s = 1 would therefore displace the output of roughly
+    0.95-1.34 million laying hens - about 0.011-0.016% of the world laying flock (8.53 billion).
+    For the lives-based comparison in docs/PROTEIN_CANDIDATES.md: 275 eggs = 15.6 kg of in-shell egg
+    (at 56.7 g), so at the Faunalytics/OWID rates of 0.163 lives per kg (total) and 0.0546 (direct)
+    one kg of egg-white protein embodies ~2.5 lives total / 0.85 direct - about twice the
+    whole-egg-protein figure quoted in that document, because the yolk protein is a co-product that
+    a white-protein replacement does not displace. All of this assumes a replacement sold as
+    egg-white protein; a product sold only as an ovomucoid fraction displaces nothing unless the
+    rest of the white is also replaced.

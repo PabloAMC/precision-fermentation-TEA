@@ -28,10 +28,12 @@ Blocks (data in data/pf/base.yaml; equations in each block's comments):
       Recovery R_cex.
    d. Isolate only: ammonium-sulfate precipitation and washed basket centrifuges; the dryer is
       fed the cake (solids fraction s_cake).
-   d'. 'acid' spec only (casein): isoelectric precipitation of the MF permeate, no UF/DF (the dairy
-      acid-casein line; Formo GRN 1312). Acid: H3PO4 = a_acid x V_perm (the permeate's buffer
-      capacity, per m3). Heat-and-hold at T_p for t_hold: steam = V_perm rho cp (T_p - T_ferm)
-      (1 - h_rec) / dH_vap. Curd recovery R_acid. Countercurrent washes in n_w decanter passes,
+   d'. 'acid' spec only (casein): the dairy acid-casein line applied to the MF permeate. The permeate
+      is first ultrafiltered (no diafiltration) to the casein concentration of skim milk, C_p, so that
+      the dairy recovery and wash data apply: V_p = P / C_p (if the permeate is more dilute), permeate
+      V_MF - V_p at J_UF, retention CF^-(1-sigma). Then isoelectric precipitation of V_p. Acid: H3PO4 =
+      a_acid x V_p (the feed's buffer capacity, per m3). Heat-and-hold at T_p for t_hold:
+      steam = V_p rho cp (T_p - T_ferm) (1 - h_rec) / dH_vap. Curd recovery R_acid. Countercurrent washes in n_w decanter passes,
       wash water = w x casein (L/kg); the acid whey and the wash water go to wastewater. The curd
       (solids s_curd) is redissolved with NaOH (b x casein solids) to the caseinate dryer feed s_in,
       adding water = solids (1/s_in - 1/s_curd). Decanters are costed on the disk-stack centrifuge
@@ -255,13 +257,13 @@ def evaluate(p, keep_series=False) -> Result:
             naoh_kg = resin_cyc * v(p, "dsp.cex_cip_cv") * v(p, "dsp.cex_cip_naoh_kg_m3")
             etoh_kg = resin_cyc * v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_etoh_kg_m3")
             P_uf *= v(p, "dsp.cex_recovery")
-        # c. ultrafiltration + diafiltration (not on the 'acid' route: the permeate is precipitated)
+        # c. ultrafiltration + diafiltration ('acid' route: concentration to the precipitation feed only)
         sigma = v(p, "dsp.uf_rejection")
         C_in = P_uf / V_uf                                 # kg/m3 into UF
         purity = v(p, {"isolate": "dsp.isolate_target_frac_dry", "cex": "dsp.cex_target_frac_dry",
                        "acid": "dsp.acid_target_frac_dry"}.get(spec, "dsp.concentrate_target_frac_dry"))
         if spec == "acid":
-            V_ret = V_uf
+            V_ret = P_uf / v(p, "dsp.acid_precip_feed_g_L")     # concentrate to skim milk's casein level
         elif spec == "isolate":
             V_ret = P_uf / v(p, "dsp.isolate_uf_end_g_L")
         else:                                              # end volume holds the dryer-feed solids
@@ -271,9 +273,10 @@ def evaluate(p, keep_series=False) -> Result:
             V_ret = max(V_ret, P_uf / sol["value"])        # cannot concentrate above solubility
         V_ret = min(V_ret, V_uf)
         CF = V_uf / V_ret
-        if spec == "acid":                                 # no membrane concentration
-            N_dv = perm_c = df_water = perm_df = 0.0
-            R_uf = 1.0
+        if spec == "acid":                                 # concentration only, no diafiltration
+            N_dv = df_water = perm_df = 0.0
+            perm_c = V_uf - V_ret
+            R_uf = CF ** -(1 - sigma)
         else:
             C_df = min(v(p, "dsp.diafiltration_conc_g_L"), P_uf / V_ret)
             V_df = max(min(P_uf / C_df, V_uf), V_ret)      # volume while diafiltering
@@ -297,7 +300,7 @@ def evaluate(p, keep_series=False) -> Result:
         acid_kg = v(p, "dsp.acid_h3po4_kg_per_m3") * V_ret
         dT = v(p, "dsp.acid_precip_temperature_C") - v(p, f"hosts.{v(p, 'strain.host')}.temperature_C")
         acid_steam_kg = V_ret * 1000 * 4.1868 * dT / 2410 * (1 - v(p, "dsp.acid_heat_recovery"))
-        whey_m3 = V_ret                                    # acid whey (the precipitated permeate)
+        whey_m3 = V_ret                                    # acid whey (the precipitated feed)
         wash_m3 = v(p, "dsp.acid_wash_L_per_kg") * target / purity / 1000
         naoh_kg += v(p, "dsp.acid_naoh_kg_per_kg") * target / purity
         dissolve_m3 = target / purity / 1000 * (1 / v(p, f"dsp.dryer_feed_solids_{key}") - 1 / v(p, "dsp.acid_curd_solids"))

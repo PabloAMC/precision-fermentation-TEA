@@ -3,7 +3,8 @@
 # reference sequence is A2 (Pro at mature 67; A1 has His). data/evidence/casein.yaml casein_beta_uniprot_mature_chain.
 # No cysteine (no disulfides), no N-glycosylation sequon. Five phosphoserines in milk (mature 15, 17, 18, 19,
 # 35): ignored in the elemental formula (1.7% of mass), and yeast and bacteria do not add them (Fam20C is
-# absent; GRN 1312 found no phosphorylation in its E. coli alpha-s1). Eden Brew's protein carries five
+# absent; GRN 1312 found no phosphorylation in its E. coli alpha-s1; NewMilkBuzz's peptide mapping found none in
+# K. phaffii beta-casein without a co-expressed Fam20C, casein.yaml casein_kphaffii_no_phosphorylation_without_kinase). Eden Brew's protein carries five
 # O-mannose glycans and an EAEA N-terminal extension (casein.yaml casein_beta_eden_brew_identity): ignored.
 name: beta-casein
 key: cas

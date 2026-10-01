@@ -75,8 +75,8 @@ def unused_paths(p: dict) -> tuple[str, ...]:
         out.append("dsp.concentrate_target_frac_dry")
     if spec != "acid":
         out.append("dsp.acid_")
-    else:                                            # the acid route precipitates the MF permeate: no UF/DF
-        out += ["dsp.uf_", "dsp.df_flux", "dsp.diafiltration_"]
+    else:                                            # the acid route concentrates by UF but does not diafilter
+        out += ["dsp.df_flux", "dsp.diafiltration_"]
     return tuple(out)
 
 
@@ -405,6 +405,7 @@ def bridge_steps() -> list[tuple[str, dict]]:
 
 VARIANTS = [("ovalbumin concentrate", {"plant.product": "ova"}),
             ("ovalbumin isolate (ammonium-sulfate precipitation)", {"plant.product": "ova", "plant.spec": "isolate"}),
+            ("beta-casein, isoelectric precipitation to caseinate", {"plant.product": "cas", "plant.spec": "acid"}),
             ("lactoferrin, cation exchange (same titer, time and scale)", {"plant.product": "lf", "plant.spec": "cex"})]
 
 
