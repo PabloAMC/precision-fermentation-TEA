@@ -27,6 +27,7 @@ yield, or the specific-productivity ceiling (HARD_LIMITS, matched against the pl
 """
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import numpy as np
@@ -81,9 +82,35 @@ def unused_paths(p: dict) -> tuple[str, ...]:
 
 
 def base_params(product: str, extra: dict | None = None, p: dict | None = None) -> dict:
-    """The product's base case: base.yaml (or p) + its products.yaml block + extra."""
-    return params.override(params.load() if p is None else p,
-                           {"plant.product": product, **product_base(product), **(extra or {})})
+    """The product's base case: base.yaml (or p) + its products.yaml block + extra, with its
+    fermenters sized (size_fermenter)."""
+    return size_fermenter(params.override(params.load() if p is None else p,
+                                          {"plant.product": product, **product_base(product), **(extra or {})}))
+
+
+_SIZED: dict = {}
+
+
+def size_fermenter(p: dict) -> dict:
+    """The designer's vessel choice. With fermenter.sizing = cheapest, the plant is costed at each
+    of fermenter.size_choices_m3 up to fermenter.volume_cap_m3 and the cheapest feasible one
+    (MSP_CCF) is kept; if none is feasible the cap stays. Capital buys whole vessels (plant.py
+    block 3), so a 250 t/yr plant in 200 m3 vessels pays for idle volume (review G2); commodity
+    plants at 10 kt/yr pick the cap. Cached on the parameter set."""
+    if v(p, "fermenter.sizing") != "cheapest":
+        return p
+    key = json.dumps(p, sort_keys=True, default=str)
+    if key not in _SIZED:
+        cap, best = v(p, "fermenter.volume_cap_m3"), None
+        for V in [x for x in v(p, "fermenter.size_choices_m3") if x <= cap] or [cap]:
+            try:
+                r = plant.evaluate(params.override(p, {"fermenter.volume_m3": V}))
+            except ValueError:
+                continue
+            if is_feasible(r) and (best is None or r.msp_ccf < best[1]):
+                best = (V, r.msp_ccf)
+        _SIZED[key] = cap if best is None else best[0]
+    return params.override(p, {"fermenter.volume_m3": _SIZED[key]})
 
 
 def scenario_params(name: str, product: str, extra: dict | None = None, variant: str | None = None) -> dict:
@@ -319,6 +346,9 @@ def monte_carlo(p: dict, paths: list[str], n: int = 500, seed: int = 0, ranges: 
     count as infeasible (audit R4-10). Percentiles are given for feasible plants and for every
     draw with a cost (review SC-8: infeasible draws cost more), with the limit each infeasible
     draw breaks first and the mean of each sampled input in feasible and infeasible draws.
+    rank_corr: Spearman's rho between each input and MSP over the feasible draws (the correlation of
+    their ranks; inputs are sampled independently, so rho^2 approximates each input's share of the
+    rank variance of MSP, the global counterpart of the one-at-a-time tornado; review G4).
     """
     if ranges:
         p = params.override(p, {k: dict(val) for k, val in ranges.items()})
@@ -347,7 +377,10 @@ def monte_carlo(p: dict, paths: list[str], n: int = 500, seed: int = 0, ranges: 
     means = {k: dict(feasible=float(np.mean(np.array(vals)[feas])) if feas.any() else None,
                      infeasible=float(np.mean(np.array(vals)[~feas])) if (~feas).any() else None)
              for k, vals in x.items()}
-    return dict(msp=msp, feasible=feas, p10=pct(ok, 10), p50=pct(ok, 50), p90=pct(ok, 90),
+    rank = lambda a: np.argsort(np.argsort(a))   # noqa: E731  (continuous draws: no ties)
+    rho = {k: float(np.corrcoef(rank(np.array(vals)[feas]), rank(ok))[0, 1]) if feas.sum() > 2 else None
+           for k, vals in x.items()}
+    return dict(msp=msp, feasible=feas, rank_corr=rho, p10=pct(ok, 10), p50=pct(ok, 50), p90=pct(ok, 90),
                 p10_all=pct(fin, 10), p50_all=pct(fin, 50), p90_all=pct(fin, 90),
                 infeasible_reasons=reasons, input_means=means)
 
@@ -357,7 +390,7 @@ def scale_curve(p: dict, outputs_t) -> dict:
     for label, ch in [("US, price-anchored", {}), ("EU, price-anchored", {"plant.location": "eu_nw"}),
                       ("US, design-report", LIGHT), ("EU, design-report", {**LIGHT, "plant.location": "eu_nw"})]:
         q = params.override(p, ch)
-        out[label] = [plant.evaluate(params.override(q, {"plant.annual_target_protein_t": float(o)})).msp_ccf
+        out[label] = [plant.evaluate(size_fermenter(params.override(q, {"plant.annual_target_protein_t": float(o)}))).msp_ccf
                       for o in outputs_t]
     return dict(outputs=list(outputs_t), curves=out)
 

@@ -19,6 +19,8 @@ strain:                      # base = 'industry-benchmark' K. phaffii process (o
   host: {value: kphaffii}
   titer_g_L: {value: 30, low: 5, high: 60, unit: g/L, grade: B,
     source: "intelligen_ovalbumin2025 design basis 30 g/L; Every2024-HY ovomucoid 30.19 g/L (patent Ex. 9); gfi2025costs public avg 24, private avg 42. For scale: the highest secreted titer in the Looser 2015 review's compilation is 19.55 g/L (glucose oxidase, methanol/mannitol, 168 h, 100 -> 245 g/L cells; Table 4). Tornado ends beyond the feasibility boundary are truncated to it"}
+  methanol_frac_prod: {value: 0.0, unit: fraction of production-phase reactions on methanol, grade: B,
+    source: "0 = methanol-free (the food-PF base: GRN 1056, 1219, 1284; Intelligen's ovalbumin design induces with 0.28 kg methanol per kg product beside glucose, not modelled). 1 = a methanol-only induction phase (K. phaffii AOX1 processes: albumin, Intelligen's lactoferrin design). pf_ferm module docstring (review G1)"}
   t_prod_h: {value: 72, low: 48, high: 120, unit: h, grade: B,
     source: "intelligen_ovalbumin2025 p.6: expression phase 72 h; NREL 2011: 96 h production"}
   X_prod_g_L: {value: 107, low: 40, high: 150, unit: g DCW/L at the start of production, grade: B,
@@ -45,6 +47,8 @@ hosts:
       source: "growth phase: multiplier on Tijhuis 1993 maintenance (0.0174 g glucose/g DCW/h at 30 C, Humbird A.1 method). Producing K. phaffii in glucose chemostats: 0.0147-0.0161 (Rebnegger 2016 citing Rebnegger 2014; Maurer 2006) = 0.85-0.93x. low = 0.0100 (non-producing strain, Rebnegger 2016) / 0.0174; high = 0.029 (5-copy lipase clone, Nieto-Taype 2020) / 0.0174"}
     m_s_prod_g_g_h: {value: 0.00437, low: 0.0023, high: 0.0161, unit: g glucose/g DCW/h, grade: A,
       source: "production phase (mu ~ 0): Rebnegger et al. 2024 Microb Cell Fact 23:44, VHH-secreting K. phaffii, glucose, 30 C, fitted over mu <= 0.05/h: 'm S (4.37 +/- 0.27 mg g-1 h-1)'. Maintenance falls at near-zero growth (Rebnegger 2016: retentostat 0.0031 vs chemostat 0.0100 for the same strain). low = 0.0023 (1-copy lipase clone, Nieto-Taype 2020); high = 0.0161 (Maurer 2006 chemostat, producing Fab strain). Not raised to Looser 2015 Table 2's 0.009-0.032 (growing cultures on methanol and glycerol; no glucose value) or to the 5-copy lipase clone's 0.029 (Nieto-Taype 2020, chemostat; used for the growth phase, maint_factor high): maintenance falls at near-zero growth (Rebnegger 2016). The base expression phase can carry at most ~0.006 with the product made at the energetic ceiling (results constants ms_prod_max_at_ceiling; review H2). Evidence: placeholders.yaml nietotaype2020 and ms_heyland2010_looser2015 entries"}
+    m_s_prod_methanol_g_g_h: {value: 0.0050, low: 0.0040, high: 0.016, unit: g methanol/g DCW/h, grade: D,
+      source: "methanol production phase (only if strain.methanol_frac_prod > 0). Measured on methanol in growing K. phaffii fed-batches: Dietzsch et al. 2011 Microb Cell Fact 10:14 (PMC3059269, Mut-S, HRP): 'the maintenance coefficient for this P. pastoris strain could be determined with around 0.5 mmol g-1 h-1 (which equals 0.016 g g-1 h-1)'; Jahic et al. 0.013 (as cited there). Derived (mine), to put methanol on the glucose base's footing (m_s_prod_g_g_h is a near-zero-growth value): x 0.31, the same-strain retentostat/chemostat ratio on glucose (Rebnegger 2016: 0.0031/0.0100). 0.016 x 0.31 = 0.0050; low = 0.013 x 0.31 = 0.0040; high = 0.016, the measured value without the near-zero fall (A). Check: per unit Gibbs energy, 0.016 g methanol (0.36 kJ/g/h) is 1.5x the glucose chemostat value 0.0155 (0.24 kJ/g/h), about the share of methanol's energy alcohol oxidase wastes; the base keeps that 1.5-1.7x"}
     po_ratio: {value: 1.48, unit: mol ATP/mol O, grade: B,
       source: "Chung et al. 2010 Microb Cell Fact 9:50: 'P/O ratio (1.48 mol ATP/mol O)', a genome-scale-model constraint (hosts.yaml kphaffii_po_ratio_chung2010); no measured P/O found"}
     kla_factor: {value: 1.0, grade: B, source: "yeast broth treated as non-coalescing water-like (Humbird Fig1.3)"}
@@ -75,7 +79,12 @@ energetics:                   # energetic ceiling on the product-reaction yield 
 
 fermenter:
   volume_m3: {value: 200, low: 100, high: 500, unit: m3, grade: B,
+    note: "the vessel costed; with fermenter.sizing = cheapest it is chosen by scenarios.size_fermenter (this value is then only the default for fixed sizing)",
     source: "engineering.yaml: industrial aerobic vessels 200-1,000 m3 (Humbird, B), lysine 500 m3 (B), baker's yeast 200 m3 (B); PF designs 136 m3 (Intelligen, B), 150 m3 (Liberation Labs, C), 80-120 m3 culture volume (GFI Europe, C); Humbird STRFERM quotes to 196 m3 (larger sizes extrapolate with capital.fermenter_exponent_above_table)"}
+  sizing: {value: cheapest, note: "cheapest (base): the designer takes the cheapest feasible plant over size_choices_m3 up to volume_cap_m3 (scenarios.size_fermenter; review G2: capital is costed for whole vessels, so a small plant in 200 m3 vessels pays for idle volume) | fixed: volume_m3 as given. Sized once on the product's base case; scenarios, tornado and Monte Carlo keep that plant, the scale curve re-sizes at each output"}
+  volume_cap_m3: {value: 200, unit: m3, grade: B, source: "the base vessel (volume_m3): the largest size the designer may choose; larger vessels are a sensitivity (volume_m3 high 500, physical limit 400)"}
+  size_choices_m3: {value: [50, 100, 150, 200], unit: m3, grade: B,
+    source: "sizes spanning published food-PF designs: 100 m3 (Intelligen lactoferrin, 6 staggered vessels, lactoferrin.yaml), 136 m3 (Intelligen ovalbumin), 150 m3 (Liberation Labs, C), 80-120 m3 culture volume (GFI Europe, C), up to the 200 m3 cap; 50 m3 is a design choice (D) for plants below ~250 t/yr"}
   h_to_d: {value: 2.0, grade: B, source: "Humbird Equip Table10 STRFERM 200,000: 196.5 m3, D 5 m"}
   fill_max: {value: 0.8, grade: B, source: "Humbird Fig1.3!C8; NREL 2011 80%"}
   min_initial_fill: {value: 0.30, low: 0.30, high: 0.50, grade: B,
@@ -94,6 +103,7 @@ fermenter:
     source: "no production-scale ceiling is published. Evidence: 'several million kcal' per hour from 200-300 m3 SCP yeast fermenters = ~8-30 kW/m3 (US 3,986,934, B, derived); internal coils alone ~17 kW/m3 in a 600 m3 column (Almeida Benalcazar 2025, derived with its U 1.4 kW/m2/K), so external exchangers are needed; 42 kW/m3 claimed at pilot scale with tube baffles (US 4,670,397, B). 25 = 1.2 x the OTR-150 load (19.2 metabolic + ~1.2 agitation)"}
   turnaround_h: {value: 12, low: 8, high: 48, unit: h, grade: B,
     source: "intelligen_ovalbumin2025 (5 fermenters, 24 h cycle, 108 h culture -> ~12 h); Humbird A.1 8 h; NREL 48 h"}
+  feed_methanol_g_L: {value: 791, unit: g methanol/L feed, grade: A, source: "neat methanol, density 0.791 kg/L at 20 C (CRC Handbook); methanol is fed undiluted in K. phaffii fed-batches (e.g. Dietzsch 2011 'pure methanol' pulses)"}
   feed_glucose_g_L: {value: 500, low: 500, high: 600, unit: g glucose/L feed, grade: B,
     source: "intelligen_ovalbumin2025 p.6: 500 g/L glucose solution (about 42 wt%; not '50 wt%', review FS-1/BE-2/HM-1). high = Shemesh 2024 K. phaffii fed-batches: 'Dextrose or glycerol as a carbon source was fed from a 60% (w/v) sterile solution' (600 g/L, A). Concentrated feeds are common in industry (Aro 2023: '55 % glucose'; Nielsen 2025 DoE up to 52 w/w%), and the titer ceiling depends on this choice (report Table 7). Heyland 2010 fed 730 g/L (73% w/v) to a 2.6 L lab fermenter; not used as the high, which already comes from lab fed-batches (Shemesh 2024), while no production-scale design on file feeds more than 500 g/L. A 730 g/L feed would raise the physical-limit ceiling somewhat further (not computed)"}
   nh3_feed_g_L: {value: 268, unit: g NH3/L feed, grade: B,
@@ -118,8 +128,7 @@ media:                        # kg per kg of dry cells made, or per m3 of broth
     source: "Behm 2022 Table 2: antifoam 0.2 g/L (T. reesei BLG); US 5,260,202 (Delta Biotechnology): 'Typical total usage rates ... 0.02-0.2 g per liter' in sensor-controlled yeast fed-batch (low); high = NREL 2011 corn oil 0.1% v/v, ~1.0 kg/m3 (P-420 13.4 kg/h over ~12.9 m3/h broth, derived)"}
   antifoam_price_usd_kg: {value: 1.12, low: 0.5, high: 2.0, grade: C,
     source: "prices.yaml: Voutilainen 2021 design value EUR 1,000/t x 1.12 (no market price found); range is a guess"}
-  methanol_kg_per_kg_product: {value: 0.0, note: "methanol-free base; Intelligen uses 0.28 kg/kg (Table 3: 280 t per 1,000 t). Cost only: its O2 and heat are not added to the stoichiometry"}
-  methanol_price_usd_kg: {value: 0.91, grade: B, source: "intelligen_ovalbumin2025 Table 3: $0.910/kg"}
+  methanol_price_usd_kg: {value: 0.91, grade: B, note: "methanol used = the batch stoichiometry (strain.methanol_frac_prod); the v3 cost-only leaf methanol_kg_per_kg_product (0 in every case) is gone", source: "intelligen_ovalbumin2025 Table 3: $0.910/kg"}
 
 dsp:
   # a. cell removal (two-stage disk-stack centrifugation with re-dilution; plant.py block 2a)

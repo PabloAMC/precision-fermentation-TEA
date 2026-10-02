@@ -459,3 +459,55 @@ def test_ovomucoid_base_case():
     assert bm.equivalents()["egg"]["target_g"]["ovd"] == pytest.approx(0.40)
     for name in ("academic", "industry"):
         assert sc.is_feasible(sc.run(name, "ovd"))
+
+
+# ---------------------------------------------------------------- v4: methanol, vessel sizing, rank correlations
+@pytest.mark.parametrize("f", [0.0, 0.5, 1.0])
+def test_methanol_blend_conserves_carbon_and_electrons(f):
+    """Production-phase rates on a glucose/methanol blend (review G1) close the carbon and the
+    electron (degree-of-reduction) balances: substrates in = cells + product + CO2 (+ O2 for
+    electrons), whatever the methanol fraction."""
+    p = params.override(BASE, {"plant.product": "blg"})
+    host = plant._host(p)
+    strain = pf.Strain(product=pr.protein("blg"), Y_ps=v(p, "strain.Y_ps_g_g"), X_prod=100, mu_prod=0.002,
+                       t_prod=72, meoh_frac=f)
+    F, mu, qp = 1000.0, 0.002, 0.004
+    r, _ = pf._rates(host, strain, mu, qp, F, prod=True)
+    bio, prot = host.growth.bio, strain.product.species
+    made = {"bio": mu * F / bio.mw, "prot": qp * F / prot.mw}                  # kmol C-mol/h
+    sp = {n: th.get(n) for n in r}
+    carbon = sum(r[n] * sp[n].C for n in r) + made["bio"] * bio.C + made["prot"] * prot.C
+    electrons = sum(r[n] * sp[n].gamma for n in r) + made["bio"] * bio.gamma + made["prot"] * prot.gamma   # O2: gamma -4
+    scale = -r[pf.GLC] * 6 - r[pf.MEOH]
+    assert abs(carbon) < 1e-9 * scale
+    assert abs(electrons) < 1e-6 * scale * 4
+    assert (r[pf.MEOH] < 0) == (f > 0) and (r[pf.GLC] < 0) == (f < 1)
+
+
+def test_methanol_fraction_zero_is_the_glucose_model(blg):
+    p, r = blg
+    r0 = plant.evaluate(params.override(p, {"strain.methanol_frac_prod": 0.0}))
+    r1 = plant.evaluate(params.override(p, {"strain.methanol_frac_prod": 1.0}))
+    assert r0.msp_ccf == pytest.approx(r.msp_ccf, rel=1e-12) and r0.physical["methanol_kg"] == 0
+    # methanol replaces production-phase glucose and costs more O2 per kg (C1 carbon, alcohol oxidase)
+    assert r1.physical["methanol_kg"] > 0 and r1.physical["glucose_kg"] < r.physical["glucose_kg"]
+    assert r1.physical["o2_kg"] > r.physical["o2_kg"]
+
+
+def test_vessel_sizing_cheapest_up_to_cap():
+    """size_fermenter (review G2): commodity plants keep the 200 m3 cap; the 250 t/yr lactoferrin
+    plant sizes down and is cheaper than in 200 m3 vessels; fixed sizing leaves the vessel alone."""
+    assert v(sc.base_params("blg"), "fermenter.volume_m3") == 200
+    p = sc.base_params("lf")
+    assert v(p, "fermenter.volume_m3") < 200
+    fixed = sc.base_params("lf", {"fermenter.sizing": "fixed"})
+    assert v(fixed, "fermenter.volume_m3") == 200
+    assert plant.evaluate(p).msp_ccf < plant.evaluate(fixed).msp_ccf
+
+
+def test_monte_carlo_rank_correlation_sign():
+    """Spearman rho (review G4): higher titer lowers cost, so its rho is strongly negative."""
+    p = sc.base_params("blg")
+    mc = sc.monte_carlo(p, ["strain.titer_g_L", "utilities.glucose_usd_kg"], n=40, seed=3)
+    assert mc["rank_corr"]["strain.titer_g_L"] < -0.8
+    assert mc["rank_corr"]["utilities.glucose_usd_kg"] > 0

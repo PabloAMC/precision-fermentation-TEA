@@ -453,6 +453,7 @@ def s_monte_carlo(res):
             res["monte_carlo"][f"{name}/{prod}"] = dict(p10=mc["p10"], p50=mc["p50"], p90=mc["p90"], n=int(len(mc["msp"])),
                                                        p10_all=mc["p10_all"], p50_all=mc["p50_all"], p90_all=mc["p90_all"],
                                                        infeasible_reasons=mc["infeasible_reasons"], input_means=mc["input_means"],
+                                                       rank_corr=mc["rank_corr"],
                                                        feasible_frac=float(mc["feasible"].mean()), base=base,
                                                        base_percentile=float((ok < base).mean() * 100) if ok.size else None,
                                                        msp=[float(x) for x in mc["msp"]],

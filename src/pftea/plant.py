@@ -117,7 +117,7 @@ def _host(p) -> pf.Host:
     f = v(p, f"{h}.biomass_formula")
     return pf.Host(bio=th.biomass(f["C"], f["H"], f["O"], f["N"]), mu_max=v(p, f"{h}.mu_max_per_h"),
                    T_C=v(p, f"{h}.temperature_C"), maint_factor=v(p, f"{h}.maint_factor"),
-                   m_s_prod=_opt(p, f"{h}.m_s_prod_g_g_h"))
+                   m_s_prod=_opt(p, f"{h}.m_s_prod_g_g_h"), m_s_prod_meoh=_opt(p, f"{h}.m_s_prod_methanol_g_g_h"))
 
 
 def _vessel(p, volume=None) -> pf.STR:
@@ -145,10 +145,12 @@ def batch(p, keep_series=False) -> pf.Batch:
     c = _conditions(p)
     strain = pf.Strain(product=pr.protein(v(p, "plant.product")), Y_ps=v(p, "strain.Y_ps_g_g"),
                        X_prod=v(p, "strain.X_prod_g_L"), mu_prod=v(p, "strain.mu_prod_per_h"),
-                       t_prod=v(p, "strain.t_prod_h"), X_max=v(p, "strain.X_max_g_L"))
+                       t_prod=v(p, "strain.t_prod_h"), X_max=v(p, "strain.X_max_g_L"),
+                       meoh_frac=_opt(p, "strain.methanol_frac_prod", 0.0))
     return pf.run_batch(_vessel(p), c, host, strain, X0=v(p, "strain.X0_g_L"),
                         titer=v(p, "strain.titer_g_L"), c_s=v(p, "fermenter.feed_glucose_g_L"),
-                        c_nh3=v(p, "fermenter.nh3_feed_g_L"), keep_series=keep_series)
+                        c_nh3=v(p, "fermenter.nh3_feed_g_L"), keep_series=keep_series,
+                        c_meoh=v(p, "fermenter.feed_methanol_g_L"))
 
 
 def atp_per_residue(p) -> float:
@@ -526,7 +528,7 @@ def evaluate(p, keep_series=False) -> Result:
         "salts & other media": n_batches * (v(p, "media.salts_kg_per_m3") * W * v(p, "media.salts_price_usd_kg")
                                             + v(p, "media.h3po4_kg_per_kg_cells") * b.cells_kg * v(p, "media.h3po4_price_usd_kg")
                                             + v(p, "media.antifoam_kg_per_m3") * W * v(p, "media.antifoam_price_usd_kg")
-                                            + v(p, "media.methanol_kg_per_kg_product") * P_in * v(p, "media.methanol_price_usd_kg")),
+                                            + b.methanol_kg * v(p, "media.methanol_price_usd_kg")),
         "DSP chemicals": n_batches * (AS_kg * v(p, "dsp.ammonium_sulfate_usd_kg") + cip_chem * cip_kg * v(p, "dsp.cip_price_usd_kg")
                                       + nacl_kg * v(p, "dsp.nacl_usd_kg") + naoh_kg * v(p, "dsp.naoh_usd_kg")
                                       + etoh_kg * v(p, "dsp.ethanol_usd_kg") + acid_kg * v(p, "media.h3po4_price_usd_kg")),
@@ -556,6 +558,7 @@ def evaluate(p, keep_series=False) -> Result:
     powder_frac = target / powder
     physical = {
         "glucose_kg": glc_kg / annual_target_kg,
+        "methanol_kg": n_batches * b.methanol_kg / annual_target_kg,
         "o2_kg": n_batches * (b.o2_kmol + seed_o2_kmol) * 32 / annual_target_kg,
         "electricity_kWh": elec_kWh / annual_target_kg,
         "natural_gas_MJ": gas_GJ * 1000 / annual_target_kg,
