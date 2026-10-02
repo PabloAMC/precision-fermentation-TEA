@@ -166,7 +166,8 @@ def equivalents() -> dict:
 
 
 def titer_markers() -> dict:
-    """{product: [(titer g/L, label)]} from data/titers.csv."""
+    """{product: [(titer g/L, label)]} from data/titers.csv; a marker's optional `factor` converts the reported
+    titer to the model's basis (whole broth), e.g. a supernatant titer."""
     cfg = yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())["titer_markers"]
     rows = list(csv.DictReader((ROOT / "data/titers.csv").open()))
     out = {}
@@ -177,7 +178,7 @@ def titer_markers() -> dict:
                     and r["source_key"] == m["source_key"] and r["host"] == m["host"] and r["titer_g_per_L"]]
             if not vals:
                 raise KeyError(f"no titer row for {m}")
-            out[prod].append((max(vals), m["label"]))
+            out[prod].append((max(vals) * m.get("factor", 1.0), m["label"]))   # factor: e.g. supernatant -> whole broth
     return out
 
 

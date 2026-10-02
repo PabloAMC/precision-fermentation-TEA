@@ -121,8 +121,8 @@ titer_markers:             # (product in titers.csv, source_key, host) -> max ti
     - {product: ovomucoid, source_key: Kim2025, host: K. phaffii, label: "best peer-reviewed (Kim 2025)"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
   alb:                     # no albumin maker discloses a titer (Sartorius/Albumedix, InVitria, Healthgen; albumin.yaml)
-    - {product: albumin, source_key: Zhu2021, host: K. phaffii, label: "best public rHSA (Zhu 2021; methanol, 192 h; supernatant, 8.7 g/L whole broth)"}
-    - {product: albumin, source_key: Zhu2018, host: K. phaffii, label: "rHSA, methanol, 96 h (Zhu 2018)"}
+    - {product: albumin, source_key: Zhu2021, host: K. phaffii, factor: 0.5003, label: "best public rHSA (Zhu 2021; methanol; whole broth)"}   # 17.47 g/L of supernatant, 192 h   # 21.84 g in 2.5 L / 17.47 (albumin.yaml zhu2021_whole_broth_titer)
+    - {product: albumin, source_key: Zhu2018, host: K. phaffii, factor: 0.5003, label: "rHSA (Zhu 2018; methanol; whole broth by analogy)"}   # 8.86 g/L of supernatant, 96 h
     - {product: albumin, source_key: Kim2025, host: K. phaffii, label: "tagged BSA, total protein (Kim 2025; upper bound)"}
     - {product: albumin, source_key: Delta2003-740, host: S. cerevisiae, label: "best methanol-free (Delta/Recombumin patent)"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}

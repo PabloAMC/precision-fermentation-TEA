@@ -473,7 +473,7 @@ aseptic vessels +46% on BLG) and strain data dominate. Each gap and the decision
 | G3 | Secretion decoupled from growth (q_p = beta) | **Not done.** An optional alpha defaulting to 0 changes no result; the growth dependence is stated in the report (Rebnegger 2024, Looser 2015, Prielhofer 2018) | — |
 | G4 | No global sensitivity measure | **Done.** Spearman rank correlations over feasible Monte Carlo draws (report table, SI sheet MonteCarlo_rank) | Titer leads (rho -0.80 for industry BLG); sum of rho^2 ~1, as expected for independent inputs |
 | G5 | First-of-a-kind penalty promised in SCOPE but not implemented | **Scope corrected.** No sourced premium on file (RAND blocks scripted downloads; GFI Europe 2025 gives none). SCOPE and PLAN now exclude it until RAND R-2569 is read (DOWNLOADS P7) | — |
-| G6 | Chromatography is one column | **Not done.** Albumin's capture-only route at cell-culture purity is a stated judgment (D); the pharma train is described, not costed | — |
+| G6 | Chromatography is one column | **Superseded by R12-H1:** albumin's base now has a capture column plus an anion-exchange polish (`dsp.polish_columns`); capture-only is the optimistic variant | — |
 | — | "Not worth it": mechanistic chromatography, CFD/viscosity-corrected kLa, genome-scale models, continuous operation, Sobol indices, rebuilding in SuperPro/BioSTEAM | Agreed | — |
 
 Albumin evidence pass (AI research agent; main session spot-checked identity, formula, column data,
@@ -509,3 +509,17 @@ Also on 2026-10-02 (Pablo's downloads): Zhu 2021 full text (the 17.47 g/L is per
 broth 8.74 g/L is now the academic titer; membranes alone bounded at 77% albumin; capture recovery high end
 0.86 measured) and RAND R-2569 (OCR'd; pioneer capital 1/0.78 = 1.28x as a separate sensitivity, never in the
 base; start-up performance 72% recorded, not modelled).
+
+### R13 (2026-10-02): AI audit of the compiled v4 report and memo
+
+More than 60 numbers checked against results/analyses.json: all match (albumin, pioneer, methanol, Spearman,
+tornado, scale; all 21 cells of the per-kg-cultivated-meat table); prose claims that follow numbers hold.
+Fixes applied: albumin's two-column route in every caption and sentence (H2); three semicolons swallowed by
+Typst after a function call, in the report and memo (H3); the missing evidence entry for the polish column,
+hsa_delta_aex_polish, and the products.yaml route note (H4); Zhu titer markers placed on the whole-broth basis
+(H1, `factor` in benchmarks titer markers); resin life for albumin graded D (borrowed from whey lactoferrin)
+and the polish inputs sampled in the Monte Carlo (M2, M6); the pioneer factor stated as the reciprocal of
+RAND's mean ratio, with the mean overrun ~1.36 beside it, 'conservative' dropped, resin first fill noted (M4);
+the methanol-maintenance check reworded (M5); 'favourable end' limited to resin life and purification (M1);
+scale-section clarifications (M3); Spearman noise floor stated (M6); route-figure labels and rounding (M7);
+references sorted; low-severity wording. Report: `.preview/audit_R13.md` (local).

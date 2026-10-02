@@ -971,3 +971,21 @@
   note: >-
     Derived: $54.8/g (10 g) and $43.5/g (100 g). Research-scale prices, context only: not a bulk price and not in the
     market band. CE Delft 2021 used $41/g (cedelft2021_albumin_price_and_dose); Schenzle 2025 paid ~$30.7/g.
+
+- key: hsa_delta_aex_polish
+  value: {loading_g_per_L: 30, loading_range: [20, 40], monomer_yield: 1.10, flow_bed_vol_per_min: 0.5}
+  unit: anion-exchange polish after the cation-exchange capture (DEAE-Sepharose FF)
+  grade: B
+  source: "Delta Biotechnology Ltd (Goodey AR, Sleep D, et al.). Process of high purity albumin production. US 6,638,740 B1 (2003)"
+  doi_or_url: https://patents.google.com/patent/US6638740B1/en
+  locator: "description, anion-exchange step after the cation-exchange capture (references/inbox/albumin_2026-10-02/US6638740B1.txt)"
+  quote: "A yield of approximately 110% for albumin monomer has been achieved over this step. ... an 11.0 +/- 1.0 cm bed flow path length column of DEAE-Sepharose Fast Flow (Pharmacia) is pre-equilibrated with the cation exchange elution buffer (CS23) and then equilibrated with an acetate buffer (for example CS20) before being loaded with 30.0 +/- 10.0 g monomeric albumin per litre of matrix."
+  read: fulltext
+  note: >-
+    The process claim: "subjecting an albumin solution to cation exchange chromatography in which the albumin is bound to a
+    cation exchange material and then anion exchange chromatography in which the albumin is bound to an anion exchange
+    material" (the minimal claimed train; pf-tea's albumin base). The ~110% monomer yield is dimer formed in the capture step
+    reverting to monomer, so the step loses no albumin: polish_recovery 1.0 (capped). Flow "0.5 bed volumes per minute" (30
+    CV/h). The patent adds: "the eluate from the anion exchange resin still contains impurities and is then applied directly to
+    the affinity matrix" - for its pharmaceutical (>=99.9%) grade; whether CEX + AEX reaches the 96% cell-culture grade is the
+    model's judgment (D).

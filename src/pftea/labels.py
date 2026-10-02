@@ -64,6 +64,8 @@ LABELS = {
     "dsp.cex_flow_cv_per_h": "ion-exchange flow (column volumes/h)",
     "dsp.dryer_feed_solids_lf": "dryer feed solids, lactoferrin",
     "dsp.dryer_feed_solids_alb": "dryer feed solids, albumin",
+    "dsp.polish_dbc_g_L": "polish column loading (g/L resin)",
+    "dsp.polish_recovery": "polish column recovery",
     "hosts.kphaffii.m_s_prod_methanol_g_g_h": "maintenance on methanol, production (g/g/h)",
     "strain.methanol_frac_prod": "production phase on methanol (fraction)",
     "fermenter.volume_cap_m3": "largest fermenter the designer may choose (m3)",
