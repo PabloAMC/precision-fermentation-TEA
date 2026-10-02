@@ -372,21 +372,66 @@
 
 - key: hsa_kphaffii_best_titer_zhu2021
   value: 17.47
-  unit: g/L secreted rHSA (supernatant)
+  unit: g/L secreted rHSA per litre of SUPERNATANT (not whole broth)
   grade: A
   source: "Zhu W, Xu R, Gong G, Xu L, Hu Y, Xie L. Medium optimization for high yield production of human serum albumin in Pichia pastoris and its efficient purification. Protein Expr Purif 181:105831 (2021)"
   doi_or_url: 10.1016/j.pep.2021.105831
-  locator: "abstract (Europe PMC PMID 33508474)"
-  quote: "we achieved a high yield of 17.47 g/L HSA in the supernatant within a 192 h induction, which is the highest rHSA yield ever reported as far as we know"
-  read: abstract
+  locator: "abstract; sect. 3.4 (p.7); Table 1 (p.8). references/papers/Zhu2021_hsa_pichia.pdf (Pablo, 2026-10-02)"
+  quote: "With the feeding of 1.6 L methanol, the final volume of the 1/2 BSM culture and supernatant were 2.5 L and 1.25 L, respectively. To conclude, a high level of 17.47 g/L protein yield, 0.232 g HSA/g dry weight specific productivity and 91 mg/L/h volumetric productivity were achieved and under a 1 L initial fermentation volume we obtained 21.84 g HSA after 192 h induction."
+  read: fulltext
   note: >-
-    METHANOL-induced (AOX1, same group's strain as Zhu 2018). 192 h of induction (8 days) plus the
-    glycerol batch phase, so ~9-10 d per batch: very long against the model's 72 h. Derived (mine):
-    17.47 / 192 = 0.091 g/L/h during induction. "three-step purification procedure which recovered
-    two thirds of the desired protein at high purity". Scale, biomass, methanol use and the resins
-    are behind the paywall (ask Pablo). Best overall secreted rHSA titer found in the peer-reviewed
-    literature. Note "supernatant" (not whole broth): at ~40% wet-cell volume the whole-broth titer
-    would be lower (unknown; check the full text).
+    Full text read 2026-10-02. METHANOL-induced (GS115 Mut+, pPIC9K, AOX1), 5 L-scale fermenter started at
+    1 L, glycerol batch at pH 5.0 then DO-stat methanol feeding in half-strength BSM; "about 500 g/L WCW";
+    the run ends when HSA starts to fall, and 45 kDa fragments accumulate late in induction. Derived (mine):
+    the titer is per litre of supernatant (cells are half the culture volume); per litre of WHOLE BROTH it is
+    21.84 g / 2.5 L = 8.74 g/L, the basis of the model's titer (zhu2021_whole_broth_titer). 91 mg/L/h is
+    17.47/192 (supernatant basis). The stated 0.232 g HSA/g dry weight cannot be reconciled with ~500 g/L
+    wet cells from the text alone (cell dry weight not reported); not used.
+
+- key: zhu2021_whole_broth_titer
+  value: 8.74
+  unit: g rHSA per litre of whole broth at harvest (192 h induction)
+  grade: A
+  source: "Zhu et al. 2021 (as hsa_kphaffii_best_titer_zhu2021)"
+  doi_or_url: 10.1016/j.pep.2021.105831
+  locator: "sect. 3.4 p.7 (21.84 g HSA, 2.5 L final culture)"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine): 21.84 g / 2.5 L = 8.74 g/L. The supernatant/whole-broth ratio, 8.74/17.47 = 0.50, is applied to
+    Zhu 2018's 8.86 g/L (same lab, strain family and assay) as an analogy (D): 4.43 g/L of whole broth.
+
+- key: zhu2021_methanol_use
+  value: 58
+  unit: g methanol fed per g rHSA (whole run, growth on methanol and maintenance included)
+  grade: A
+  source: "Zhu et al. 2021 (as hsa_kphaffii_best_titer_zhu2021)"
+  doi_or_url: 10.1016/j.pep.2021.105831
+  locator: "sect. 3.4 p.7 ('feeding of 1.6 L methanol' ... '21.84 g HSA')"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine): 1.6 L x 0.791 kg/L = 1.27 kg methanol / 21.84 g HSA = 58 g/g. A check on the model's methanol
+    use at the academic case (methanol per kg albumin, report): long low-productivity inductions are dominated by
+    maintenance, so most of the methanol never becomes product.
+
+- key: zhu2021_purification
+  value: {supernatant_hsa_share_of_protein: 0.7686, capture_step_recovery: 0.8625, three_step_recovery: 0.6753, final_purity: 0.99}
+  unit: fractions
+  grade: A
+  source: "Zhu et al. 2021 (as hsa_kphaffii_best_titer_zhu2021)"
+  doi_or_url: 10.1016/j.pep.2021.105831
+  locator: "Table 1 'Purification summary of the rHSA expressed in Pichia pastoris' (p.8); sect. 3.5"
+  quote: "Fermentation supernatant 17,470 ± 350 ... 76.86% ± 0.96 ... Blue-B chromatography ... 96.37% ± 1.49% 86.25% ± 1.90% ... Second Blue-B chromatography ... ~100% 88.32% ± 2.21% 67.53% ± 1.33%"
+  read: fulltext
+  note: >-
+    Laboratory scale (0.4 mL of supernatant purified). Train: dye affinity (Blue Bestarose, load pH 5.0, elute pH 7.0
+    with 2 M NaCl) -> HIC (Phenyl) -> second dye affinity; the first step alone reached 96.4% purity, the
+    cell-culture grade. HSA is 76.86% of the supernatant's protein (BCA 22.73 g/L total), so membranes alone
+    could not exceed ~77% albumin of protein (and less of dry matter): the UF/DF-only bound in
+    scenarios/albumin.yaml. The 86% capture step is the measured high end for the capture recovery (dye
+    affinity, not cation exchange: an analogy for the model's CEX step). Isoelectric points stated: "5.67 and
+    5.30" for HSA and its 45 kDa fragment.
 
 - key: hsa_kphaffii_mallem2014_mut_s
   value: 10

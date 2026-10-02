@@ -68,6 +68,7 @@ def s_base(res):
     res["base"] = {prod: evp(prod) for prod in PRODUCTS}
     res["base_light"] = {prod: evp(prod, sc.LIGHT) for prod in PRODUCTS}
     res["base_aseptic"] = {prod: evp(prod, sc.ASEPTIC) for prod in PRODUCTS}
+    res["base_pioneer"] = {prod: evp(prod, sc.PIONEER) for prod in PRODUCTS}
     # the gap between the conventions, step by step (review SC-3/BE-3): fixed-cost rates, then factors
     steps = [("price-anchored (base)", {}),
              ("+ NREL fixed-cost rates (maintenance 3% of installed ISBL, insurance 0.7%)", {"finance.fixed_cost_rule": "nrel"}),
@@ -440,7 +441,7 @@ def s_tornado(res):
     for prod in PRODUCTS:
         _, ranges = sc.mc_config("industry", prod)
         p = params.override(sc.scenario_params("industry", prod), {k: dict(val) for k, val in ranges.items()})
-        skip = ("plant.", "hosts.treesei", "energetics.") + sc.unused_paths(p)
+        skip = ("plant.", "hosts.treesei", "energetics.") + sc.unused_paths(p) + sc.design_choices(p)
         paths = [x for x in params.ranged_leaves(p) if not x.startswith(skip)]
         res["tornado_by_product"][prod] = sc.tornado(p, paths)
     res["tornado"] = res["tornado_by_product"]["blg"]
@@ -621,7 +622,7 @@ def s_albumin(res):
     medium use (1.13 g/L albumin x 8 / 13 / 42 L medium per kg; data/evidence/albumin.yaml). Its base,
     scenario, physical-limit, required-titer, tornado and Monte Carlo results sit with the other products'."""
     out = {"reported_prices": bm.reported_prices()["albumin"], "cases": {}}
-    for var in ("alb_methanol", "alb_recovery_low", "alb_recovery_high", "alb_ufdf_only"):
+    for var in ("alb_capture_only", "alb_methanol", "alb_recovery_low", "alb_recovery_high", "alb_ufdf_only"):
         for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
             out["cases"][f"{var}/{label}"] = summary(sc.run("albumin", "alb", extra, variant=var))
     p = sc.base_params("alb")

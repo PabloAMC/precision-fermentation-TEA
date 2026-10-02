@@ -500,8 +500,9 @@ ROUTES = {   # (label, result) per product: the base route first, then its alter
             ("UF/DF only (Eden Brew, FSANZ A1342)", R.get("casein", {}).get("cases", {}).get("cas_ufdf_edenbrew/humbird"))],
     "lf": [("cation exchange (base)", R["base"].get("lf")),
            ("UF/DF only (Intelligen case a)", LFX.get("cases", {}).get("lf_ufdf_only/humbird"))],
-    "alb": [("cation-exchange capture (base)", R["base"].get("alb")),
-            ("UF/DF only (optimistic bound)", R.get("albumin", {}).get("cases", {}).get("alb_ufdf_only/humbird"))],
+    "alb": [("cation exchange + anion-exchange polish (base)", R["base"].get("alb")),
+            ("cation-exchange capture only", R.get("albumin", {}).get("cases", {}).get("alb_capture_only/humbird")),
+            ("UF/DF only (77% albumin; below spec)", R.get("albumin", {}).get("cases", {}).get("alb_ufdf_only/humbird"))],
 }
 rprods = [k for k in PRODS if k in ROUTES]
 fig, axes = grid(len(rprods), w=12, h=2.5, gridspec_kw=dict(hspace=0.8, wspace=1.0))
@@ -551,8 +552,8 @@ ACAD = {"blg": [("best public strain, 13.9 g/L (Yao 2026)", "academic/blg"), ("b
         "cas": [("best peer-reviewed in K. phaffii, intracellular (Choi 1996)", "academic/cas"),
                 ("best public casein, 3 g/L (E. coli patent)", "academic/cas_patent")],
         "lf": [("best public methanol-free (Yen 2024)", "academic/lf"), ("best public secreted (Lv 2023; methanol)", "academic/lf_lv2023")],
-        "alb": [("best public rHSA, 17.5 g/L in 192 h (Zhu 2021; methanol)", "academic/alb"),
-                ("8.9 g/L in 96 h (Zhu 2018; methanol)", "academic/alb_zhu2018"),
+        "alb": [("best public rHSA, 8.7 g/L of broth in 192 h (Zhu 2021; methanol)", "academic/alb"),
+                ("4.4 g/L of broth in 96 h (Zhu 2018; methanol)", "academic/alb_zhu2018"),
                 ("best methanol-free, 1.5 g/L (Delta patent)", "academic/alb_patent")]}
 
 

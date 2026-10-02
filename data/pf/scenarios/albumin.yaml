@@ -6,8 +6,10 @@ alb_methanol:                         # the base design point with a methanol-on
   strain.methanol_frac_prod: 1
 alb_recovery_low:                     # the CEX capture at its lowest reported recovery (US 5,728,553 Table 4: '>40%')
   dsp.cex_recovery: 0.40
-alb_recovery_high:                    # the CEX capture at EVERY's lactoferrin recovery (0.832; analogy, D)
-  dsp.cex_recovery: 0.832
-alb_ufdf_only:                        # optimistic route bound (as lactoferrin's lf_ufdf_only): purity from UF/DF alone, no
-  plant.spec: concentrate             # chromatography; 90% albumin of dry matter is an assumption (D): no public rHSA process
-  dsp.concentrate_target_frac_dry: 0.90   # reaches a cell-culture spec without a capture step (pigments, host proteins)
+alb_recovery_high:                    # one capture step at Zhu 2021's measured 86% (dye affinity at pH 5; analogy for CEX, B)
+  dsp.cex_recovery: 0.86
+alb_ufdf_only:                        # optimistic route bound (as lactoferrin's lf_ufdf_only): UF/DF alone, no chromatography.
+  plant.spec: concentrate             # Albumin is 76.86% of the supernatant's protein in the best public run (Zhu 2021 Table 1),
+  dsp.concentrate_target_frac_dry: 0.77   # so membranes give at most ~77% albumin (less of dry matter): BELOW the 96% cell-culture spec
+alb_capture_only:                     # optimistic: the capture column alone reaches the cell-culture grade (one dye-affinity step did,
+  dsp.polish_columns: 0               # 96.4% at 86% recovery, in Zhu 2021 Table 1; no such data for cation exchange; audit R12-H1)

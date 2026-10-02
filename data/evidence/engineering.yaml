@@ -1401,3 +1401,36 @@
     2021 sheet (aeration_power_humbird2021_fig13_200m3). The paper states that its model could not set
     dissolved O2 independently of OUR and that production fed-batches hold DO near zero (p.10); its
     kLa correlation has no temperature term. It reports no air rate, P/V or compressor efficiency.
+
+# ---- pioneer (first-of-a-kind) plants: RAND R-2569 (added 2026-10-02, v4; scanned PDF, OCR'd with tesseract) ----
+- key: rand_pioneer_cost_growth
+  value: 0.78
+  unit: ratio of estimated to actual capital cost (mean over 106 estimates, 44 pioneer process plants)
+  grade: A
+  source: "Merrow EW, Phillips KE, Myers CW. Understanding cost growth and performance shortfalls in pioneer process plants. RAND R-2569-DOE (1981)"
+  doi_or_url: https://www.rand.org/pubs/reports/R2569.html
+  locator: "Table 4.8 'Variables in cost growth model', printed p.58 (references/text/RAND_R2569.txt, OCR)"
+  quote: "COST GROWTH Ratio of estimated to actual costs, excluding external cost factors 0.78 0.194"
+  read: fulltext
+  note: >-
+    Mean 0.78, standard deviation 0.194: on average the pioneer plants cost 1/0.78 = 1.28x their estimates
+    (Derived), external factors (inflation, regulation, strikes, weather) excluded. The full regression
+    (Table 4.9, p.60: intercept 1.12196, PCTNEW -0.00297, IMPURITIES -0.02125, COMPLEXITY -0.01137,
+    INCLUSIVENESS +0.00111, plus project-definition terms) predicts the ratio from the share of investment in
+    commercially unproven steps, impurity problems, block count, estimate completeness and project definition;
+    a PF food-protein plant of proven unit operations would score low on PCTNEW and IMPURITIES, so the mean is
+    a conservative pioneer case. Used as capital.pioneer_factor's 'pioneer' value (1/0.78 = 1.282).
+
+- key: rand_pioneer_performance_first_year
+  value: 72
+  unit: "% of design capacity, actual average production in months 7-12 after start-up (mean; SD 30)"
+  grade: A
+  source: "Merrow EW, Phillips KE, Myers CW. RAND R-2569-DOE (1981)"
+  doi_or_url: https://www.rand.org/pubs/reports/R2569.html
+  locator: "Table 5.5 'Variables in the model of plant performance', printed p.76; p.80 for the split by new steps"
+  quote: "The average performance of the nine plants that had no new steps was 94 percent of design capacity compared with 66 percent for plants with one or more."
+  read: fulltext
+  note: >-
+    Not modelled (a start-up shortfall; the model levelises an nth plant's steady output over 10 years). Stated in
+    the report beside the capital sensitivity. Regression (Table 5.6, p.78): performance = 85.77 - 9.69 NEWSTEPS +
+    0.33 BALANCE EQUATIONS - 4.12 WASTE - 17.91 SOLIDS (R^2 0.90).

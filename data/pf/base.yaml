@@ -20,7 +20,7 @@ strain:                      # base = 'industry-benchmark' K. phaffii process (o
   titer_g_L: {value: 30, low: 5, high: 60, unit: g/L, grade: B,
     source: "intelligen_ovalbumin2025 design basis 30 g/L; Every2024-HY ovomucoid 30.19 g/L (patent Ex. 9); gfi2025costs public avg 24, private avg 42. For scale: the highest secreted titer in the Looser 2015 review's compilation is 19.55 g/L (glucose oxidase, methanol/mannitol, 168 h, 100 -> 245 g/L cells; Table 4). Tornado ends beyond the feasibility boundary are truncated to it"}
   methanol_frac_prod: {value: 0.0, unit: fraction of production-phase reactions on methanol, grade: B,
-    source: "0 = methanol-free (the food-PF base: GRN 1056, 1219, 1284; Intelligen's ovalbumin design induces with 0.28 kg methanol per kg product beside glucose, not modelled). 1 = a methanol-only induction phase (K. phaffii AOX1 processes: albumin, Intelligen's lactoferrin design). pf_ferm module docstring (review G1)"}
+    source: "0 = methanol-free (the food-PF base: GRN 1056, 1219, 1284; Intelligen's ovalbumin design induces with 0.28 kg methanol per kg product beside glucose, not modelled). 1 = a methanol-only induction phase (K. phaffii AOX1 processes: the academic albumin, lactoferrin (Lv 2023) and beta-casein (Choi 1996) cases). Intelligen's lactoferrin design co-feeds glucose and methanol in a split it does not state, so its variants keep 0. pf_ferm module docstring (review G1)"}
   t_prod_h: {value: 72, low: 48, high: 120, unit: h, grade: B,
     source: "intelligen_ovalbumin2025 p.6: expression phase 72 h; NREL 2011: 96 h production"}
   X_prod_g_L: {value: 107, low: 40, high: 150, unit: g DCW/L at the start of production, grade: B,
@@ -83,7 +83,7 @@ fermenter:
   volume_m3: {value: 200, low: 100, high: 500, unit: m3, grade: B,
     note: "the vessel costed; with fermenter.sizing = cheapest it is chosen by scenarios.size_fermenter (this value is then only the default for fixed sizing)",
     source: "engineering.yaml: industrial aerobic vessels 200-1,000 m3 (Humbird, B), lysine 500 m3 (B), baker's yeast 200 m3 (B); PF designs 136 m3 (Intelligen, B), 150 m3 (Liberation Labs, C), 80-120 m3 culture volume (GFI Europe, C); Humbird STRFERM quotes to 196 m3 (larger sizes extrapolate with capital.fermenter_exponent_above_table)"}
-  sizing: {value: cheapest, note: "cheapest (base): the designer takes the cheapest feasible plant over size_choices_m3 up to volume_cap_m3 (scenarios.size_fermenter; review G2: capital is costed for whole vessels, so a small plant in 200 m3 vessels pays for idle volume) | fixed: volume_m3 as given. Sized once on the product's base case; scenarios, tornado and Monte Carlo keep that plant, the scale curve re-sizes at each output"}
+  sizing: {value: cheapest, note: "cheapest (base): the designer takes the cheapest feasible plant over size_choices_m3 up to volume_cap_m3 (scenarios.size_fermenter; review G2: capital is costed for whole vessels, so a small plant in 200 m3 vessels pays for idle volume) | fixed: volume_m3 as given. Sized on the product's base case; scenarios, tornado and Monte Carlo keep that plant; base-case variants with other prices (design-report or aseptic capital, EU, pioneer) and the scale curve re-size under their own inputs (audit R12-L7)"}
   volume_cap_m3: {value: 200, unit: m3, grade: B, source: "the base vessel (volume_m3): the largest size the designer may choose; larger vessels are a sensitivity (volume_m3 high 500, physical limit 400)"}
   size_choices_m3: {value: [50, 100, 150, 200], unit: m3, grade: B,
     source: "sizes spanning published food-PF designs: 100 m3 (Intelligen lactoferrin, 6 staggered vessels, lactoferrin.yaml), 136 m3 (Intelligen ovalbumin), 150 m3 (Liberation Labs, C), 80-120 m3 culture volume (GFI Europe, C), up to the 200 m3 cap; 50 m3 is a design choice (D) for plants below ~250 t/yr"}
@@ -130,7 +130,8 @@ media:                        # kg per kg of dry cells made, or per m3 of broth
     source: "Behm 2022 Table 2: antifoam 0.2 g/L (T. reesei BLG); US 5,260,202 (Delta Biotechnology): 'Typical total usage rates ... 0.02-0.2 g per liter' in sensor-controlled yeast fed-batch (low); high = NREL 2011 corn oil 0.1% v/v, ~1.0 kg/m3 (P-420 13.4 kg/h over ~12.9 m3/h broth, derived)"}
   antifoam_price_usd_kg: {value: 1.12, low: 0.5, high: 2.0, grade: C,
     source: "prices.yaml: Voutilainen 2021 design value EUR 1,000/t x 1.12 (no market price found); range is a guess"}
-  methanol_price_usd_kg: {value: 0.91, grade: B, note: "methanol used = the batch stoichiometry (strain.methanol_frac_prod); the v3 cost-only leaf methanol_kg_per_kg_product (0 in every case) is gone", source: "intelligen_ovalbumin2025 Table 3: $0.910/kg"}
+  methanol_inducer_kg_per_kg_product: {value: 0.0, note: "methanol co-fed as an inducer beside a glucose expression phase, costed only (its O2, ~10% of the batch's at Intelligen's 0.30 kg/kg, is not added). Used only by the Intelligen OVA calibration anchor, which states it (audit R12-M4). A methanol-fed production phase is strain.methanol_frac_prod instead"}
+  methanol_price_usd_kg: {value: 0.91, grade: B, note: "methanol = the batch stoichiometry (strain.methanol_frac_prod) plus any inducer co-feed (methanol_inducer_kg_per_kg_product)", source: "intelligen_ovalbumin2025 Table 3: $0.910/kg"}
 
 dsp:
   # a. cell removal (two-stage disk-stack centrifugation with re-dilution; plant.py block 2a)
@@ -182,6 +183,11 @@ dsp:
     source: "Pires et al. 2025 J Chromatogr A 1760:466274 (industrial lactoferrin CEX): 'After over a thousand cycles, the column must be replaced' (a lower bound; dsp.yaml iex_resin_lifetime_industrial_lactoferrin). low = Petrides' biopharma 50-200 cycles (midpoint, B)"}
   cex_hardware_usd_per_L_resin: {value: 1000, low: 300, high: 3000, unit: $ (2018$) per L resin, grade: E,
     source: "guess: columns, skid and automation per litre of packed resin; no public cost found (lactoferrin research pass). Petrides' membrane-system curve (biopharma) is the nearest analogue. Resin first fill is added to TCI unfactored"}
+  polish_columns: {value: 0, note: "polish columns after the cation-exchange capture ('cex' spec): 0 = capture only (lactoferrin, the dairy route); albumin 1 (products.yaml). Each repeats the capture column's cycle recipe, resin and hardware (D) at its own loading and recovery"}
+  polish_dbc_g_L: {value: 30, low: 20, high: 40, unit: g protein/L resin, grade: B,
+    source: "US 6,638,740 (Delta), anion exchange after the cation-exchange capture: DEAE-Sepharose FF 'loaded with 30.0 +/- 10.0 g monomeric albumin per litre of matrix' (albumin.yaml hsa_delta_aex_polish)"}
+  polish_recovery: {value: 1.0, low: 0.9, high: 1.0, grade: B,
+    source: "US 6,638,740: over the anion-exchange step 'A yield of approximately 110% for albumin monomer has been achieved' (dimer formed in the capture step reverts to monomer); capped at 1. low = judgment (D)"}
   cex_diafiltration_volumes: {value: 4, grade: D,
     source: "derived: 1 M NaCl in the eluate is washed out by DF to ~2% of protein at 50 g/L after 4 volumes (58.4 x e^-4 = 1.1 g/L), meeting ash <3.5% (GRN 1284); 3 volumes would leave ~6%; Intelligen's lactoferrin design uses 5 (p.10)"}
   cex_target_frac_dry: {value: 0.90, low: 0.77, high: 0.94, grade: A,
@@ -315,6 +321,8 @@ capital:
       commodity_anaerobic: {isbl: 1.25, osbl: 1.25, ec: 0.5, fc: 0.15, process_building: outside}
     grade: B
     source: "Humbird Equip Table14 (Petrides classes, as tabulated by Humbird): ISBL non-bioreactor DC x PEC, OSBL DC x PEC, E&C x TDC, fees & contingency x TPC, fermentation-area building class. Humbird tabulates the commodity-aerobic column but none of his sheets uses it (his 4FB/4P sheets use cGMP biopharm; A.1 uses a flat Lang factor of 4.5). The model applies the ISBL factor to the fermenters too, where Humbird enters bioreactors at their installed ACCE cost (Table14 bioreactor install factor 1): with the aseptic quote and the 20% allowance this gives $7.5M per 200 m3 installed (2018$), against his own installed aseptic STR at $6.8M ($2.4M bare; text Table 3.3). Review HM-5"
+  pioneer_factor: {value: 1.0, pioneer: 1.282, grade: A,
+    source: "1.0 = nth-of-a-kind plant (the base; SCOPE). pioneer = 1/0.78: across 106 estimates for 44 pioneer process plants the mean ratio of estimated to actual capital cost, excluding external factors such as inflation, was 0.78 (SD 0.194) (Merrow, Phillips & Myers 1981, RAND R-2569-DOE, Table 4.8, p.58; engineering.yaml rand_pioneer_cost_growth). Applied to all capital as a separate sensitivity (scenarios.PIONEER), never in the base. RAND's regression (Table 4.9) would predict less growth for a plant of commercially proven steps; the mean is used as the plain pioneer case"}
   missing_frac: {value: 0.20, low: 0.10, high: 0.20, grade: B,
     source: "Humbird A.1 (baker's yeast): 20% missing capital on an abbreviated equipment list (TCI = Lang 4.5 x PEC / 0.8), the case closest to this model's list, which omits CIP and feed tanks per fermenter, sterile filter housings, glucose storage, biomass inactivation, powder packing and effluent pretreatment (review BE-4). low = Humbird 4FB sheets: 10% on a fuller list (the v2 value). As a fraction of the total: allowance = m/(1-m) x listed PEC"}
   packing_factor: {value: 0.15, grade: B, source: "Humbird 4FB-020!D232: fraction of area occupied by fermenters"}
