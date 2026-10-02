@@ -146,7 +146,8 @@ def batch(p, keep_series=False) -> pf.Batch:
     strain = pf.Strain(product=pr.protein(v(p, "plant.product")), Y_ps=v(p, "strain.Y_ps_g_g"),
                        X_prod=v(p, "strain.X_prod_g_L"), mu_prod=v(p, "strain.mu_prod_per_h"),
                        t_prod=v(p, "strain.t_prod_h"), X_max=v(p, "strain.X_max_g_L"),
-                       meoh_frac=_opt(p, "strain.methanol_frac_prod", 0.0))
+                       meoh_frac=_opt(p, "strain.methanol_frac_prod", 0.0),
+                       Y_ps_meoh=methanol_yield(p) if _opt(p, "strain.methanol_frac_prod", 0.0) > 0 else None)
     return pf.run_batch(_vessel(p), c, host, strain, X0=v(p, "strain.X0_g_L"),
                         titer=v(p, "strain.titer_g_L"), c_s=v(p, "fermenter.feed_glucose_g_L"),
                         c_nh3=v(p, "fermenter.nh3_feed_g_L"), keep_series=keep_series,
@@ -166,14 +167,22 @@ def atp_per_residue(p) -> float:
             + s_per_res * (v(p, f"{e}.sulfur_atp_per_S") + v(p, f"{e}.sulfur_electrons_per_S") / 2 * po))
 
 
-def energetic_ceiling(p) -> float:
+def energetic_ceiling(p, csource: str = "Glucose (s)") -> float:
     """Upper bound on the product-reaction yield [g/g]: the ATP of atp_per_residue paid by
-    respiring glucose at the host's P/O ratio (product.energetic_ceiling). Transport, secretion,
-    folding and turnover costs are not counted, so this stays an upper bound."""
+    respiring the C-source at the host's P/O ratio (product.energetic_ceiling). Transport, secretion,
+    folding and turnover costs are not counted, so this stays an upper bound. Glucose yields
+    substrate-level ATP + 12 P/O; methanol yields methanol_respired_O x P/O (alcohol oxidase passes
+    its electrons to H2O2). The amino-acid synthesis cost is Stouthamer's from glucose for both."""
     h = f"hosts.{v(p, 'strain.host')}"
-    atp_glc = v(p, "energetics.substrate_atp_per_glucose") + 12 * v(p, f"{h}.po_ratio")
-    return pr.energetic_ceiling(pr.protein(v(p, "plant.product")), th.get("Glucose (s)"),
-                                atp_per_residue(p), atp_glc)
+    po = v(p, f"{h}.po_ratio")
+    atp = (v(p, "energetics.substrate_atp_per_glucose") + 12 * po if csource == "Glucose (s)"
+           else v(p, "energetics.methanol_respired_O") * po)
+    return pr.energetic_ceiling(pr.protein(v(p, "plant.product")), th.get(csource), atp_per_residue(p), atp)
+
+
+def methanol_yield(p) -> float:
+    """Product-reaction yield on methanol: the glucose yield's fraction of its energetic ceiling."""
+    return v(p, "strain.Y_ps_g_g") * energetic_ceiling(p, "Methanol") / energetic_ceiling(p)
 
 
 def _coincident_peak(prof_t, prof_v, t_total: float, interval: float) -> float:

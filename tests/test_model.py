@@ -470,7 +470,7 @@ def test_methanol_blend_conserves_carbon_and_electrons(f):
     p = params.override(BASE, {"plant.product": "blg"})
     host = plant._host(p)
     strain = pf.Strain(product=pr.protein("blg"), Y_ps=v(p, "strain.Y_ps_g_g"), X_prod=100, mu_prod=0.002,
-                       t_prod=72, meoh_frac=f)
+                       t_prod=72, meoh_frac=f, Y_ps_meoh=plant.methanol_yield(p))
     F, mu, qp = 1000.0, 0.002, 0.004
     r, _ = pf._rates(host, strain, mu, qp, F, prod=True)
     bio, prot = host.growth.bio, strain.product.species
@@ -511,3 +511,17 @@ def test_monte_carlo_rank_correlation_sign():
     mc = sc.monte_carlo(p, ["strain.titer_g_L", "utilities.glucose_usd_kg"], n=40, seed=3)
     assert mc["rank_corr"]["strain.titer_g_L"] < -0.8
     assert mc["rank_corr"]["utilities.glucose_usd_kg"] > 0
+
+
+def test_methanol_anabolism_fixes_no_co2():
+    """Methanol is more reduced than biomass: all cell and product carbon comes from it, the surplus
+    electrons go to O2 (Heijnen), and no CO2 is fixed; the carbon cap on the protein yield is then
+    M_protein,C-mol / M_methanol (~0.70 g/g). Glucose anabolism is unchanged (releases CO2)."""
+    meoh, glc = th.get("Methanol"), th.get("Glucose (s)")
+    a = th.anabolic(th.biomass(), meoh)
+    assert a.of("CO2 (aq)") == 0 and a.of("O2 (aq)") < 0 and a.of("Methanol") == pytest.approx(-1.0)
+    assert th.anabolic(th.biomass(), glc).of("CO2 (aq)") > 0
+    prot = pr.protein("blg")
+    assert pr.electron_ceiling(prot, meoh) == pytest.approx(prot.species.mw / meoh.mw, rel=1e-9)
+    p = params.override(BASE, {"plant.product": "blg"})
+    assert plant.methanol_yield(p) < plant.energetic_ceiling(p, "Methanol") < pr.electron_ceiling(prot, meoh)

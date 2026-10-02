@@ -44,8 +44,10 @@ Kinetics (per C-mol biomass per hour; thermo and product modules):
     the growth stoichiometry is Heijnen's for a C1 source; maintenance is the measured m_s on
     methanol (Host.m_s_prod_meoh, g methanol/g DCW/h), which includes the energy alcohol oxidase
     wastes (CH3OH + O2 -> HCHO + H2O2 conserves none), so it is set from data, not from the Gibbs
-    energy; the product reaction runs at the same fraction of its electron ceiling as on glucose:
-    Y_ps,MeOH = Y_ps x ceiling_MeOH / ceiling_glc (an assumption, D). Methanol is fed neat
+    energy; the product reaction runs at the same fraction of its energetic ceiling as on glucose:
+    Y_ps,MeOH = Y_ps x ceiling_MeOH / ceiling_glc (plant.methanol_yield; an assumption, D), where
+    methanol yields 2 x P/O ATP (only formaldehyde and formate dehydrogenase pass electrons to
+    respiration) and all product carbon comes from methanol (thermo.anabolic). Methanol is fed neat
     (c_meoh = its density, 791 g/L). O2 and heat follow from the formation enthalpies as for
     glucose; per mol O2 they are nearly the same (Thompson's rule), so methanol's costs are its
     price per electron, the extra O2 of building carbon from a C1 source, and its maintenance.
@@ -292,13 +294,6 @@ def _growth_model(bio: th.Species, T_C: float, cs: str = GLC) -> th.GrowthModel:
     return th.GrowthModel(bio, th.get(cs), T_C)
 
 
-def _y_ps_on(p: pr.Protein, Y_ps: float, cs: str) -> float:
-    """Product-reaction yield on cs at the glucose yield's fraction of the electron ceiling."""
-    if cs == GLC:
-        return Y_ps
-    return Y_ps * pr.electron_ceiling(p, th.get(cs)) / pr.electron_ceiling(p, th.get(GLC))
-
-
 @dataclass
 class Strain:
     product: pr.Protein
@@ -309,6 +304,7 @@ class Strain:
     q_p: float | None = None         # g/g/h; solved in titer mode
     X_max: float = 150.0             # g DCW/L: growth stops here (feed-limited plateau)
     meoh_frac: float = 0.0           # fraction of the production phase run on methanol
+    Y_ps_meoh: float | None = None   # g product / g methanol through the product reaction
 
 
 @dataclass
@@ -356,7 +352,7 @@ def _rates_on(host: Host, strain: Strain, mu: float, qp: float, F: float, prod: 
     heat = -(sum(out[n] * th.get(n).dHf for n in out) + mu * cmol * g.bio.dHf) * 1000 / 3600
     if qp > 0:
         p = strain.product
-        rx = pr.product_reaction(p, th.get(cs), _y_ps_on(p, strain.Y_ps, cs))
+        rx = pr.product_reaction(p, th.get(cs), strain.Y_ps if cs == GLC else strain.Y_ps_meoh)
         pcmol = qp * F / p.species.mw                  # kmol C-mol product/h
         for name in out:
             out[name] += rx.of(name) * pcmol
