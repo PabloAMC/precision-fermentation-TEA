@@ -2,7 +2,8 @@
 # base.yaml is written around Intelligen's ovalbumin design (30 g/L in 72 h, UF/DF concentrate,
 # 10 kt/yr), which serves BLG and OVA unchanged. Lactoferrin's base case is its own design report
 # (Intelligen's lactoferrin design) on its own purification route, at a plant size that fits its
-# market. Scenario files (academic, industry, physical_limit) are applied on top of these blocks
+# market. Albumin (cell-culture media) is on the cation-exchange route with its own column data and a
+# 1 kt/yr plant. Scenario files (academic, industry, physical_limit) are applied on top of these blocks
 # (scenarios.scenario_params). Leaves replace the base.yaml leaf's value, range and source; a null
 # low/high removes the range (no sampling or tornado bar).
 blg: {}
@@ -39,3 +40,44 @@ lf:
     unit: h
     grade: B
     source: "Intelligen's 5-day lactoferrin batch (p.4) less the model's 37 h growth phase (audit R10-1); range as base.yaml"
+alb:                        # serum albumin for cultivated-meat media: base.yaml's design point (30 g/L, 72 h, glucose); its own route and plant
+  plant.spec: {value: cex, note: "cation-exchange capture at pH 4.5 straight from the clarified broth, eluted at pH 5.5, then UF/DF and spray drying: the first step of every public rHSA train (Delta/Recombumin US 5,728,553 and US 6,638,740; Zhu 2018/2021; albumin.yaml hsa_delta_cex_capture_conditions). Pharma trains add affinity, gel filtration and anion exchange for >=99.9% (hsa_delta_full_train_pharma); a cell-culture spec (>=96%) is taken to need the capture step only (judgment, D)"}
+  plant.annual_target_protein_t:
+    value: 1000
+    low: null
+    high: null
+    unit: t/yr
+    grade: D
+    source: "design choice: the size of today's whole human-albumin market (~0.5 to >1 kt/yr, poorly sourced, albumin.yaml plasma_hsa_tonnage_shortage, C) and ~28% of GFI's low 2030 cultivated-meat demand scenario (3.6 kt/yr; 100 kt/yr high, gfi2023_albumin_demand_2030, C). The scale curve runs 0.1-10 kt/yr and the physical limit 100 kt/yr (GFI's high scenario)"
+  dsp.cex_dbc_g_L:
+    value: 40
+    low: 30
+    high: 50
+    unit: g protein/L resin
+    grade: B
+    source: "US 5,728,553 Ex. 2 (Delta, rHA on S-Sepharose FF): 'a column loading of 40+/-10 g rHA/L matrix' (an operating load, not a measured dynamic capacity; albumin.yaml hsa_delta_cex_capture_conditions)"
+  dsp.cex_cv_per_cycle:
+    value: 34
+    low: 16
+    high: 34
+    grade: B
+    source: "US 5,728,553 Table 4: equilibration 4 + wash 11.5 + elution 2 + eluate 6.5 + 2 M NaCl strip 3.5 + NaOH 3 + storage 3 + 0.5 = 34 CV per cycle (hsa_delta_cex_step_table, derived). low = EVERY's lactoferrin table (16 CV, base.yaml)"
+  dsp.cex_elution_cv: {value: 8.5, grade: B, source: "US 5,728,553 Table 4: elution 2 CV + eluate collection 6.5 CV (hsa_delta_cex_step_table)"}
+  dsp.cex_elution_nacl_kg_m3: {value: 13.6, grade: D, source: "elution is a pH step in ~0.1 M acetate, not 1 M NaCl: 'sodium acetate trihydrate 13.6 g/L' at pH 5.5 (US 5,728,553 recipe 2; hsa_delta_cex_step_table). Priced as NaCl (no acetate leaf; at 8.5 CV this is a few cents per kg albumin)"}
+  dsp.cex_cip_cv: {value: 3, grade: B, source: "US 5,728,553 Table 4: NaOH 3 CV"}
+  dsp.cex_cip_naoh_kg_m3: {value: 20.0, grade: B, source: "0.5 M NaOH = 20.0 kg/m3 (US 5,728,553 Table 4 recipe 4; hsa_delta_cex_step_table)"}
+  dsp.cex_regen_cv: {value: 3.5, grade: B, source: "US 5,728,553 Table 4: the 2 M NaCl strip after elution, 3.5 CV"}
+  dsp.cex_regen_nacl_kg_m3: {value: 117, grade: B, source: "2 M NaCl: 'NaCl 117 g/L' (US 5,728,553 recipe 3)"}
+  dsp.cex_regen_etoh_kg_m3: {value: 0.0, grade: B, source: "no ethanol in the rHA cycle: storage is 20 mM NaOH (US 5,728,553 Table 4)"}
+  dsp.cex_recovery:
+    value: 0.56
+    low: 0.40
+    high: 0.83
+    grade: B
+    source: "US 6,638,740 (Delta): 'the anticipated recovery of rHA monomer is between 46 and 66%' over the CEX capture (midpoint 0.56; US 5,728,553 Table 4: '>40%', with different assays in and out); every public rHSA train recovers 0.46-0.67 (Zhu 2018 58%, Zhu 2021 'two thirds', rice 46-56%; hsa_kphaffii_two_step_recoveries_academic). low = Table 4's >40%; high = EVERY's lactoferrin CEX step (0.832, D analogy: a media-grade cut could take dimer and fragments a pharma monomer cut rejects)"
+  dsp.cex_target_frac_dry:
+    value: 0.96
+    low: 0.90
+    high: 0.99
+    grade: C
+    source: "cell-culture rHSA specs: InVitria Cellastim S 'Purity >=96.0%'; Healthgen OsrHSA >=99% (albumin.yaml spec_invitria_cellastim_s, spec_healthgen_osrhsa_cell_culture). No food- or media-grade spec exists (media_or_food_grade_albumin_spec). low = 0.90 (judgment, D)"

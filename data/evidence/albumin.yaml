@@ -1,0 +1,928 @@
+# albumin.yaml: evidence for adding FOOD/MEDIA-GRADE RECOMBINANT SERUM ALBUMIN (for cultivated-meat
+# cell-culture media) as a product in pf-tea (research pass 2026-10-02; AI research agent, checked by the main session).
+# Format: data/evidence/README.md. Grades: A measured/official; B published design basis or patent
+# example; C company claim/trade press/survey; D analogy; E guess.
+# Read as raw text: UniProt REST JSON (downloaded here), local files under ~/Developer/pf-tea/references
+# (text/ and inbox/protein_survey_2026-10-01/), the Humbird 2021 SI workbook (openpyxl), Europe PMC
+# abstracts / full-text XML, patents.google.com. Items computed here are "Derived (mine)", quote: null.
+
+# =======================================================================================
+# 1. Identity, sequence, mass balance
+# =======================================================================================
+
+- key: hsa_uniprot_mature_chain
+  value: "P02768 chain 25-609 (585 aa)"
+  unit: residue range of the mature secreted chain (precursor numbering)
+  grade: A
+  source: "UniProtKB P02768 (ALBU_HUMAN), Albumin, Homo sapiens; entry version 298, last annotation update 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02768.json
+  locator: "features: Signal 1-18; Propeptide 19-24; Chain 25-609 'Albumin'; 17 'Disulfide bond' features; sequence.molWeight 69367 (609-aa precursor)"
+  quote: "{\"type\":\"Chain\",\"description\":\"Albumin\",\"location\":{\"start\":{\"value\":25},\"end\":{\"value\":609}}}"
+  read: fulltext
+  note: >-
+    Pre-pro-albumin: 18-aa signal + 6-aa propeptide (RGVFRR, removed by a furin-type protease; in yeast
+    by Kex2) leave the 585-aa mature chain starting DAHKSEVAHRFK. 35 Cys = 17 disulfides + 1 free
+    thiol (Cys34 of the mature chain, the redox-active one; relevant to "mercaptalbumin" specs).
+    6 Met, 1 Trp. No N-X-S/T sequon in the mature chain (my scan), so native HSA carries no N-glycan;
+    UniProt's glycosylation features are non-enzymatic glycation of Lys (in vivo/in vitro) plus two
+    rare variants (Redhill, Casebrook) that create a sequon. Secreted (UniProt subcellular location).
+
+- key: bsa_uniprot_mature_chain
+  value: "P02769 chain 25-607 (583 aa)"
+  unit: residue range of the mature chain
+  grade: A
+  source: "UniProtKB P02769 (ALBU_BOVIN), Albumin, Bos taurus; entry version 201, 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02769.json
+  locator: "features: Signal 1-18; Propeptide 19-24; Chain 25-607; 17 Disulfide bond; molWeight 69293"
+  quote: "{\"type\":\"Chain\",\"description\":\"Albumin\",\"location\":{\"start\":{\"value\":25},\"end\":{\"value\":607}}}"
+  read: fulltext
+  note: >-
+    583 aa, 35 Cys (17 S-S + free Cys34), 4 Met, 2 Trp, no N-X-S/T sequon in the mature chain (my
+    scan); only one glycation feature (Lys, in vitro). N-terminus DTHKSEIAHRFK. Same fold and
+    disulfide map as HSA (~76% identity per the literature; identity not computed here).
+
+- key: chicken_albumin_uniprot_mature_chain
+  value: "P19121 chain 24-615 (592 aa)"
+  unit: residue range of the mature chain
+  grade: A
+  source: "UniProtKB P19121 (ALBU_CHICK), Albumin (serum albumin, alpha-livetin), Gallus gallus; entry version 156, 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P19121.json
+  locator: "features: Signal 1-18; Propeptide 19-23; Chain 24-615; 17 Disulfide bond; Glycosylation 500 (ECO:0000255 = predicted from sequence); molWeight 69918"
+  quote: "{\"type\":\"Glycosylation\",\"location\":{\"start\":{\"value\":500 ... \"description\":\"N-linked (GlcNAc...) asparagine\",\"evidences\":[{\"evidenceCode\":\"ECO:0000255\"}]"
+  read: fulltext
+  note: >-
+    592 aa, 35 Cys (17 S-S), 19 Met (vs 6 in HSA), 0 Trp. ONE N-X-S/T sequon (mature Asn477 =
+    precursor 500), annotated only by sequence analysis (ECO:0000255), so in K. phaffii it could be
+    hyper-mannosylated; a Gln mutant or EndoH would be needed for a homogeneous product. This is a
+    small reason to prefer HSA/BSA. Chicken albumin would only matter if a chicken-cell medium needed
+    species-matched albumin; no evidence found that it does.
+
+- key: hsa_mature_formula_and_mw
+  value: {C: 2936, H: 4590, N: 786, O: 889, S: 41}
+  unit: atoms per molecule of the mature chain (17 disulfides, Cys34 reduced)
+  grade: A
+  source: "Derived (mine) from UniProtKB P02768 mature chain 25-609 (585 aa, 17 disulfide features)"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02768.json
+  locator: "computed from the sequence (script .preview/albumin/uniprot_calc.py)"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - check the arithmetic. Residue sums + H2O, minus 2H per disulfide (17): average
+    MW 66,437 Da; per C: CH1.5634N0.2677O0.3028S0.01396; 53.08 wt% C, 16.57 wt% N, 1.98 wt% S;
+    protein/N = 6.035 (so N x 6.25 overstates HSA by 3.6%). Cross-check: the same residue-sum
+    method gives 69,366.0 Da for the 609-aa precursor (no disulfides) vs UniProt molWeight 69,367
+    (rounding). The literature value for mature rHSA by MS is ~66.4-66.5 kDa (consistent).
+    Sulfate demand: 41 S per molecule = 1.98% S by mass, ~2x ovalbumin's; the model's sulfate
+    assimilation term should use this.
+
+- key: bsa_mature_formula_and_mw
+  value: {C: 2934, H: 4581, N: 781, O: 897, S: 39}
+  unit: atoms per molecule of the mature chain (17 disulfides)
+  grade: A
+  source: "Derived (mine) from UniProtKB P02769 mature chain 25-607"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02769.json
+  locator: "computed from the sequence"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine): MW 66,398 Da; 53.07% C, 16.48% N, 1.88% S; protein/N 6.070. Precursor check:
+    69,292.7 vs UniProt 69,293. Elementally indistinguishable from HSA for the model (<0.5% on any
+    element), so the choice between HSA and BSA is about market and regulation, not mass balance.
+
+- key: chicken_albumin_mature_formula_and_mw
+  value: {C: 2932, H: 4585, N: 793, O: 905, S: 54}
+  unit: atoms per molecule of the mature chain (17 disulfides, unglycosylated)
+  grade: A
+  source: "Derived (mine) from UniProtKB P19121 mature chain 24-615"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P19121.json
+  locator: "computed from the sequence"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine): MW 67,155 Da (unglycosylated); 52.44% C, 16.54% N, 2.58% S (19 Met); protein/N
+    6.046. Precursor check: 69,917.5 vs UniProt 69,918.
+
+- key: albumin_base_product_recommendation
+  value: HSA
+  unit: recommended base product
+  grade: E
+  source: "Judgement (mine) from the entries in this file (identity, supplier, titer and market sections)"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: fulltext
+  note: >-
+    HSA (P02768) is what every recombinant media supplier sells (InVitria Cellastim/Optibumin, rice;
+    Sartorius/Albumedix Recombumin/Albucult, S. cerevisiae; Healthgen/Oryzogen, rice; Merck), it has
+    by far the deepest titer and DSP literature (Pichia, S. cerevisiae, K. lactis, rice), and it is
+    what Beefy-9 used. BSA is the plasma-derived incumbent in serum-free media and the species match
+    for bovine cells, but recombinant BSA literature is thin. For the model the two are elementally
+    identical (previous entries), so a "HSA" product with a BSA sensitivity note costs nothing.
+
+# =======================================================================================
+# 4. Demand, cost targets, prices, market (CM-media framing)
+# =======================================================================================
+
+- key: gfi2023_albumin_cost_target
+  value: 10
+  unit: $/kg protein (production cost tier 1)
+  grade: C
+  source: "GFI (Swartz E et al.). Anticipated growth factor and recombinant protein costs and volumes for cost-competitive cultivated meat (2023)"
+  doi_or_url: references/reports/GFI_2023_growth_factor_recombinant_protein_costs_cultivated_meat.pdf
+  locator: "Executive summary p.3; Table 1 p.14 (local text l.117-126, l.512-531)"
+  quote: "To satisfy this ambitious cost projection, albumin would need to be produced at $10/kg, insulin and transferrin at $1,000/kg, and growth factors at $100,000/kg."
+  read: fulltext
+  note: >-
+    A target, not an estimate: it is back-solved so that all recombinant proteins cost $1 per kg of
+    a hypothetical $10/kg CM. The $10/kg is justified in footnotes 6-8 by analogy only: "Lowest price
+    found for a recombinant protein - cellulase (Puetz and Wurm 2019)"; ReThinkX's $10/kg by 2025;
+    and "Bulk ordering of common food enzymes at 200-1000kg scales were quoted from Novozymes at costs
+    between $12-25/kg" (p.14). Table 1 also gives Humbird's Eq. 3.4 price-volume extrapolation for
+    albumin at the GFI volumes: "$26.94/kg" average, "$68.68/kg to $3.95/kg" across scenarios A-F.
+    pf-tea's albumin product answers directly whether $10/kg is reachable bottom-up.
+
+- key: gfi2023_albumin_demand_2030
+  value: 3600
+  low: 3600
+  high: 100000
+  unit: t/yr recombinant albumin (2030 scenarios)
+  grade: C
+  source: "GFI 2023 (as above)"
+  doi_or_url: references/reports/GFI_2023_growth_factor_recombinant_protein_costs_cultivated_meat.pdf
+  locator: "p.11 (local text l.409-417); Box 2 p.8 (scenarios A-F)"
+  quote: "For albumin, estimations fall between approximately 3,600 and 100,000 metric tons per year to meet demand"
+  read: fulltext
+  note: >-
+    Scenario arithmetic: average literature concentration (Tab 1 of the supplementary spreadsheet,
+    not read) x medium use (8 / 13 / 42 L per kg CM, from CE Delft/Sinke 2021 Table 16) x CM output
+    (0.4 or 2.1 Mt in 2030, i.e. 0.1-0.56% of meat). "96.6% of production volume is expected to be
+    attributable to albumin, 2.42% to transferrin, 0.97% to insulin" (p.3). These are conditional
+    demand scenarios, not forecasts; 2025 CM output is orders of magnitude below 0.4 Mt (see the
+    displacement section).
+
+- key: gfi2023_implied_albumin_concentration
+  value: 1.13
+  low: 1.125
+  high: 1.134
+  unit: g/L albumin in medium (implied average)
+  grade: C
+  source: "Derived (mine) from GFI 2023 l.409 (3,600-100,000 t) and Box 2 (8-42 L/kg; 0.4-2.1 Mt)"
+  doi_or_url: references/reports/GFI_2023_growth_factor_recombinant_protein_costs_cultivated_meat.pdf
+  locator: "p.8 Box 2 and p.11"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine): low = 3,600e6 kg / (0.4e9 kg CM x 8 L/kg) = 1.125 g/L; high = 100,000e6 /
+    (2.1e9 x 42) = 1.134 g/L. Both ends imply the same ~1.13 g/L, confirming GFI used one average
+    concentration. The exact value is in GFI's supplementary spreadsheet Tab 1 (not obtained - gap).
+    Albumin per kg CM: 1.13 g/L x 8 / 13 / 42 L/kg = 9 / 15 / 47 g per kg CM.
+
+- key: gfi2023_medium_use_l_per_kg
+  value: 13
+  low: 8
+  high: 42
+  unit: L medium per kg cultivated meat
+  grade: C
+  source: "GFI 2023 Box 2, citing Sinke, Vergeer & Odegard (CE Delft) 2021 Table 16"
+  doi_or_url: references/reports/GFI_2023_growth_factor_recombinant_protein_costs_cultivated_meat.pdf
+  locator: "p.7-8 (local text l.240-243, l.311, l.321-333)"
+  quote: "media use efficiency estimations [low media use = 8 L/kg, medium media use = 13 L/kg, high media use = 42 L/kg"
+  read: fulltext
+  note: "The executive summary calls 8-13 L/kg 'efficient' use. Compare Humbird 2021 (next entry)."
+
+- key: humbird2021_medium_has_no_albumin
+  value: 0
+  unit: g/L albumin in Humbird's E8-based medium
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239 (2021), Sect. 3 and SI workbook sheet 3.2"
+  doi_or_url: 10.1002/bit.27848
+  locator: "text p.44-45 (local Humbird2021_cultured_meat.txt l.2795-2830), Table 3.6; SI 3.2!A151:B154"
+  quote: "Consider the four protein components in Essential 8 stem-cell medium: insulin at 19.4 mg/L, transferrin at 10.7 mg/L, fibroblast growth factor (FGF) at 0.1 mg/L, and transforming growth factor (TGF-β ) at 0.002 mg/L"
+  read: fulltext
+  note: >-
+    Humbird's medium has no albumin; GFI 2023 footnote 4 points this out ("lacks albumin, which as a
+    result would increase the cost contribution"). Humbird's medium turnover: SI 3.2 row 148-149 gives
+    2.0e9 L/yr at 50 g/L wet cell density and 6.7e8 L/yr at 150 g/L for 100 kt/yr, i.e. 20 and 6.7 L
+    per kg wet cell mass (Derived, mine). Table 3.6 protein costs: $3.52 and $3.02 per kg cell mass
+    (insulin + transferrin + FGF + TGF-beta at Eq. 3.4 prices). The text has no occurrence of
+    "albumin" (grep of the local text).
+
+- key: humbird2021_si_hsa_pichia_rows
+  value: {methanol: {mu_per_h: 0.002, qp: 0.26, Ypx_mg_g: 130, usd_kg: 6.07}, glucose: {mu_per_h: 0.15, qp: 0.15, Ypx_mg_g: 1, usd_kg: 472.7}}
+  unit: "Humbird's scratch table: mu (1/h), qp (mg/g/h, inferred), Ypx = qp/mu (mg/g DCW), $/kg = substrate $/kg / Yxs / Ypx x 1000"
+  grade: B
+  source: "Humbird 2021 SI workbook (Humbird2021_cultured_meat_SI.xlsm), sheet 3.2, 'Recombinant protein estimates'"
+  doi_or_url: 10.1002/bit.27848
+  locator: "sheet 3.2, cells O185:V200 (rows 186 'serum albumin human' methanol and 196 'serum albumin human' Glc); formulas R=Q/P and V=T/U/R*1000"
+  quote: "serum albumin human | 0.002 | 0.26 | =Q186/P186 | methanol | 0.3 | 0.38 | =T186/U186/R186*1000"
+  read: fulltext
+  note: >-
+    An unpublished scratch table (not discussed in the paper text) listing Pichia literature points
+    (mu, qp) for ~15 proteins, with a crude substrate-only cost: substrate price ($0.30/kg methanol,
+    $0.26/kg glucose) / biomass yield (0.38 or 0.55 g/g) / (product per biomass). For HSA on methanol
+    (qp 0.26 at mu 0.002 -> 130 mg product per g cells) this gives $6.07/kg of substrate per kg HSA;
+    the glucose HSA point (qp 0.15 at mu 0.15) gives $473/kg. Source papers for the rows are not
+    cited in the workbook. Useful only as evidence that Humbird looked at Pichia rHSA and that the
+    substrate cost alone is small at methanol-induced specific yields. Not a TEA.
+
+- key: cedelft2021_albumin_price_and_dose
+  value: 41
+  unit: $/g albumin (low price used, Dec 2020 catalogue; = $41,000/kg)
+  grade: C
+  source: "Sinke P, Vergeer R, Odegard I (CE Delft). TEA of cultivated meat: future projections of different scenarios - corrigendum (Nov 2021)"
+  doi_or_url: https://cedelft.org/en/publications/tea-of-cultivated-meat/
+  locator: "Table 3 p.14 (local inbox cedelft.txt l.687-701); Annex B Tables 9-11 pp.38-39; Sect. 3.2.2 p.18-19"
+  quote: "Albumin                   41                       Invitria8 & Specht (2020)"
+  read: fulltext
+  note: >-
+    Row of Table 3 'Prices for cost drivers of medium' ($/g ingredient; low prices 'based on
+    published quotes accessed in the first week of December 2020'). Annex B gives total recombinant
+    protein of 1.0 / 7.1 / 50.0 g per kg CM at 8.0 / 13.4 / 41.7 L medium per kg (low / mid / high);
+    "In the mid and high-medium scenarios, >95% of the recombinant proteins is albumin. In the
+    low-medium scenario, this drops to around 80%" (p.19). Derived (mine): albumin ~0.8 / ~6.8 / ~48
+    g per kg CM, i.e. ~0.1 / 0.5 / 1.15 g/L. CE Delft cites industry sources for a "factor 100" cost
+    reduction and recombinant proteins "below $ 1 per gram in 2030" (p.19, Annex) - i.e. still
+    ~$1,000/kg, 100x GFI's $10/kg target.
+
+- key: schenzle2025_beefy9_hsa_cost
+  value: 24.56
+  unit: USD per L of B9 medium for HSA alone (0.8 g/L)
+  grade: A
+  source: "Schenzle L, Egger K, Spangl B, et al. Low-cost food-grade alternatives for serum albumins in FBS-free cell culture media. Sci Rep 15 (2025)"
+  doi_or_url: 10.1038/s41598-025-99603-7
+  locator: "Introduction, para 2 (PMC12045953; local inbox schenzle.txt)"
+  quote: "supplemented it with 0.8 g/L human serum albumin (HSA) for stabilization ... Its HSA costs comprised 24.56 USD/L, making up to over 50% of total cost."
+  read: fulltext
+  note: >-
+    Same paragraph: "Kolkmann used even higher (5 g/L) HSA concentration for an approximate cost of
+    163 USD/L only for HSA"; Skrivergaard used BSA 0.075 g/L + fetuin 0.6 g/L. Derived (mine):
+    $24.56/0.8 g = $30.7/g = $30,700/kg rHSA; $163/5 g = $32.6/g. These are research-scale
+    catalogue prices, the actual price CM researchers pay. Albumin doses in serum-free CM media
+    therefore span 0.075 (BSA, Skrivergaard) / 0.8 (B9) / 5 g/L (Kolkmann).
+
+- key: schenzle2025_methylcellulose_replaces_hsa
+  value: 0.1125
+  unit: g/L methylcellulose giving B8 stabilization at the level of 0.8 g/L HSA
+  grade: A
+  source: "Schenzle et al. Sci Rep 2025 (as above)"
+  doi_or_url: 10.1038/s41598-025-99603-7
+  locator: "Results, short-term proliferation (Fig. 2)"
+  quote: "All in all, the most prominent stabilization of B8 – on the level of 0.8 g/L HSA – was achieved by MC (0.1125 g/L) or by the combination MC + ALA (0.1125 g/L + 5 mM respectively)."
+  read: fulltext
+  note: >-
+    Evidence AGAINST albumin demand: a food additive (E461) at 1/7 the mass dose replaces HSA's
+    growth-factor-stabilizing role in bovine satellite cell medium (short-term). Caveat (mine):
+    albumin also carries lipids, binds toxic metabolites and protects against shear; MC was tested
+    for the stabilizer function only.
+
+- key: wildtype_fda_albumin_dropped
+  value: 0
+  unit: albumin used in Wildtype's current production process (cultivated coho salmon)
+  grade: B
+  source: "FDA CFSAN Scientific Memorandum, Cultured Cell Consultation CCC 000005 (Wildtype, coho salmon cells), 28 May 2025"
+  doi_or_url: https://www.fda.gov/media/186753/download
+  locator: "section 'Recombinant growth factors', p.13-14 (local inbox fda_wildtype_sci.txt l.648-654)"
+  quote: "Other functional proteins described in Wildtype’s June 27, 2022, submission (i.e., insulin, insulin-like growth factor (IGF), albumin, and transferrin) are no longer used in the production process."
+  read: fulltext
+  note: >-
+    The only FDA-cleared CM product with a public medium history dropped albumin between 2022 and
+    2024. BSA is still used upstream in cell-bank establishment ("animal-derived reagents (e.g.,
+    porcine trypsin, fetal bovine serum (FBS), bovine serum albumin (BSA)) used in the establishment
+    of the MCB and WCB", l.400-401) - tiny volumes.
+
+- key: upside_fda_bsa_in_production
+  value: "bovine serum albumin listed"
+  unit: qualitative
+  grade: B
+  source: "FDA CFSAN Scientific Memorandum, CCC 000002 (UPSIDE Foods, chicken cells), 14 Nov 2022"
+  doi_or_url: https://www.fda.gov/media/163262/download
+  locator: "section on culture medium, p.~9 (local inbox fda_upside_sci.txt l.590-595)"
+  quote: "Additional substances identified by UPSIDE during the production phase of cell culture include emulsifiers and surfactants, antioxidants, bovine serum albumin, growth factors"
+  read: fulltext
+  note: >-
+    Evidence FOR albumin demand (2022): UPSIDE's cleared chicken process used plasma-derived BSA
+    in production; the concentration is confidential. A food-grade recombinant albumin would replace
+    exactly this. URL of the UPSIDE memo is from the earlier survey (not re-verified here).
+
+- key: gfi_soti2026_albumin_being_eliminated
+  value: "eliminating albumin; cyclodextrins as alternative"
+  unit: qualitative
+  grade: C
+  source: "GFI. 2025 State of the Industry Report: Cultivated meat, seafood and ingredients (published 2026)"
+  doi_or_url: https://gfi.org/resource/cultivated-meat-seafood-and-ingredients-state-of-the-industry/
+  locator: "Science and technology section (local inbox gfi_soti2026.txt l.1310-1320)"
+  quote: "Regulatory documents from Vow, WildType, and Believer Meats show that companies are frequently eliminating the most costly media components such as insulin, transferrin, and albumin from their processes."
+  read: fulltext
+  note: >-
+    Continues: "Food-grade cyclodextrins (made from corn starch) are emerging as low-cost
+    alternatives to albumin". GFI itself, which set the $10/kg albumin target in 2023, reports the
+    industry moving away from albumin in 2026.
+
+- key: specht2020_e8_dropped_albumin
+  value: 0
+  unit: g/L albumin in Essential 8
+  grade: C
+  source: "Specht L (GFI). An analysis of culture medium costs and production volumes for cultivated meat (2020)"
+  doi_or_url: https://gfi.org/wp-content/uploads/2021/01/clean-meat-production-volume-and-medium-cost.pdf
+  locator: "Sect. 2.1 (local inbox gfi_specht.txt l.313-317)"
+  quote: "Essential 8 was developed in 2011 by refining a previous formulation, the 19-ingredient TeSR medium, to eliminate unnecessary factors including albumin, which is expensive and highly variable"
+  read: fulltext
+  note: "Context for why Humbird's E8-based medium lacks albumin; stem cells grow albumin-free, muscle satellite cells historically have not (Stout 2022)."
+
+- key: gfi2025_albumin_trade_price
+  value: 55
+  low: 40
+  high: 70
+  year: 2025
+  unit: $/kg "high-value albumins" (public trade databases)
+  grade: C
+  source: "GFI. Driving down costs: precision fermentation (June 2025)"
+  doi_or_url: references/reports/GFI_2025_driving_down_costs_fermentation.pdf
+  locator: "p.31, 'Market landscape of PF proteins' (local text l.1236-1241)"
+  quote: "high-value albumins ranged from $40 to $70/kg in public trade databases (data not shown)"
+  read: fulltext
+  note: >-
+    BASIS NOT GIVEN ("data not shown"). My reading: 'public trade databases' = customs unit values
+    under HS 3502 ('albumins ... albuminates and other albumin derivatives'), which mixes egg albumin
+    (3502.11/19), milk albumin / whey-protein concentrates (3502.20) and 'other' (3502.90). Human
+    serum albumin as a medicine is classified under HS 3002 (blood fractions), not 3502. So $40-70/kg
+    is most likely NOT a serum-albumin price at all; it is the wrong comparator for media-grade rHSA.
+    See the Comtrade entry below for a check. value = midpoint (mine).
+
+- key: gfieurope2025_albumin_market
+  value: 85
+  unit: t/yr "Albumin (Human and Bovine)" market size; avg price $485/kg; market value $41M
+  grade: C
+  source: "GFI Europe / Arthur D. Little. Pathfinding precision fermentation viability (2025), appendix 'Market size and prices for conventional and estimated PF molecules'"
+  doi_or_url: references/reports/GFIEurope_2025_pathfinding_precision_fermentation_viability.pdf
+  locator: "appendix table p.47 (local text l.1573-1575); median-price chart p.34 (l.1086)"
+  quote: "Albumin (Human and   P6   41   85   485   105   Link   Link   Link   Alibaba"
+  read: fulltext
+  note: >-
+    Columns: market value (M USD) 41, market size (MT) 85, avg price (USD/kg) 485, 'PF average price'
+    105, price source 'Alibaba'. 41e6/85e3 = $482/kg (consistent). Both numbers are implausible as a
+    description of the serum-albumin market: plasma HSA alone is several hundred tonnes per year
+    (pharma, see below), and research BSA is a large Sigma product line. Treat as C-grade and do not
+    use; it reflects Alibaba listings. ADL scores albumin market saturation at '>100%' impact of one
+    PF plant, i.e. a single 1 kt plant would exceed the market as ADL defines it.
+
+# =======================================================================================
+# 2. Titers and fermentation (rows in titers_rows.csv; context here)
+# =======================================================================================
+
+- key: hsa_kphaffii_best_titer_zhu2021
+  value: 17.47
+  unit: g/L secreted rHSA (supernatant)
+  grade: A
+  source: "Zhu W, Xu R, Gong G, Xu L, Hu Y, Xie L. Medium optimization for high yield production of human serum albumin in Pichia pastoris and its efficient purification. Protein Expr Purif 181:105831 (2021)"
+  doi_or_url: 10.1016/j.pep.2021.105831
+  locator: "abstract (Europe PMC PMID 33508474)"
+  quote: "we achieved a high yield of 17.47 g/L HSA in the supernatant within a 192 h induction, which is the highest rHSA yield ever reported as far as we know"
+  read: abstract
+  note: >-
+    METHANOL-induced (AOX1, same group's strain as Zhu 2018). 192 h of induction (8 days) plus the
+    glycerol batch phase, so ~9-10 d per batch: very long against the model's 72 h. Derived (mine):
+    17.47 / 192 = 0.091 g/L/h during induction. "three-step purification procedure which recovered
+    two thirds of the desired protein at high purity". Scale, biomass, methanol use and the resins
+    are behind the paywall (ask Pablo). Best overall secreted rHSA titer found in the peer-reviewed
+    literature. Note "supernatant" (not whole broth): at ~40% wet-cell volume the whole-broth titer
+    would be lower (unknown; check the full text).
+
+- key: hsa_kphaffii_mallem2014_mut_s
+  value: 10
+  unit: g/L broth titer rHSA
+  grade: A
+  source: "Mallem M, Warburton S, Li F, et al. Maximizing recombinant human serum albumin production in a Mut(s) Pichia pastoris strain. Biotechnol Prog 30:1488-1496 (2014)"
+  doi_or_url: 10.1002/btpr.1990
+  locator: abstract
+  quote: "We observed higher specific productivities at higher induction cell densities (285 g/L) and at lower specific growth rates (0.0022-0.0024/h) during methanol induction phase, and achieved the broth titer of rHSA up to 10 g/L."
+  read: abstract
+  note: >-
+    METHANOL, Mut(s) (Merck/GlycoFi, US). Induction at 285 g/L WET cell weight (~70-80 g/L DCW at the
+    usual 0.25-0.28 DCW/WCW; my conversion, check), mu ~0.0023/h (essentially non-growing; compare
+    the model's mu_prod 0.0014/h), qp 0.0908 mg/(g WCW h) (= ~0.33-0.36 mg/g DCW/h, mine), 24->28 C
+    shift. Broth (whole-culture) basis. Derived (mine): at qp 0.0908 mg/gWCW/h and ~285-350 g/L WCW,
+    10 g/L takes ~320-390 h - i.e. Mallem's induction was ~2 weeks long (inference from the abstract
+    numbers, not stated; verify in the full text).
+
+- key: hsa_kphaffii_zhu2018
+  value: 8.86
+  unit: g/L rHSA in a fermenter
+  grade: A
+  source: "Zhu W, Gong G, Pan J, et al. High level expression and purification of recombinant human serum albumin in Pichia pastoris. Protein Expr Purif 147:61-68 (2018)"
+  doi_or_url: 10.1016/j.pep.2018.02.003
+  locator: abstract
+  quote: "Performing high density fermentation further improved the highest yield to 8.86 g/L in a fermenter after 96 h of methanol induction."
+  read: abstract
+  note: >-
+    Also: "the desired protein was purified by filtration and Cibacron Blue affinity chromatography,
+    which yielded a 58% recovery of a product that had over a 96% purity"; and "the previous reports
+    of industrial applications, which reported the highest yield as 92.29 mg/L/h" (probably the
+    Mitsubishi/Medway process; source not identified). Derived (mine): 8.86/96 = 0.092 g/L/h, the same
+    space-time yield as Zhu 2021 (0.091 g/L/h) - the 2021 gain came from running twice as long.
+
+- key: hsa_kphaffii_mitsubishi_kobayashi2000
+  value: 1.4
+  unit: g/L rHSA (development-stage fed-batch)
+  grade: A
+  source: "Kobayashi K, Kuwae S, Ohya T, et al. High-level expression of recombinant human serum albumin from the methylotrophic yeast Pichia pastoris with minimal protease production and activation. J Biosci Bioeng 89:55-61 (2000)"
+  doi_or_url: 10.1016/s1389-1723(00)88050-0
+  locator: abstract
+  quote: "Using this improved medium, stable production of rHSA of around 1.4 g/l was achieved."
+  read: abstract
+  note: >-
+    Mitsubishi Pharma (Welfide/Yoshitomi) Medway rHSA, approved in Japan 2007 (Kobayashi 2006,
+    Biologicals 34:55, abstract read: "We have used P. pastoris for the production of recombinant
+    human serum albumin (rHSA), for which we have developed efficient and specialized downstream
+    processes"). Same abstract: rHSA degraded at "660 mg HSA/l/h ... at pH 4.3, but degradation did
+    not occur above pH 5.9" - acidifying whole broth for CEX capture needs care. Companion papers:
+    AOX2 promoter + oleic acid "doubled the rHSA production level" (J Biosci Bioeng 89:479); optimal
+    methanol feeding gave "18% increase in total rHSA production" (90:280); repeated fed-batch with
+    264 h methanol feeding gave "a 47% increase in annual rHSA production" (Ohya 2005 Biotechnol
+    Bioeng 90:876). The commercial titer is not stated in any abstract read (gap).
+
+- key: hsa_scerevisiae_delta_patent_fermentation
+  value: 1.5
+  unit: g/L rHA monomer (whole culture, expected minimum), S. cerevisiae, sucrose fed-batch, 8,000 L
+  grade: B
+  source: "Delta Biotechnology Ltd (Goodey AR, Sleep D, et al.). Process of high purity albumin production. US 6,638,740 B1 (2003); same fermentation in US 5,728,553 A (1998)"
+  doi_or_url: https://patents.google.com/patent/US6638740B1/en
+  locator: "Example 1 (fermentation): seed 20 L, production fermenter 8,000 L working volume"
+  quote: "the expected yields in accordance with the above procedure are: biomass >80 g cell dry weight/L culture; rHA >1.5 g monomer/L culture (determined by SDS-PAGE, related to the whole culture)."
+  read: fulltext
+  note: >-
+    This is the Recombumin process (Delta -> Novozymes Biopharma -> Albumedix -> Sartorius):
+    S. cerevisiae [cir0, pAYE316], METHANOL-FREE sucrose fed-batch controlled on RQ to avoid
+    Crabtree ethanol, 30 C, MW10 mineral medium "free of ethylene diamine tetraacetic acid",
+    "a fermenter with a working volume of 8,000 L". 1990s strain; later chemically mutagenized
+    strains (DS569, DYB7, with yap3, hsp150, ubc4 disruptions and chaperone up-regulation; Payne
+    2008 AEM 74:7759, abstract; Finnis 2010 Table 3) are higher but no fermenter titer is public.
+    Best METHANOL-FREE rHSA titer in a primary source found in this pass, together with the
+    K. lactis ethanol fed-batch (1 g/L) and Fleer's "several grams per liter" (no number).
+
+- key: hsa_klactis_fleer1991
+  value: "several g/L (no number)"
+  unit: g/L rHSA secreted, pilot scale, K. lactis pKD1 multicopy
+  grade: A
+  source: "Fleer R, Yeh P, Amellal N, et al. Stable multicopy vectors for high-level secretion of recombinant human serum albumin by Kluyveromyces yeasts. Bio/Technology 9:968-975 (1991)"
+  doi_or_url: 10.1038/nbt1091-968
+  locator: abstract
+  quote: "Secretion levels in the range of several grams per liter of correctly folded and processed rHSA were obtained at the pilot scale"
+  read: abstract
+  note: >-
+    Rhone-Poulenc, methanol-free (lactose/galactose-inducible LAC4 or constitutive PGK). No number;
+    not usable as a model value. Later K. lactis numbers in abstracts: 0.3 g/L batch -> 1 g/L
+    fed-batch on ethanol (KlADH4 promoter; Saliola 1999 AEM 65:53, "shifting from batch cultures
+    (0.3 g/liter) to fed-batch cultures (1 g/liter) with ethanol as the preferred carbon source");
+    62 mg/L at 75 mg/L/h in chemostat (Blondeau 1994 Yeast 10:1297); the 2026 "food-grade" K. lactis
+    GG799 paper reached only "11.67 mg/L" (Liang 2026 Prep Biochem Biotechnol, abstract).
+
+- key: hsa_rice_he2011
+  value: 2.75
+  unit: g purified OsrHSA per kg brown rice
+  grade: A
+  source: "He Y, Ning T, Xie T, et al. Large-scale production of functional human serum albumin from transgenic rice seeds. PNAS 108:19078-19083 (2011)"
+  doi_or_url: 10.1073/pnas.1109736108
+  locator: "abstract; section 'Production of OsrHSA from Transgenic Rice Seed Is Cost-Effective' (PMC3223471 read via WebFetch summary, quotes checked as returned)"
+  quote: "The recovery of OsrHSA was 55.75 ± 3.19%, equivalent to a yield of 2.75 g of OsrHSA per kilogram of brown rice"
+  read: html
+  note: >-
+    Context only (not a fermentation). OsrHSA "reached 10.58% of the total soluble protein of the rice
+    grain"; purification = "extraction and three chromatography steps with Capto-MMC, Q-Sepharose,
+    and Phenyl-HP, followed by concentration/desalting and lyophilization"; lab process "can recover
+    45.57 ± 5.57% of the protein"; purity 99.45 ± 0.19%. This is the InVitria/Healthgen source
+    material. Rice OsrHSA was approved as a drug in China (2025, from the earlier survey; a Gut 2025
+    RCT, doi:10.1136/gutjnl-2025-335577, tested it in decompensated cirrhosis).
+
+- key: hsa_filamentous_fungi_titer
+  value: null
+  unit: g/L
+  grade: E
+  source: "Europe PMC searches (title: albumin AND Aspergillus/Trichoderma/fungal), 2026-10-02"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: abstract
+  note: >-
+    NOT FOUND: no peer-reviewed secreted serum-albumin titer from Aspergillus or Trichoderma turned up
+    in this pass (searches return clinical papers). Reported historically (my recollection, not
+    verified, do not use): A. niger/A. awamori secretion of HSA at mg/L levels in the early 1990s.
+    Gap; not needed for the model since K. phaffii and S. cerevisiae are the industrial hosts.
+
+- key: bsa_recombinant_microbial_titer
+  value: 14.8
+  unit: g/L total protein in supernatant (BCA), His-tagged rBSA, K. phaffii, 72 h methanol induction, 5 L bioreactor
+  grade: A
+  source: "Kim YR, Hwang D, Jang SW, et al. Serum-free cultured meat production by using Pichia pastoris-derived recombinant albumin. iScience 28:113242 (2025)"
+  doi_or_url: 10.1016/j.isci.2025.113242
+  locator: "Results, 'Expression of rBSA and rPSA'; STAR Methods 'Fermentation of recombinant transformants' (PMC12362010, Europe PMC full-text XML)"
+  quote: "The maximal production of the rBSA and rPSA were 14.8 ± 0.7 mg/mL and 13.3 ± 0.5 mg/mL each as determined at 72 h methanol induction."
+  read: fulltext
+  note: >-
+    The only peer-reviewed microbial rBSA (and porcine SA) titer found, and it is aimed at cultivated
+    meat (bovine satellite cells). CAVEAT, important: Methods say "The BCA assay was used to quantify
+    the produced proteins in the supernatants" - i.e. TOTAL supernatant protein, not albumin-specific,
+    so 14.8 g/L is an upper bound on rBSA (host-cell protein and secreted peptides count too). 5 L
+    bioreactor, 2 L batch on glycerol, glycerol fed-batch, ~72 h METHANOL induction ("a total of 1 L
+    of methanol used"), 29 C, pH 6.0. N-terminal 6xHis tag, purified on HisTrap (a lab route, not a
+    food route; the tag would have to go for a product). If even half of it is rBSA, it is in line
+    with Zhu 2018's 8.86 g/L in 96 h. Grade A for the measurement, but use with the caveat.
+
+# =======================================================================================
+# 3. Downstream processing
+# =======================================================================================
+
+- key: hsa_delta_cex_capture_conditions
+  value: 40
+  low: 30
+  high: 50
+  unit: g rHA loaded per L of SP/S-Sepharose FF (operating load, not a measured dynamic capacity)
+  grade: B
+  source: "Delta Biotechnology (Goodey et al.). High purity albumin and method of producing. US 5,728,553 A (1998), Example 2; same in US 6,638,740 B1 (2003)"
+  doi_or_url: https://patents.google.com/patent/US5728553A/en
+  locator: "Example 2, 'Cation Exchange Chromatography', Table 3 (recipes) and Table 4 (S-FF steps)"
+  quote: "S-Sepharose FF (Pharmacia) at a bed height of 12.5 cm, with a column loading of 40±10 g rHA/L matrix."
+  read: fulltext
+  note: >-
+    Capture straight from centrate: "sodium octanoate is added ... to a final concentration of
+    approximately 5 mM. The pH is adjusted with acetic acid ... to 4.50±0.1" (Example 2). US 6,638,740
+    widens it: "a column loading of 10 to 50 g albumin/L, preferably 40±10". Physics (mine): HSA pI is
+    ~4.7-5.0 (literature value, not sourced here), so at pH 4.5 it carries net positive charge and
+    binds a cation exchanger, while most yeast proteins (acidic) and pigments do not; octanoate
+    (a ligand of albumin's fatty-acid sites) stabilizes it against protease and heat. This is the
+    same physics as the model's lactoferrin CEX (LF pI ~8.7 binds at neutral pH), so the cex route
+    applies with albumin-specific numbers. Proposed dsp.cex_dbc_g_L for albumin: 40 (30-50), B.
+
+- key: hsa_delta_cex_step_table
+  value: {equilibration_cv: 4, wash_cv: 11.5, elution_cv: 2, eluate_collection_cv: 6.5, salt_wash_cv: 3.5, naoh_cv: 3, storage_cv: 3.5, load_flow_cm_min: 6.36, elution_flow_cm_min: 3.18, bed_cm: 12.5}
+  unit: column volumes per cycle and linear flows
+  grade: B
+  source: "US 5,728,553 A, Table 4 (S-FF) and Table 3 (recipes)"
+  doi_or_url: https://patents.google.com/patent/US5728553A/en
+  locator: "Table 4; Table 3 recipes 1, 2, 3, 4, 7"
+  quote: "1. Equili- 1 6.36 D 4 ... 3. Wash 1 6.36 D 11.5 ... 4. Elution 2 3.18 D 2 ... 5. Eluate 2 3.18 D 6.5 ... 6. Salt 3 3.18 D 3.5 ... 7. NaOH 4 3.18 D 3 ... 8. Storage 7 3.18 D 3"
+  read: fulltext
+  note: >-
+    Derived (mine): total buffer per cycle = 4 + 11.5 + 2 + 6.5 + 3.5 + 3 + 3 + 0.5 = 34 CV (vs 16 in
+    base.yaml's EVERY lactoferrin table; propose cex_cv_per_cycle 34, low 16). Eluate collected over
+    2 + 6.5 = 8.5 CV (the elution and collection steps; propose cex_elution_cv 8.5 for albumin,
+    vs 3.5). Load flow 6.36 cm/min x 60 / 12.5 cm = 30.5 CV/h; elution 15.3 CV/h (propose
+    cex_flow_cv_per_h 20, the base value, inside this range). Elution is NOT with 1 M NaCl: recipe 2
+    is sodium acetate trihydrate 13.6 g/L + acetic acid 0.75 g/L, pH 5.5 (a pH/ionic-strength step;
+    ~0.1 M acetate, 6.5-7.5 mS/cm); the 2 M NaCl "salt wash" (recipe 3: NaCl 117 g/L) comes AFTER
+    elution as a strip. Derived (mine): elution salt ~ 13.6 g/L NaOAc.3H2O; strip 3.5 CV x 117 kg/m3
+    NaCl = 410 kg NaCl per m3 resin-cycle; NaOH 3 CV x 20 kg/m3 (0.5 M) = 60 kg per m3 resin-cycle.
+    In base.yaml terms: cex_elution_nacl_kg_m3 ~0 (acetate instead, ~14 kg/m3), regen ~117 kg/m3
+    NaCl over 3.5 CV, CIP 0.5 M NaOH. The octanoate-elution variant (US 6,638,740 Ex. 5) elutes
+    with ~5 mM octanoate at pH ~5.5 instead.
+
+- key: hsa_delta_cex_step_recovery
+  value: 0.56
+  low: 0.40
+  high: 0.66
+  unit: fraction of rHA (monomer) recovered over the S-FF cation-exchange capture step
+  grade: B
+  source: "US 5,728,553 A Table 4 footnote (>40%); US 6,638,740 B1 Example 5 (46-66% anticipated monomer recovery)"
+  doi_or_url: https://patents.google.com/patent/US6638740B1/en
+  locator: "US 5,728,553 Table 4 footer; US 6,638,740 text before 'the albumin was therefore eluted ... with a solution of octanoate'"
+  quote: "the anticipated recovery of rHA monomer is between 46 and 66%."
+  read: fulltext
+  note: >-
+    US 5,728,553 Table 4 footer: "Recovery of rHA >40% (Centrate SDSPAGE, Seluate HPLC)" - note the
+    two different assays (SDS-PAGE in, HPLC out), so the true mass recovery is uncertain. value =
+    midpoint of 46-66% (mine). This is MUCH lower than the lactoferrin base (0.832) and is the single
+    most important DSP number for albumin: whole-broth acidification to pH 4.5 activates yeast
+    proteases (Kobayashi 2000: 660 mg/L/h degradation at pH 4.3), and the pharma process cuts
+    narrowly for monomer. A media-grade process could cut wider (accepting dimer/fragment);
+    proposed dsp.cex_recovery for albumin: 0.56 (0.40-0.83), B; the high end borrows the EVERY
+    lactoferrin CEX figure (D analogy).
+
+- key: hsa_delta_full_train_pharma
+  value: "centrifuge -> SP-FF CEX (pH 4.5) -> Delta Blue affinity -> UF -> S-200 gel permeation -> DEAE-FF AEX -> (phenylboronate / later variants) -> final UF -> formulation"
+  unit: process train (pharmaceutical Recombumin, >=99.9% pure)
+  grade: B
+  source: "US 5,728,553 A (1998), Examples 1-3 and claims; US 6,638,740 B1 (2003)"
+  doi_or_url: https://patents.google.com/patent/US5728553A/en
+  locator: "Example 2 sections 'Cation Exchange Chromatography', 'Affinity Chromatography', 'Intermediate Ultrafiltration', 'Gel Permeation Chromatography', 'Anion Exchange Chromatography'; claim 1"
+  quote: "A process for preparing an albumin product at least 99.9% pure an albumin-containing solution, comprising the steps of: (a) passing the albumin-containing solution through a cation exchange matrix under conditions such that the albumin will bind to the matrix"
+  read: fulltext
+  note: >-
+    Step recoveries stated in US 5,728,553: centrifugation "At least 75% of the rHA present in the
+    diluted culture is recovered in a single pass centrifugation operation"; S-FF ">40%"; DBA affinity
+    load "10±1 g rHA/L matrix" (Delta Blue capacity spec "not less than 20 mg/ml bed volume at 5%
+    breakthrough"); intermediate UF "Recovery of rHA>90% (HPLC)", retentate 80-110 g/L; gel permeation
+    and DE-FF each "Recovery of rHA >65% (HPLC)"; DE-FF load 35±15 g/L. Derived (mine), multiplying the
+    stated lower bounds: 0.75 x 0.40 x (DBA, not stated) x 0.90 x 0.65 x 0.65 = 0.11 x DBA recovery - a
+    pharma train with >=6 steps loses most of the product, which is why a media/food grade must not
+    copy it. The product is "at least 99.9% monomeric"; final formulation 235-265 g/L with 0.08 mmol
+    octanoate per g. Media-grade relevance: the CEX capture step alone already removes "yeast
+    antigens, low molecular weight contaminants and pigment".
+
+- key: hsa_pichia_pigment_problem
+  value: 0.0141
+  unit: A350/A280 pigment index after the 2-step novel process (comparable to plasma HSA)
+  grade: A
+  source: "Li S, Li L, Chen Z, et al. A novel purification procedure for recombinant human serum albumin expressed in Pichia pastoris. Protein Expr Purif 149:37-42 (2018)"
+  doi_or_url: 10.1016/j.pep.2018.04.012
+  locator: abstract
+  quote: "Through this procedure, the pigment content (A350/A280) and polysaccharides content of rHSA were reduced to 0.0141 and 0.253 μg/mg, respectively, which were comparable to pHSA."
+  read: abstract
+  note: >-
+    Same abstract: "rHSA often entraps endogenous or exogenous impurities, including color pigments
+    and polysaccharides. Therefore, the purification of rHSA to high purity remains the bottleneck in
+    large-scale production of rHSA." Their fix is partial unfolding + crystallization (not in the
+    model's routes). For cell-culture media the pigment (yellow, bound to albumin's ligand sites) is
+    cosmetic plus a lot-consistency issue; mannan/polysaccharide and HCP matter for performance.
+    Mitsubishi's Ohtani 1998 (Anal Chem 70:425, abstract) set PPC detection at "1 ng of protein/250 mg
+    of rHSA" and mannan at "180 ng of mannose/mg of rHSA" - the pharma purity scale.
+
+- key: hsa_kphaffii_two_step_recoveries_academic
+  value: 0.58
+  low: 0.58
+  high: 0.67
+  unit: overall purification recovery, academic Pichia rHSA (2-3 steps)
+  grade: A
+  source: "Zhu 2018 PEP 147:61 (58%, >96% pure, filtration + Cibacron Blue); Zhu 2021 PEP 181:105831 ('two thirds', three steps)"
+  doi_or_url: 10.1016/j.pep.2018.02.003
+  locator: abstracts
+  quote: "the desired protein was purified by filtration and Cibacron Blue affinity chromatography, which yielded a 58% recovery of a product that had over a 96% purity"
+  read: abstract
+  note: >-
+    Zhu 2021: "a three-step purification procedure which recovered two thirds of the desired protein
+    at high purity". These are whole-train recoveries (clarification to pure product), consistent with
+    the Delta CEX step (46-66%). Rice OsrHSA (He 2011): 45.6% lab, 55.8% at scale over 3 chromatography
+    steps. So every public rHSA train recovers ~45-67%, far below the 80-95% of food-protein UF/DF
+    routes. Proposed overall albumin DSP recovery to aim at in calibration: ~0.55-0.65.
+
+- key: hsa_theoretical_pi_and_charge
+  value: 5.80
+  unit: theoretical pI of mature HSA (EMBOSS pKa set, 1 free Cys); BSA 5.67
+  grade: A
+  source: "Derived (mine) from UniProtKB P02768/P02769 mature sequences"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02768.json
+  locator: "computed (D 36, E 62, K 59, R 24, H 16 in mature HSA)"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - check: net charge of HSA ~+26 at pH 4.5, ~+3 at pH 5.5, ~-11 at pH 7.0 (sequence-
+    based, ignoring burial and bound fatty acids; the measured pI of native, fatty-acid-loaded HSA is
+    lower, ~4.7-5, from general literature, not sourced in this pass). This explains the Delta CEX
+    recipe physically: load at pH 4.5 where albumin is strongly positive, elute by moving to pH 5.5
+    (near-neutral net charge) with ~0.1 M acetate rather than 1 M NaCl, then strip with 2 M NaCl.
+    Consequence for the model: albumin's CEX elution salt cost is lower than lactoferrin's, but the
+    whole MF permeate must be acidified to pH ~4.5 (acid cost; proteolysis risk).
+
+- key: spec_invitria_cellastim_s
+  value: {purity_min: 0.96, endotoxin_eu_per_mg_max: 1.0}
+  unit: "cell-culture-grade rHSA spec (rice-expressed, lyophilized)"
+  grade: C
+  source: "InVitria, Cellastim S product page (accessed 2026-10-02)"
+  doi_or_url: https://invitria.com/products/cellastim-s-rhsa/
+  locator: "Specifications; ordering"
+  quote: "Purity ≥96.0% ... Endotoxin Level ≤ 1.000 EU/mg ... Recombinant, rice-based expression system"
+  read: html
+  note: >-
+    Prices on the same page: "Cellastim® S – Recombinant human albumin – 10 g" $548.00; "100 g"
+    $4,349.00. Derived (mine): $54.8/g and $43.5/g = $54,800 and $43,490 per kg. Same vendor's
+    excipient grade (Exbumin) is "≥98.0%" and "≤0.02 EU/mg" (search-result summary of
+    invitria.com/products/exbumin-rhsa-excipient/, not opened). The CELL-CULTURE spec, 96% purity and
+    1 EU/mg, is the relevant target for a media-grade PF albumin; it is much looser than pharma
+    (>=99.9%). Proposed dsp.cex_target_frac_dry for albumin: 0.96 (low 0.90, high 0.99), C.
+
+- key: spec_healthgen_osrhsa_cell_culture
+  value: {purity_min: 0.99, endotoxin_eu_per_mg_max: 0.125}
+  unit: "cell-culture-grade OsrHSA (rice) spec"
+  grade: C
+  source: "Lifeasible (reseller) product page 'OsrHSA, Recombinant Human Serum Albumin from Oryza sativa (Cell Culture Grade)' (accessed 2026-10-02)"
+  doi_or_url: https://www.lifeasible.com/p/10906/osrhsa-recombinant-human-serum-albumin-from-oryza-sativa-cell-culture-grade/
+  locator: "specifications"
+  quote: "≥ 99%, SDS-PAGE ... < 0.125 EU/mg"
+  read: html
+  note: >-
+    Reseller listing of Healthgen/Oryzogen OsrHSA; pack sizes 10 g and 100 g, no price shown. The
+    Oryzogen manufacturer page returned 404. A search-engine summary attributed "<0.01 EU/mg" and
+    99.99% to the clinical grade (not opened, not used).
+
+- key: spec_sartorius_recombumin
+  value: "S. cerevisiae, ICH Q7 cGMP, UK; 20% or 10% w/v liquid; no public endotoxin number"
+  unit: qualitative spec
+  grade: C
+  source: "Sartorius, Recombumin product datasheet (Albumedix) and 'Comparing albumin manufacturers' one-pager (2021)"
+  doi_or_url: https://www.sartorius.com/download/1429786/recombumin-datasheet-en-b-sartorius-pdf-data.pdf
+  locator: "datasheet p.4 'Product Specifications' and 'Ordering Information'"
+  quote: "Manufactured in   Proprietary genetically modified yeast strain (Saccharomyces cerevisiae)"
+  read: fulltext
+  note: >-
+    Recombumin Prime (20% w/v, 50 mL vials) and Elite (10% w/v, up to 1 L bags); USP-NF compliant per
+    Sartorius' web page. The one-pager says the products "are manufactured at cGMP ICH Q7 standards at
+    our own manufacturing site in Nottingham, UK" and claims rice-derived rAlb is more pigmented. No
+    price, purity number or endotoxin number in either PDF; it is a pharma excipient, not a bulk
+    media input. Evidence that the S. cerevisiae route is the methanol-free commercial benchmark.
+
+- key: media_or_food_grade_albumin_spec
+  value: null
+  unit: spec for albumin as a cultivated-meat input
+  grade: E
+  source: "Searches of FDA CCC memos (Wildtype, UPSIDE), GFI 2023, GFI SOTI 2026; no FDA GRAS notice for recombinant albumin found in the earlier survey"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: fulltext
+  note: >-
+    NOT FOUND: no published food-grade or "media-grade for cultivated meat" albumin specification
+    exists. GFI 2023 discusses food-grade inputs in general. The nearest anchors are the cell-culture
+    research grades (96-99% purity, 0.125-1 EU/mg). A food-grade spec would likely follow the PF
+    GRAS pattern (>=75-90% protein, heavy metals, micro) plus an endotoxin limit set by cell
+    performance rather than safety (oral exposure to endotoxin is not a hazard at these levels; my
+    judgement, E).
+
+- key: endotoxin_yeast_host
+  value: "host is endotoxin-free; endotoxin enters only via contamination (water, raw materials, bacterial contamination)"
+  unit: qualitative
+  grade: A
+  source: "Rueda F, Cano-Garrido O, et al. Functional inclusion bodies produced in the yeast Pichia pastoris. Microb Cell Fact 15:166 (2016)"
+  doi_or_url: 10.1186/s12934-016-0565-9
+  locator: abstract
+  quote: "the yeast Pichia pastoris (Komagataella spp.), an endotoxin-free host system for recombinant protein production"
+  read: abstract
+  note: >-
+    Endotoxin is lipopolysaccharide from Gram-negative bacterial outer membranes; neither K. phaffii
+    nor S. cerevisiae makes it (general microbiology). So the <=1 EU/mg cell-culture spec is met by
+    hygiene (pyrogen-free water, clean raw materials, closed processing) rather than by a dedicated
+    endotoxin-removal step; Delta even ultrafilters its medium "(10,000 Mol. Wt. cut-off) to remove
+    endotoxins" (US 5,728,553 Ex. 1). Physics (mine): 1 EU ~ 0.1 ng LPS (BBA Adv 2025 assay note:
+    "0.1 EU equals 20 pg endotoxin" - a different conversion, check), so 1 EU/mg ~ 0.1-0.2 ppm LPS.
+    A food-grade plant (non-aseptic DSP, open spray drying) may not reach 1 EU/mg without an extra
+    step; a CEX capture step itself removes LPS (anionic, flows through at pH 4.5). This is the main
+    reason the media-grade route should be 'cex', not 'concentrate'. No public measurement of
+    endotoxin in a food-grade PF protein was found (gap).
+
+- key: comtrade_hs350290_unit_values_2023
+  value: {USA: 57.8, Netherlands: 42.4, UK: 376.6, Australia: 176.8, Uruguay: 162.8, Germany: 12.8, Belgium: 2.8, world: 10.87}
+  unit: USD/kg export unit value, HS 350290 'albumins (other than egg and milk albumin), albuminates and other albumin derivatives', 2023
+  grade: A
+  source: "UN Comtrade public preview API (reporter = all, partner = World, flow = exports), HS 350290, 350220, 300212, 2023"
+  doi_or_url: "https://comtradeapi.un.org/public/v1/preview/C/A/HS?period=2023&cmdCode=350220,350290,300212&flowCode=X&partnerCode=0"
+  locator: "54 reporters for 350290; saved as .preview/albumin/comtrade_2023.json; 2024 query returned 0 rows"
+  quote: "350290 (2023): world 150.6 M USD, 13,848 t, 10.87 USD/kg; USA 33.8 M USD, 584 t, 57.8 USD/kg; UK 39.3 M USD, 104 t, 376.6 USD/kg; Belgium 18.7 M USD, 6,676 t, 2.8 USD/kg; Netherlands 2.6 M USD, 62 t, 42.4 USD/kg"
+  read: fulltext
+  note: >-
+    The quote is my tabulation of the API rows (accessed 2026-10-02), not a sentence. Interpretation
+    (mine, D): HS 3502.90 mixes very different goods - bulk animal blood/plasma albumin for food and feed
+    (Belgium, Spain, China at $3-5/kg), technical and research BSA (USA $58/kg - the largest US BSA
+    producers are in the Midwest; Netherlands $42/kg; Australia and Uruguay $163-177/kg, the
+    BSE-free-origin BSA exporters), and the UK's $377/kg (104 t) which may include recombinant
+    (Albumedix, Nottingham) or other high-grade material. The GFI 2025 band "$40 to $70/kg in public
+    trade databases" (gfi2025_albumin_trade_price) matches the US and Dutch unit values, so it is
+    most likely a technical/bulk BSA price, NOT a cell-culture-grade or recombinant price. Human
+    albumin for therapy is in HS 3002.12 (blood fractions), 2023 world exports 45.6 bn USD / 175,776 t
+    -> 258 USD/kg, but that heading includes immunoglobulins and other fractions, so it is not an
+    albumin price either. Use the band $40-70/kg as the 'BSA commodity' comparator and $30-55k/kg as
+    the 'recombinant cell-culture catalogue' comparator.
+
+- key: plasma_hsa_market_value
+  value: 5.4
+  unit: billion USD (global albumin market, 2021)
+  grade: C
+  source: "Ashraf MA, Shen B, Raza MA, et al. Albumin: a review of market trends, purification methods, and biomedical innovations. Curr Issues Mol Biol 47:303 (2025)"
+  doi_or_url: 10.3390/cimb47050303
+  locator: "Sect. 7 'Albumin Market' (PMC12110658), citing a market report [170]"
+  quote: "the global albumin market was worth USD 5394.9 million in 2021 and is expected to hit USD 9192 million by 2030 with a compound annual growth rate (CAGR) of 6.1%"
+  read: fulltext
+  note: >-
+    A secondary citation of a commercial market report (C). MRB's web page: "Global sales of albumin
+    for human therapeutic use were over $5 billion in 2022" (marketingresearchbureau.com, report
+    teaser; C). No public tonnage from MRB was readable (paywalled reports).
+
+- key: plasma_hsa_tonnage_shortage
+  value: 1000
+  unit: metric tons/yr global HSA shortage (lower bound, as stated)
+  grade: C
+  source: "Rice-derived recombinant human serum albumin as an alternative to human plasma for patients with decompensated liver cirrhosis: a randomised trial. Gut (2025)"
+  doi_or_url: 10.1136/gutjnl-2025-335577
+  locator: "Introduction (PMC12418551)"
+  quote: "current recombinant protein facilities cannot satiate a global yearly shortage of &gt;1000 metric tons of HSA"
+  read: fulltext
+  note: >-
+    Same paper: "With an expression level of 20 g OsrHSA per kilogram of brown rice, only 10 000 acres
+    of rice field would be sufficient to produce 300 tons (30 million vials) of OsrHSA" and HCP "less
+    than 0.0001% after only three steps of chromatography". Authors are linked to Healthgen (my
+    reading of the affiliations not checked), so C. Another abstract gives world demand as "500 tons"
+    (doi:10.1080/15321819.2016.1184163, abstract, C). Plasma HSA tonnage: ~500-1,100+ t/yr, poorly
+    sourced (gap; MRB data are paywalled). Either way, a single 1-10 kt/yr PF albumin plant would be
+    1-20x the entire human-albumin market, and its CM demand case rests on GFI's scenarios.
+
+# =======================================================================================
+# 6. Welfare / displacement framing: is albumin demand real?
+# =======================================================================================
+
+- key: beefy9_albumin_dose_and_cost_driver
+  value: 0.8
+  low: 0.8
+  high: 11.2
+  unit: g/L recombinant albumin in Beefy-9 (bovine satellite cells); high = best short-term growth tested
+  grade: A
+  source: "Stout AJ, Mirliani AB, Rittenberg ML, et al. Simple and effective serum-free medium for sustained expansion of bovine satellite cells for cell cultured meat. Commun Biol 5:466 (2022)"
+  doi_or_url: 10.1038/s42003-022-03423-8
+  locator: "Results 'Beefy-9' and 'Cost analysis' (PMC9163123, Europe PMC full-text XML)"
+  quote: "an augmented B8 media with nine components was established by supplementing with 800 μg/mL rAlbumin alone. This media was termed Beefy-9"
+  read: fulltext
+  note: >-
+    Evidence FOR albumin demand in muscle-cell media: albumin is the single component that makes B8
+    work for bovine satellite cells, and more helps: "concentrations of rAlbumin up to 11.2 mg/mL
+    revealed continued improvements ... an 8.5-fold improvement in 4-day growth compared to Beefy-9's
+    800 ug/mL", but "by 6.4 mg/mL rAlbumin, Beefy-9 had already surpassed the cost of serum-containing
+    BSC-GM". Cost: "Beefy-9 prices were dominated by rAlbumin, basal media, FGF-2 (at high
+    concentrations), and insulin"; Beefy-9 "$217/L vs. $290/L" for serum medium. So albumin demand is
+    price-elastic: at $10/kg cells would use several g/L; at $30k/kg, <1 g/L or zero. This is the
+    strongest argument that the PF cost question matters.
+
+- key: beefyR_rapeseed_replaces_albumin
+  value: "rapeseed protein isolate replaces recombinant albumin"
+  unit: qualitative (dose in the full text, not read)
+  grade: A
+  source: "Stout AJ, Rittenberg ML, Shub M, et al. A Beefy-R culture medium: replacing albumin with rapeseed protein isolates. Biomaterials 296:122092 (2023)"
+  doi_or_url: 10.1016/j.biomaterials.2023.122092
+  locator: abstract (PMC10111969; full-text XML not served by Europe PMC)
+  quote: "Here we alter Beefy-9 by replacing recombinant albumin with rapeseed protein isolate (RPI), a bulk-protein solution obtained from agricultural waste"
+  read: abstract
+  note: >-
+    Same abstract: cells grew "with an average doubling time of 26.6 h, showing improved growth
+    compared with Beefy-9", and maintained myogenicity. Evidence AGAINST albumin demand: a crude
+    plant-protein isolate (alkali extraction, pH 4.5 precipitation, 3 kDa UF) does albumin's job.
+    The earlier survey's "0.4 g/L" RPI dose and "input cost ... $0.002" per L are from the preprint
+    and were not re-read here.
+
+- key: pasitka2024_animal_free_medium_cost
+  value: 0.63
+  unit: US$ per L of animal-component-free medium (cultivated chicken, continuous TFF perfusion)
+  grade: A
+  source: "Pasitka L, Wissotsky G, Ayyash M, et al. Empirical economic analysis shows cost-effective continuous manufacturing of cultivated chicken using animal-free medium. Nature Food 5 (2024)"
+  doi_or_url: 10.1038/s43016-024-01022-w
+  locator: abstract (full text behind Nature login; not read)
+  quote: "Continuous manufacturing was carried out in an animal-component-free culture medium for US$0.63 l-1 that supports the long-term, high density culture of chicken cells."
+  read: abstract
+  note: >-
+    Believer Meats (shut down Dec 2025, per the earlier survey). At $0.63/L total, the medium cannot
+    contain albumin at catalogue prices (0.8 g/L x $30/g = $24/L); whether it contains albumin at all
+    (vs cyclodextrin, as GFI SOTI 2026 says for "Vow, WildType, and Believer Meats") was NOT verified
+    in the full text - paywalled item for Pablo. Derived (mine): if the medium held 1 g/L albumin
+    within $0.63/L, albumin would have to cost <$630/kg even before any other component.
+
+- key: albumin_welfare_leverage
+  value: 74
+  low: 21
+  high: 110
+  unit: kg cultivated meat enabled per kg albumin (at 9-47 g albumin per kg CM)
+  grade: D
+  source: "Derived (mine) from gfi2023_implied_albumin_concentration and gfi2023_medium_use_l_per_kg"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine): 1.13 g/L x 8 / 13 / 42 L/kg = 9.0 / 14.7 / 47.5 g albumin per kg CM -> 111 / 68 /
+    21 kg CM per kg albumin (value ~ the 8-13 L/kg 'efficient' band, 68-111). At ~1.5 kg edible meat
+    per broiler (the PROTEIN_CANDIDATES.md basis, not re-checked) that is ~14-74 chickens per kg of
+    albumin, conditional on (i) CM displacing chicken 1:1, (ii) CM reaching scale, (iii) media keeping
+    albumin. The evidence in this section says (iii) is in decline at the leading firms (Wildtype,
+    Believer, Vow per GFI) but still present for muscle satellite-cell media (UPSIDE 2022, Beefy-9).
+    The model's job is the price that would keep it in: Beefy-9 shows demand rises steeply as price
+    falls.
+
+# =======================================================================================
+# Added by the main session (2026-10-02): price entries in the benchmarks.reported_prices format
+# =======================================================================================
+
+- key: albumin_bulk_trade_us_nl_2023
+  value: 50.1
+  values: {2023: [42.4, 57.8]}
+  unit: USD/kg product, export unit value, HS 3502.90 (albumins other than egg and milk)
+  grade: A
+  source: "UN Comtrade 2023, HS 350290 exports: Netherlands 2.6 M USD / 62 t = 42.4 USD/kg; USA 33.8 M USD / 584 t = 57.8 USD/kg (entry comtrade_hs350290_unit_values_2023)"
+  doi_or_url: https://comtradeplus.un.org/
+  locator: "API rows in comtrade_hs350290_unit_values_2023"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) from comtrade_hs350290_unit_values_2023. The two exporters whose unit values match GFI 2025's
+    "high-value albumins ... $40 to $70/kg" (gfi2025_albumin_trade_price), read as technical/bulk bovine serum
+    albumin, the animal albumin a scaled cultivated-meat industry could buy. The heading also holds $3-5/kg feed
+    plasma (Belgium, Spain) and $377/kg UK exports (possibly recombinant or high grade), excluded as different goods.
+    Per kg product; BSA powders are ~95-98% protein, so per kg protein the band is ~2-5% higher (ignored).
+
+- key: rhsa_catalogue_price_invitria_2026
+  value: 43490
+  low: 43490
+  high: 54800
+  year: 2026
+  unit: USD/kg (cell-culture-grade recombinant HSA, catalogue, 10-100 g packs)
+  grade: C
+  source: "InVitria Cellastim S product page (entry spec_invitria_cellastim_s): 'Cellastim S - Recombinant human albumin - 10 g' $548.00; '100 g' $4,349.00"
+  doi_or_url: https://invitria.com/
+  locator: "product page, prices (accessed 2026-10-02 by the research agent)"
+  quote: "Cellastim® S – Recombinant human albumin – 10 g $548.00 ... 100 g $4,349.00"
+  read: html
+  note: >-
+    Derived: $54.8/g (10 g) and $43.5/g (100 g). Research-scale prices, context only: not a bulk price and not in the
+    market band. CE Delft 2021 used $41/g (cedelft2021_albumin_price_and_dose); Schenzle 2025 paid ~$30.7/g.
