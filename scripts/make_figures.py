@@ -150,7 +150,7 @@ save(fig, "fig2_bridge.png")
 
 # ------------------------------------------------------------------ Fig 1 cost vs titer
 marks = R["benchmarks"]["titer_markers"]
-fig, axes = grid(len(PRODS), h=4.7, gridspec_kw=dict(hspace=0.8, wspace=0.22))
+fig, axes = grid(len(PRODS), h=5.6, gridspec_kw=dict(hspace=1.25, wspace=0.22))
 for ax, prod in zip(axes, PRODS):
     c = R["cost_vs_titer"][prod]
     T = np.array(c["titers"], float)
@@ -158,8 +158,8 @@ for ax, prod in zip(axes, PRODS):
     ys_all = []
     if m:
         ax.axhspan(m["lo"], m["hi"], color=BAND[prod], zorder=0, lw=0)
-        ax.text(2.1, m["lo"] * 1.07, f"{m['text']}:\n${m['lo']:,.0f}-{m['hi']:,.0f}/kg protein", fontsize=6.6, color=INK2,
-                va="bottom", ha="left")
+        ax.text(2.1, m["hi"] * 0.93, f"{m['text']}:\n${m['lo']:,.0f}-{m['hi']:,.0f}/kg protein", fontsize=6.6, color=INK2,
+                va="top", ha="left")
         ys_all += [m["lo"], m["hi"]]
         for s_ in m["spot"][:1]:
             ax.axhline(s_["usd_kg_protein"], color=MUTED, lw=0.9, ls=(0, (4, 3)), zorder=1)
@@ -501,7 +501,7 @@ ROUTES = {   # (label, result) per product: the base route first, then its alter
            ("UF/DF only (Intelligen case a)", LFX.get("cases", {}).get("lf_ufdf_only/humbird"))],
 }
 rprods = [k for k in PRODS if k in ROUTES]
-fig, axes = grid(len(rprods), w=11, h=2.5, gridspec_kw=dict(hspace=0.8, wspace=0.75))
+fig, axes = grid(len(rprods), w=12, h=2.5, gridspec_kw=dict(hspace=0.8, wspace=1.0))
 for ax, prod in zip(axes, rprods):
     rows = [(lab, d) for lab, d in ROUTES[prod] if d]
     m = market(prod)
