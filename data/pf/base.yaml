@@ -74,6 +74,8 @@ energetics:                   # energetic ceiling on the product-reaction yield 
   sulfur_atp_per_S: {value: 3, unit: ATP/S atom, grade: B,
     source: "textbook sulfate assimilation: ATP sulfurylase (ATP -> AMP + PPi, 2 ATP-equivalents) + APS kinase (1 ATP). Not re-read for this project. The 8 electrons of sulfate -> sulfide are charged separately at the host's P/O (4 NADH-equivalents), sulfur_electrons_per_S"}
   sulfur_electrons_per_S: {value: 8, unit: e-/S atom, grade: A, source: "oxidation state +6 (sulfate) to -2 (cysteine/methionine sulfur)"}
+  methanol_respired_O: {value: 2, unit: O atoms reduced via NADH per methanol, grade: B,
+    source: "methylotrophic-yeast dissimilation (textbook; not re-read for this project): alcohol oxidase passes methanol's first 2 electrons to O2 as H2O2 (no ATP; catalase returns half the O2), formaldehyde and formate dehydrogenases each make 1 NADH, i.e. 4 electrons = 2 O atoms respired, so 2 x P/O ATP per methanol (2.96 at P/O 1.48) against 21.8 per glucose (3.63 per C-mol). Sets the energetic ceiling on methanol (plant.energetic_ceiling) and with it the product yield on methanol (plant.methanol_yield)"}
   substrate_atp_per_glucose: {value: 4, unit: ATP/glucose, grade: A,
     source: "textbook stoichiometry: 2 ATP in glycolysis + 2 GTP/ATP from succinyl-CoA in the TCA cycle per glucose. Oxidative phosphorylation adds P/O x 12 (24 electrons = 12 O atoms = 6 O2 per glucose), so 4 + 12 x 1.48 = 21.8 ATP per glucose for K. phaffii. Not re-read for this project"}
 

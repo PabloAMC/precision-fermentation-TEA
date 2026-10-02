@@ -124,9 +124,19 @@ def _solve(fixed: dict[Species, float], unknown: list[Species],
 
 
 def anabolic(bio: Species, csource: Species, nsource: Species | None = None) -> Reaction:
-    """csource + NH3 -> 1 C-mol biomass + CO2 + H2O (element balanced)."""
+    """csource + NH3 -> 1 C-mol biomass + CO2 + H2O (element balanced).
+
+    A C-source less reduced than the biomass (glucose: gamma 4 per C against ~4.1) supplies the
+    missing electrons by oxidising some of itself, so CO2 is released. A C-source more reduced than
+    the biomass (methanol: gamma 6) would balance only by fixing CO2, which methylotrophic yeasts do
+    not do; there every biomass carbon comes from the C-source and the surplus electrons go to the
+    electron acceptor, O2 (Heijnen & van Dijken 1992; Kleerebezem & van Loosdrecht 2010)."""
     nsource = nsource or get("NH3 (aq)")
-    return _solve({bio: 1.0}, [csource, nsource, get("CO2 (aq)"), get("H2O (l)")], ELEMENTS)
+    r = _solve({bio: 1.0}, [csource, nsource, get("CO2 (aq)"), get("H2O (l)")], ELEMENTS)
+    if r.of("CO2 (aq)") < -1e-12:
+        r = _solve({bio: 1.0, csource: -bio.C / csource.C}, [nsource, get("O2 (aq)"), get("H2O (l)")],
+                   tuple(e for e in ELEMENTS if e != "C"))
+    return r
 
 
 def catabolic(csource: Species) -> Reaction:
