@@ -543,7 +543,7 @@ save(fig, "fig9_routes.png")
 SC_, PL_ = R["scenarios"], R["physical_limit"]
 ACAD = {"blg": [("best public strain, 13.9 g/L (Yao 2026)", "academic/blg"), ("best public on glucose (Li 2026)", "academic/blg_li2026")],
         "ova": [("best public strain (Aro 2023, T. reesei)", "academic/ova")],
-        "ovd": [("best peer-reviewed (Kim 2025; abstract only)", "academic/ovd"),
+        "ovd": [("best peer-reviewed (Kim 2025)", "academic/ovd"),
                 ("EVERY patent example, 30 g/L", "academic/ovd_patent")],
         "cas": [("best peer-reviewed in K. phaffii, intracellular (Choi 1996)", "academic/cas"),
                 ("best public casein, 3 g/L (E. coli patent)", "academic/cas_patent")],

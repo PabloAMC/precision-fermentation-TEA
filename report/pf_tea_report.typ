@@ -279,7 +279,7 @@ secretion at the design rate without growth.
   production priced as glucose; on glucose, Li et al. 2026, 5.14 g/L: #usd0(S("academic/blg_li2026").msp_ccf)/kg);
   OVA #fx(S("academic/ova").design.titer, d: 0) g/L in *T. reesei*, full-length and clipped summed (1 g/L
   of intact OVA: #usd0(S("academic/ova_intact_1gL").msp_ccf)/kg); ovomucoid #fx(S("academic/ovd").design.titer, d: 2) g/L
-  (Kim et al. 2025, abstract only; EVERY's 30 g/L patent example: #money(S("academic/ovd_patent").msp_ccf)/kg); β-casein
+  (Kim et al. 2025; EVERY's 30 g/L patent example: #money(S("academic/ovd_patent").msp_ccf)/kg); β-casein
   #fx(S("academic/cas").design.titer, d: 1) g/L made inside *K. phaffii* cells and costed as if secreted (Choi and
   Jiménez-Flores 1996; a 3 g/L *E. coli* patent example: #money(S("academic/cas_patent").msp_ccf)/kg); lactoferrin #fx(S("academic/lf").design.titer, d: 1) g/L,
   porcine, the best methanol-free. Incumbents: whey protein, dried egg white and casein trade unit
@@ -437,8 +437,9 @@ growth, #fx(pv("hosts.kphaffii.m_s_prod_g_g_h"), d: 4) g/g/h (Rebnegger et al. 2
 
 Glycans and phosphates are left out of the formulas: 3–6% of the mass of glycosylated OVA and
 5–10% of lactoferrin, which changes the mass balance by less than 1%. Milk β-casein carries five
-phosphoserines (1.7% of its mass); yeasts and bacteria do not add them (they lack the kinase that does,
-Fam20C), and Formo's *E. coli* casein had none (GRN 1312).
+phosphoserines (1.7% of its mass); yeasts and bacteria do not add them without a co-expressed milk kinase
+(they lack Fam20C, which does): Formo's *E. coli* casein had none (GRN 1312), nor had a *K. phaffii*
+β-casein without the kinase (NewMilkBuzz).
 
 The product reaction makes protein from glucose and ammonia and respires enough extra glucose to pay
 for synthesis, so the product-reaction yield $Y_(p s)$ fixes its O#sub[2] demand. *No measured BLG or
@@ -622,22 +623,26 @@ evidence-graded performance (`data/evidence/dsp.yaml`, `ovomucoid.yaml`, `casein
   supplier-based SuperPro model (Yver et al. 2012).
 - *Isolate only:* ammonium-sulfate precipitation (350 g/L; 89% recovery), washed basket centrifuges;
   the dryer is fed the 20%-solids cake.
-- *β-casein: isoelectric precipitation, no membrane concentration.* Casein is least soluble near its
-  isoelectric point, which is how dairy acid casein is made (pH 4.6) and how Formo recovers its PF casein
-  (pH 4 with phosphoric acid, GRN 1312). Without its phosphates the isoelectric point is higher: about
-  5.5 for recombinant β-casein, where only a third of it stayed dissolved against four-fifths of milk
-  β-casein (Chezan et al. 2026, abstract). Formo's route and Standing Ovation's patent both need more
-  than the pH: full precipitation took heating. The
-  microfiltered broth is acidified with H#sub[3]PO#sub[4] at #pv("dsp.acid_h3po4_kg_per_m3") kg/m³ (milk's
-  buffer capacity per m³ from pH 6.6 to 4.6, an analogy, grade D; range
-  #P.dsp.acid_h3po4_kg_per_m3.low–#P.dsp.acid_h3po4_kg_per_m3.high), heated to
-  #pv("dsp.acid_precip_temperature_C") °C for 20 min (recombinant β-casein precipitates only partly at
-  40 °C and fully at 90 °C; Standing Ovation patent) with #pct(pv("dsp.acid_heat_recovery")) regenerative heat
-  recovery (a guess), recovered at #pct(pv("dsp.acid_precip_recovery")) (dairy recovers essentially all
-  its casein; grade D), washed in #pv("dsp.acid_wash_stages") countercurrent decanter stages with
-  #pv("dsp.acid_wash_L_per_kg") L of water per kg, redissolved with #pct(pv("dsp.acid_naoh_kg_per_kg"), d: 0)
-  NaOH by weight (Tetra Pak) and spray-dried as sodium caseinate. Decanters are costed on the
-  disk-stack centrifuge curve (no decanter quote on file); the heater on the HTST sterilizer curve.
+- *β-casein: concentration, then isoelectric precipitation.* Casein is least soluble near its
+  isoelectric point, which is how dairy acid casein is made (pH 4.6). Formo recovers its PF
+  α#sub[s1]-casein the same way, at pH 4 with phosphoric acid, from an extract of its cells (GRN 1312).
+  Recombinant β-casein, without its phosphates, has a higher isoelectric point (5.5 by zeta potential),
+  but it is least soluble at pH 4.5, where it behaves like milk β-casein: 22% of it stayed dissolved
+  against 21% for the native protein, while at pH 4 half stayed dissolved (Chezan et al. 2026, a
+  dilute, unheated assay). The model therefore precipitates at pH 4.5. The microfiltered broth is first
+  ultrafiltered, without diafiltration, to the casein concentration of skim milk
+  (#pv("dsp.acid_precip_feed_g_L") g/L), so that dairy data apply to a similar feed. It is then
+  acidified with H#sub[3]PO#sub[4] at #pv("dsp.acid_h3po4_kg_per_m3") kg/m³ (milk's buffer capacity per m³ from
+  pH 6.6 to 4.6, an analogy, grade D; range #P.dsp.acid_h3po4_kg_per_m3.low–#P.dsp.acid_h3po4_kg_per_m3.high),
+  heated to #pv("dsp.acid_precip_temperature_C") °C for 20 min (in Standing Ovation's patent recombinant
+  β-casein precipitated only partly at 40 °C and fully at 90 °C) with #pct(pv("dsp.acid_heat_recovery"))
+  regenerative heat recovery (a guess), recovered at #pct(pv("dsp.acid_precip_recovery")) (dairy recovers
+  essentially all its casein; grade D; the assay's 78% is the low end), washed in
+  #pv("dsp.acid_wash_stages") countercurrent decanter stages with #pv("dsp.acid_wash_L_per_kg") L of water
+  per kg, redissolved with #pct(pv("dsp.acid_naoh_kg_per_kg"), d: 0) NaOH by weight (Tetra Pak) and
+  spray-dried as sodium caseinate (a design choice: drying the curd as acid casein, as Formo sells it,
+  would be cheaper). Decanters are costed on the disk-stack centrifuge curve (no decanter quote on
+  file); the heater on the HTST sterilizer curve.
 - *Lactoferrin: cation-exchange capture* between microfiltration and ultrafiltration, as in the dairy
   process and every commercial PF lactoferrin: binding capacity #pv("dsp.cex_dbc_g_L") g/L of resin and
   #pv("dsp.cex_cv_per_cycle") column volumes of buffer per cycle (EVERY patent), elution at 1 M NaCl,
@@ -763,9 +768,8 @@ differently and are never averaged:
   with no growth in production. That is the sum of full-length and clipped OVA, and the purified
   product was mostly the clipped 36 kDa form, so intact OVA was probably well under 2 g/L; a 1 g/L
   variant is shown. The *T. reesei* production phase uses the yeast maintenance correlation, which is
-  a lower bound on its sugar use. Ovomucoid: the best peer-reviewed titer is 0.93 g/L (Kim et al.
-  2025), read only as an abstract (paywalled), an exception to our full-text rule made because no other
-  peer-reviewed ovomucoid titer exceeds 0.03 g/L. EVERY's patent example, 30.19 g/L at about 140 h
+  a lower bound on its sugar use. Ovomucoid: the best peer-reviewed titer is 0.93 g/L in a 60 h
+  glycerol fed-batch without methanol, at 176 g/L of cells in a 2.5 L vessel (Kim et al. 2025). EVERY's patent example, 30.19 g/L at about 140 h
   (B; vessel, cell density and feeding not stated), is shown as a variant; it is the only traceable
   number above 1 g/L (a 3.2 g/L figure in a 2025 review has no traceable source). β-casein: no company
   discloses a titer, and no secreted casein titer has been published for any yeast or fungus. In
@@ -1379,8 +1383,9 @@ transport, secretion and turnover costs. Its O#sub[2] limit assumes water-like b
 protein, where viscosity and foam would lower k#sub[L]a. And its heat removal (up to
 #fx(pv("fermenter.heat_removal_max_kW_m3"), d: 0)–40 kW/m³, i.e. about 16 MW per 400 m³ vessel) needs
 external heat-exchange loops that are not costed. For β-casein the O#sub[2] limit is more generous
-still: at #fx(PL("cas/humbird").titer, d: 0) g/L the broth holds casein at a concentration where dairy
-caseinate solutions are already "very viscous" (Southward), which the model does not represent. The
+still: at #fx(PL("cas/humbird").titer, d: 0) g/L the broth holds casein close to the concentration
+above which dairy caseinate solutions become "very viscous" (about 150 g/L, Southward), which the model does
+not represent. The
 best cases are #wlist(p => PL(p + "/humbird").msp_ccf), and lactoferrin's is
 #where(PL("lf/humbird").msp_ccf, MKT("lf")) its reported range.
 

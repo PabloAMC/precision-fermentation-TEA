@@ -437,23 +437,21 @@
 
 - key: ovd_titer_academic_best
   value: 0.929
-  unit: g/L extracellular ovomucoid, K. phaffii, high-cell-density cultivation
+  unit: g/L extracellular ovomucoid, K. phaffii, glycerol fed-batch (2.5 L bioreactor, 1 L start), 60 h
   grade: A
   source: "Kim H, Jin KC, Kim SK. Systematic engineering of Komagataella phaffii for the production of hen egg ovomucoid. Int J Biol Macromol 320:145813 (2025)"
   doi_or_url: 10.1016/j.ijbiomac.2025.145813
-  locator: "abstract"
-  quote: "the highest concentration of ovomucoid, 23 mg/L, was obtained when a signal peptide derived from EPX1 ... and the GCW14 promoter were employed along with ... HAC1, and a protein disulfide isomerase, PDI1 ... Finally, the extracellular production of ovomucoid under high-cell density cultivation was maximized to 929 mg/L."
-  read: abstract
+  locator: "sect. 3.4 and Fig. 5 (fed-batch); sect. 2.3 (cultivation: 2.5 L bioreactor, 1 L BM20GY, glycerol feed, pH 5.5, 30 C, 1000 rpm, 2 vvm)"
+  quote: "the two strains showed maximum ovomucoid production concentrations of 914 and 929 mg/L, respectively, after 60 h of fermentation"
+  read: fulltext
   note: >-
-    THE BEST PEER-REVIEWED OVOMUCOID TITER (abstract only, not verified in the full text): 0.93 g/L secreted, K. phaffii, high-cell-density
-    cultivation. Not open access; only the abstract was read (full text would give the scale, mode,
-    duration, cell density and whether the GCW14 promoter route is methanol-free - GCW14 is a
-    constitutive GPI-anchored-protein promoter, so probably glucose/glycerol-based). The engineering
-    story matches the industrial one exactly: the bottleneck is secretion and ER folding of a 9-S-S
-    protein, fixed with a strong secretion leader plus HAC1 plus PDI1 - the same HAC1 that EVERY put
-    3 extra copies of in GSD-1209. 0.93 g/L is 32x below EVERY's patent example, the usual
-    academic-industrial gap in this repo.
-
+    Full text read 2026-10-02 (Pablo's download); supersedes the abstract-only reading. THE BEST PEER-REVIEWED
+    OVOMUCOID TITER: 0.929 g/L secreted by strain +KpH1/P1 (EPX1 signal peptide, constitutive GCW14 promoter,
+    co-expressed K. phaffii HAC1 and PDI1), METHANOL-FREE, in a glycerol fed-batch with complex medium
+    (yeast extract, peptone, YNB), reaching 176 g/L dry cells; the titer peaked at 60 h and degraded to
+    0.598 g/L by 96 h ('the stability of ovomucoid containing nine disulfide bonds was improved by PDI1
+    co-expression'). Scale: 2.5 L vessel, 1 L initial working volume. The model costs it on glucose at its
+    own cell density; production time = 60 h less the model's growth phase.
 - key: ovd_titer_ecoli
   value: 0.0045
   low: 0.004

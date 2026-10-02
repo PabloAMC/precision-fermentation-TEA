@@ -441,3 +441,17 @@ Not changed (documented): the decanters pooled across duties (R9-9, +0.65%), unc
 duties (R9-10, < +$0.05), Beck's untraceable 3.2 g/L ovomucoid row kept at grade B as a
 secondary report (R10-15), and the minor equal-footing gaps of R10-18 (no ovomucoid bridge
 variant: the bridge varies base.yaml directly, so it could not carry ovomucoid's own purity).
+
+### Follow-up (2026-10-02 morning): full texts of Chezan 2026 and Kim 2025, and fixes found unapplied
+
+- Chezan et al. 2026 (full text): recombinant β-casein is least soluble at pH 4.5, like milk β-casein
+  (22.45% vs 20.67% left dissolved in a dilute unheated assay); at pH 4 half stays dissolved. Decision:
+  the route targets pH 4.5; `dsp.acid_precip_recovery` keeps 0.95 (now better supported: at pH 4.5 the
+  recombinant protein precipitates as the native one does), with the assay's 0.78 as the low end
+  (was a derived 0.67). The abstract-based entry is marked superseded in casein.yaml.
+- Kim et al. 2025 (full text): 0.929 g/L after 60 h in a methanol-free glycerol fed-batch (2.5 L,
+  176 g/L cells). Decision: the academic ovomucoid case is now verified (no abstract-only exception);
+  production time 23 h (60 h less the model's growth phase).
+- Found while checking: the report's casein methods text still carried R9-5/R9-6 (Formo "needed heat",
+  "no membrane concentration") and R9-16/R9-17 (viscosity threshold, phosphorylation wording), logged
+  as fixed above but not yet applied to that passage. Now applied.

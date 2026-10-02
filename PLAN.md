@@ -78,6 +78,9 @@ Phase F (external review) has not started. Open items:
 
 ## Decisions log
 
+- **2026-10-02, full texts from Pablo (Chezan 2026, Kim 2025):** casein precipitated at pH 4.5 (its
+  solubility minimum); precipitation recovery low end 0.78 (assay), central 0.95 kept; ovomucoid academic
+  titer verified (0.929 g/L, 60 h, methanol-free). docs/AUDIT.md, v3 follow-up.
 - **2026-10-01 (night), ovomucoid added and casein evidence corrected (Claude, working overnight at
   Pablo's request; for his review):**
   - Ovomucoid (`ovd`, UniProt P01005), chosen first in docs/PROTEIN_CANDIDATES.md. Evidence:
