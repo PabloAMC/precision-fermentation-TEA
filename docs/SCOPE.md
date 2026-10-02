@@ -62,14 +62,14 @@ Original (v1):
 | | Serum albumin (added 2026-10-02) |
 |---|---|
 | Base spec | Cell-culture grade recombinant HSA: ≥96% albumin, ≤1 EU/mg endotoxin (InVitria Cellastim S; no food- or media-grade spec exists) |
-| Base downstream train | Remove cells, filter, cation-exchange capture at pH 4.5 (Delta/Recombumin column data), UF/DF, spray dry |
-| Variants | Methanol-induced production; capture recovery 0.40/0.83; UF/DF only (optimistic route bound) |
+| Base downstream train | Remove cells, filter, cation-exchange capture at pH 4.5 then anion-exchange polish (Delta/Recombumin minimal train), UF/DF, spray dry |
+| Variants | Capture only (optimistic); methanol-induced production; capture recovery 0.40/0.86; UF/DF only (77% albumin, below spec) |
 | Plant | 1 kt/yr (design choice: ~today's human-albumin market; GFI's 2030 CM scenarios 3.6–100 kt/yr) |
 | Incumbent | Bulk bovine serum albumin, technical grade ($40–70/kg, grade C); GFI target $10/kg; catalogue rHSA $43–55k/kg |
 
 Vessel size (v4): the designer takes the cheapest feasible plant over 50–200 m³ vessels (cap 200 m³),
-so the small plants (lactoferrin, albumin) use smaller vessels; first-of-a-kind premiums stay excluded
-until a sourced premium is on file.
+so the small plants (lactoferrin, albumin) use smaller vessels. First-of-a-kind: a pioneer-plant case
+(capital x 1.28, RAND R-2569) is shown separately, never in the base.
 
 **Functional unit:** 1 kg of target protein in a spray-dried powder that meets the spec.
 Results are reported per kg of protein and per kg of powder.
@@ -93,9 +93,9 @@ cost-in-use are outside the model and are stated as such.
   broth changes the O₂ physics.
 - **Mode:** aerobic fed-batch on glucose. Continuous operation only if data allow.
 - **Plant:** greenfield, single-product, nth-of-a-kind. Base is 10 kt/yr of protein, swept
-  from 1 to 100 kt/yr. First-of-a-kind premiums are excluded and stated as a caveat (v4: no
-  sourced premium for fermentation plants is on file; the RAND pioneer-plant study, Merrow et al.
-  1981, R-2569, is the candidate source for a separate sensitivity, never mixed in).
+  from 1 to 100 kt/yr. A first-of-a-kind case is shown separately, never mixed in: capital x
+  1/0.78 = 1.28, the mean cost growth of pioneer process plants (RAND R-2569, Merrow et al. 1981; no
+  fermentation-specific premium is on file).
 - **Facility class:** food-grade, "commodity aerobic" in the classes of Humbird's
   equipment database. Built to food CGMP (21 CFR 117, as in GRN 1056), not pharmaceutical
   cGMP.

@@ -254,14 +254,16 @@ Six results stand out:
    precipitated, as dairy casein is, it reaches the 90% protein of the one precipitated PF casein on
    file at #usd(cas.msp_ccf)/kg, while the only public *K. phaffii* casein process uses membranes alone
    and makes a powder that is about 6% β-casein (@sec-routes).
-6. *Albumin for cultivated meat: the column, not the strain, sets the cost.* Purified by cation
-   exchange as every industrial recombinant albumin is, at a cell-culture purity, albumin costs
-   #money(alb.msp_ccf)/kg at the base titer and #money(S("industry/alb").msp_ccf) at 42 g/L, against
-   #usd(MKT("alb").at(0), d: 0)–#usd(MKT("alb").at(1), d: 0) for bulk bovine albumin and the \$#ALB.cm.gfi_target_usd_kg/kg
-   that GFI's cultivated-meat cost targets assume. Resin and the low recovery of the capture step
-   (56%) carry most of it: with a polymeric resin at \$100/L it is
-   #money(ALB.resin.at("dsp.cex_resin_usd_L=100")), and without chromatography, if membranes alone could
-   reach the purity, #money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf). At
+6. *Albumin for cultivated meat: the columns, not the strain, set the cost.* Purified to a cell-culture
+   grade by the minimal train of the industrial process (cation-exchange capture, then an anion-exchange
+   polish), albumin costs #money(alb.msp_ccf)/kg at the base titer and #money(S("industry/alb").msp_ccf) at
+   42 g/L, against #usd(MKT("alb").at(0), d: 0)–#usd(MKT("alb").at(1), d: 0) for bulk bovine albumin and the
+   \$#ALB.cm.gfi_target_usd_kg/kg that GFI's cultivated-meat cost targets assume. Resin and the low recovery
+   of the capture step (56%) carry most of it, at the most favourable resin life on record: capture
+   alone would cost #money(ALB.cases.at("alb_capture_only/humbird").msp_ccf), a polymeric resin at
+   \$100/L #money(ALB.resin.at("dsp.cex_resin_usd_L=100")), and membranes alone
+   #money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf), but they reach only 77% albumin, short of the
+   96% grade. At
    #fx(ALB.cm.g_per_kg_cm.at(0), d: 0)–#fx(ALB.cm.g_per_kg_cm.at(2), d: 0) g of albumin per kg of
    cultivated meat that is #usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(0) / 1000, d: 2)–#usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(2) / 1000, d: 2)
    per kg of meat at the base cost (@sec-equiv).
@@ -292,6 +294,7 @@ secretion at the design rate without growth.
     [Best case at the best demonstrated secretion (2.1 mg/g/h)], ..PRODS.map(p => pair(R.physical_limit.at(p + "/humbird/q_p_max_2.1", default: none), none)),
     [Physical-limit best case (secretion 40 mg/g/h)], ..PRODS.map(p => pair(PL(p + "/humbird"), PL(p + "/light"))),
     [Base case with aseptic cell-culture vessels], ..PRODS.map(p => pair(R.base_aseptic.at(p), none)),
+    [Base case as a pioneer plant (capital × 1.28, RAND)], ..PRODS.map(p => pair(R.base_pioneer.at(p), none)),
     hline,
     [Incumbent, per kg protein (2025\$)], ..PRODS.map(p => [#money(MKT(p).at(0))–#money(MKT(p).at(1))]),
     [Plant output (base), t/yr], ..PRODS.map(p => [#thou(tpy(R.base.at(p)))]),
@@ -306,8 +309,8 @@ secretion at the design rate without growth.
   (Kim et al. 2025; EVERY's 30 g/L patent example: #money(S("academic/ovd_patent").msp_ccf)/kg); β-casein
   #fx(S("academic/cas").design.titer, d: 1) g/L made inside *K. phaffii* cells and costed as if secreted (Choi and
   Jiménez-Flores 1996; a 3 g/L *E. coli* patent example: #money(S("academic/cas_patent").msp_ccf)/kg); lactoferrin #fx(S("academic/lf").design.titer, d: 1) g/L,
-  porcine, the best methanol-free; albumin #fx(S("academic/alb").design.titer, d: 1) g/L after 192 h of methanol
-  induction, costed on methanol (Zhu et al. 2021; the best methanol-free, 1.5 g/L in a *S. cerevisiae* patent:
+  porcine, the best methanol-free; albumin #fx(S("academic/alb").design.titer, d: 1) g/L of whole broth (17.47 g/L of
+  supernatant) after 192 h of methanol induction, costed on methanol (Zhu et al. 2021; the best methanol-free, 1.5 g/L in a *S. cerevisiae* patent:
   #money(S("academic/alb_patent").msp_ccf)/kg). Incumbents: whey protein, dried egg white and casein trade unit
   values 2015–2025; lactoferrin, reported prices 2013–2025; albumin, bulk bovine serum albumin trade values
   (2023–2025; all three grade C where reported).],
@@ -429,7 +432,8 @@ published design's output (Intelligen), swept from 0.1 to 10 kt/yr; a 10 kt/yr l
 would exceed the world market several times over. Albumin's base is 1 kt/yr (a design choice, grade D):
 about today's whole human-albumin market and a quarter of the lowest of GFI's 2030 cultivated-meat demand
 scenarios (3.6–100 kt/yr). Money is 2025 US dollars. Excluded costs:
-R&D, strain licences, regulatory approval, sales and distribution, land, first-of-a-kind premiums,
+R&D, strain licences, regulatory approval, sales and distribution, land, first-of-a-kind premiums
+(shown separately: @sec-capital),
 carbon pricing, start-up and commissioning, working capital (except in the discounted-cash-flow
 price), failed batches, per-lot release testing and packaging. A reviewer (AI) put the last four at
 roughly \$1–2/kg together. @fig-flow shows the base-case plant.
@@ -740,12 +744,17 @@ evidence-graded performance (`data/evidence/dsp.yaml`, `ovomucoid.yaml`, `casein
   US 6,638,740, grade B). Albumin (isoelectric point about 5) binds a cation exchanger when the clarified
   broth is brought to pH 4.5, where most yeast proteins and pigments do not, and elutes at pH 5.5 in
   dilute acetate (priced as NaCl), then a 2 M NaCl strip and 0.5 M NaOH: loading
-  #P.dsp.cex_dbc_g_L.value g/L in the base but 40 g/L for albumin, 34 column volumes of buffer per cycle, and a
-  recovery of 56% over the step, the midpoint of the patent's "anticipated" 46–66% (every public
-  recombinant-albumin train recovers 46–67%). The pharmaceutical train adds dye affinity, gel
-  filtration and anion exchange for 99.9% purity; we assume the capture step alone reaches the
-  cell-culture grade (96%; a judgment, grade D). The acid for the pH step is not costed (about a pH
-  unit on a weakly buffered broth).
+  40 g/L, 34 column volumes of buffer per cycle (the patent's maximum step volumes), and a recovery of
+  56% over the step, the midpoint of the patent's "anticipated" 46–66% (every public
+  recombinant-albumin train recovers 46–68% overall; one dye-affinity capture step recovered 86%, Zhu et
+  al. 2021, the high end). The capture eluate still holds a 45 kDa albumin fragment, yeast antigens and
+  pigment, which the pharmaceutical train removes with dye affinity, gel filtration and anion exchange
+  for 99.9% purity. For the cell-culture grade (96%) we take the patent's minimal claimed train, the
+  capture followed by an *anion-exchange polish*, loaded at 30 g/L with no loss (the patent reports
+  about 110% monomer yield over it, as dimers revert), on the same resin and recipe (grade D); whether
+  two columns suffice is a judgment, and capture alone is shown as the optimistic case (audit R12). The
+  acid for the pH step, the octanoate of the patent's recipe and protease losses while broth waits at
+  pH 4.5 are not costed.
 - *Cleaning in place* (#fx(pv("dsp.cip_solution_kg_per_kg"), d: 1) kg solution per kg product,
   Intelligen; its chemicals are inside Humbird's maintenance charge) and *spent-cell disposal*
   (#usd0(pv("utilities.biomass_disposal_usd_t_dry"))/t dry cells in the US, a landfill tipping fee;
@@ -794,6 +803,14 @@ that plant in its scenarios, tornado and Monte Carlo; the scale curve re-sizes a
 commodity plants at 10 kt/yr keep 200 m³ (larger vessels would be cheaper still: 500 m³ is a
 sensitivity); lactoferrin's 250 t/yr plant takes #fx(vol(lfb), d: 0) m³ vessels, as in
 Intelligen's design, and albumin's 1 kt/yr plant #fx(vol(alb), d: 0) m³.
+
+*Pioneer plants (version 4).* The base is an nth-of-a-kind plant. RAND's study of 44 pioneer process
+plants found that their capital cost, excluding inflation and other external causes, averaged 1/0.78 =
+1.28× the estimates made for them (106 estimates; Merrow et al. 1981), and that they produced 72% of
+design capacity in months 7–12 after start-up (94% for plants with no new process steps). We show a
+pioneer case with all capital × 1.28, separately and never in the base: #plist(p => R.base_pioneer.at(p).msp_ccf)
+(@tab-key). RAND's regression would predict less cost growth for a plant of commercially proven unit
+operations, so this is a conservative pioneer case; the start-up shortfall is not modelled.
 
 *Price-anchored capital (Humbird method; base).*
 - Other equipment comes from Humbird's cost curves (Aspen ACCE quotes, 2018 dollars). Costs are
@@ -883,10 +900,11 @@ differently and are never averaged:
   as if secreted, an analogy. A patent example in which *E. coli* makes 3 g/L of β-casein inside its
   cells (Standing Ovation, quantified by eye on a gel) is shown as a variant. Lactoferrin: 2.8 g/L of porcine lactoferrin in *K. phaffii* without
   methanol (Yen et al. 2024), an analogy for bovine; 5.4 g/L of human lactoferrin with methanol,
-  measured by ELISA only (Lv et al. 2023), is a variant. Albumin: 17.47 g/L of human albumin after 192 h
-  of methanol induction (Zhu et al. 2021; abstract read, full text requested), the highest
-  recombinant-albumin titer published; the same group's 8.86 g/L in 96 h (Zhu et al. 2018) has the same
-  productivity per hour and is a variant, as is the best methanol-free titer, 1.5 g/L in an 8 m³
+  measured by ELISA only (Lv et al. 2023), is a variant. Albumin: the highest recombinant-albumin titer
+  published, 17.47 g/L after 192 h of methanol induction in a 5 L vessel (Zhu et al. 2021), is per litre of
+  supernatant; the cells fill half the culture, and the paper's 21.84 g in 2.5 L gives 8.74 g/L of whole
+  broth, the model's basis. The same group's 8.86 g/L of supernatant in 96 h (Zhu et al. 2018; abstract
+  only), scaled by the same ratio to 4.4 g/L, is a variant, as is the best methanol-free titer, 1.5 g/L in an 8 m³
   *S. cerevisiae* sucrose fed-batch (Delta's patent, B; costed as *K. phaffii* on glucose). Version 4
   costs every methanol-induced academic case on methanol (albumin; lactoferrin, Lv et al.; β-casein, Choi
   and Jiménez-Flores) instead of as glucose. Yield and maintenance keep the base values: no
@@ -1107,12 +1125,15 @@ price; glucose is #pct(blg.per_kg.glucose / blg.msp_ccf) and spent-cell disposal
   the caseinate dries from a dilute feed, and the acid is a new chemical line, while diafiltration
   is saved. Lactoferrin costs #fx(lfb.msp_ccf / blg.msp_ccf, d: 0)× BLG: one third of
   the titer, a longer batch, a cation-exchange step and a plant 40 times smaller.
-- *Why albumin costs #fx(alb.msp_ccf / blg.msp_ccf, d: 0)× BLG at the same titer.* Its column is the
+- *Why albumin costs #fx(alb.msp_ccf / blg.msp_ccf, d: 0)× BLG at the same titer.* Its columns are the
   cost: resin alone is #usd(alb.per_kg.at("chromatography resin"), d: 0) per kg (a \$#thou(pv("dsp.cex_resin_usd_L"))/L
   resin lasting #thou(pv("dsp.cex_resin_life_cycles")) cycles at 40 g of albumin per litre loaded is
-  \$#fx(pv("dsp.cex_resin_usd_L") / pv("dsp.cex_resin_life_cycles") / 0.040, d: 0) per kg loaded), and the capture step's
-  56% recovery means each kg sold has been fermented and clarified almost twice. The plant is also
-  ten times smaller than BLG's.
+  \$#fx(pv("dsp.cex_resin_usd_L") / pv("dsp.cex_resin_life_cycles") / 0.040, d: 0) per kg loaded on the capture column, and
+  the polish column adds more), and the capture step's 56% recovery means each kg sold has been fermented
+  and clarified almost twice. The plant is also ten times smaller than BLG's. Resin life is the
+  softest number: the base takes the one industrial measurement, over 1,000 cycles on whey lactoferrin,
+  for a column fed pigmented yeast broth; at 125 cycles the base costs
+  #usd0(ALB.resin.at("dsp.cex_resin_life_cycles=125"))/kg.
 
 The product made per m³ of fermenter per hour is the lever the rest of the paper explores.
 
@@ -1151,10 +1172,13 @@ titer private cost models assume:
   #money(S("academic/cas_patent").msp_ccf). BLG on glucose (Li et al. 2026, 5.14 g/L) costs #usd0(S("academic/blg_li2026").msp_ccf)/kg.
   Lactoferrin at its best methanol-free titer costs #usd0(S("academic/lf").msp_ccf)/kg,
   #where(S("academic/lf").msp_ccf, MKT("lf")) its reported price range; at 5.4 g/L (Lv et al. 2023,
-  methanol, ELISA) #usd0(S("academic/lf_lv2023").msp_ccf). Albumin at the record titer (17.47 g/L after
+  methanol, ELISA) #usd0(S("academic/lf_lv2023").msp_ccf). Albumin at the record titer (8.7 g/L of whole broth after
   192 h of methanol induction) costs #money(S("academic/alb").msp_ccf)/kg, at Zhu et al.'s 2018 titer
   #money(S("academic/alb_zhu2018").msp_ccf), and at the best methanol-free titer (1.5 g/L)
-  #money(S("academic/alb_patent").msp_ccf).
+  #money(S("academic/alb_patent").msp_ccf). The model's methanol use in the record case,
+  #fx(S("academic/alb").physical.methanol_kg * S("academic/alb").design.recovery, d: 0) kg per kg of albumin made, is
+  #fx(58 / (S("academic/alb").physical.methanol_kg * S("academic/alb").design.recovery), d: 1)× less than the 58 kg that Zhu et al. fed, because their cells kept growing on methanol, to about 500 g/L
+  of wet cells, while the model's barely grow in production: optimistic for this case.
 - *Casein has the weakest public titers of the five.* No company discloses one, and no secreted
   casein titer has been published for any yeast or fungus. In *K. phaffii* the best is
   #fx(S("academic/cas").design.titer, d: 1) g/L inside the cells (#usd0(S("academic/cas").msp_ccf)/kg costed as if
@@ -1760,17 +1784,20 @@ The specification fixes the route, and the route can change what is sold more th
   (Intelligen's case a, purity by assumption): #money(lfb.msp_ccf) against
   #money(LF.cases.at("lf_ufdf_only/humbird").msp_ccf)/kg. Resin life is the largest downstream lever:
   at 125 cycles (biopharma practice) the base costs #usd0(LF.resin.at("dsp.cex_resin_life_cycles=125")).
-- *Albumin.* Cation-exchange capture (#pct(alb.design.purity_dry) albumin) against UF/DF alone (90% by
-  assumption; no public process reaches a cell-culture grade without a column): #money(alb.msp_ccf) against
-  #money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf)/kg. The column's inputs decide where between: a
+- *Albumin.* Two columns (#pct(alb.design.purity_dry) albumin) cost #money(alb.msp_ccf)/kg, the capture
+  column alone #money(ALB.cases.at("alb_capture_only/humbird").msp_ccf), and UF/DF alone
+  #money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf); but albumin is only 77% of the protein in the best
+  public broth (Zhu et al. 2021), so membranes alone make a different, below-specification product, as
+  for casein. The columns' inputs decide where between: a
   polymeric resin at \$100/L gives #money(ALB.resin.at("dsp.cex_resin_usd_L=100")), resin at
   \$2,000/L #money(ALB.resin.at("dsp.cex_resin_usd_L=2000")), a resin lasting 125 cycles
   #money(ALB.resin.at("dsp.cex_resin_life_cycles=125")), loading 50 instead of 40 g/L
-  #money(ALB.resin.at("dsp.cex_dbc_g_L=50")); the capture recovery at 40% or 83% gives
+  #money(ALB.resin.at("dsp.cex_dbc_g_L=50")); the capture recovery at 40% or 86% gives
   #money(ALB.cases.at("alb_recovery_low/humbird").msp_ccf) or #money(ALB.cases.at("alb_recovery_high/humbird").msp_ccf).
   Inducing the base design with methanol instead of glucose adds
   #dusd(ALB.cases.at("alb_methanol/humbird").msp_ccf - alb.msp_ccf)/kg. A purification route as cheap as a food protein's, not a
-  better strain, is what albumin near \$10/kg needs.
+  better strain, is what albumin near \$10/kg needs; at today's evidence the base sits at the favourable
+  end of resin life, recovery and purification.
 
 #let recrow(label, k, ik) = ([#label], [#usd(ipk(IA, ik), d: 1)], [#usd(REC("lf_intelligen_a").per_kg.at(k), d: 1)],
   [#usd(ipk(IB, ik), d: 1)], [#usd(REC("lf_intelligen_b").per_kg.at(k), d: 1)])
@@ -2005,13 +2032,16 @@ model says nothing about which instruments would deliver them.
   (the flow rate is Intelligen's design value) and no itemised buffer tanks (inside the
   missing-equipment allowance). Lactoferrin's academic titer is porcine lactoferrin, and its market
   size and prices are grade C and disagree by about five times between sources.
-- *Albumin* (added in version 4; AI-audited only): no food- or media-grade specification exists, and
-  whether the capture step alone reaches a cell-culture grade is a judgment; its column data are from
-  a 1990s pharmaceutical patent; its record titers are read from abstracts (full texts requested) and
-  are supernatant, not whole-broth, titers; the bulk-albumin price is a technical grade, not a
-  cell-culture one; the plant size is a design choice; and its demand depends on media that the leading
-  firms are moving away from (Wildtype's FDA file; GFI 2026). No priors were registered for albumin
-  before its first model outputs.
+- *Albumin* (added in version 4; AI-audited only, audit R12): no food- or media-grade specification
+  exists, and whether two columns reach a cell-culture grade is a judgment; its column data are from a
+  1990s pharmaceutical patent (maximum step volumes, and recovery and step tables from different
+  examples); resin life is borrowed from whey lactoferrin, the favourable end for a yeast-broth feed;
+  protease losses at pH 4.5 and the acid, acetate and octanoate are not costed; its methanol use is well
+  below what the record run fed (@sec-q1); the methanol yield leaves out the ATP of assimilating methanol's
+  carbon (about +\$1/kg); its 2018 titer is scaled to whole broth by analogy; the bulk-albumin price is a
+  technical grade, not a cell-culture one; the plant size is a design choice; and its demand depends on
+  media that the leading firms are moving away from (Wildtype's FDA file; GFI 2026). No priors were
+  registered for albumin before its first model outputs.
 - *Not costed:* start-up and commissioning, working capital (except in the DCF price), failed
   batches, QC release testing, packaging, dewatering and inactivation of spent cells, and external
   heat-exchange loops for the largest vessels.
@@ -2124,6 +2154,7 @@ and locators. Calibration cases are in `data/calibration/`. The audit is `docs/A
 - Maskow T, Kemp R, Buchholz F, et al. What heat is telling us about microbial conversions in nature and technology. Microb Biotechnol 3:269 (2010).
 - Maurer M, et al. Versatile modeling and optimization of fed batch processes for the production of secreted heterologous proteins with _Pichia pastoris_. Microb Cell Fact 5:37 (2006).
 - Mercier-Bouchard D, et al. Process efficiency of casein separation from milk using polymeric spiral-wound microfiltration membranes. J Dairy Sci 100:8838 (2017). doi:10.3168/jds.2017-13015
+- Merrow EW, Phillips KE, Myers CW. Understanding cost growth and performance shortfalls in pioneer process plants. RAND R-2569-DOE (1981).
 - Nestec SA. Production of casein and caseinates, US 4,075,196 (1978).
 - New Culture Inc. Dairy-like compositions and related methods, US 2023/0404098 A1 (2023).
 - NewMilkBuzz BV. Improved casein secretion by non-mammalian host cells, EP 4 623 075 A1 (2025); Enrichment of a casein in a composition, EP 4 676 233 A1 (2026); and WO 2023/242273, WO 2024/256611, WO 2025/109136.
@@ -2152,7 +2183,7 @@ and locators. Calibration cases are in `data/calibration/`. The audit is `docs/A
 - Yao C, Zhu H, An Q, Zhang M, Zheng Y, Cai M. Omics-guided global rewiring of yeast metabolism enables high-level production of β-lactoglobulin. Food Biosci 82:109383 (2026).
 - Yen CC, Wu PY, Ou-Yang H, et al. Production of bioactive porcine lactoferrin through a novel glucose-inducible expression system in _Pichia pastoris_. Int J Mol Sci 25:1818 (2024).
 - Zhu W, Gong G, Pan J, et al. High level expression and purification of recombinant human serum albumin in _Pichia pastoris_. Protein Expr Purif 147:61 (2018). doi:10.1016/j.pep.2018.02.003 (abstract read)
-- Zhu W, Xu R, Gong G, Xu L, Hu Y, Xie L. Medium optimization for high yield production of human serum albumin in _Pichia pastoris_ and its efficient purification. Protein Expr Purif 181:105831 (2021). doi:10.1016/j.pep.2021.105831 (abstract read)
+- Zhu W, Xu R, Gong G, Xu L, Hu Y, Xie L. Medium optimization for high yield production of human serum albumin in _Pichia pastoris_ and its efficient purification. Protein Expr Purif 181:105831 (2021). doi:10.1016/j.pep.2021.105831
 - Yver AL, et al. Fractionation of whey protein isolate with supercritical carbon dioxide: process modeling and cost estimation. Int J Mol Sci 13:240 (2012).
 ]
 

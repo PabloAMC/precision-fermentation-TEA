@@ -83,12 +83,13 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
 - *The route can change the product.* Precipitated, as dairy casein is, β-casein reaches dairy purity
   at #money(cas.msp_ccf)/kg; the only public yeast casein process (membranes only) makes a powder that
   is about 6% β-casein, mostly yeast carbohydrate.
-- *Albumin for cultivated-meat media: the column sets the cost.* With the cation-exchange capture of
-  the industrial process, at cell-culture purity and 1 kt/yr, albumin costs #money(alb.msp_ccf)/kg
-  (#money(S("industry/alb").msp_ccf) at 42 g/L; #money(S("academic/alb").msp_ccf) at the record 17.5 g/L, made with
-  methanol), against #usd(MKT("alb").at(0))–#usd(MKT("alb").at(1)) for bulk bovine albumin and GFI's
-  \$#ALB.cm.gfi_target_usd_kg/kg target. Cheap resin brings it to #money(ALB.resin.at("dsp.cex_resin_usd_L=100")) and
-  membranes alone, if they reached the purity, #money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf). At the base cost it adds
+- *Albumin for cultivated-meat media: the columns set the cost.* With the industrial process's minimal
+  train (cation exchange, then anion exchange), at cell-culture purity and 1 kt/yr, albumin costs
+  #money(alb.msp_ccf)/kg (#money(S("industry/alb").msp_ccf) at 42 g/L; #money(S("academic/alb").msp_ccf) at the
+  best public titer, 8.7 g/L of broth made with methanol), against #usd(MKT("alb").at(0))–#usd(MKT("alb").at(1))
+  for bulk bovine albumin and GFI's \$#ALB.cm.gfi_target_usd_kg/kg target. One column would cost
+  #money(ALB.cases.at("alb_capture_only/humbird").msp_ccf), cheap resin #money(ALB.resin.at("dsp.cex_resin_usd_L=100"));
+  membranes alone, #money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf), reach only 77% albumin. At the base cost it adds
   #usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(0) / 1000, d: 2)–#usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(2) / 1000, d: 2) per kg of cultivated meat, while leading firms are removing albumin from their media.
 
 #table(
