@@ -480,3 +480,32 @@ Albumin evidence pass (AI research agent; main session spot-checked identity, fo
 prices and specs; formula C2936H4590N786O889S41 reproduced independently): `data/evidence/albumin.yaml`
 (52 entries), 9 titer rows. Reference titles in the report were checked against the evidence files and
 Crossref after the first draft had some from memory (Zhu 2021, Delta patents: corrected).
+
+### R12 (2026-10-02): AI audit of the v4 model changes and the albumin data
+
+Independent reviewer, read-only, with computations (report: `.preview/audit_R12.md`, local). Methanol physics
+checked and fine (balances close, no CO2 fixed, maintenance conversion dimensionally right, heat signs, blend
+only in production, Y_ps on methanol below both ceilings); sizing side effects and cache fine; every albumin
+source value matches its source (Comtrade and 1.13 g/L recomputed). Findings and decisions:
+
+| # | Finding | Decision |
+|---|---|---|
+| H1 | One CEX capture reaching >=96% has no support (the >96% Pichia results used dye affinity; the patent's affinity step removes the 45 kDa fragment, antigens and pigment) | **Fixed.** Base = the patent's minimal claimed train, CEX then AEX polish (US 6,638,740: AEX loaded 30 +/- 10 g/L, "approximately 110%" monomer yield -> recovery 1.0), via `dsp.polish_columns` on the existing column arithmetic. Albumin base $143 -> ~$216/kg; capture-only kept as `alb_capture_only` (optimistic) |
+| H2 | Resin life 1,000 cycles (whey lactoferrin) is the favourable end for pigmented yeast broth | **Stated, not changed** (no albumin-specific lifetime exists; the base keeps the one industrial measurement, as for lactoferrin). Report shows the 125-cycle case beside the base and calls the base the favourable end |
+| M1 | Vessel tornado bar is one-sided where sizing chose 100 m3 | **Fixed.** `scenarios.design_choices` skips it in the tornado |
+| M2 | Methanol uptake about 2x low; the x0.31 near-zero scaling (D) | **Kept**, with the independent check (Tomas-Gamisans NGAM -> 0.0048 g/g/h) and the Zhu 2021 comparison stated in the report (model's methanol per kg made well below the 58 g/g fed) |
+| M3 | Protease loss during the pH-4.5 hold not modelled | **Limitation**; recovery low end 0.40 covers it |
+| M4 | Intelligen OVA anchor silently lost its methanol inducer cost | **Fixed.** `media.methanol_inducer_kg_per_kg_product` (cost only, as in v3) |
+| L1 | Methanol yield ceiling leaves out the ATP of methanol assimilation (~+$0.7) | Limitation (stated) |
+| L2 | Neat methanol in the volume balance by volume | Not changed (consistent with the feed convention; ~+$0.7) |
+| L3 | Acetate note wrong by 30x | **Fixed** note (~$1/kg at the NaCl price) |
+| L4 | Patent step volumes are maxima; eluate 6.5 not 8.5 CV | Limitation (conservative) |
+| L5 | Load-conductivity limit not checked (~$2-3) | Limitation |
+| L6 | Spearman rho is noise for constant inputs | **Fixed** (None when an input does not vary) |
+| L7 | Base-case variants re-size the vessel | **Documented** in the sizing note |
+| L8 | Recovery and step tables from different patent examples | Limitation |
+
+Also on 2026-10-02 (Pablo's downloads): Zhu 2021 full text (the 17.47 g/L is per litre of supernatant; whole
+broth 8.74 g/L is now the academic titer; membranes alone bounded at 77% albumin; capture recovery high end
+0.86 measured) and RAND R-2569 (OCR'd; pioneer capital 1/0.78 = 1.28x as a separate sensitivity, never in the
+base; start-up performance 72% recorded, not modelled).

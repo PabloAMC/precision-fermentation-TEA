@@ -97,6 +97,10 @@ Phase F (external review) has not started. Open items:
     Incumbent: bulk bovine serum albumin ($40-70/kg, grade C); GFI's $10/kg target and catalogue prices as
     context; cost per kg of cultivated meat in report Q7.
   - Methanol-induced academic cases (lactoferrin Lv 2023, beta-casein Choi 1996) now costed on methanol.
+  - After audit R12 and Pablo's downloads (Zhu 2021, RAND R-2569): albumin's base is the patent's minimal
+    two-column train (CEX + AEX polish), ~$216/kg (capture-only $143 as the optimistic case); its academic
+    titer is per whole broth (8.74 g/L; 17.47 is per litre of supernatant); membranes alone reach only 77%
+    albumin; a pioneer-plant case (capital x 1.28, RAND) is shown separately. docs/AUDIT.md, R12.
 
 - **2026-10-02, full texts from Pablo (Chezan 2026, Kim 2025):** casein precipitated at pH 4.5 (its
   solubility minimum); precipitation recovery low end 0.78 (assay), central 0.95 kept; ovomucoid academic
@@ -234,8 +238,8 @@ Phase F (external review) has not started. Open items:
 - No BioSTEAM or SuperPro as the core model. BioSTEAM may cross-check capital costs; the
   SuperPro trial may only be used to read Intelligen's example file.
 - No claim that cannot be traced to a row in data/pf/base.yaml or data/evidence/.
-- No first-of-a-kind penalty mixed into the base case; it is shown separately once a sourced premium
-  is on file (v4: none yet).
+- No first-of-a-kind penalty mixed into the base case; it is shown separately (v4: RAND's pioneer-plant
+  capital growth, x 1.28).
 - No teaching numbers (docs/PRIMER.md, exercises) copied into the model; they are
   illustrative.
 
