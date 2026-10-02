@@ -49,6 +49,7 @@ alb:                        # serum albumin for cultivated-meat media: base.yaml
     unit: t/yr
     grade: D
     source: "design choice: the size of today's whole human-albumin market (~0.5 to >1 kt/yr, poorly sourced, albumin.yaml plasma_hsa_tonnage_shortage, C) and ~28% of GFI's low 2030 cultivated-meat demand scenario (3.6 kt/yr; 100 kt/yr high, gfi2023_albumin_demand_2030, C). The scale curve runs 0.1-10 kt/yr and the physical limit 100 kt/yr (GFI's high scenario)"
+  dsp.polish_columns: {value: 1, grade: D, note: "anion-exchange polish after the capture: the minimal two-column train claimed in US 6,638,740 ('cation exchange chromatography ... and then anion exchange chromatography'), where the capture eluate still holds the 45 kDa fragment, yeast antigens and pigment that US 5,728,553 removes downstream. Whether two columns reach the cell-culture grade is a judgment (D; audit R12-H1); capture only is the optimistic variant scenarios/albumin.yaml alb_capture_only"}
   dsp.cex_dbc_g_L:
     value: 40
     low: 30
@@ -63,7 +64,7 @@ alb:                        # serum albumin for cultivated-meat media: base.yaml
     grade: B
     source: "US 5,728,553 Table 4: equilibration 4 + wash 11.5 + elution 2 + eluate 6.5 + 2 M NaCl strip 3.5 + NaOH 3 + storage 3 + 0.5 = 34 CV per cycle (hsa_delta_cex_step_table, derived). low = EVERY's lactoferrin table (16 CV, base.yaml)"
   dsp.cex_elution_cv: {value: 8.5, grade: B, source: "US 5,728,553 Table 4: elution 2 CV + eluate collection 6.5 CV (hsa_delta_cex_step_table)"}
-  dsp.cex_elution_nacl_kg_m3: {value: 13.6, grade: D, source: "elution is a pH step in ~0.1 M acetate, not 1 M NaCl: 'sodium acetate trihydrate 13.6 g/L' at pH 5.5 (US 5,728,553 recipe 2; hsa_delta_cex_step_table). Priced as NaCl (no acetate leaf; at 8.5 CV this is a few cents per kg albumin)"}
+  dsp.cex_elution_nacl_kg_m3: {value: 13.6, grade: D, source: "elution is a pH step in ~0.1 M acetate, not 1 M NaCl: 'sodium acetate trihydrate 13.6 g/L' at pH 5.5 (US 5,728,553 recipe 2; hsa_delta_cex_step_table). Priced as NaCl (no acetate leaf): about $1/kg albumin at the NaCl price, so a few $/kg at an acetate price; the acetic acid for the pH-4.5 load and the octanoate of the pharma recipe are not costed (audit R12-L3)"}
   dsp.cex_cip_cv: {value: 3, grade: B, source: "US 5,728,553 Table 4: NaOH 3 CV"}
   dsp.cex_cip_naoh_kg_m3: {value: 20.0, grade: B, source: "0.5 M NaOH = 20.0 kg/m3 (US 5,728,553 Table 4 recipe 4; hsa_delta_cex_step_table)"}
   dsp.cex_regen_cv: {value: 3.5, grade: B, source: "US 5,728,553 Table 4: the 2 M NaCl strip after elution, 3.5 CV"}
@@ -72,9 +73,9 @@ alb:                        # serum albumin for cultivated-meat media: base.yaml
   dsp.cex_recovery:
     value: 0.56
     low: 0.40
-    high: 0.83
+    high: 0.86
     grade: B
-    source: "US 6,638,740 (Delta): 'the anticipated recovery of rHA monomer is between 46 and 66%' over the CEX capture (midpoint 0.56; US 5,728,553 Table 4: '>40%', with different assays in and out); every public rHSA train recovers 0.46-0.67 (Zhu 2018 58%, Zhu 2021 'two thirds', rice 46-56%; hsa_kphaffii_two_step_recoveries_academic). low = Table 4's >40%; high = EVERY's lactoferrin CEX step (0.832, D analogy: a media-grade cut could take dimer and fragments a pharma monomer cut rejects)"
+    source: "US 6,638,740 (Delta): 'the anticipated recovery of rHA monomer is between 46 and 66%' over the CEX capture (midpoint 0.56; US 5,728,553 Table 4: '>40%', with different assays in and out); every public rHSA train recovers 0.46-0.68 overall (Zhu 2018 58%, Zhu 2021 67.5%, rice 46-56%). low = Table 4's >40%; high = Zhu 2021 Table 1: one capture step (dye affinity, load pH 5.0) recovered 86.25% at 96.4% purity (zhu2021_purification, A; another chemistry, so an analogy for the CEX step)"
   dsp.cex_target_frac_dry:
     value: 0.96
     low: 0.90

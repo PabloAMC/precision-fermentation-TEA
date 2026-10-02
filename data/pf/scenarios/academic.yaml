@@ -65,14 +65,15 @@ cas_patent:                              # variant: Standing Ovation US 2024/025
   strain.titer_g_L: 3.0                  # verified in the full text: 'about 3 g of recombinant protein per liter of culture',
   # 42 L fed-batch, beta-casein. FLAG: E. coli BL21(DE3), IPTG, INTRACELLULAR, quantified by eye on SDS-PAGE;
   # costed here as secreted from K. phaffii (an analogy, D). Time, cells and yield: the base case (none published).
-alb:                                     # Zhu et al. 2021 (K. phaffii): the best public secreted rHSA titer
-  strain.titer_g_L: 17.47                # abstract: '17.47 g/L HSA in the supernatant within a 192 h induction' (full text pending)
+alb:                                     # Zhu et al. 2021 (K. phaffii): the best public secreted rHSA titer (full text read)
+  strain.titer_g_L: 8.74                 # per litre of WHOLE BROTH: 21.84 g in 2.5 L (sect. 3.4); the headline 17.47 g/L is per litre
+                                         # of supernatant, the cells being half the culture (albumin.yaml zhu2021_whole_broth_titer)
   strain.t_prod_h: 192                   # the induction phase; the glycerol batch before it is the model's growth phase
-  strain.methanol_frac_prod: 1           # AOX1 promoter, methanol induction, costed on methanol (v4, review G1)
-  # Cell density, growth during induction and scale are behind the paywall: base values kept. 'Supernatant'
-  # titer: per litre of whole broth it is lower (cells ~30-40% of volume at high density), so this is generous.
-alb_zhu2018:                             # variant: Zhu et al. 2018, same group, 8.86 g/L after 96 h of methanol induction
-  strain.titer_g_L: 8.86                 # abstract; the same space-time yield as 2021 (0.092 g/L/h): 2021 ran twice as long
+  strain.methanol_frac_prod: 1           # GS115 Mut+, AOX1 promoter, methanol induction, costed on methanol (v4, review G1)
+  # 5 L vessel started at 1 L; ~500 g/L wet cells at harvest (dry weight not reported): base cell density kept.
+  # They fed 58 g methanol per g albumin (zhu2021_methanol_use), a check on the modelled methanol use.
+alb_zhu2018:                             # variant: Zhu et al. 2018, same group, 8.86 g/L of supernatant after 96 h of methanol induction
+  strain.titer_g_L: 4.43                 # x 0.50, the 2021 paper's whole-broth/supernatant ratio (analogy, D; abstract only)
   strain.t_prod_h: 96
   strain.methanol_frac_prod: 1
 alb_patent:                              # variant: Delta (Recombumin) US 6,638,740, the best public METHANOL-FREE rHSA titer (B)
@@ -101,7 +102,7 @@ mc_paths:
     dsp.cex_resin_usd_L, dsp.cex_resin_life_cycles, dsp.cex_hardware_usd_per_L_resin, dsp.cex_target_frac_dry]
 mc_ranges:
   alb:
-    strain.titer_g_L: {low: 17.47, high: 17.47}
+    strain.titer_g_L: {low: 8.74, high: 8.74}
   blg:
     strain.titer_g_L: {low: 13.88, high: 13.88}
     strain.X_prod_g_L: {low: 40, high: 60}   # ~200 g/L wet cells at induction (Yao 2026) at 0.2-0.3 g dry/g wet (A.1 uses 0.3); the base 40-150 range made most draws infeasible (review SC-8)

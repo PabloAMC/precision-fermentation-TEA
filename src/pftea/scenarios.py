@@ -42,6 +42,7 @@ SCEN = ROOT / "data/pf/scenarios"
 PRODUCTS = tuple(yaml.safe_load((ROOT / "data/pf/products.yaml").read_text()))   # blg, ova, lf, ...
 LIGHT = {"capital.basis": "nrel"}          # the design-report ('light', NREL-style) capital convention
 ASEPTIC = {"capital.fermenter_quote": "acce_aseptic"}   # Humbird's aseptic cell-culture STR quotes (structural high)
+PIONEER = {"capital.pioneer_factor": params.load()["capital"]["pioneer_factor"]["pioneer"]}   # RAND pioneer-plant capital (sensitivity)
 HARD_LIMITS = ("OUR", "heat", "reachable", "volume", "initial fill", "solubility", "energetic ceiling",
                "specific productivity", "did not reach")   # flags that make a design physically infeasible
 
@@ -58,6 +59,13 @@ def load(name: str) -> dict:
 def product_base(product: str) -> dict:
     """The product's block in data/pf/products.yaml (changes to base.yaml)."""
     return yaml.safe_load((ROOT / "data/pf/products.yaml").read_text()).get(product) or {}
+
+
+def design_choices(p: dict) -> tuple[str, ...]:
+    """Ranged leaves that are the designer's choice in this plant, not an uncertainty: a vessel sized below
+    the cap by size_fermenter (audit R12-M1). The tornado skips them."""
+    sized = v(p, "fermenter.sizing") == "cheapest" and v(p, "fermenter.volume_m3") < v(p, "fermenter.volume_cap_m3")
+    return ("fermenter.volume_m3",) if sized else ()
 
 
 def unused_paths(p: dict) -> tuple[str, ...]:
@@ -378,7 +386,8 @@ def monte_carlo(p: dict, paths: list[str], n: int = 500, seed: int = 0, ranges: 
                      infeasible=float(np.mean(np.array(vals)[~feas])) if (~feas).any() else None)
              for k, vals in x.items()}
     rank = lambda a: np.argsort(np.argsort(a))   # noqa: E731  (continuous draws: no ties)
-    rho = {k: float(np.corrcoef(rank(np.array(vals)[feas]), rank(ok))[0, 1]) if feas.sum() > 2 else None
+    rho = {k: float(np.corrcoef(rank(np.array(vals)[feas]), rank(ok))[0, 1])
+              if feas.sum() > 2 and np.ptp(np.array(vals)[feas]) > 0 else None     # a constant input has no rank (audit R12-L6)
            for k, vals in x.items()}
     return dict(msp=msp, feasible=feas, rank_corr=rho, p10=pct(ok, 10), p50=pct(ok, 50), p90=pct(ok, 90),
                 p10_all=pct(fin, 10), p50_all=pct(fin, 50), p90_all=pct(fin, 90),

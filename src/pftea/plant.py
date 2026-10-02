@@ -25,7 +25,8 @@ Blocks (data in data/pf/base.yaml; equations in each block's comments):
       concentration of the MF permeate), so the cycle time is (CV_tot + q / c_load) / flow.
       Resin replaced per year = resin-cycles / life; resin volume installed = resin-cycles per
       hour x cycle time (first fill added to TCI unfactored); column hardware per litre of resin.
-      Recovery R_cex.
+      Recovery R_cex. Polish columns (dsp.polish_columns, albumin: 1, anion exchange after capture as in
+      US 6,638,740) repeat the same arithmetic on the capture eluate, loaded at polish_dbc, recovery R_pol.
    d. Isolate only: ammonium-sulfate precipitation and washed basket centrifuges; the dryer is
       fed the cake (solids fraction s_cake).
    d'. 'acid' spec only (casein): the dairy acid-casein line applied to the MF permeate. The permeate
@@ -58,7 +59,9 @@ Blocks (data in data/pf/base.yaml; equations in each block's comments):
        ISBL TDC = PEC_ISBL (1 + m) (1 + f_ISBL);  OSBL TDC = PEC_OSBL (1 + m) (1 + f_OSBL)
        buildings = sum(area x levels x $/m2 by class)
        TDC = ISBL + OSBL + buildings; TPC = TDC (1 + E&C); TCI = TPC (1 + fees & contingency)
-     with m = missing-capital allowance (m = 0.1/0.9). All 2018$ x cost index x location factor.
+     with m = missing-capital allowance (m = 0.1/0.9). All 2018$ x cost index x location factor
+     (x pioneer factor: 1 for the nth plant of the base; 1/0.78 for a pioneer plant, RAND R-2569's mean
+     ratio of estimated to actual cost, shown only as a separate sensitivity).
    - design-report ('light', NREL 2011 style): NREL installation factors, site development on
      ISBL, indirect costs on TDC; same buildings except the warehouse (inside NREL's site factor).
 7. Operating costs: raw materials, utilities, consumables, waste; labour (Humbird's operator
@@ -203,7 +206,8 @@ def _coincident_peak(prof_t, prof_v, t_total: float, interval: float) -> float:
 
 def evaluate(p, keep_series=False) -> Result:
     flags = []
-    idx = v(p, "capital.cost_index_2018_to_2025") * v(p, "capital.location_factor")
+    idx = (v(p, "capital.cost_index_2018_to_2025") * v(p, "capital.location_factor")
+           * _opt(p, "capital.pioneer_factor", 1.0))          # 1 = nth plant (base); RAND's pioneer-plant cost growth as a sensitivity
     b = batch(p, keep_series)
     if not b.ok:
         flags.append(b.reason)
@@ -236,7 +240,7 @@ def evaluate(p, keep_series=False) -> Result:
     crude = spec == "crude"
     n_st = int(v(p, "dsp.centrifuge_stages"))
     resin_cyc = buffer_m3 = nacl_kg = naoh_kg = etoh_kg = 0.0     # cation exchange ('cex' spec only)
-    load_cv = cex_cycle_h = 0.0
+    load_cv = cex_cycle_h = resin_cyc_h = 0.0                     # resin_cyc_h: resin-cycle x hours (installed resin)
     if crude:                                              # whole broth used as is (NREL on-site enzyme)
         dil, V1, V_clar, V_wash, R_cell = 1.0, W, W, 0.0, 1.0
         R_mf = R_uf = 1.0
@@ -267,7 +271,22 @@ def evaluate(p, keep_series=False) -> Result:
                                    + v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_nacl_kg_m3"))
             naoh_kg = resin_cyc * v(p, "dsp.cex_cip_cv") * v(p, "dsp.cex_cip_naoh_kg_m3")
             etoh_kg = resin_cyc * v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_etoh_kg_m3")
+            resin_cyc_h = resin_cyc * cex_cycle_h
             P_uf *= v(p, "dsp.cex_recovery")
+            for _ in range(int(_opt(p, "dsp.polish_columns", 0))):
+                # c''. polish column(s) on the capture eluate (albumin: anion exchange, US 6,638,740), same cycle
+                # recipe, resin, life and hardware as the capture column; loaded at polish_dbc from the eluate
+                rc = P_uf / v(p, "dsp.polish_dbc_g_L")
+                cyc_h = (v(p, "dsp.cex_cv_per_cycle") + v(p, "dsp.polish_dbc_g_L") / (P_uf / V_uf)) / v(p, "dsp.cex_flow_cv_per_h")
+                buffer_m3 += v(p, "dsp.cex_cv_per_cycle") * rc
+                nacl_kg += rc * (v(p, "dsp.cex_elution_cv") * v(p, "dsp.cex_elution_nacl_kg_m3")
+                                 + v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_nacl_kg_m3"))
+                naoh_kg += rc * v(p, "dsp.cex_cip_cv") * v(p, "dsp.cex_cip_naoh_kg_m3")
+                etoh_kg += rc * v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_etoh_kg_m3")
+                resin_cyc += rc
+                resin_cyc_h += rc * cyc_h
+                V_uf = v(p, "dsp.cex_elution_cv") * rc
+                P_uf *= v(p, "dsp.polish_recovery")
         # c. ultrafiltration + diafiltration ('acid' route: concentration to the precipitation feed only)
         sigma = v(p, "dsp.uf_rejection")
         C_in = P_uf / V_uf                                 # kg/m3 into UF
@@ -425,7 +444,7 @@ def evaluate(p, keep_series=False) -> Result:
         n_d, dsize = eq.units(evap_kg_h, v(p, "dsp.spray_dryer_max_kg_h"))
         isbl["spray dryers"] = eq.spray_dryer(dsize, v(p, "dsp.spray_dryer_cost_2018usd"), v(p, "dsp.spray_dryer_ref_kg_h"),
                                               v(p, "dsp.spray_dryer_exponent")) * n_d
-    resin_m3 = n_batches * resin_cyc / H * cex_cycle_h if spec == "cex" else 0.0   # installed resin
+    resin_m3 = n_batches * resin_cyc_h / H if spec == "cex" else 0.0   # installed resin (capture + polish)
     if spec == "cex":
         isbl["CEX columns and skids"] = resin_m3 * 1000 * v(p, "dsp.cex_hardware_usd_per_L_resin")
     if spec == "isolate":
@@ -537,7 +556,8 @@ def evaluate(p, keep_series=False) -> Result:
         "salts & other media": n_batches * (v(p, "media.salts_kg_per_m3") * W * v(p, "media.salts_price_usd_kg")
                                             + v(p, "media.h3po4_kg_per_kg_cells") * b.cells_kg * v(p, "media.h3po4_price_usd_kg")
                                             + v(p, "media.antifoam_kg_per_m3") * W * v(p, "media.antifoam_price_usd_kg")
-                                            + b.methanol_kg * v(p, "media.methanol_price_usd_kg")),
+                                            + (b.methanol_kg + _opt(p, "media.methanol_inducer_kg_per_kg_product", 0.0) * P_in)
+                                            * v(p, "media.methanol_price_usd_kg")),
         "DSP chemicals": n_batches * (AS_kg * v(p, "dsp.ammonium_sulfate_usd_kg") + cip_chem * cip_kg * v(p, "dsp.cip_price_usd_kg")
                                       + nacl_kg * v(p, "dsp.nacl_usd_kg") + naoh_kg * v(p, "dsp.naoh_usd_kg")
                                       + etoh_kg * v(p, "dsp.ethanol_usd_kg") + acid_kg * v(p, "media.h3po4_price_usd_kg")),
