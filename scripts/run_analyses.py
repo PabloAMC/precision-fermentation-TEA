@@ -214,8 +214,12 @@ def s_scenarios(res):
     # methanol-free best (Yen 2024)
     res["scenarios"]["academic/lf_lv2023"] = summary(sc.run("academic", "lf", variant="lf_lv2023"))
     res["scenarios"]["academic/lf_lv2023/light"] = summary(sc.run("academic", "lf", sc.LIGHT, variant="lf_lv2023"))
-    # patent examples (grade B) beside the peer-reviewed academic titers: EVERY's ovomucoid, Standing Ovation's casein
-    for prod in ("ovd", "cas"):
+    # academic albumin: Zhu 2018 (same group and productivity, half the induction time) beside Zhu 2021
+    res["scenarios"]["academic/alb_zhu2018"] = summary(sc.run("academic", "alb", variant="alb_zhu2018"))
+    res["scenarios"]["academic/alb_zhu2018/light"] = summary(sc.run("academic", "alb", sc.LIGHT, variant="alb_zhu2018"))
+    # patent examples (grade B) beside the peer-reviewed academic titers: EVERY's ovomucoid, Standing Ovation's casein,
+    # Delta's methanol-free albumin
+    for prod in ("ovd", "cas", "alb"):
         res["scenarios"][f"academic/{prod}_patent"] = summary(sc.run("academic", prod, variant=f"{prod}_patent"))
         res["scenarios"][f"academic/{prod}_patent/light"] = summary(sc.run("academic", prod, sc.LIGHT, variant=f"{prod}_patent"))
 
@@ -462,9 +466,10 @@ def s_monte_carlo(res):
 
 def s_scale(res):
     """Fig. 6: each product's industry-benchmark case over plant output, US vs EU, both conventions.
-    Lactoferrin's range covers its market (~0.3-1.6 kt/yr) up to the others' 10 kt/yr."""
-    outputs = {k: [100, 250, 500, 1000, 1588, 2500, 5000, 10000] if k == "lf" else [1000, 2500, 5000, 10000, 25000, 50000, 100000]
-               for k in PRODUCTS}
+    Lactoferrin's range covers its market (~0.3-1.6 kt/yr) up to the others' 10 kt/yr; albumin's from
+    0.1 kt/yr to 10 kt/yr (today's human-albumin market is ~0.5-1 kt/yr)."""
+    small = {"lf": [100, 250, 500, 1000, 1588, 2500, 5000, 10000], "alb": [100, 250, 500, 1000, 2500, 5000, 10000]}
+    outputs = {k: small.get(k, [1000, 2500, 5000, 10000, 25000, 50000, 100000]) for k in PRODUCTS}
     res["scale_by_product"] = {k: sc.scale_curve(sc.scenario_params("industry", k), outputs[k]) for k in PRODUCTS}
     res["scale"] = res["scale_by_product"]["blg"]
     # lactoferrin on its base case (design titer), from 100 t/yr through the market estimates (0.3-1.6 kt/yr)
@@ -608,13 +613,40 @@ def s_casein(res):
     res["casein"] = out
 
 
+def s_albumin(res):
+    """Albumin-only results: bulk-albumin prices, the methanol induction, recovery and UF/DF-only cases,
+    resin levers, the base case over plant size, and the cost per kg of cultivated meat at GFI 2023's
+    medium use (1.13 g/L albumin x 8 / 13 / 42 L medium per kg; data/evidence/albumin.yaml). Its base,
+    scenario, physical-limit, required-titer, tornado and Monte Carlo results sit with the other products'."""
+    out = {"reported_prices": bm.reported_prices()["albumin"], "cases": {}}
+    for var in ("alb_methanol", "alb_recovery_low", "alb_recovery_high", "alb_ufdf_only"):
+        for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
+            out["cases"][f"{var}/{label}"] = summary(sc.run("albumin", "alb", extra, variant=var))
+    p = sc.base_params("alb")
+    out["resin"] = {f"{k}={x}": plant.evaluate(params.override(p, {k: x})).msp_ccf
+                    for k, xs in (("dsp.cex_resin_life_cycles", (125, 1000)), ("dsp.cex_resin_usd_L", (100, 2000)),
+                                  ("dsp.cex_hardware_usd_per_L_resin", (300, 3000)), ("dsp.cex_dbc_g_L", (30, 50)))
+                    for x in xs}
+    out["scale"] = sc.scale_curve(p, [100, 250, 500, 1000, 2500, 5000, 10000])
+    ev = {e["key"]: e for e in yaml.safe_load((ROOT / "data/evidence/albumin.yaml").read_text())}
+    use = ev["gfi2023_medium_use_l_per_kg"]
+    conc = ev["gfi2023_implied_albumin_concentration"]["value"]
+    out["cm"] = dict(conc_g_L=conc, medium_L_per_kg=[use["low"], use["value"], use["high"]],
+                     g_per_kg_cm=[conc * x for x in (use["low"], use["value"], use["high"])],
+                     gfi_target_usd_kg=ev["gfi2023_albumin_cost_target"]["value"],
+                     catalogue_usd_kg=[ev["rhsa_catalogue_price_invitria_2026"]["low"],
+                                       ev["rhsa_catalogue_price_invitria_2026"]["high"]])
+    res["albumin"] = out
+
+
 SECTIONS = {"base": s_base, "scenarios": s_scenarios, "physical_limit": s_physical_limit, "demonstrated": s_demonstrated,
             "cost_vs_titer": s_cost_vs_titer, "bridge": s_bridge, "required": s_required, "ceiling": s_ceiling,
             "claims": s_claims,
             "policy": s_policy,
             "tornado": s_tornado,
             "monte_carlo": s_monte_carlo, "scale": s_scale, "calibration": s_calibration,
-            "equivalents": s_equivalents, "lactoferrin": s_lactoferrin, "casein": s_casein}
+            "equivalents": s_equivalents, "lactoferrin": s_lactoferrin, "casein": s_casein,
+            "albumin": s_albumin}
 
 if __name__ == "__main__":
     t0 = time.time()

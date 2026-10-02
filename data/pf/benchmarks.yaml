@@ -50,6 +50,15 @@ reported_prices:           # products without a trade code: price points from re
       lf_cost_intelligen2026_case_a_ufdf: lf_ufdf_only    # depreciation and no return on capital)
       lf_cost_intelligen2026_case_b_cex: lf
 
+  albumin:
+    label: "bulk serum albumin (technical BSA: trade data, 2025 US$)"
+    compare_to: alb
+    evidence: albumin          # data/evidence/albumin.yaml
+    keys: [gfi2025_albumin_trade_price, albumin_bulk_trade_us_nl_2023]
+    grade: C
+    deflate: true
+    comparators: []            # no published cost model of recombinant albumin (albumin.yaml)
+    # Not in the band (context in the report): GFI 2023's $10/kg target and research-catalogue rHSA at $43-55k/kg.
 
 
 context:                   # protein ingredients for context (benchmarks.context_prices; report Q1, explorer, fig 11)
@@ -111,6 +120,12 @@ titer_markers:             # (product in titers.csv, source_key, host) -> max ti
     - {product: ovomucoid, source_key: Every2024-HY, host: K. phaffii, label: "EVERY patent example"}
     - {product: ovomucoid, source_key: Kim2025, host: K. phaffii, label: "best peer-reviewed (Kim 2025)"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
+  alb:                     # no albumin maker discloses a titer (Sartorius/Albumedix, InVitria, Healthgen; albumin.yaml)
+    - {product: albumin, source_key: Zhu2021, host: K. phaffii, label: "best public rHSA (Zhu 2021; methanol, 192 h)"}
+    - {product: albumin, source_key: Zhu2018, host: K. phaffii, label: "rHSA, methanol, 96 h (Zhu 2018)"}
+    - {product: albumin, source_key: Kim2025, host: K. phaffii, label: "tagged BSA, total protein (Kim 2025; upper bound)"}
+    - {product: albumin, source_key: Delta2003-740, host: S. cerevisiae, label: "best methanol-free (Delta/Recombumin patent)"}
+    - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
   cas:                     # no company discloses a casein titer (casein.yaml); Wang 2021's 1.13 g/L is bovine, its 1.45 human
     - {product: casein, source_key: StandingOvation_US20240251812A1, host: "E. coli BL21(DE3) pET25b+", label: "best public casein, intracellular E. coli (Standing Ovation patent)"}
     - {product: casein, source_key: Wang2021, host: "E. coli BL21(DE3) pET22b", label: "alpha-s1 casein, E. coli (Wang 2021; human)"}
@@ -118,6 +133,7 @@ titer_markers:             # (product in titers.csv, source_key, host) -> max ti
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
 
 required_targets:          # target $/kg target protein for the required-titer analysis (report Q3)
+  alb: [10, 50, 100]       # 10 = GFI 2023's target for cultivated-meat media; 50 ~ bulk BSA ($40-70/kg); 100 = the question's other end (albumin.yaml)
   blg: [10, 20, 50]        # round numbers across the whey band ($8.7-17.8/kg protein, 2015-2025) and above it
   ova: [10, 20, 50]        # same, across the egg-white band ($9.7-21.2)
   ovd: [10, 20, 50]        # same as OVA: the incumbent is dried egg white per kg protein
