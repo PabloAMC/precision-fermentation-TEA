@@ -1022,6 +1022,8 @@
   quote: "Its isoelectric point (pI) was shifted to a higher pH of 5.5 compared to 4.5 for native beta-casein. ... at pH 5.5, where recombinant beta-casein showed lower solubility (33.02 +/- 0.03 %) compared to native beta-casein (78.45 +/- 1.22 %)"
   read: abstract
   note: >-
+    SUPERSEDED (2026-10-02) by casein_recombinant_beta_solubility_profile, read in the full text: the
+    recombinant protein is least soluble at pH 4.5, not 5.5, and the derived 67% ceiling below does not hold.
     The most consequential new number for the acid route, and it fixes a sign error in
     casein_isoelectric_point. (1) Target pH: an isoelectric step on unphosphorylated recombinant
     beta-casein should aim at ~5.5, not 4.6 and not Formo's 4 - and a smaller pH swing from a broth
@@ -1147,3 +1149,25 @@
     that a cheese product can be built around an unphosphorylated single casein - which is the
     product pf-tea actually models. Relevant to the model only as a quality argument: it adds a
     transglutaminase and a GDL line to the FOOD maker's bill, not to the protein plant's.
+
+- key: casein_recombinant_beta_solubility_profile
+  value: {pH3_soluble_pct_recombinant: null, pH4_soluble_pct_recombinant: 51.86, pH4_soluble_pct_native: 27.84, pH4p5_soluble_pct_recombinant: 22.45, pH4p5_soluble_pct_native: 20.67, pH5p5_soluble_pct_recombinant: 33.02, pH5p5_soluble_pct_native: 78.45}
+  unit: "% of beta-casein left in the supernatant (0.1% protein in 50 mM sodium phosphate, 15 min at ambient temperature, 12,100 g for 10 min)"
+  grade: A
+  source: "Chezan D, Fuhrmann PL, Bender D, Rennhofer H, Domig KJ, Dewi BPC. Physicochemical properties of native and precision fermentation-derived bovine beta-casein: structural and functional insights. Food Hydrocolloids 171:111797 (2026)"
+  doi_or_url: 10.1016/j.foodhyd.2025.111797
+  locator: "sect. 3.4 (solubility), p.5; method sect. 2.2.5; recombinant protein from Fermify GmbH, sect. 2.1"
+  quote: "At pH 4, native β-casein showed a more pronounced decrease (27.84 ± 0.81 %) compared to recombinant β-casein (51.86 ± 0.68 %). Both proteins reached a minimum solubility at pH 4.5, with native β-casein at 20.67 ± 0.03 % and recombinant β-casein at 22.45 ± 0.64 %."
+  read: fulltext
+  note: >-
+    Full text read 2026-10-02 (Pablo's download). The recombinant protein is Fermify's beta-casein A2
+    (>=75% purity, microbial expression with cell disruption). Its zeta-potential pI is 5.5, but its
+    SOLUBILITY minimum is at pH 4.5, where it behaves like native beta-casein (22.45% vs 20.67% left in
+    solution); at pH 4 half of it stays dissolved (51.86% vs 27.84% native) and at pH 5.5 a third
+    (33.02% vs 78.45%). Consequences for the acid route (derived, mine): (1) precipitate at pH ~4.5, not
+    Formo's pH 4; (2) in this dilute, unheated, calcium-free assay even NATIVE beta-casein leaves ~21% in
+    solution, while dairy plants recover essentially all their casein (casein_dairy_yield_from_skim_milk), so
+    the assay understates industrial recovery; at the solubility minimum the recombinant protein
+    precipitates as well as the native one (77.6% vs 79.3% in the assay), which supports the dairy analogy
+    for dsp.acid_precip_recovery. The assay value (0.78) is a pessimistic floor, not a design value.
+

@@ -59,7 +59,7 @@ ref = {"blg": rows_ok(
     lambda: case("Physical-limit best case, 100 kt/yr (secretion at 40 mg/g/h)", PLR["ova/humbird"], PLR["ova/light"]),
     lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["ova/humbird/q_p_max_2.1"])),
     "ovd": rows_ok(
-    lambda: case("Best peer-reviewed titer (Kim 2025; abstract only)", SC["academic/ovd"],
+    lambda: case("Best peer-reviewed titer (Kim 2025; glycerol fed-batch, 60 h)", SC["academic/ovd"],
          SC["academic/ovd/light"], SC.get("academic/ovd/aseptic")),
     lambda: case("Best public titer (EVERY patent example, 30 g/L)", SC["academic/ovd_patent"], SC["academic/ovd_patent/light"]),
     lambda: case("Base case (Intelligen's design point), UF/DF concentrate as cleared (GRN 967)", R["base"]["ovd"],

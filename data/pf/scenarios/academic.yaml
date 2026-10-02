@@ -43,9 +43,10 @@ lf_lv2023:                               # variant: Lv et al. 2023, the highest 
   # glucose-equivalent as for Yao's ethanol phase. No dry cell weight usable (the paper's 331 g/L is
   # probably wet weight), so the base cell density is kept.
 ovd:                                     # Kim, Jin & Kim 2025: the best peer-reviewed ovomucoid titer
-  strain.titer_g_L: 0.929                # '929 mg/L' secreted, high-cell-density culture. FLAG: ABSTRACT ONLY (paywalled; not
-  # verified in the full text, an exception to PLAN.md point 4 made because no other peer-reviewed ovomucoid titer above
-  # 0.03 g/L exists). Scale, mode and duration unknown: the base production time and cells are kept.
+  strain.titer_g_L: 0.929                # verified in the full text: '929 mg/L ... after 60 h of fermentation' (sect. 3.4, Fig. 5)
+  strain.t_prod_h: 23                    # 60 h in total less the model's 37 h growth phase
+  # Methanol-free (constitutive GCW14 promoter) glycerol fed-batch in complex medium, 2.5 L vessel (1 L start), 176 g/L
+  # dry cells at harvest: costed on glucose at the base cell density (the model's production-start density, not harvest).
 ovd_patent:                              # variant: EVERY US 2024/0209383 A1 Ex. 9, the best public ovomucoid titer (a patent example, B)
   strain.titer_g_L: 30.19                # verified in the full text: 'an average broth titer of 30.19 g/L EWP4' (ovomucoid)
   strain.t_prod_h: 103                   # end of run at ~140 h EFT (FIG. 22) less the model's 37 h growth phase (EVERY grows ~36 h)

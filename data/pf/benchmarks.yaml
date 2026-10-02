@@ -109,7 +109,7 @@ titer_markers:             # (product in titers.csv, source_key, host) -> max ti
 
   ovd:                     # EVERY's patent example is the only ovomucoid titer above 1 g/L
     - {product: ovomucoid, source_key: Every2024-HY, host: K. phaffii, label: "EVERY patent example"}
-    - {product: ovomucoid, source_key: Kim2025, host: K. phaffii, label: "best peer-reviewed (Kim 2025; abstract)"}
+    - {product: ovomucoid, source_key: Kim2025, host: K. phaffii, label: "best peer-reviewed (Kim 2025)"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
   cas:                     # no company discloses a casein titer (casein.yaml); Wang 2021's 1.13 g/L is bovine, its 1.45 human
     - {product: casein, source_key: StandingOvation_US20240251812A1, host: "E. coli BL21(DE3) pET25b+", label: "best public casein, intracellular E. coli (Standing Ovation patent)"}
