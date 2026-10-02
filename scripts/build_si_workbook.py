@@ -70,7 +70,7 @@ def num(x):
 ws = wb.active
 ws.title = "README"
 lines = [
-    ("Supplementary workbook: the cost of precision-fermented BLG, OVA, ovomucoid, beta-casein and lactoferrin (v3; v2.1 audited)", HDR),
+    ("Supplementary workbook: the cost of precision-fermented BLG, OVA, ovomucoid, beta-casein, lactoferrin and serum albumin (v4)", HDR),
     (f"Generated from results/analyses.json ({R['generated']}) and the data files of the pf-tea repository.", BODY),
     ("All sheets hold values exported by scripts/build_si_workbook.py, except 'Accounting', which is live (formulas).", BODY),
     ("Money: 2025 US dollars. Per kg = per kg of target protein unless the column says powder.", BODY),
@@ -110,7 +110,7 @@ sheet("Parameters", ["path", "label", "value (US)", "value (EU)", "low", "high",
 
 # ---------------------------------------------------------------- Scenarios
 rows = []
-for name in ("academic", "industry", "physical_limit", "lactoferrin", "casein"):
+for name in ("academic", "industry", "physical_limit", "lactoferrin", "casein", "albumin"):
     s = yaml.safe_load((ROOT / f"data/pf/scenarios/{name}.yaml").read_text())
     for blk, body in s.items():
         if blk in ("description", "search", "mc_paths"):
@@ -135,6 +135,7 @@ rows += [res_row(k, d) for k, d in R["scenarios"].items()]
 rows += [res_row(f"physical_limit/{k}", d) for k, d in R["physical_limit"].items()]
 rows += [res_row(f"lactoferrin/{k}", d) for k, d in R["lactoferrin"]["cases"].items()]
 rows += [res_row(f"casein/{k}", d) for k, d in R.get("casein", {}).get("cases", {}).items()]
+rows += [res_row(f"albumin/{k}", d) for k, d in R.get("albumin", {}).get("cases", {}).items()]
 sheet("Results", ["case", "titer g/L", "MSP_CCF $/kg", "COP $/kg", "MSP_DCF $/kg", "MSP_CCF $/kg powder", "TCI $",
                   "glucose kg/kg", "electricity kWh/kg", "feasible", "flags"], rows,
       [30, 10, 13, 11, 13, 16, 16, 13, 16, 9, 60])
@@ -227,6 +228,13 @@ sheet("MonteCarlo", ["scenario", "draws", "feasible fraction", "p10", "p50", "p9
       [18, 8, 16, 10, 10, 10, 12, 12, 12, 14, 14, 40],
       note="Triangular draws over each scenario's ranges; p10-p90 over feasible draws, and over all draws with a cost; "
            "draws the model cannot build count as infeasible.")
+sheet("MonteCarlo_rank", ["scenario", "parameter", "label", "Spearman rho", "rho squared"],
+      sorted([[k, par, label(par), rho, rho * rho] for k, d in R["monte_carlo"].items()
+              for par, rho in (d.get("rank_corr") or {}).items() if rho is not None], key=lambda r: (r[0], -abs(r[3]))),
+      [18, 40, 36, 14, 12],
+      note="Spearman rank correlation of each sampled input with MSP over the feasible draws (review G4). The inputs are drawn "
+           "independently, so rho squared approximates each input's share of the rank variance of MSP: the global counterpart "
+           "of the one-at-a-time tornado.")
 SCB = R.get("scale_by_product") or {"blg": R["scale"]}
 sheet("Scale", ["product", "kt/yr"] + list(R["scale"]["curves"].keys()),
       [[prod, o / 1000] + [c["curves"][k][i] for k in c["curves"]] for prod, c in SCB.items() for i, o in enumerate(c["outputs"])],
@@ -274,6 +282,22 @@ if C_:
           note="Beta-casein: the UF/DF-only route (Eden Brew, FSANZ A1342) and the precipitation inputs with the weakest evidence "
                "(acid dose, recovery, heat recovery, wash water) at the ends of their ranges, on the base case (data/pf/products.yaml; "
                "data/pf/scenarios/casein.yaml; data/evidence/casein.yaml).")
+A_ = R.get("albumin")
+if A_:
+    rows = [[k, d["design"]["titer"], d["msp_ccf"], d["cop"], d["per_kg_powder"], d["design"]["purity_dry"]] for k, d in A_["cases"].items()]
+    rows += [[f"lever {k}", None, m, None, None, None] for k, m in A_["resin"].items()]
+    rows += [[f"base case at {o:,.0f} t/yr", None, m, None, None, None]
+             for o, m in zip(A_["scale"]["outputs"], A_["scale"]["curves"]["US, price-anchored"])]
+    cm = A_["cm"]
+    rows += [[f"$ per kg cultivated meat at {g:.1f} g albumin/kg ({L} L medium/kg x {cm['conc_g_L']} g/L), base case", None,
+              R["base"]["alb"]["msp_ccf"] * g / 1000, None, None, None] for g, L in zip(cm["g_per_kg_cm"], cm["medium_L_per_kg"])]
+    sheet("Albumin", ["case", "titer g/L", "MSP_CCF $/kg albumin", "cost of production $/kg", "$/kg powder", "albumin share of dry matter"],
+          rows, [62, 10, 18, 18, 14, 18],
+          note=f"Serum albumin for cultivated-meat media: methanol induction, CEX recovery and UF/DF-only variants, resin levers, plant "
+               f"size, and the cost per kg of cultivated meat at GFI 2023's medium use (data/pf/products.yaml; data/pf/scenarios/albumin.yaml; "
+               f"data/evidence/albumin.yaml). Bulk albumin ${A_['reported_prices']['band'][0]:,.0f}-{A_['reported_prices']['band'][1]:,.0f}/kg "
+               f"(technical BSA, grade C); GFI's target ${cm['gfi_target_usd_kg']}/kg; research-catalogue rHSA "
+               f"${cm['catalogue_usd_kg'][0]:,.0f}-{cm['catalogue_usd_kg'][1]:,.0f}/kg.")
 # Intelligen's lactoferrin model against ours, SuperPro categories, $/kg LF (report tab-lf-rec; review L)
 CATS = [("raw materials", "raw_materials"), ("labour", "labour"), ("facility", "facility"), ("lab/QC/QA", "lab_qc_qa"),
         ("consumables", "consumables"), ("waste", "waste"), ("utilities", "utilities")]
@@ -306,7 +330,7 @@ sheet("Market_context", ["ingredient", "low $/kg protein", "high $/kg protein", 
 with (ROOT / "data/titers.csv").open() as fh:
     t = list(csv.reader(fh))
 sheet("Titers", t[0], t[1:], [14, 14, 10, 10, 8, 10, 12, 20, 6, 50, 20, 12, 8, 8, 50])
-for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein", "ovomucoid"):
+for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein", "ovomucoid", "albumin"):
     E = yaml.safe_load((ROOT / f"data/evidence/{f}.yaml").read_text())
     rows = [[e.get("key"), num(e.get("value")) if not isinstance(e.get("value"), (dict, list)) else json.dumps(e.get("value")),
              num(e.get("low")), num(e.get("high")), e.get("unit", ""), e.get("grade", ""), e.get("source", ""),
