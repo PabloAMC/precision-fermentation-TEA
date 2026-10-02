@@ -455,3 +455,28 @@ variant: the bridge varies base.yaml directly, so it could not carry ovomucoid's
 - Found while checking: the report's casein methods text still carried R9-5/R9-6 (Formo "needed heat",
   "no membrane concentration") and R9-16/R9-17 (viscosity threshold, phosphorylation wording), logged
   as fixed above but not yet applied to that passage. Now applied.
+
+## v4 (2026-10-02): independent review of the method against the state of the art
+
+Pablo asked whether this is "the best possible model for this ... no artificial complexity, but SOTA or
+close". An AI reviewer read the code, data and report and the published PF, recombinant-protein and
+cultivated-meat TEAs (Humbird 2021, BioSTEAM-based work, Intelligen SuperPro models, GFI Europe/ADL 2025,
+Voutilainen, Järviö, NREL). Its report: `.preview/sota_review.md` (local, git-ignored). Verdict: at or
+above the published state of the art for a public multi-protein screening TEA (its P ~0.85 that no
+structural change moves the commodity base cases by >10%); conventions (design-report capital −22%,
+aseptic vessels +46% on BLG) and strain data dominate. Each gap and the decision:
+
+| # | Gap (reviewer) | Decision | Effect |
+|---|---|---|---|
+| G1 | Methanol costed but missing from the O2 and heat balance; matters for albumin (all high titers methanol-induced) | **Done.** Production phase blends glucose and methanol reactions (`strain.methanol_frac_prod`); methanol anabolism takes no CO2 (all carbon from methanol, surplus electrons to O2: Heijnen; a first implementation that fixed CO2 gave a >1 g/g ceiling and was corrected before any result used it); yield on methanol = the glucose yield's share of the energetic ceiling with 2 x P/O ATP per methanol (D); maintenance on methanol from Dietzsch 2011 (0.016, A) scaled to near-zero growth (0.0050, D), matching Tomas-Gamisans 2018's NGAM converted at 2.96 ATP/methanol (0.0048). Tests: carbon and electron balances at f = 0, 0.5, 1; no CO2 fixation | Base cases unchanged (f = 0). BLG base with methanol induction +12%. Methanol-induced academic cases (lactoferrin Lv 2023, beta-casein Choi 1996, albumin) now costed on methanol |
+| G2 | Vessel size fixed at 200 m3 even for small plants (whole vessels) | **Done.** `scenarios.size_fermenter`: cheapest feasible of 50/100/150/200 m3 up to the 200 m3 cap, on each product's base case; scale curve re-sizes per output; explorer grid keeps the base plant | Commodity plants unchanged (200 m3; 500 m3 would be ~5% cheaper, kept as a sensitivity because 200 m3 is near PF practice). Lactoferrin 100 m3 (as Intelligen), $177.7 -> $167.8/kg base |
+| G3 | Secretion decoupled from growth (q_p = beta) | **Not done.** An optional alpha defaulting to 0 changes no result; the growth dependence is stated in the report (Rebnegger 2024, Looser 2015, Prielhofer 2018) | — |
+| G4 | No global sensitivity measure | **Done.** Spearman rank correlations over feasible Monte Carlo draws (report table, SI sheet MonteCarlo_rank) | Titer leads (rho -0.80 for industry BLG); sum of rho^2 ~1, as expected for independent inputs |
+| G5 | First-of-a-kind penalty promised in SCOPE but not implemented | **Scope corrected.** No sourced premium on file (RAND blocks scripted downloads; GFI Europe 2025 gives none). SCOPE and PLAN now exclude it until RAND R-2569 is read (DOWNLOADS P7) | — |
+| G6 | Chromatography is one column | **Not done.** Albumin's capture-only route at cell-culture purity is a stated judgment (D); the pharma train is described, not costed | — |
+| — | "Not worth it": mechanistic chromatography, CFD/viscosity-corrected kLa, genome-scale models, continuous operation, Sobol indices, rebuilding in SuperPro/BioSTEAM | Agreed | — |
+
+Albumin evidence pass (AI research agent; main session spot-checked identity, formula, column data,
+prices and specs; formula C2936H4590N786O889S41 reproduced independently): `data/evidence/albumin.yaml`
+(52 entries), 9 titer rows. Reference titles in the report were checked against the evidence files and
+Crossref after the first draft had some from memory (Zhu 2021, Delta patents: corrected).

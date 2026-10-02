@@ -78,6 +78,26 @@ Phase F (external review) has not started. Open items:
 
 ## Decisions log
 
+- **2026-10-02, v4: model review and serum albumin (Pablo: take the candidates "one by one, in priority
+  order"; "consider if this is the best possible model ... no artificial complexity, but SOTA or close";
+  Claude built it, for Pablo's review):**
+  - An independent AI review compared the method with published PF and cultivated-meat TEAs (gaps G1-G6;
+    docs/AUDIT.md, v4). Verdict: at or above the published state of the art for a multi-protein screening
+    TEA (its estimate P ~0.85); its uncertainty is strain data and accounting conventions, not missing
+    physics. Done: G1 methanol production phase (pf_ferm, thermo.anabolic, plant.methanol_yield); G2
+    vessel sizing (scenarios.size_fermenter, 50-200 m3 up to the 200 m3 cap); G4 Spearman rank
+    correlations in the Monte Carlo. G5 first-of-a-kind: no sourced premium on file, so SCOPE now excludes
+    it explicitly (RAND R-2569 requested). Not done, by decision: G3 growth-coupled secretion (an unused
+    knob that changes no result; stated as a limitation), G6 multi-column chromatography (albumin's
+    capture-only route is a stated judgment), and everything the review called artificial complexity
+    (mechanistic chromatography, CFD, genome-scale models, rebuilding in SuperPro/BioSTEAM).
+  - Serum albumin (`alb`, HSA P02768) on the cation-exchange route with Delta/Recombumin column data,
+    cell-culture purity (96%), 1 kt/yr. Evidence: data/evidence/albumin.yaml (52 entries). Academic: Zhu
+    2021, 17.47 g/L in 192 h of methanol induction (abstract; full text requested), costed on methanol.
+    Incumbent: bulk bovine serum albumin ($40-70/kg, grade C); GFI's $10/kg target and catalogue prices as
+    context; cost per kg of cultivated meat in report Q7.
+  - Methanol-induced academic cases (lactoferrin Lv 2023, beta-casein Choi 1996) now costed on methanol.
+
 - **2026-10-02, full texts from Pablo (Chezan 2026, Kim 2025):** casein precipitated at pH 4.5 (its
   solubility minimum); precipitation recovery low end 0.78 (assay), central 0.95 kept; ovomucoid academic
   titer verified (0.929 g/L, 60 h, methanol-free). docs/AUDIT.md, v3 follow-up.
@@ -214,7 +234,8 @@ Phase F (external review) has not started. Open items:
 - No BioSTEAM or SuperPro as the core model. BioSTEAM may cross-check capital costs; the
   SuperPro trial may only be used to read Intelligen's example file.
 - No claim that cannot be traced to a row in data/pf/base.yaml or data/evidence/.
-- No first-of-a-kind penalty mixed into the base case; it is shown separately.
+- No first-of-a-kind penalty mixed into the base case; it is shown separately once a sourced premium
+  is on file (v4: none yet).
 - No teaching numbers (docs/PRIMER.md, exercises) copied into the model; they are
   illustrative.
 

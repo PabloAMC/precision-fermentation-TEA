@@ -140,7 +140,8 @@ def constants() -> dict:
                        polymerisation_only=pr.energetic_ceiling(pr.protein(k), th.get("Glucose (s)"),
                                                                 v_(BASE, "energetics.atp_per_peptide_bond"),
                                                                 v_(BASE, "energetics.substrate_atp_per_glucose")
-                                                                + 12 * v_(BASE, "hosts.kphaffii.po_ratio")))
+                                                                + 12 * v_(BASE, "hosts.kphaffii.po_ratio")),
+                       ceiling_methanol=plant.energetic_ceiling(q, "Methanol"), y_ps_methanol=plant.methanol_yield(q))
     # the most production-phase maintenance the base expression phase can carry with the product made
     # at the energetic ceiling (review H2): same glucose per hour, m_s + q_p/Y_ps = m_max + q_p/ceiling
     ms_max = {}
@@ -165,6 +166,7 @@ def constants() -> dict:
     ferm = r.capex["ISBL: production fermenters"] + seed
     return dict(
         ms_prod_max_at_ceiling=ms_max, aeration_our150=aer150,
+        Yx_max_methanol=plant._host(BASE).growth_on("Methanol").max_yield,
         aeration_kWh_per_kg_o2=aer(r), aeration_kWh_per_kg_o2_workbook_compressor=aer(r_wb),
         aeration_kWh_per_kg_o2_do50=aer(r_do),
         compressor_share_of_aeration=r.batch.comp_kWh / (r.batch.comp_kWh + r.batch.agit_kWh),

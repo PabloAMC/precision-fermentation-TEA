@@ -65,12 +65,13 @@ def feasible_part(xs, ys, feas):
 
 PRODS = list(R["base"])                      # products in results order (data/pf/products.yaml)
 PROD = {"blg": "beta-lactoglobulin (whey protein)", "ova": "ovalbumin (egg-white protein)",
-        "ovd": "ovomucoid (egg-white protein)", "cas": "beta-casein (milk casein)", "lf": "lactoferrin (milk)"}
-SHORT = {"blg": "BLG", "ova": "OVA", "ovd": "ovomucoid", "cas": "casein", "lf": "lactoferrin"}
-BAND = {"blg": "#e3edf9", "ova": "#fbe6dc", "ovd": "#fbe6dc", "cas": "#e6f4ec", "lf": "#efe9f7", "whey": "#e3edf9", "egg": "#fbe6dc"}
+        "ovd": "ovomucoid (egg-white protein)", "cas": "beta-casein (milk casein)", "lf": "lactoferrin (milk)",
+        "alb": "serum albumin (cell-culture media)"}
+SHORT = {"blg": "BLG", "ova": "OVA", "ovd": "ovomucoid", "cas": "casein", "lf": "lactoferrin", "alb": "albumin"}
+BAND = {"blg": "#e3edf9", "ova": "#fbe6dc", "ovd": "#fbe6dc", "cas": "#e6f4ec", "lf": "#efe9f7", "alb": "#f6efd9", "whey": "#e3edf9", "egg": "#fbe6dc"}
 PCOL = {k: CAT[i] for i, k in enumerate(PRODS)}
 inc = R["benchmarks"]["incumbents"]
-REPORTED = {d["compare_to"]: d for d in [R.get("lactoferrin", {}).get("reported_prices")] if d}
+REPORTED = {d["compare_to"]: d for d in [R.get(s_, {}).get("reported_prices") for s_ in ("lactoferrin", "albumin")] if d}
 
 
 def market(prod):
@@ -200,7 +201,7 @@ fig.legend(h, [x.split(" (ceiling")[0] for x in l_], loc="lower center", ncol=3,
 fig.text(0.01, -0.06, f"Each product's base case ({SCALES}), US Midwest, 200 m3 fermenters, glucose fed at 500 g/L. Each line ends "
          "at the highest feasible titer in that production time (O2 transfer, heat removal, minimum fill, specific productivity).\n"
          "Price bands, per kg protein in 2025 dollars: export unit values of whey protein >80% and dried egg albumin (OVA and ovomucoid), casein export and "
-         "US import prices, and reported dairy lactoferrin prices (grade C). Top axis: published and claimed titers (data/titers.csv).",
+         "US import prices, reported dairy lactoferrin prices and bulk albumin trade values (grade C). Top axis: published and claimed titers (data/titers.csv).",
          fontsize=7, color=MUTED)
 save(fig, "fig1_cost_vs_titer.png")
 
@@ -245,7 +246,7 @@ for j, (ax, prod) in enumerate(zip(axes, PRODS)):
     ax.legend(fontsize=6.4, loc="lower right", ncol=2)
 fig.text(0.01, -0.03, "Lines: titer at which the minimum selling price equals the target (each product's base plant, US; solid "
          "price-anchored, dashed design-report capital), searched only below the feasibility ceiling; grey: designs the fermenter "
-         "cannot run. Targets bracket each product's market (lactoferrin sells for hundreds of $/kg)."
+         "cannot run. Targets bracket each product's market (lactoferrin sells for hundreds of $/kg; albumin's run from GFI's $10/kg target to $100/kg)."
          + (f"\nNot reachable at any production time with the base cells and yield: {', '.join(missing)}." if missing else ""),
          fontsize=7, color=MUTED, wrap=True)
 save(fig, "fig3_required_titer.png")
@@ -283,7 +284,7 @@ for ax, prod in zip(axes, PRODS):
 h, l_ = axes[0].get_legend_handles_labels()
 fig.legend(h, l_, fontsize=7.5, ncol=4, loc="lower center", bbox_to_anchor=(0.5, -0.06))
 fig.text(0.01, -0.1, "$/kg target protein, 2025; capital charge 14.6%/yr of total capital investment. Physical limit: each "
-         "product at 100 kt/yr (lactoferrin at its largest market estimate).", fontsize=7, color=MUTED)
+         "product at 100 kt/yr (lactoferrin at its largest market estimate; albumin at GFI's high 2030 demand).", fontsize=7, color=MUTED)
 save(fig, "fig4_breakdown.png")
 
 # ------------------------------------------------------------------ Fig 5 tornado
@@ -332,7 +333,7 @@ fig.legend(handles=[Patch(color=ORD[g], label=f"grade {g}") for g in "ABCDE"]
            + [Patch(color=ORD["structural"], label="convention")], fontsize=7.5, ncol=6,
            loc="lower center", bbox_to_anchor=(0.5, -0.02))
 fig.text(0.01, -0.05, "One parameter at a time over its evidence range, coloured by evidence grade; the ten largest swings per "
-         "product. Each product on its own plant (lactoferrin 250 t/yr)."
+         "product. Each product on its own plant (lactoferrin 250 t/yr, albumin 1 kt/yr)."
          + ("\n\u2020 the end of the evidence range breaks a physical limit; the bar stops at the last feasible value shown."
             if trunc_any else ""), fontsize=7, color=MUTED)
 save(fig, "fig5_tornado.png")
@@ -499,6 +500,8 @@ ROUTES = {   # (label, result) per product: the base route first, then its alter
             ("UF/DF only (Eden Brew, FSANZ A1342)", R.get("casein", {}).get("cases", {}).get("cas_ufdf_edenbrew/humbird"))],
     "lf": [("cation exchange (base)", R["base"].get("lf")),
            ("UF/DF only (Intelligen case a)", LFX.get("cases", {}).get("lf_ufdf_only/humbird"))],
+    "alb": [("cation-exchange capture (base)", R["base"].get("alb")),
+            ("UF/DF only (optimistic bound)", R.get("albumin", {}).get("cases", {}).get("alb_ufdf_only/humbird"))],
 }
 rprods = [k for k in PRODS if k in ROUTES]
 fig, axes = grid(len(rprods), w=12, h=2.5, gridspec_kw=dict(hspace=0.8, wspace=1.0))
@@ -547,7 +550,10 @@ ACAD = {"blg": [("best public strain, 13.9 g/L (Yao 2026)", "academic/blg"), ("b
                 ("EVERY patent example, 30 g/L", "academic/ovd_patent")],
         "cas": [("best peer-reviewed in K. phaffii, intracellular (Choi 1996)", "academic/cas"),
                 ("best public casein, 3 g/L (E. coli patent)", "academic/cas_patent")],
-        "lf": [("best public methanol-free (Yen 2024)", "academic/lf"), ("best public secreted (Lv 2023; methanol)", "academic/lf_lv2023")]}
+        "lf": [("best public methanol-free (Yen 2024)", "academic/lf"), ("best public secreted (Lv 2023; methanol)", "academic/lf_lv2023")],
+        "alb": [("best public rHSA, 17.5 g/L in 192 h (Zhu 2021; methanol)", "academic/alb"),
+                ("8.9 g/L in 96 h (Zhu 2018; methanol)", "academic/alb_zhu2018"),
+                ("best methanol-free, 1.5 g/L (Delta patent)", "academic/alb_patent")]}
 
 
 def ladder(prod):
@@ -619,7 +625,7 @@ if ctx:
     ax.set_yticks(range(len(rows)))
     ax.set_yticklabels([c["label"] for c in rows], fontsize=7.8)
     LS = ["-", (0, (4, 2)), (0, (1, 2)), (0, (6, 2, 1, 2)), (0, (2, 1))]
-    marks = [(f"{SHORT[k]} base", R["base"][k]["msp_ccf"]) for k in PRODS if R["base"][k]["msp_ccf"] < 150]
+    marks = [(f"{SHORT[k]} base", R["base"][k]["msp_ccf"]) for k in PRODS if k not in REPORTED and R["base"][k]["msp_ccf"] < 150]
     marks += [("BLG, 42 g/L", R["scenarios"]["industry/blg"]["msp_ccf"]),
               ("BLG best case", R["physical_limit"]["blg/humbird"]["msp_ccf"])]
     for j, (lab, x) in enumerate(marks):
@@ -634,6 +640,6 @@ if ctx:
     ax.set_title("Protein ingredients, per kg of protein, against our modelled costs", fontsize=9.5, loc="left")
     fig.text(0.01, -0.02, "Bars: market prices. Export unit values are 2015-2025 in 2025 dollars (grade A); GFI 2025 ranges are nominal, "
              "about 2024-2025 (grade C). Lines: this model's production costs (price-anchored capital, 10 kt/yr; best case at "
-             "100 kt/yr), which include a return on capital but no margin, sales or distribution. Lactoferrin (hundreds of $/kg) "
-             "is off this scale (Figs 1 and 10).", fontsize=6.8, color=MUTED, wrap=True)
+             "100 kt/yr), which include a return on capital but no margin, sales or distribution. Lactoferrin and albumin, "
+             "which are not food-ingredient commodities, are in Figs 1 and 10.", fontsize=6.8, color=MUTED, wrap=True)
     save(fig, "fig11_protein_context.png")

@@ -21,12 +21,14 @@
 #let blg = R.base.blg
 #let cas = R.base.cas
 #let lfb = R.base.lf
+#let alb = R.base.alb
 #let LF = R.lactoferrin
+#let ALB = R.albumin
 #let PRODS = R.base.keys()
-#let NAME = (blg: "BLG", ova: "OVA", ovd: "ovomucoid", cas: "β-casein", lf: "lactoferrin")
+#let NAME = (blg: "BLG", ova: "OVA", ovd: "ovomucoid", cas: "β-casein", lf: "lactoferrin", alb: "albumin")
 #let MKT(p) = {
   let m = inc.values().find(d => d.compare_to.contains(p))
-  if m != none { m.band } else { LF.reported_prices.band }
+  if m != none { m.band } else { R.at((lf: "lactoferrin", alb: "albumin").at(p)).reported_prices.band }
 }
 #let where(x, band) = {
   let (lo, hi) = (band.at(0), band.at(1))
@@ -45,9 +47,9 @@
 #let BD(q) = R.best_design_base.at(str(q), default: none)
 #let QP(q) = R.physical_limit.at("blg/humbird/q_p_max_" + str(q), default: none)
 
-#text(size: 13pt, weight: "bold")[Precision-fermented dairy and egg proteins: what they cost, and where evidence would help]
+#text(size: 13pt, weight: "bold")[Precision-fermented dairy, egg and serum proteins: what they cost, and where evidence would help]
 #v(-0.3em)
-#text(size: 8.5pt, fill: rgb("#52514e"))[Memo · v3, five proteins (#R.generated) · Pablo Antonio Moreno Casares · techno-economic model `pf-tea`,
+#text(size: 8.5pt, fill: rgb("#52514e"))[Memo · v4, six proteins (#R.generated) · Pablo Antonio Moreno Casares · techno-economic model `pf-tea`,
 Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs · prepared with an AI assistant; not yet reviewed by human experts]
 
 *Bottom line.*
@@ -81,6 +83,13 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
 - *The route can change the product.* Precipitated, as dairy casein is, β-casein reaches dairy purity
   at #money(cas.msp_ccf)/kg; the only public yeast casein process (membranes only) makes a powder that
   is about 6% β-casein, mostly yeast carbohydrate.
+- *Albumin for cultivated-meat media: the column sets the cost.* With the cation-exchange capture of
+  the industrial process, at cell-culture purity and 1 kt/yr, albumin costs #money(alb.msp_ccf)/kg
+  (#money(S("industry/alb").msp_ccf) at 42 g/L; #money(S("academic/alb").msp_ccf) at the record 17.5 g/L, made with
+  methanol), against #usd(MKT("alb").at(0))–#usd(MKT("alb").at(1)) for bulk bovine albumin and GFI's
+  \$#ALB.cm.gfi_target_usd_kg/kg target. Cheap resin brings it to #money(ALB.resin.at("dsp.cex_resin_usd_L=100")) and
+  membranes alone, if they reached the purity, #money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf). At the base cost it adds
+  #usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(0) / 1000, d: 2)–#usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(2) / 1000, d: 2) per kg of cultivated meat, while leading firms are removing albumin from their media.
 
 #table(
   columns: (2.1fr,) + PRODS.map(_ => 1fr),
@@ -95,7 +104,7 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
   table.hline(stroke: 0.5pt + rgb("#c3c2b7")),
   [incumbent, 2025\$ per kg protein], ..PRODS.map(p => [#money(MKT(p).at(0))–#money(MKT(p).at(1))]),
 )
-#text(size: 8pt, fill: rgb("#52514e"))[Plants: 10 kt/yr (lactoferrin 250 t/yr); physical limit at 100 kt/yr (lactoferrin 1.6 kt/yr).]
+#text(size: 8pt, fill: rgb("#52514e"))[Plants: 10 kt/yr (lactoferrin 250 t/yr, albumin 1 kt/yr); physical limit at 100 kt/yr (lactoferrin 1.6 kt/yr). Albumin's incumbent: bulk bovine albumin (technical grade).]
 
 *Where evidence would help most*, in our judgment:
 + *Secretion without growth.* How much protein a strain secretes per g of cells per hour when it
@@ -120,5 +129,5 @@ Cost effects on one plant, not policy recommendations.
 market price. Excludes R&D, licensing, regulatory, sales, start-up, failed batches and first-of-a-kind
 premiums. Strain parameters rest on design values and company-reported averages (evidence grades B–C);
 casein and lactoferrin titers are borrowed from other proteins or species. Ovomucoid and β-casein were
-added in version 3 and have been audited by AI reviewers only (docs/AUDIT.md). Full report, audit log, simulated expert reviews and
+added in version 3 and albumin in version 4; they have been audited by AI reviewers only (docs/AUDIT.md). Full report, audit log, simulated expert reviews and
 data: `pf-tea` repository.]
