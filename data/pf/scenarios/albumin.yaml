@@ -1,0 +1,13 @@
+# 'albumin': variants of the albumin base case (serum albumin for cultivated-meat media, 30 g/L in 72 h on glucose,
+# cation-exchange capture, 1 kt/yr; data/pf/products.yaml). Every public rHSA titer above ~1.5 g/L is methanol-induced
+# (albumin.yaml), so the base design point is also costed with a methanol induction phase.
+description: "Albumin variants: methanol induction, purification recovery (base case: data/pf/products.yaml)"
+alb_methanol:                         # the base design point with a methanol-only production phase (K. phaffii AOX1)
+  strain.methanol_frac_prod: 1
+alb_recovery_low:                     # the CEX capture at its lowest reported recovery (US 5,728,553 Table 4: '>40%')
+  dsp.cex_recovery: 0.40
+alb_recovery_high:                    # the CEX capture at EVERY's lactoferrin recovery (0.832; analogy, D)
+  dsp.cex_recovery: 0.832
+alb_ufdf_only:                        # optimistic route bound (as lactoferrin's lf_ufdf_only): purity from UF/DF alone, no
+  plant.spec: concentrate             # chromatography; 90% albumin of dry matter is an assumption (D): no public rHSA process
+  dsp.concentrate_target_frac_dry: 0.90   # reaches a cell-culture spec without a capture step (pigments, host proteins)

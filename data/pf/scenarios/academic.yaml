@@ -39,8 +39,8 @@ lf:                                      # Yen et al. 2024 (K. phaffii, glucose-
 lf_lv2023:                               # variant: Lv et al. 2023, the highest public secreted LF titer in any host
   strain.titer_g_L: 5.4                  # verified in the full text, 3 L, HUMAN lactoferrin, ELISA only (titers.csv quality flags)
   strain.t_prod_h: 120                   # 'After 5 days of induction'
-  # FLAG: methanol-induced (P_AOX1), outside the methanol-free product (GRN 1219, 1284); costed as
-  # glucose-equivalent as for Yao's ethanol phase. No dry cell weight usable (the paper's 331 g/L is
+  strain.methanol_frac_prod: 1           # methanol-induced (P_AOX1), costed on methanol (v4, review G1); outside the
+  # methanol-free product (GRN 1219, 1284). No dry cell weight usable (the paper's 331 g/L is
   # probably wet weight), so the base cell density is kept.
 ovd:                                     # Kim, Jin & Kim 2025: the best peer-reviewed ovomucoid titer
   strain.titer_g_L: 0.929                # verified in the full text: '929 mg/L ... after 60 h of fermentation' (sect. 3.4, Fig. 5)
@@ -55,8 +55,9 @@ ovd_patent:                              # variant: EVERY US 2024/0209383 A1 Ex.
 cas:                                     # Choi & Jimenez-Flores 1996: the best peer-reviewed beta-casein titer in K. phaffii
   strain.titer_g_L: 1.0                  # verified in the full text: 'approximately 0.7-1.0 g/L' (Results p.361), the top of the range
   strain.t_prod_h: 120                   # methanol induction optimised to 120 h (Choi 2001 p.1762, verified)
-  # FLAG: INTRACELLULAR (15-18% of soluble cell protein; secretion ~1/20,000 of it), methanol-induced, shake flask;
-  # costed as if secreted on glucose, an analogy. No secreted casein titer is public for any yeast or fungus
+  strain.methanol_frac_prod: 1           # methanol-induced (AOX1), costed on methanol (v4, review G1)
+  # FLAG: INTRACELLULAR (15-18% of soluble cell protein; secretion ~1/20,000 of it), shake flask;
+  # costed as if secreted, an analogy. No secreted casein titer is public for any yeast or fungus
   # (casein.yaml casein_titer_state_of_the_art). Choi 2001's 0.245 g/L (used before 2026-10-01) is one glycoform
   # in a cell lysate, not a titer. The best peer-reviewed casein titer in any host is 1.45 g/L of human alpha-s1 in
   # E. coli (Wang 2021); Choi 1996 is kept for its host and protein.
@@ -64,6 +65,20 @@ cas_patent:                              # variant: Standing Ovation US 2024/025
   strain.titer_g_L: 3.0                  # verified in the full text: 'about 3 g of recombinant protein per liter of culture',
   # 42 L fed-batch, beta-casein. FLAG: E. coli BL21(DE3), IPTG, INTRACELLULAR, quantified by eye on SDS-PAGE;
   # costed here as secreted from K. phaffii (an analogy, D). Time, cells and yield: the base case (none published).
+alb:                                     # Zhu et al. 2021 (K. phaffii): the best public secreted rHSA titer
+  strain.titer_g_L: 17.47                # abstract: '17.47 g/L HSA in the supernatant within a 192 h induction' (full text pending)
+  strain.t_prod_h: 192                   # the induction phase; the glycerol batch before it is the model's growth phase
+  strain.methanol_frac_prod: 1           # AOX1 promoter, methanol induction, costed on methanol (v4, review G1)
+  # Cell density, growth during induction and scale are behind the paywall: base values kept. 'Supernatant'
+  # titer: per litre of whole broth it is lower (cells ~30-40% of volume at high density), so this is generous.
+alb_zhu2018:                             # variant: Zhu et al. 2018, same group, 8.86 g/L after 96 h of methanol induction
+  strain.titer_g_L: 8.86                 # abstract; the same space-time yield as 2021 (0.092 g/L/h): 2021 ran twice as long
+  strain.t_prod_h: 96
+  strain.methanol_frac_prod: 1
+alb_patent:                              # variant: Delta (Recombumin) US 6,638,740, the best public METHANOL-FREE rHSA titer (B)
+  strain.titer_g_L: 1.5                  # 'rHA >1.5 g monomer/L culture' (expected minimum), S. cerevisiae, sucrose fed-batch, 8,000 L
+  # FLAG: S. cerevisiae costed as K. phaffii on glucose (analogy, D); time and yield not stated: base values. A 1990s
+  # strain; Sartorius/Albumedix's current titer is not public.
 mc_paths:
   common: [strain.Y_ps_g_g, fermenter.otr_cap_mol_m3_h, fermenter.turnaround_h, dsp.paste_extracellular_frac,
     dsp.mf_flux_LMH, dsp.uf_flux_LMH, dsp.df_flux_LMH, dsp.membrane_price_usd_m2, dsp.membrane_skid_usd_m2,
@@ -78,10 +93,15 @@ mc_paths:
     dsp.cex_resin_usd_L, dsp.cex_resin_life_cycles, dsp.cex_hardware_usd_per_L_resin, dsp.cex_target_frac_dry]
   ovd: [strain.X_prod_g_L, strain.mu_prod_per_h, hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_g_g_h,
     dsp.dryer_feed_solids_ovd]
-  cas: [strain.X_prod_g_L, strain.mu_prod_per_h, hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_g_g_h,
+  cas: [strain.X_prod_g_L, strain.mu_prod_per_h, hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_methanol_g_g_h,
     dsp.dryer_feed_solids_cas, dsp.acid_h3po4_kg_per_m3, dsp.acid_precip_temperature_C, dsp.acid_heat_recovery,
     dsp.acid_precip_recovery, dsp.acid_wash_L_per_kg, dsp.acid_curd_solids, dsp.acid_naoh_kg_per_kg, dsp.acid_target_frac_dry]
+  alb: [strain.X_prod_g_L, strain.mu_prod_per_h, hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_methanol_g_g_h,
+    dsp.dryer_feed_solids_alb, dsp.cex_dbc_g_L, dsp.cex_cv_per_cycle, dsp.cex_flow_cv_per_h, dsp.cex_recovery,
+    dsp.cex_resin_usd_L, dsp.cex_resin_life_cycles, dsp.cex_hardware_usd_per_L_resin, dsp.cex_target_frac_dry]
 mc_ranges:
+  alb:
+    strain.titer_g_L: {low: 17.47, high: 17.47}
   blg:
     strain.titer_g_L: {low: 13.88, high: 13.88}
     strain.X_prod_g_L: {low: 40, high: 60}   # ~200 g/L wet cells at induction (Yao 2026) at 0.2-0.3 g dry/g wet (A.1 uses 0.3); the base 40-150 range made most draws infeasible (review SC-8)

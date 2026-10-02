@@ -79,7 +79,9 @@ cost-in-use are outside the model and are stated as such.
   broth changes the O₂ physics.
 - **Mode:** aerobic fed-batch on glucose. Continuous operation only if data allow.
 - **Plant:** greenfield, single-product, nth-of-a-kind. Base is 10 kt/yr of protein, swept
-  from 1 to 100 kt/yr. A first-of-a-kind penalty is shown separately, never mixed in.
+  from 1 to 100 kt/yr. First-of-a-kind premiums are excluded and stated as a caveat (v4: no
+  sourced premium for fermentation plants is on file; the RAND pioneer-plant study, Merrow et al.
+  1981, R-2569, is the candidate source for a separate sensitivity, never mixed in).
 - **Facility class:** food-grade, "commodity aerobic" in the classes of Humbird's
   equipment database. Built to food CGMP (21 CFR 117, as in GRN 1056), not pharmaceutical
   cGMP.
