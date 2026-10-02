@@ -184,7 +184,7 @@ for ax, prod in zip(axes, PRODS):
     ax.plot([], [], marker="D", ms=6, color=INK2, ls="none", label="cheapest feasible design at that time")
     for t, lab in marks.get(prod, []):
         ax.axvline(t, color=AXIS, lw=0.8, zorder=0)
-        ax.text(t, 1.012, f"{lab}: {t:g} g/L", transform=ax.get_xaxis_transform(), rotation=60, ha="left",
+        ax.text(t, 1.012, f"{lab}: {t:.3g} g/L", transform=ax.get_xaxis_transform(), rotation=60, ha="left",
                 va="bottom", fontsize=6.2, color=INK2, rotation_mode="anchor")
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlim(1.8, 170)
@@ -198,7 +198,7 @@ for ax, prod in zip(axes, PRODS):
             fontsize=9, fontweight="bold", color=INK)
 h, l_ = axes[0].get_legend_handles_labels()
 fig.legend(h, [x.split(" (ceiling")[0] for x in l_], loc="lower center", ncol=3, fontsize=7.2, bbox_to_anchor=(0.5, -0.02))
-fig.text(0.01, -0.06, f"Each product's base case ({SCALES}), US Midwest, 200 m3 fermenters, glucose fed at 500 g/L. Each line ends "
+fig.text(0.01, -0.06, f"Each product's base case ({SCALES}), US Midwest, fermenters sized to each plant (200 m3 at 10 kt/yr; 100 m3 for lactoferrin and albumin), glucose fed at 500 g/L. Each line ends "
          "at the highest feasible titer in that production time (O2 transfer, heat removal, minimum fill, specific productivity).\n"
          "Price bands, per kg protein in 2025 dollars: export unit values of whey protein >80% and dried egg albumin (OVA and ovomucoid), casein export and "
          "US import prices, reported dairy lactoferrin prices and bulk albumin trade values (grade C). Top axis: published and claimed titers (data/titers.csv).",
@@ -243,7 +243,7 @@ for j, (ax, prod) in enumerate(zip(axes, PRODS)):
     ax.set_xlabel("production phase (h)")
     ax.set_ylabel("titer needed (g/L)")
     ax.set_title(f"{PROD[prod]}, {tpy(R['base'][prod]):,.0f} t/yr", fontsize=9)
-    ax.legend(fontsize=6.4, loc="lower right", ncol=2)
+    ax.legend(fontsize=6.4, loc="best", ncol=2)
 fig.text(0.01, -0.03, "Lines: titer at which the minimum selling price equals the target (each product's base plant, US; solid "
          "price-anchored, dashed design-report capital), searched only below the feasibility ceiling; grey: designs the fermenter "
          "cannot run. Targets bracket each product's market (lactoferrin sells for hundreds of $/kg; albumin's run from GFI's $10/kg target to $100/kg)."
@@ -295,7 +295,7 @@ ORD["structural"] = INK2
 def tlabel(par, trunc):
     txt = {"design-report (NREL-style)": "design-report", "price-anchored (Humbird)": "price-anchored",
            "vendor quote (base)": "vendor quote", "aseptic cell-culture STR (ACCE)": "aseptic STR"}.get(par, None)
-    txt = txt or (f"{par:.3g}" if isinstance(par, float) else f"{par}")
+    txt = txt or ((f"{par:,.0f}" if abs(par) >= 1000 else f"{par:.3g}") if isinstance(par, (int, float)) else f"{par}")
     return txt + (" \u2020" if trunc else "")
 
 
@@ -501,7 +501,7 @@ ROUTES = {   # (label, result) per product: the base route first, then its alter
     "lf": [("cation exchange (base)", R["base"].get("lf")),
            ("UF/DF only (Intelligen case a)", LFX.get("cases", {}).get("lf_ufdf_only/humbird"))],
     "alb": [("cation exchange + anion-exchange polish (base)", R["base"].get("alb")),
-            ("cation-exchange capture only", R.get("albumin", {}).get("cases", {}).get("alb_capture_only/humbird")),
+            ("capture only (96% assumed; optimistic)", R.get("albumin", {}).get("cases", {}).get("alb_capture_only/humbird")),
             ("UF/DF only (77% albumin; below spec)", R.get("albumin", {}).get("cases", {}).get("alb_ufdf_only/humbird"))],
 }
 rprods = [k for k in PRODS if k in ROUTES]
@@ -519,7 +519,7 @@ for ax, prod in zip(axes, rprods):
         ax.plot([tp], [i], "o", ms=7, color=PCOL[prod], zorder=3)
         ax.plot([pw], [i], "o", ms=7, mfc=SURF, mec=PCOL[prod], mew=1.6, zorder=3)
         ax.text(max(tp, pw) * 1.12, i, f"${tp:,.1f}/kg {SHORT[prod]}; ${pw:,.2f}/kg powder; "
-                f"{100 * d['design']['purity_dry']:.0f}% of dry matter", fontsize=6.6, color=INK2, va="center")
+                f"{int(100 * d['design']['purity_dry'] + 0.5)}% of dry matter", fontsize=6.6, color=INK2, va="center")
         xs += [tp, pw]
     if prod == "lf":                                   # Intelligen's own model: cost of production, not MSP
         for c_ in LFX.get("reported_prices", {}).get("comparators", []):

@@ -99,7 +99,8 @@ mc_paths:
     dsp.acid_precip_recovery, dsp.acid_wash_L_per_kg, dsp.acid_curd_solids, dsp.acid_naoh_kg_per_kg, dsp.acid_target_frac_dry]
   alb: [strain.X_prod_g_L, strain.mu_prod_per_h, hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_methanol_g_g_h,
     dsp.dryer_feed_solids_alb, dsp.cex_dbc_g_L, dsp.cex_cv_per_cycle, dsp.cex_flow_cv_per_h, dsp.cex_recovery,
-    dsp.cex_resin_usd_L, dsp.cex_resin_life_cycles, dsp.cex_hardware_usd_per_L_resin, dsp.cex_target_frac_dry]
+    dsp.cex_resin_usd_L, dsp.cex_resin_life_cycles, dsp.cex_hardware_usd_per_L_resin, dsp.cex_target_frac_dry,
+    dsp.polish_dbc_g_L, dsp.polish_recovery]
 mc_ranges:
   alb:
     strain.titer_g_L: {low: 8.74, high: 8.74}

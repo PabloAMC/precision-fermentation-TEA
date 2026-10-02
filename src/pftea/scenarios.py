@@ -374,7 +374,7 @@ def monte_carlo(p: dict, paths: list[str], n: int = 500, seed: int = 0, ranges: 
         except ValueError:
             msp.append(np.nan)
             feas.append(False)
-            why.append("no plant (model error)")
+            why.append("no batch could be built (e.g. yield above its ceiling)")
     msp, feas = np.array(msp), np.array(feas)
     ok, fin = msp[feas], msp[np.isfinite(msp)]
     pct = lambda a, q_: float(np.percentile(a, q_)) if a.size else float("nan")   # noqa: E731
