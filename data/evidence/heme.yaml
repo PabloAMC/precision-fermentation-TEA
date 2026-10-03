@@ -409,7 +409,7 @@
   value: 6.0
   unit: g/L secreted LegH, 5 L fermenter (double-copy cassette, mu-STAT methanol feeding + 50 g/L sorbitol)
   grade: A
-  source: "Chen HT, Niu YH, Zhang LX, et al. (2025). The optimized signal peptide and feeding strategy to enhance secretory expression of LegH in Komagataella phaffii. Process Biochem 156:255-262"
+  source: "Chen H, Niu Y, Wang Y, Zhang L, Dai Z, Luo A, Du G, Zhao X (2025). The optimized signal peptide and feeding strategy to enhance secretory expression of LegH in Komagataella phaffii. Process Biochem 156:255-262"
   doi_or_url: 10.1016/j.procbio.2025.06.005
   locator: "publisher abstract/highlights page (paywalled; read via search-result summary, not the article)"
   quote: null

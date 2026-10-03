@@ -136,7 +136,7 @@ titer_markers:             # (product in titers.csv, source_key, host) -> max ti
     - {product: albumin, source_key: Delta2003-740, host: S. cerevisiae, label: "best methanol-free (Delta/Recombumin patent)"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
   alac:                    # no alpha-lac maker discloses a titer (21st.BIO/Novonesis; alac.yaml); every K. phaffii titer is human alpha-lac
-    - {product: alpha-lactalbumin, source_key: Wang2025, host: "K. phaffii GS115-ICL1-LM (LA-3C, 3 copies, 5xlacO-corePAOX1 + LacI-Mit1AD ESAD, hybrid P4 signal; ADH2-SePPK)", factor: 0.643, label: "best public alpha-lac (Wang 2025; human; ethanol; whole broth)"}   # 0.60 g/L of supernatant x 0.643
+    - {product: alpha-lactalbumin, source_key: Wang2025, host: "K. phaffii GS115-ICL1-LM (LA-3C, 3 copies, 5xlacO-corePAOX1 + LacI-Mit1AD ESAD, hybrid P4 signal; ADH2-SePPK)", factor: 0.643, label: "best public alpha-lac (Wang 2025; human; broth)"}   # 0.60 g/L of supernatant x 0.643
     - {product: "other:alpha-lactalbumin", source_key: gfieurope2025, host: yeast (unspecified), label: "GFI Europe/ADL design titer"}
     - {product: "other:PF-average-private", source_key: gfi2025costs, host: various, label: "average in private cost models (GFI 2025)"}
   cas:                     # no company discloses a casein titer (casein.yaml); Wang 2021's 1.13 g/L is bovine, its 1.45 human

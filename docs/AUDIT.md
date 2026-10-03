@@ -546,3 +546,16 @@ the four formulas and sequences, and every number the main session relies on aga
   "at most" 41%; unused_paths no longer hides cas1's own dryer leaf (tested); cas1.yaml evidence pointer; marker label.
   Not changed: four evidence quotes over 40 words (L9) and scale_L conventions in the new titers.csv rows (L10).
 Report: `.preview/audit_R14_data.md` (local).
+
+### R15 (2026-10-03): AI audit of the compiled report's new content (α-lac, rennet-cheese casein, heme)
+
+58 numbers checked against results/analyses.json: all match; every new citation has a matching reference entry; no
+Typst defects. No HIGH findings. Fixes: GFI Europe's two α-lac market sizes are one $462 M market priced two ways, in
+tonnes of ingredient, so the physical-limit cap is ~19 kt/yr of α-lac (31.8 kt at ~60%), not 31.8 kt (M1); the κ
+requirement now names its route everywhere (co-precipitated: ~α-s1's design titer; own column: none up to 42 g/L) (M2);
+"about four orders of magnitude" (M3); α-lac solubility stated consistently (calcium-bound form soluble pH 2–9; unfolds
+in culture below pH 5.5) (M4); a stale limitation on the old $15 price (M5); the Q6 α-lac scale sentence (M6); the heme
+conclusion stated as $/kg of analogue ex works and % of retail beef, not "a small part" (M7); α-lac titer basis
+(supernatant vs broth) consistent (M8); low-severity fixes to figure footnotes and labels, the Wang 2021 reference (title,
+DOI), a Panchanawaporn 2026 evidence entry, Chen 2025's author list, and ten clarity rewrites. Report:
+`.preview/audit_R15.md` (local).
