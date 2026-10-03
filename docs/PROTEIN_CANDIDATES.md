@@ -26,6 +26,12 @@ capture at cell-culture purity, 1 kt/yr; the column, not the titer, sets its cos
 one at a time: α-lactalbumin (a membrane-route whey protein, a data change), then κ-/αs1-casein (mostly a
 required-titer case: the only κ-casein titer is 0.24 mg/L), then a heme cost-in-use note.
 
+**Update 2026-10-02 (v4, later):** done. α-lactalbumin (`alac`) is a product; α<sub>s1</sub>/κ-casein are a
+rennet-cheese blend analysis (report §"Casein for rennet cheese"; best κ titers 4.14 mg/L peer-reviewed,
+~0.25 g/L in a patent); heme is a cost-in-use note on secreted LegH (report §"Heme"). Evidence:
+data/evidence/alac.yaml, heme.yaml, casein.yaml (α<sub>s1</sub>/κ section). The §1 heme notes below predate
+the full-text reads (Shao 2022 and Chen 2025 are now read in full).
+
 **Update 2026-10-01:** β-casein (`cas`) and ovomucoid (`ovd`) are now products, with their evidence in
 `data/evidence/casein.yaml` and `ovomucoid.yaml`; §5 and §6 below are the earlier, unverified notes.
 Corrections from the full texts: no secreted casein titer is public for any yeast or fungus (Choi's

@@ -1171,3 +1171,482 @@
     precipitates as well as the native one (77.6% vs 79.3% in the assay), which supports the dairy analogy
     for dsp.acid_precip_recovery. The assay value (0.78) is a pessimistic floor, not a design value.
 
+# =======================================================================================
+# alpha-s1 and kappa-casein (research pass 2026-10-02, from .preview/casein2; for the rennet-cheese analysis)
+# =======================================================================================
+- key: as1_kappa_formula_crosscheck_uniprot
+  value: {as1_mature: "C1035H1587N265O317S5", as1_mature_MW_Da: 22974.6, as1_8P_MW_Da: 23614.3, kappa_mature_SS: "C849H1321N223O262S4", kappa_mature_SS_MW_Da: 18972.2, kappa_mature_noSS: "C849H1323N223O262S4", kappa_mature_noSS_MW_Da: 18974.2}
+  unit: elemental formula and average mass of the unphosphorylated, unglycosylated mature chain
+  grade: A
+  source: "UniProtKB P02662 (CASA1_BOVIN, entry v178, seq v2) and P02668 (CASK_BOVIN, entry v175, seq v1), last annotation update 2026-09-02; arithmetic mine"
+  doi_or_url: "https://rest.uniprot.org/uniprotkb/P02662.json ; https://rest.uniprot.org/uniprotkb/P02668.json"
+  locator: "sequence.molWeight (precursor): P02662 24529, P02668 21269; features Signal, Chain, Disulfide bond, Modified residue, Glycosylation"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine). Method check: the same residue table applied to the FULL PRECURSOR gives 24528.6 Da
+    (P02662) and 21269.1 Da (P02668), matching UniProt's molWeight 24529 and 21269 to <1 Da, so the
+    mature-chain formulas in casein.yaml are confirmed. alpha-s1 (mature 16-214, 199 aa, B variant): 0 Cys,
+    5 Met, 2 Trp, 17 Pro; 16.16 wt% N (N x 6.19). With 8 phosphates (+79.966 Da each, GRN 1312 convention)
+    23,614 Da; with 9, 23,694. kappa (mature 22-190, 169 aa, UniProt reference = variant A; B differs at
+    precursor 157 and 169): 2 Cys (mature 11 and 88), 2 Met, 1 Trp, 20 Pro; 16.46 wt% N (N x 6.07). The
+    model's convention (as for lactoferrin) should subtract 2 H per disulfide: casein.yaml lists H1323 (no
+    disulfide); with the one intrachain Cys11-Cys88 bond it is H1321 (18,972.2 Da). In milk only ~10% of
+    kappa is that monomer (Iaria 2026, below); the rest is disulfide-linked oligomers, which have the SAME
+    formula per monomer (one S-S per chain on average), so H1321 is right for both. The N-terminal Gln is
+    cyclised to pyroglutamate in milk (-NH3): C849H1318N222O262S4, 18,955 Da; whether a microbial host
+    cyclises it is unknown (spontaneous at low pH and heat; not measured for any recombinant kappa found).
+    Chymosin site Phe105-Met106 (precursor 126-127): para-kappa (1-105) 12,285 Da and caseinomacropeptide
+    (106-169, 64 aa) 6,707 Da, i.e. the CMP is 35.3% of the unglycosylated kappa mass (mine). Mass of PTMs
+    ignored in the formula: alpha-s1 8 P = 2.8% of mass; kappa 1 P + up to 8 GalNAc-based glycans in milk
+    (none expected from bacteria; yeast adds O-mannose instead).
+
+- key: kappa_disulfide_oligomer_state
+  value: 0.10
+  unit: fraction of milk kappa-casein present as the monomer with an internal disulfide
+  grade: A
+  source: "Iaria L, Bijl E, Hettinga K, Werten MWT. Animal-free caseins by precision fermentation: technical challenges and perspectives. Trends Food Sci Technol 175:105878 (2026), sect. 2 (citing McSweeney & Fox 2013)"
+  doi_or_url: 10.1016/j.tifs.2026.105878
+  locator: "sect. 2, p.3 (local: references/text/Iaria2026_animal_free_caseins_TIFS.txt)"
+  quote: "Only about 10% of kappa-casein is present as a monomer containing an internal disulfide bond, while the remaining portion forms oligomers with randomly distributed intermolecular disulfide linkages"
+  read: fulltext
+  note: >-
+    Secondary statement (review citing the dairy textbook). Same page: kappa is "O-glycosylated in a
+    fraction of the molecules", and chymosin cuts "at Phe126-Met127" (precursor numbering = mature
+    Phe105-Met106). Iaria's Table 1 (column-interleaved in pdftotext) gives phosphorylation 8-9 (alpha-s1),
+    10-13 (alpha-s2), 5 (beta), 1-2 (kappa), glycosylation 0-6 sites for kappa, and 2 cysteines for alpha-s2
+    and kappa. Relevance: a recombinant kappa made in the E. coli cytoplasm will be reduced (no disulfide)
+    unless oxidised during DSP; New Culture's micelle examples use recombinant kappa purified under
+    non-reducing conditions without stating its oligomer state, and curd still formed (kappa_unphosphorylated
+    _as1_kappa_ratio_curd below), so the oligomer state is a quality question, not a known blocker.
+
+# =======================================================================================
+# 2. What cheese needs (micelles, kappa fraction, phosphorylation) - additions to casein.yaml sect. 5
+# =======================================================================================
+
+- key: newculture_recombinant_as1_kappa_micelle_cheese
+  value: {as1_mg_per_mL: 27.2, kappa_mg_per_mL: 4.8, kappa_frac_of_casein: 0.15, Ca_mM: 30.75, Pi_mM: 16.5, citrate_mM: 8.2}
+  unit: recipe of an alpha:kappa micelle that gives a pasta-filata cheese (mg/mL and mM in the micelle suspension)
+  grade: B
+  source: "New Culture Inc. US 2024/0065282 A1 'Micelle and micelle-like compositions and related methods' (priority 2020-11-04, published 2024-02-29), examples around Figs. 6-12, Tables 7-16"
+  doi_or_url: https://patents.google.com/patent/US20240065282A1/en
+  locator: "description, intra-micellar crosslinking example (Fig. 6, Table 7); recombinant micelles (Figs. 8-9, Table 10); single-casein colloids (Figs. 10-12, Tables 11-14)"
+  quote: "Table 10 demonstrates that TG treated and untreated micelles made from recombinant bovine alpha casein combined with recombinant kappa casein, made the best cheese that stretched and melted even better than the cheeses made using native bovine caseins."
+  read: html
+  note: >-
+    Adds three facts to casein.yaml casein_function_kappa_requirement (which has the 10.4:3.6 mg/mL,
+    2.9:1 recipe from the sibling US 2023/0404098 A1). (1) A FULLY RECOMBINANT micelle - recombinant
+    bovine alpha-s1 + recombinant SHEEP kappa, both unphosphorylated (host not stated in this passage)
+    - curdled with rennet after citric-acid acidification to pH 5-6.4 and stretched/melted best of
+    all samples (qualitative +/+++++ scores; micelles 1000-2000 nm with 20-40 nm submicelles, against
+    180-200 nm native). (2) A lower kappa share also works: 27.2 mg/mL alpha + 4.8 mg/mL kappa
+    (dairy proteins, Sigma) = kappa 15% of casein (mine), close to milk's ~10% (casein.yaml
+    casein_shares_of_total_casein); the recombinant example's ratio is not stated in the passage read.
+    (3) Single caseins at 14 mg/mL with Ca 18.5 / Pi 12.4 / citrate 6.15 mM: alpha alone and beta
+    alone gave no particles by DLS and only "crumbly" precipitates, while "Kappa casein by itself, on
+    the contrary, showed great pasta-filata like properties" (dairy kappa, Sigma, glycosylated and
+    phosphorylated). Transglutaminase raised the kappa-only cheese yield by 25%. So in New Culture's
+    hands kappa is the casein that cannot be left out, and alpha-s1 is the bulk. Recombinant alpha-s1
+    with dairy kappa formed larger micelles (260-360 nm vs 180-200 nm). Patent example, qualitative
+    sensory scoring, no statistics: B for "it can be done", not for any yield number.
+
+- key: as1_recombinant_isoelectric_point_ief
+  value: 5.2
+  unit: pH (isoelectric point of unphosphorylated recombinant bovine alpha-s1-casein, variants A and B, by IEF)
+  grade: B
+  source: "Formo Foods GmbH & NewMilkBuzz BV. WO 2026/068856 A1 'Edible products comprising alpha-S1-casein variants A and B and methods for producing the same', Examples 1-2"
+  doi_or_url: https://patents.google.com/patent/WO2026068856A1/en
+  locator: "Example 2, sect. 2.2.1 'Determination of calcium- and pH-target values for cheesemaking'; method sect. 2.1.1 (Novex IEF 3-7 gel)"
+  quote: "Based on the lEF-results, both variants A and B appeared to have the same iso-electric point, i.e. pH 5.2."
+  read: html
+  note: >-
+    The first MEASURED pI of a recombinant alpha-s1 found (casein.yaml casein_isoelectric_point has
+    only computed values and the native 4.9-5.0). E. coli BL21-AI, pET26b-derived T7 plasmid without
+    lacI, arabinose-induced, intracellular; 10 L fermentation "essentially as described in WO
+    2024/188832A1" (= EP 4676233 A1, casein.yaml casein_pf_patent_acid_extraction_ph2); extraction
+    "by thermolysis at 80 C, at pH 2", then "pH-neutralised, desalted and dried" - i.e. in THIS
+    example no isoelectric precipitation, the powders being 83% (variant A) and 90% (variant B)
+    casein. The cheese use matters as much as the pI: a mozzarella analogue was made from ALPHA-S1
+    ONLY (no kappa, no rennet): 1.5% protein o/w emulsion (protein:fat 1:1), CaCl2 at 0.33 mmol Ca
+    per g casein (0.013 g Ca/g), acidified with HCl to the pI (5.2), 50 C for 30 min, curd drained
+    and stretched at 50 C in 0.5% CaCl2. Claim 1 sets the acidification within 0.5 pH unit of the
+    pI and 0.20-1.65 mmol Ca/g casein. My computed pI for the unphosphorylated chain was 4.60
+    (formulas.txt, EMBOSS-like pKa; Henderson-Hasselbalch on the sequence), so the measured value is
+    0.6 units higher than my arithmetic - trust the IEF, and note that it says the protein's
+    solubility minimum need not sit at pH 4.5 (Chezan 2026 found recombinant beta-casein's
+    zeta-pI 5.5 but solubility minimum 4.5). Formo's commercial precipitation pH is 4 (GRN 1312).
+    Calcium-precipitation onset was used to set the 0.33 mmol/g dose (optical density at 500 nm),
+    so unphosphorylated alpha-s1 is still calcium-sensitive enough to clot.
+
+- key: kappa_free_micelles_allg
+  value: {beta_g_L: 10, Pi_mM: 25.6, Ca_mM: 4.6, NaCl_mM: 23.9, pH: 7.0}
+  unit: composition of a stable kappa-free artificial micelle (beta-casein only; Example 7 sample 2)
+  grade: B
+  source: "All G Co Holdings Pty Ltd. US 2025/0344719 A1 'Compositions' (priority AU 2022901459, 30 May 2022), Summary and Examples 5-7"
+  doi_or_url: https://patents.google.com/patent/US20250344719A1/en
+  locator: "Summary of invention; Example 6 Table 2-3 (beta 8 g/L + kappa 2-10 g/L); Example 7 Table 4 (beta only), Figs. 7-10"
+  quote: "Advantageously, the casein micelle compositions of the present invention contain no kappa-casein and yet present a similar stability and appearance to naturally occurring casein micelles."
+  read: html
+  note: >-
+    The counter-position to "kappa is required": a calcium-sensitive casein ALONE (claims cover
+    alpha-s1 only, beta only, or mixtures) plus amorphous calcium phosphate gives micelles that survive
+    1000 x g, with CaP nanoclusters visible by cryo-TEM. BUT (i) the examples use DAIRY beta-casein
+    (Sigma, re-purified by anion exchange to >99%) - phosphorylated, so the nanocluster binding the
+    calcium-phosphate binding that Antuma 2023 shows needs phosphoserines (see
+    dephosphorylated_casein_micelles_rennet_antuma2023) is intact; no recombinant casein is tested in the
+    passages read; (ii) without kappa there is no chymosin site, so the cheese example uses "a rennet
+    substitute (as there is no kappa casein) such as microbial pepsin". Example 6 confirms the classic
+    size law with dairy proteins: at 8 g/L beta, kappa 2 -> 10 g/L gave smaller, less turbid micelles
+    ("an inverse relationship between the amount of kappa-casein, turbidity ... and casein micelle
+    size"). Side fact for the incumbent: Sigma's kappa-casein was only 52% kappa by CE-SDS (29%
+    alpha-lactalbumin), which is why kappa is costly even from milk. For pf-tea: kappa-free micelles
+    are a route to a single-casein cheese system only for a PHOSPHORYLATED casein, which no microbial
+    host makes at titer; it does not rescue an unphosphorylated alpha-s1.
+
+- key: kappa_free_curd_bacterial_caseins_standing_ovation
+  value: null
+  unit: qualitative (curd from unphosphorylated bacterial caseins without kappa-casein)
+  grade: B
+  source: "Standing Ovation. EP 4495131 A1 'Method for producing casein and uses thereof' (priority EP23306262, 2023), description, citing its WO 2022/253816 A1"
+  doi_or_url: https://patents.google.com/patent/EP4495131A1/en
+  locator: "description, paragraph after the in-pipe heating summary; 'preferred embodiments ... doesn't contain kappa casein'"
+  quote: "curdling can be achieved with the recombinant caseins made in bacteria, and in the absence of kappa caseins, even though they don't possess post-translation modifications (such as phosphorylations)"
+  read: html
+  note: >-
+    Second company (with Formo, as1_recombinant_isoelectric_point_ief) whose cheese route uses NO
+    kappa-casein: Standing Ovation's "preferred embodiments" are starting compositions that do not
+    contain kappa (alpha-s1 + beta, roughly 1:1, E. coli; titers.csv StandingOvation_EP4533954A1),
+    curdled with a "curdling agent" after mixing with water, calcium, lipids and carbohydrate (a
+    "liquid pre-curd composition"). The curd data are in WO 2022/253816 A1, NOT read (Google Patents
+    rate-limited this session) - a lead. Together with New Culture (kappa needed for rennet curd and
+    stretch) this splits the field: rennet/micelle cheese needs kappa; acid/calcium/enzyme-set
+    "cheese analogues" (Formo, Standing Ovation, Fermify) do not. pf-tea models a protein plant, so
+    kappa matters only if the product definition is "micellar casein for rennet cheese".
+
+- key: plant_seed_casein_expression_nobell
+  value: 0.01
+  unit: fraction of total soluble seed protein (upper bound for alpha-s1, beta or kappa expressed alone; soybean)
+  grade: B
+  source: "Nobell Foods Inc. AU 2022357568 A1 'Increased yield of milk protein per acre' (priority 2021-09-30 per Google Patents; published 2024-03-21), Example 2, Table 18/33"
+  doi_or_url: https://patents.google.com/patent/AU2022357568A1/en
+  locator: "para [00773]-[00774], Table 33 'Expression levels of milk proteins expressed alone or in a fusion protein'"
+  quote: "none of the cassettes encoding alpha-S1 -casein, beta-casein, or kappa-casein alone were able to produce expression of the protein at a level that exceeded 1% total soluble protein. However, when kappa-casein was fused with beta-lactoglobulin, kappa-casein was expressed at a level that was greater than 1% total soluble protein."
+  read: html
+  note: >-
+    The plant record for completeness (out of pf-tea's scope; not a titer). Soybean seed, Seed2
+    promoter, Rb7 terminator; free caseins < 1% TSP; kappa-BLG fusion > 1% TSP in 11 of 23 events
+    ("12 out of 23 events present expression levels below 1%"). Claims reach "at least 2 pounds of
+    recombinant milk protein per acre" up to 400 lb/acre as claim scope, not data. Mozza Foods' WO
+    2024/206469 A2 (enhanced casein expression in transgenic plants) was downloaded and holds no
+    %TSP number for kappa or alpha-s1 in the text layer.
+
+- key: kappa_fraction_across_species
+  value: {cow: 12, sheep: 10, buffalo: 12, goat: 17, camel: 3.5, horse: 1.8, human: 27}
+  unit: "% kappa-casein of total casein (relative casein composition)"
+  grade: A
+  source: "Runthala A, Mbye M, Ayyash M, Xu Y, Kamal-Eldin A. Caseins: Versatility of their micellar organization in relation to the functional and nutritional properties of milk. Molecules 28:2023 (2023), Table 1 (adapted from their ref. 2)"
+  doi_or_url: 10.3390/molecules28052023
+  locator: "Table 1 'Casein composition and micelle size of milks from humans and selected mammalian species' (PMC10004547; local .preview/casein2/Caseins_review_PMC10004547.txt)"
+  quote: "Cow 24.6-28 38 10 40 12 78 150-182 Camel 22.1-26.0 22 9 65.5 3.5 87 380"
+  read: fulltext
+  note: >-
+    Table columns: total casein g/L milk, then % alpha-s1, alpha-s2, beta, kappa, alpha-s1+beta, then
+    mean micelle diameter nm. Cow: 24.6-28 g/L casein, 38/10/40/12%, 150-182 nm (cf. Heck 2009 in
+    casein.yaml: 41.9/13.5/34.4/10.2). DERIVED (mine): at 26 g/L, cow kappa = 2.6-3.1 g/L milk and
+    alpha-s1 = 9.9-10.9 g/L. NATURE'S LOWER BOUND ON KAPPA: horse (1.8%) and camel (3.5%) milks still
+    form micelles, but bigger ones (255 and 380 nm), and the review notes "the low relative
+    kappa-casein percentage correlates with a large average casein micelle size". Camel milk is known
+    to coagulate poorly with bovine chymosin (the review's Fig. 8, qualitative), so a few % kappa
+    makes micelles but not necessarily a good rennet curd. Range across species: kappa 3.5-27%
+    (excluding horse in the 'Range' row). For a required-titer analysis, 10-15% kappa of total
+    casein is the milk-faithful design point; 3.5% is the natural floor. The phosphorylated caseins
+    in all these milks are what makes the low-kappa micelles possible (casein.yaml
+    casein_function_phosphorylation_needed).
+
+- key: kappa_ratio_rennet_firmness_antuma2025
+  value: {kappa_frac_alpha_kappa_tested: [0.255, 0.19, 0.15, 0.116], gprime_60min_Pa_alpha_kappa_71_19: 162.3, gprime_60min_Pa_alpha_kappa_80_12: 127.4, gprime_max_Pa_milk_like_49_32_19: 123.8, beta_kappa_unstable_kappa_frac: 0.106, beta_kappa_lowest_stable_kappa_frac: 0.186}
+  unit: "kappa mass fraction of total casein; storage modulus G' (Pa) as curd firmness"
+  grade: A
+  source: "Antuma LJ, Boom RM, Keppler JK. Tuning the structure and coagulation behaviour of artificial casein micelles by varying the casein composition. Food Hydrocolloids 163:111136 (2025)"
+  doi_or_url: 10.1016/j.foodhyd.2025.111136
+  locator: "sect. 2.2.2 and 2.2.7 (conditions, p.3); sect. 3.1 and Table 1 (compositions, p.4); sect. 3.3, Figs. 4-5 (coagulation, p.7-8); sect. 4 (p.9). Local: references/text/Antuma2025_kappa_casein_rennet.txt"
+  quote: "After 60 min of incubation, the ACM attained storage moduli ranging from 162.3 +- 3.4 Pa for ACM alpha:kappa 71:19 to 127.4 +- 3.8 Pa for ACM alpha:kappa 80:12."
+  read: fulltext
+  note: >-
+    Full text read 2026-10-02; replaces the abstract-only version. All caseins are DAIRY and
+    PHOSPHORYLATED (Sigma alpha-casein; beta and kappa fractions made in-house from milk; the kappa
+    powder was 67.8% kappa). Micelles: alpha:kappa blends from 25.5% down to 11.6% kappa all formed
+    micelles, with 95-96% of the casein micellar (Table 1). Beta:kappa formed micelles down to 18.6%
+    kappa; a 10.6% kappa beta blend "was unstable (i.e. visible casein aggregation and
+    sedimentation)" (sect. 3.1). Rennet: all alpha:kappa samples began to coagulate after about
+    6 min, beta:kappa after about 4 min. Firmness after 60 min fell from 162.3 Pa (19% kappa) to
+    127.4 Pa (11.6% kappa). The milk-like 49:32:19 alpha:beta:kappa reference reached 123.8 Pa.
+    For alpha:kappa, firmness levelled off or fell when the molar ratio of calcium-sensitive casein to
+    kappa dropped from 4.0 to 2.7, so the optimum sits near 15-19% kappa by mass (Fig. 5). DERIVED
+    (mine): the 11.6% kappa alpha:kappa curd was as firm as the milk-like reference, so 11.6% still
+    gives a usable rennet curd here. The lower limit for alpha-s:kappa is not bracketed; for
+    beta:kappa it lies between 10.6% and 18.6%. Conditions: 25.6 g/L casein, about 30 mM Ca, 22 mM
+    phosphate, 9 mM citrate, 5 mM Mg, assembled at pH 6.70 and 37 C. Rennet step: lactic acid to
+    pH 6.3, +0.04% CaCl2, 30 C, 0.02% chymosin. Micelle size rose linearly as kappa fell. Because
+    the caseins are phosphorylated, these fractions apply to a phosphorylated system. They do not
+    show that an unphosphorylated recombinant blend would behave the same way.
+
+- key: dephosphorylated_casein_micelles_rennet_antuma2023
+  value: {sedimentable_casein_native: 0.920, sedimentable_casein_dephos_only: 0.109, dephosphorylation_degree: 0.892, gprime_max_Pa_native_pH6p3: 133.0, gprime_max_Pa_native_pH5p8: 98.8, gprime_max_Pa_dephos_only_pH5p8: 5.5}
+  unit: "fraction of casein sedimenting at ultracentrifugation (micellar); max G' in 1 h of chymosin (Pa)"
+  grade: A
+  source: "Antuma LJ, Steiner I, Garamus VM, Boom RM, Keppler JK. Engineering artificial casein micelles for future food: Is casein phosphorylation necessary? Food Res Int 173:113315 (2023)"
+  doi_or_url: 10.1016/j.foodres.2023.113315
+  locator: "sect. 2.2.1 and Table 1 (dephosphorylation); sect. 3, Fig. 1 (sedimentable casein), Figs. 10-12 (rennet), p.5-7. Local: references/text/Antuma2023_casein_phosphorylation_micelles.txt"
+  quote: "The maximum storage modulus attained at pH 5.8 first decreased sharply from 98.8 +- 6.3 to 44.3 +- 8.1 Pa, after which it stagnated (and even increased slightly) for ACM prepared with 90% to 50% native casein before further decreasing to 5.5 +- 0.1 Pa for ACM prepared with only dephosphorylated casein."
+  read: fulltext
+  note: >-
+    Full text read 2026-10-02; upgrades casein.yaml casein_function_phosphorylation_needed (abstract).
+    Test material: whole sodium caseinate (41% alpha-s, 42% beta, 17% kappa) treated with alkaline
+    phosphatase to 89.2% dephosphorylation (Table 1). It therefore still contains kappa (17%,
+    glycosylated) and about 11% of its phosphate. It is not a recombinant protein. Micelle
+    formation: 92.0% of native casein sedimented. Sedimentable casein fell linearly as
+    dephosphorylated casein replaced native, down to 10.9% for dephosphorylated casein alone (Fig. 1).
+    The dephosphorylated casein formed larger (>200 nm), less hydrated particles stabilised on
+    calcium phosphate rather than true micelles. Rennet: at pH 6.7, firmness fell linearly to the
+    70:30 native:dephosphorylated blend and was "virtually zero" beyond it. At pH 5.8, firmness fell
+    from 98.8 Pa (all native) to 44.3 Pa (90:10) and plateaued to 50:50, then dropped to 5.5 Pa for
+    dephosphorylated casein alone. The best native curd was 133.0 Pa at pH 6.3. Conditions: ACM as in
+    Antuma 2025 (salts dosed at pH 6.70); renneting at pH 5.8, 6.3 and 6.7, +0.04% CaCl2, 30 C,
+    0.02% chymosin. DERIVED (mine): an all-dephosphorylated system reached 5.5/98.8 = 6% of the
+    native curd firmness at pH 5.8. On this test, an unphosphorylated casein blend does not make a
+    rennet gel that compares with native casein.
+
+- key: kappa_calcium_insensitive_raynes2024
+  value: null
+  unit: qualitative (kappa is the calcium-insensitive casein; micelle size set by kappa concentration)
+  grade: A
+  source: "Raynes JK, Mata J, Wilde KL, Carver JA, Kelly SM, Holt C. Structure of biomimetic casein micelles: critical tests of the hydrophobic colloid and multivalent-binding models using recombinant deuterated and phosphorylated beta-casein. J Struct Biol X 9:100096 (2024)"
+  doi_or_url: 10.1016/j.yjsbx.2024.100096
+  locator: "Introduction (p.2) and Methods 'Preparation of the biomimetic casein micelles' (PMC10840362; local .preview/casein2/Raynes2024_PMC10840362.txt)"
+  quote: "By contrast, cow kappa-casein usually has only one phosphorylated residue and it is not precipitated by low mM concentrations of calcium salts. As a result, kappa-casein is called a Ca-insensitive casein."
+  read: fulltext
+  note: >-
+    Upgrades casein.yaml's abstract-only citation of this paper to full text. Biomimetic micelles: beta
+    8 g/L constant, kappa 2-20 g/L, with recombinant beta-casein phosphorylated in E. coli by
+    co-expressed casein kinase II (4 P, the Clegg & Holt 2009 construct with extra flanking Asp);
+    "the only important variable affecting micelle size within a given series was the concentration
+    of kappa-casein". Corresponding author is at All G Foods (see kappa_free_micelles_allg). No
+    titer. DSP relevance: because kappa is NOT calcium-precipitable, the dairy calcium-precipitation
+    trick for the alpha/beta caseins cannot recover kappa; its recovery has to be isoelectric (pI
+    5.4-5.6 native, ~5.9 computed unglycosylated, formulas.txt) or chromatographic.
+
+- key: kappa_mass_crosscheck_milk_kappa_b
+  value: 19002.9
+  unit: Da (measured mass of unglycosylated bovine kappa-casein B, 1 phosphate)
+  grade: A
+  source: "Hewa Nadugala B, Hantink R, Nebl T, White J, Pagel CN, Ranadheera CS, Logan A, Raynes JK. The role of glycosylation in amyloid fibril formation of bovine kappa-casein. Curr Res Food Sci 6:100433 (2023), sect. 3.1 and Table 1"
+  doi_or_url: 10.1016/j.crfs.2023.100433
+  locator: "sect. 3.1 'Protein purification' (PMC9842538; local .preview/casein2/Glyco_kappa_PMC9842538.txt)"
+  quote: "the major peak of UG kappa-CN B with 19,002.9 Da was identified as kappa-CN B (1P)"
+  read: fulltext
+  note: >-
+    Independent check of the kappa formula (as1_kappa_formula_crosscheck_uniprot). DERIVED (mine):
+    variant B differs from UniProt's reference (A) at mature 136 (Thr->Ile) and 148 (Asp->Ala),
+    -32.0 Da, so kappa B with its disulfide = 18,940.2 Da; +1 phosphate (+79.97) = 19,020.2; with
+    the N-terminal pyroglutamate (-17.03) = 19,003.2 Da, within 0.3 Da of the measured 19,002.9. So
+    the milk protein is exactly "formula + 1 P + pyroGlu + one S-S", and a recombinant kappa B
+    without PTMs would be 18,957.2 Da (pyroGlu) or 18,940.2 (Gln). Glycoforms: the twice-glycosylated
+    form is 20,941.5 Da (2P) / 20,899.0 (1P), i.e. each glycan chain ~950 Da (mine: (20899.0 -
+    19002.9)/2 = 948). Purification here is the dairy route to kappa (Hill 1963): whole casein
+    precipitated at pH 4.6, three acid/neutral cycles, then 0.266 M CaCl2 precipitates the
+    calcium-sensitive caseins and kappa stays in the supernatant; result only 74% (unglycosylated)
+    and 81% (2G) kappa after anion exchange in 3.3 M urea + DTT. Kappa from milk is a lab, not a
+    commodity, product.
+
+- key: kappa_acid_route_feasibility
+  value: null
+  unit: qualitative (can kappa-casein be recovered by isoelectric precipitation?)
+  grade: D
+  source: "Perfect Day US 11,457,649 B2 'Casein Protein Purification' (references/text/PerfectDay_US11457649_casein-compositions.txt, OCR lines ~2575-2585); New Culture US 2023/0404098 A1 (truncated kappa, casein.yaml casein_function_kappa_requirement); Hewa Nadugala 2023 (above); my pI arithmetic (.preview/casein2/formulas.txt)"
+  doi_or_url: https://patents.google.com/patent/US11457649B2/en
+  locator: "US11457649 col. 57-58 (OCR, two-column interleaved); formulas.txt"
+  quote: "Kappa-casein is inherently hydrophilic and purification of the K-caseins involves the change in pH of the solution to 4.6, followed by centrifugation at 10,000 rcf"
+  read: fulltext
+  note: >-
+    Quote de-interleaved from the OCR columns (wording otherwise verbatim; check against the PDF).
+    No public source gives a measured solubility curve or a recovery for ISOLATED (or recombinant)
+    kappa-casein at pH 4.5-4.6; Perfect Day's sentence is a generic patent description with no
+    number. What is known: (1) in milk, kappa precipitates WITH the other caseins at pH 4.6 (it is in
+    acid casein; Hill-1963 kappa preparations start from acid casein); (2) kappa is
+    calcium-insensitive (kappa_calcium_insensitive_raynes2024), so it is the casein LEAST likely to
+    be pulled down by calcium; (3) computed pI (mine, Henderson-Hasselbalch on the mature sequence):
+    unphosphorylated, unglycosylated kappa 5.85 (net charge +4.4 at pH 4.6), 1P 5.36; native
+    literature 5.4-5.6. Recombinant alpha-s1 measured 5.2 (as1_recombinant_isoelectric_point_ief)
+    and recombinant beta 5.5 by zeta-potential yet least soluble at pH 4.5 (Chezan 2026); so a
+    recombinant kappa would likely need precipitation at pH ~5.5-6, NOT 4.5, if it precipitates
+    cleanly at all. The C-terminal third (macropeptide, pI ~3.7 computed, ~4 measured for GMP per
+    Thoma 2006 cited in Neelima et al. 2013, PMC3567326) is highly soluble; New Culture saw that
+    removing 16 C-terminal residues raised the micelle pI so acidification had to stop at ~pH 5.8.
+    JUDGEMENT (D): the acid route is plausible for kappa only as part of an alpha-s1 + kappa
+    co-precipitate (kappa as ~10-15% of the casein, as in milk) at a pH between 4.5 and 5.5; a
+    stand-alone kappa product should be modelled with a chromatographic capture (e.g. the existing
+    'cex' route: kappa carries net positive charge below pH ~5.8, computed) or left as a
+    required-titer analysis. Recovery for kappa on the acid route: no data; use the cas
+    dsp.acid_precip_recovery low value (0.78) at best, graded E.
+
+# =======================================================================================
+# 3. Downstream: alpha-s1 on the acid route
+# =======================================================================================
+
+- key: as1_grn1312_mineral_carryover
+  value: {P_mg_kg: [150, 3300, 3500], Na_mg_kg: [260, 9200, 4200], Ca_mg_kg: [8.8, 8.0, 7.2], S_mg_kg: [17000, 15000, 12000]}
+  unit: mg/kg powder, three commercial batches (FFM670, FFM681, FFM689) of acid-precipitated recombinant alpha-s1-casein
+  grade: A
+  source: "Formo Foods & NewMilkBuzz. FDA GRAS Notice GRN 1312, Table 6 'Analysis of minerals and trace elements of aS1-CN' (19 Dec 2025)"
+  doi_or_url: https://downloads.regulations.gov/FDA-2026-N-1832-0021/attachment_1.pdf
+  locator: "sect. 2.5.2, Table 6, p.28 (local references/inbox/casein/FDA_GRN1312_Formo_as1casein.txt lines 1308-1335)"
+  quote: "Phosphorus mg/kg 150 3,300 3,500 5 Potassium mg/kg 35 15 8.4 3 Sodium mg/kg 260 9,200 4,200 3.0"
+  read: fulltext
+  note: >-
+    What an acid route leaves in the product: the batch-to-batch spread in phosphorus (150 vs
+    3,300-3,500 mg/kg) and sodium (260 vs 4,200-9,200 mg/kg) is the H3PO4 (pH 1.8 and pH 4) and NaOH
+    (pH 10.5) chemistry of casein_as1_formo_newmilkbuzz_process not washed out equally. Calcium
+    7-9 mg/kg: an unphosphorylated, acid-precipitated casein carries essentially no calcium, unlike
+    dairy acid casein. DERIVED (mine): alpha-s1 with its extra N-terminal Met has 6 Met and 0 Cys, so
+    protein sulfur is ~0.83% (8,300 mg/kg at 100% protein); the measured 12,000-17,000 mg/kg implies
+    ~4,000-9,000 mg/kg non-protein sulfur (sulfate?), source not stated in the dossier - check.
+    For the model: these batches meet the spec (ash <5 g/100 g; measured 0.12-2.43), so the existing
+    cas wash parameters (3 decanter stages) need no change for alpha-s1; the variability argues that
+    the wash count is not over-specified.
+
+- key: as1_acid_route_summary
+  value: {precip_pH_commercial: 4.0, pI_measured: 5.2, extraction_pH: 2.0, extraction_T_C: 80}
+  unit: pH and C of the public alpha-s1 acid route
+  grade: B
+  source: "GRN 1312 sect. 2.3.1 (casein.yaml casein_as1_formo_newmilkbuzz_process); WO 2026/068856 A1 Example 2 (as1_recombinant_isoelectric_point_ief); EP 4676233 A1 Example 2 (casein.yaml casein_pf_patent_acid_extraction_ph2)"
+  doi_or_url: https://patents.google.com/patent/EP4676233A1/en
+  locator: "EP4676233A1 Example 2 (references/text/NewMilkBuzz_EP4676233A1_gp_html.txt)"
+  quote: "The combination of the two conditions of temperature at 80 C and acid environment at pH 2 permits the recovery and the purification alpha-S1 -casein in 1 step from the E. coli cells. A total of 10 liters yielded crude B variant alpha-S1 -casein having a purity above 80%."
+  read: html
+  note: >-
+    ANSWER TO Q4 for alpha-s1: yes, it is recovered by acid precipitation commercially (Formo, pH 4,
+    H3PO4, filtration or decanting, >90% protein, >97% alpha-s1 of protein), but the route differs
+    from pf-tea's cas route in its FRONT END: alpha-s1 in every public process is INTRACELLULAR in
+    E. coli, so the plant needs cell harvest/wash, an acid-heat extraction (pH 1.8-2, 80 C, 2 min)
+    that lyses cells and precipitates host protein/DNA while the casein stays soluble, biomass
+    removal, LPS precipitation at pH 10.5, polishing, THEN the isoelectric step. pf-tea's cas route
+    (UF of a SECRETED product to milk casein concentration, precipitation at pH 4.5, decanters,
+    NaOH to caseinate, spray dry) only fits a secreted alpha-s1 - and the only secreted alpha-s1
+    shown publicly is NewMilkBuzz's variant A in K. phaffii (no titer; casein.yaml
+    casein_as1_variant_a_secretion_kphaffii) and Biermann's B. subtilis (56.9 mg/L). Precipitation
+    pH: measured pI 5.2 (IEF) vs commercial pH 4.0 vs model's 4.5 for beta; no recovery or
+    solubility-vs-pH curve for recombinant alpha-s1 is public, so dsp.acid_precip_recovery (0.95,
+    D) carries over by analogy (D). No crude-extract mass is given for the 10 L run, so no titer.
+    JUDGEMENT: for an intracellular E. coli alpha-s1 case the honest DSP is "cas acid route + an
+    intracellular front end" (homogeniser or acid-heat lysis, centrifuge); whether pf-tea's existing
+    intracellular/lysis unit operations (if any) can be bolted on is a modelling question for Pablo.
+
+# =======================================================================================
+# 4. Company claims (grade C) - titers, scale, kappa
+# =======================================================================================
+
+- key: casein_company_claims_2024_2026
+  value: null
+  unit: qualitative register (no company discloses an alpha-s1 or kappa titer)
+  grade: C
+  source: "Green Queen 17 Dec 2024 (New Culture); New Culture blog 17 Dec 2024 'Same great mozzarella with half the casein'; Green Queen 4 Dec 2025 (Eden Brew/FSANZ article); AgFunderNews 31 Mar 2026 (Standing Ovation Series B)"
+  doi_or_url: "https://www.greenqueen.com.hk/new-culture-casein-precision-fermentation-mozzarella-cost/ ; https://www.newculture.com/blog/same-great-mozzarella-with-half-the-casein/ ; https://www.greenqueen.com.hk/eden-brew-casein-precision-fermentation-milk-protein-fsanz-approval/ ; https://agfundernews.com/standing-ovation-nets-34m-gears-up-for-us-launch-of-casein-via-precision-fermentation"
+  locator: "article bodies (read through a summarising fetch tool; quotes returned verbatim by it, not checked against page source)"
+  quote: "Globally, only two companies - New Culture and Fermify - have been cleared to sell animal-free casein, both in the US (and the latter firm has since filed for bankruptcy)."
+  read: html
+  note: >-
+    (a) New Culture: no titer, host or casein split disclosed; "enough mozzarella for 25,000 pizzas
+    per batch"; scale-up "can help bring manufacturing expenses down by 80%"; casein inclusion: the
+    blog says "We were able to decrease the amount of casein in our cheese by 28%" and that it
+    undercuts "the casein inclusion rate in conventional mozzarella by more than 50%", while Green
+    Queen rewrote this as "needs just 28% of casein" - the two readings differ, use the blog. Its
+    patents (newculture_recombinant_as1_kappa_micelle_cheese) make alpha + kappa micelles, so New
+    Culture is the one company publicly committed to a recombinant KAPPA. (b) Fermify: GRAS notice
+    withdrawn (casein.yaml) and reported bankrupt by Dec 2025 (one trade-press sentence; not
+    verified from a registry). (c) Standing Ovation: makes "alpha-s1, alpha s2, and beta-casein" -
+    no kappa - host undisclosed, acid whey as carbon source, US launch 2026, FDA letter hoped by
+    end-2026, EU end-2027; no titer or capacity. (d) Formo / Those Vegan Cowboys / NewMilkBuzz: no
+    titer; Formo's cheese patents use alpha-s1 only (as1_recombinant_isoelectric_point_ief). (e) A
+    vendor blog (bioprocesstools.com, 2026) asserts casein/whey titers "of 15-25 g/L" at $20-40/kg:
+    no source, not usable (E). NO public kappa titer from any company.
+
+# =======================================================================================
+# 5. Incumbent: is there a kappa-casein or CMP price?
+# =======================================================================================
+
+- key: kappa_casein_price_lab_reagent
+  value: 1080
+  unit: USD per g (Sigma C0406, 1 g pack, >=70% PAGE, bovine kappa-casein; catalogue list price 2026)
+  grade: C
+  source: "Krackeler Scientific catalogue page for Sigma C0406 'kappa-Casein from bovine milk' (fetched 2026-10-02)"
+  doi_or_url: https://www.krackeler.com/catalog/sigma/SIGMA/C0406
+  locator: "price table"
+  quote: "1 g $1080.00 1/EA"
+  read: html
+  note: >-
+    NOT A BENCHMARK - recorded to show that no commodity kappa-casein market exists. Kappa from milk
+    is a laboratory fractionation product (100 mg $215, 250 mg $360, 1 g $1,080 = $1.08 M/kg), and it
+    is impure: All G measured Sigma's kappa at 52% kappa by CE-SDS (kappa_free_micelles_allg). The
+    nearest bulk ingredient is caseinomacropeptide (CMP/GMP, kappa residues 106-169) recovered from
+    sweet whey for PKU medical foods (Arla Lacprodan CGMP-10/-20/-30, Agropur BiPRO GMP); no public
+    per-kg price was found (one market report sizes the whole CGMP market at USD 126.4 M in 2025,
+    Fact.MR, C, not read). For pf-tea: kappa should be costed only INSIDE a casein blend priced
+    against the casein band (benchmarks.yaml casein: acid casein USD 8.6/kg product 2025 US imports,
+    rennet 8.0, EU export EUR 6.9/kg; GFI 2025 USD 9.6-12.2/kg protein), never against a
+    kappa-specific price.
+
+- key: as1_kappa_ratio_fully_recombinant_cheese
+  value: {as1_to_kappa_tested: ["3:1", "4:1", "5:1"], kappa_frac_of_casein: [0.25, 0.20, 0.167], total_casein_pct: 2.8, Ca_mM: 26, Pi_mM: 20, citrate_mM: 12}
+  unit: alpha-s1:kappa mass ratios that formed micelles and rennet-set cheese with BOTH proteins recombinant and PTM-free
+  grade: B
+  source: "New Culture Inc. US 2023/0404098 A1 'Dairy-like compositions and related methods', Example 9 (hybrid micelles, Fig. 6-7, Table 10) and Example 2 (L. lactis)"
+  doi_or_url: https://patents.google.com/patent/US20230404098A1/en
+  locator: "Example 9 and Figs. 6-7 (local .preview/casein2/patents/US20230404098A1.txt); Example 2 'Expression in L. lactis'"
+  quote: "FIG. 7 shows that cheese yields were increased and driven by the amount (proportion) of alpha-S1-casein used, while the total casein concentration was fixed in the experiment across all casein ratios."
+  read: html
+  note: >-
+    THE DIRECT ANSWER TO "unphosphorylated recombinant caseins form curd?" - yes, in a patent example:
+    recombinant bovine alpha-s1 "(lacking PTMs)" + recombinant ovine or caprine kappa "(lacking PTMs)"
+    at 21/7, 22.4/5.6 and 23.4/4.6 mg/mL (3:1, 4:1, 5:1; kappa 25%, 20%, 16.7% of casein, mine)
+    formed micelles (sheep kappa: 190-320 nm per Fig. 7 text, 500-900 nm main population per the DLS
+    text - the patent states both) and were acidified with citric acid to pH ~5, renneted (0.15%
+    rennet), stretched at 70 C; yield rose as kappa fell. So the lowest kappa share demonstrated with
+    recombinant proteins is 1/6 (16.7%); nothing below was tested. Note the kappa was SHEEP/GOAT, not
+    bovine, in the fully recombinant runs. Same patent, Example 2 (L. lactis): "Alpha-S1-casein
+    secreted poorly, whereas kappa casein showed near-complete secretion of protein produced" -
+    western blot only, no titer; Examples 3-4 B. subtilis and E. coli, no titers found in the text.
+    For a required-titer analysis: a casein-for-rennet-cheese blend needs kappa at 1/6 to 1/4 of
+    the alpha-s1 mass (recombinant evidence) or ~1/9 (milk, 10-12%).
+
+# =======================================================================================
+# Leads not read (paywalled, blocked or rate-limited) - see final summary
+# =======================================================================================
+# - (Antuma 2025 and Antuma 2023: full texts read 2026-10-02, entries above.)
+# - Antuma 2024 J Food Eng 366:111868 (OA per Unpaywall): ACM rennet coagulation vs bovine micelles.
+# - Standing Ovation WO 2022/253816 A1 (kappa-free curd from bacterial caseins): Google Patents rate-limited.
+# - Formo WO 2026/003730 A2 (alpha + kappa ACM with kappa having <=1 Cys): only the A3 search-report page fetched.
+# - Kang & Richardson 1988 J Dairy Sci 71:29 (kappa in E. coli): full text. (Oh & Richardson 1991 read 2026-10-02; titers_rows.csv.)
+# CORRECTION for casein.yaml: Raynes et al. 2024 is J Struct Biol X volume 9 (PMC XML <volume>9</volume>), not 8.
+
+- key: kappa_ecoli_periplasmic_oh1991
+  value: 0.002
+  unit: g/L kappa-casein in the medium-equivalent (periplasmic, E. coli AR68)
+  grade: A
+  source: "Oh S, Richardson T. Genetic engineering of bovine kappa-casein to improve its nutritional quality. J Agric Food Chem 39:422-427 (1991)"
+  doi_or_url: 10.1021/jf00002a040
+  locator: "Results 'Quantitation of Expressed K-Casein' and 'Localization of Recombinant K-Casein in E. coli', printed p.426, Fig. 7 (local references/text/Oh1991_kappa_casein_ecoli.txt)"
+  quote: "Most of the K-casein was detected in the periplasmic space, and less than 15% of the K-casein was detected in the cytoplasm"
+  read: fulltext
+  note: >-
+    Full text read 2026-10-02; the titer row in titers_rows.csv is now verified. Three points matter
+    for pf-tea. (1) The protein is NOT wild-type kappa: three methionines were inserted between
+    Ala167 and Thr168 to raise the sulfur-amino-acid score, so this cannot support a bio-identical
+    product. (2) The 2 mg/L comes from laser densitometry of a western blot against a bovine
+    kappa-casein standard curve, on the extract of 1 mL of an IPTG-induced LB culture harvested 4 h
+    after induction at OD600 0.25 - one measurement, no replicates, no cell density at harvest.
+    (3) Compartment: periplasm via the OmpA signal, with under 15% cytoplasmic and none detected in
+    the membrane; nothing is reported secreted into the medium, and a second cytoplasmic band of
+    lower mobility suggests unprocessed signal peptide. The authors close by saying the expression
+    level needs improving. This remains the only peer-reviewed bacterial kappa number, and it is
+    roughly 2 mg/L against a 10 g/L design basis (DERIVED, mine: a factor of about 5,000).

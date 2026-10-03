@@ -523,3 +523,26 @@ RAND's mean ratio, with the mean overrun ~1.36 beside it, 'conservative' dropped
 the methanol-maintenance check reworded (M5); 'favourable end' limited to resin life and purification (M1);
 scale-section clarifications (M3); Spearman noise floor stated (M6); route-figure labels and rounding (M7);
 references sorted; low-severity wording. Report: `.preview/audit_R13.md` (local).
+
+### R14 (2026-10-02): AI audit of the α-lactalbumin, rennet-cheese casein and heme data and logic
+
+Read-only audit of the additions (formulas, evidence, scenario values, s_cheese/s_heme, titers.csv rows). Verified:
+the four formulas and sequences, and every number the main session relies on against the local full texts. Fixes:
+- H1: κ-casein alone on the pH-4.5 acid route was unsupported by its own evidence entry. Now two cases bracket its
+  unknown recovery: co-precipitated with α-s1 (acid route, 78%, E) and its own cation-exchange column on lactoferrin's
+  column data (D); the report shows both.
+- H2: GFI Europe's α-lac prices ($15, $123) are per kg of ingredient at 60% and 95% α-lac (their p.33 arithmetic):
+  restated per kg of α-lac, $25–129 (derived); FMI's $31–86 (basis unknown) dropped from the band; targets 25/60/130.
+- M1: κ share 0.19 (0.167–0.25, grade B, New Culture's recombinant blends); Antuma's plateau is 19–26% κ, not 15–19%.
+- M2: the 4.14 mg/L κ point sat below the model's secretion search floor (it simulated 7.4 mg/L): removed from the grid
+  and quoted; infeasible points are filtered before interpolation.
+- M3: scenarios.blend_titer_needed checks that cost falls with titer (tested); α-s1 baseline per κ share; the
+  industry titer read from industry.yaml.
+- M4: supernatant titers (α-lac Wang 2025; LegH Chen 2025, Shao 2022) converted to whole broth with the model's cell
+  volume (×0.643 at 107 g/L dry cells, D), as albumin's were in R12.
+- M5: the Impossible Burger retail price (no verifiable quote) removed from the heme scenario.
+- M6: the heme note is an estimate, not a bound; the signs of its omissions are stated.
+- Low: α-lac purity derivation (0.855 at the spec minimum, 0.90 typical); LegH purity 0.43 (batch mean); hemin coverage
+  "at most" 41%; unused_paths no longer hides cas1's own dryer leaf (tested); cas1.yaml evidence pointer; marker label.
+  Not changed: four evidence quotes over 40 words (L9) and scale_L conventions in the new titers.csv rows (L10).
+Report: `.preview/audit_R14_data.md` (local).

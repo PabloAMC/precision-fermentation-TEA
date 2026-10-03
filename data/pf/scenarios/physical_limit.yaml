@@ -29,6 +29,8 @@ common:
   dsp.concentrate_target_frac_dry: 0.90
 lf:
   plant.annual_target_protein_t: 1588    # GFI Europe 2025: world lactoferrin market 1,588 t (the larger of two estimates ~5x apart; lactoferrin.yaml blf_price_gfieurope2025, C)
+alac:
+  plant.annual_target_protein_t: 31828   # GFI Europe 2025: food-grade alpha-lac market 31,828 t (alac.yaml alac_market_price_gfieurope2025, C)
 search:
   X_prod_g_L: [20, 30, 45, 60, 80, 100, 130]
   t_prod_h: [12, 24, 36, 48, 72, 96]

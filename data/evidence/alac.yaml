@@ -1,0 +1,846 @@
+# alac.yaml: evidence for adding ALPHA-LACTALBUMIN (alpha-lac; bovine LALBA, UniProt P00711; human P00709
+# for infant formula) as a product in pf-tea (research pass 2026-10-02; AI research agent, to be checked by
+# the main session). Format: data/evidence/README.md. Grades: A measured/official; B published design
+# basis or patent example; C company claim/trade press/survey; D analogy; E guess.
+# Read as raw text: UniProt REST JSON, FDA GRAS notices (pdftotext), Europe PMC full-text XML/abstract JSON,
+# GFI Europe 2025 (references/reports, pdftotext), web pages. Items computed here are "Derived (mine)", quote: null.
+# Written incrementally (one block per source) so an interrupted pass loses nothing.
+
+# =======================================================================================
+# 1. Identity, sequence, mass balance
+# =======================================================================================
+
+- key: alac_bovine_uniprot_mature_chain
+  value: "P00711 chain 20-142 (123 aa)"
+  unit: residue range of the mature secreted chain (precursor numbering)
+  grade: A
+  source: "UniProtKB P00711 (LALBA_BOVIN), Alpha-lactalbumin, Bos taurus; entry version 193, last annotation update 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P00711.json
+  locator: "features: Signal 1-19; Chain 20-142; Disulfide bond 25-139, 47-130, 80-96, 92-110; Ca(2+) binding 98,101,103,106,107; Glycosylation 64 (ECO:0000255, sequence analysis); sequence.molWeight 16247 (142-aa precursor)"
+  quote: "{\"type\":\"Chain\",\"description\":\"Alpha-lactalbumin\",\"location\":{\"start\":{\"value\":20},\"end\":{\"value\":142}}}"
+  read: fulltext
+  note: >-
+    19-aa signal leaves the 123-aa mature chain EQLTKCEVFR... (Arg at mature 10 = genetic variant B, the
+    common one; UniProt natural variant R29Q (precursor) = variant A, 'in an allele of Droughtmaster
+    cattle'). 8 Cys = 4 disulfides (mature 6-120, 28-111, 61-77, 73-91), no free thiol. One high-affinity
+    Ca2+ site (the 'calcium-binding elbow', ligands Lys79 carbonyl, Asp82/84/87/88 side chains, mature
+    numbering); apo (Ca-free) alpha-lac is the molten-globule paradigm, so Ca2+ in the medium/buffers
+    matters for folding and for the product's heat stability. 4 Trp (5.3 wt%, see formula entry), the
+    nutritional selling point. Two N-X-S/T sequons in the mature chain (my scan): N45-D-S (UniProt
+    glycosylation at precursor 64, only 'by similarity/sequence analysis' for bovine) and N74-I-S. Milk
+    alpha-lac is mostly unglycosylated (a minor glycoform exists; literature, not checked here). In
+    K. phaffii/K. lactis the sequons could be N-glycosylated with high-mannose glycans: a product-identity
+    risk the GRAS notices must address (see section 3).
+
+- key: alac_human_uniprot_mature_chain
+  value: "P00709 chain 20-142 (123 aa)"
+  unit: residue range of the mature chain
+  grade: A
+  source: "UniProtKB P00709 (LALBA_HUMAN), Alpha-lactalbumin, Homo sapiens; entry version 214, 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P00709.json
+  locator: "features: Signal 1-19; Chain 20-142; Disulfide bond 25-139, 47-130, 80-96, 92-110; Ca(2+) 57,58,98,100-103,106,107; Zn(2+) 68,135; Glycosylation 64 (ECO:0000269, experimental) and 90 ('atypical; partial'); molWeight 16225"
+  quote: "{\"type\":\"Glycosylation\",\"location\":{\"start\":{\"value\":90 ... \"description\":\"N-linked (GlcNAc...) asparagine; atypical; partial\""
+  read: fulltext
+  note: >-
+    123 aa, mature N-terminus KQFTKCELSQ..., same 4-disulfide map and Ca2+ elbow as bovine. One canonical
+    sequon (N45-E-S, experimentally glycosylated in human milk) plus an atypical partial site. Human milk
+    alpha-lac is ~70+% identical to bovine (literature figure; identity not computed here). 3 Trp, 2 Met.
+    Infant formula makers enrich formula with BOVINE alpha-lac (e.g. Arla Lacprodan ALPHA) to approach
+    the human-milk whey/amino-acid profile, so 'human' alpha-lac is a premium, not a requirement.
+
+- key: alac_bovine_mature_formula_and_mw
+  value: {C: 626, H: 958, N: 162, O: 196, S: 9}
+  unit: atoms per molecule of the mature chain (4 disulfides, unglycosylated, apo)
+  grade: A
+  source: "Derived (mine) from UniProtKB P00711 mature chain 20-142 (123 aa, 4 disulfide features)"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P00711.json
+  locator: "computed from the sequence (script .preview/alac/uniprot_calc.py)"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - check the arithmetic. Residue formulas summed + H2O, minus 2 H per disulfide (4):
+    average MW 14,177.9 Da (literature value for bovine alpha-lac B is 14,178 Da: consistent); per C:
+    CH1.5304 N0.2588 O0.3131 S0.01438; 53.03 wt% C, 16.00 wt% N, 2.04 wt% S; protein/N = 6.248 (N x
+    6.25 is exact for bovine alpha-lac). Trp 4 residues = 5.25 wt% (residue mass 186.21 / MW).
+    Cross-check: the same residue-sum method gives 16,246.4 Da for the 142-aa precursor (no disulfides)
+    vs UniProt molWeight 16,247 (rounding). One bound Ca2+ (+40.08 Da, 0.28 wt%) is not in the formula.
+    Elementally almost identical to BLG (both ~16% N), so the model's per-C stoichiometry from BLG would
+    be within ~2% on every element except S (alpha-lac 2.04% vs BLG ~1.6%; BLG value not recomputed here).
+
+- key: alac_human_mature_formula_and_mw
+  value: {C: 623, H: 970, N: 156, O: 194, S: 10}
+  unit: atoms per molecule of the mature chain (4 disulfides, unglycosylated)
+  grade: A
+  source: "Derived (mine) from UniProtKB P00709 mature chain 20-142"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P00709.json
+  locator: "computed from the sequence"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine): MW 14,069.9 Da; 53.18% C, 15.53% N, 2.28% S; protein/N 6.439; 3 Trp = 3.97 wt%.
+    Precursor check: 16,224.7 vs UniProt 16,225.
+
+# =======================================================================================
+# 3. Regulation and product specs (FDA GRAS notices; all four are DAIRY alpha-lac, none is precision-fermented)
+# =======================================================================================
+
+- key: alac_grn763_agropur_dairy_isolate_spec
+  value: {protein_dry_min: 0.95, alac_of_protein_min: 0.90, blg_of_protein_typ: "0.03-0.05", fat_max: 0.005, ash_max: 0.035, lactose_max: 0.002, moisture_max: 0.06}
+  unit: mass fractions (protein N x 6.25 on dry basis; alpha-lac as fraction of protein, HPLC)
+  grade: A
+  source: "FDA GRN 763 (Agropur Inc., alpha-lactalbumin from bovine whey), notice Table 1 and FDA response letter (closed 2018-12-10, no questions)"
+  doi_or_url: "https://www.fda.gov/media/125931/download (notice with amendments); letter https://www.fda.gov/media/120297/download"
+  locator: "notice Sect. II.B Table 1 'Compositional Specifications', p.8; FDA letter p.2"
+  quote: "Food-grade a -lactalbumin contains a minimum of 95.0% (w/w basis) protein; with a minimum of 90.0% (w/w basis) of that protein comprised of a -lactalbumin."
+  read: fulltext
+  note: >-
+    DAIRY isolate, not PF. Typical protein composition 'is 90-96% alpha-lactalbumin, 3-5% beta-lactoglobulin,
+    0-5% bovine serum albumin, and 0-2%, and immunoglobulin G 0-2%'. Agropur confirms it meets the Food
+    Chemicals Codex (FCC 11, 2016) alpha-lactalbumin monograph (FDA letter: FCC limits lead <=0.5 mg/kg and
+    'beta-lactoglobulin (NMT 6.5% of protein)'; FCC calcium NMT 1 mg/g, Agropur batches 0.85-2.38 mg/g).
+    Product is the holo (Ca-bound) form, pI 4.2-4.5, ~14 kDa. Uses: up to 20% w/w in powdered nutritional
+    and sports beverages, 25% in bars, 10% in milk products. This is the only high-purity (>=90%)
+    alpha-lac isolate spec in the GRAS inventory; FCC 11's monograph is the natural spec for a PF isolate
+    (FCC text itself is paywalled, not read). FDA URLs from the GRAS inventory page
+    (notice saved as .preview/alac/FDA_GRN763_b.pdf, letter as FDA_GRN763_a.pdf).
+
+- key: alac_grn763_agropur_dairy_process
+  value: "sweet whey -> clarify/skim -> HTST -> ion exchange + membrane filtration -> pH/ionic-strength adjustment -> selective (salt) precipitation of other proteins + centrifugation -> UF/DF -> spray dry"
+  unit: process route (dairy fractionation)
+  grade: A
+  source: "FDA GRN 763 (Agropur), notice Sect. II.A 'Manufacturing Process' and Figure 1; FDA letter p.1-2"
+  doi_or_url: "https://www.fda.gov/media/125931/download (notice with amendments); letter https://www.fda.gov/media/120297/download"
+  locator: "notice pp.6-7, Figure 1; FDA letter pp.1-2"
+  quote: "The whey is then subjected anion exchange chromatography to remove lactose, minerals, and certain proteins (e.g., lactoferrin, lactoperoxidase). a -Lactalbumin is further purified by selective precipitation with a salt solution followed by removal of extraneous proteins (e.g., -lactoglobulin) by centrifugation."
+  read: fulltext
+  note: >-
+    In dairy the hard separation is alpha-lac from a ~3x excess of BLG; it needs ion exchange plus a
+    selective precipitation. In a PF broth BLG is absent: the contaminants are host proteins, glycans and
+    pigment, so the dairy route says little about how much DSP a PF product needs (D at best). Agropur
+    claims alpha-lac's selling points over WPC/WPI are heat stability and Trp ('rich in the amino acid
+    tryptophan'), FDA amendment letter of 2018-08-21, p.2-3.
+
+- key: alac_grn809_arla_alpha10_infant_spec
+  value: {protein_min: 0.81, protein_max: 0.87, alac_of_protein_min: 0.41, blg_of_protein_max: 0.23, lactose_max: 0.10, ash_max: 0.05, moisture_max: 0.055, fat_max: 0.02}
+  unit: mass fractions of powder (alpha-lac and BLG as fraction of protein)
+  grade: A
+  source: "FDA GRN 809 (Arla Foods Ingredients, Lacprodan ALPHA-10, fractionated WPC with 41% alpha-lactalbumin, for term infant formula up to 8.3 g/L; closed 2019-05-06, no questions)"
+  doi_or_url: "https://www.fda.gov/media/135322/download (notice); letter https://www.fda.gov/media/130248/download"
+  locator: "notice Table 3 'Food-Grade Specifications and Analytical Results for Lacprodan ALPHA-10', p.14; FDA letter p.2"
+  quote: "Arla provides specifications for fractionated WPC (41% ALA), including levels of protein (81.0-87.0%), ALA as a percent of protein (~41.0%), ash (<=5.0%), moisture (<=5.5%), lactose (<=10.0%), fat (<=2.0%)"
+  read: fulltext
+  note: >-
+    DAIRY. The infant-formula alpha-lac ingredient is an ENRICHED WPC, not an isolate: 5-lot means protein
+    83.4%, alpha-lac 48.1% of protein (old SEC-HPLC method, which Arla says overestimates by 10-15%; the
+    corrected method reads ~11% lower, Table 4: 43.0-44.9%), so alpha-lac is ~0.33-0.40 of the powder.
+    Other proteins (FDA letter): 'beta-lactoglobulin (~19%), casein glycomacropeptide (~16%), and minor
+    amounts of beta-casein-derived peptides'. Lactose is ADDED back ('food-grade lactose (VARIOLAC 992)
+    can be added to achieve the desired protein percentage'). Infant-formula micro limits: Cronobacter
+    absent/10 g, Salmonella absent/25 g. Implication for pf-tea: a PF alpha-lac sold into infant formula
+    competes with a ~40%-alpha-lac WPC on price per kg alpha-lac, and a PF product of ~80% protein, >90%
+    alpha-lac would already beat the spec's purity; purity is not what limits the PF route here.
+
+- key: alac_grn809_arla_process_membrane_fractionation
+  value: "sweet whey -> clarify, pasteurize -> membrane separation into 3 streams (alpha-lac concentrate, lactose permeate, BLG-enriched fraction) -> lactose/pH standardization -> spray dry"
+  unit: process route (dairy)
+  grade: A
+  source: "FDA GRN 809 (Arla Lacprodan ALPHA-10), notice Sect. 2.2.3 'Manufacture' and FDA letter"
+  doi_or_url: "https://www.fda.gov/media/135322/download; letter https://www.fda.gov/media/130248/download"
+  locator: "notice pp.12-13 (Figure 2); FDA letter p.2"
+  quote: "Arla describes the production as a two-stage ultrafiltration process to increase the ratio of ALA to P-lactoglobulin."
+  read: fulltext
+  note: >-
+    ('P-lactoglobulin' is the PDF text layer for beta-lactoglobulin.) Membrane-only dairy route: the
+    BLG-enriched co-stream is sold 'for other applications', so the dairy cost of alpha-lac is a joint-cost
+    allocation question. Enrichment is only ~2x over the starting WPC (Table 1: alpha 18.8% -> 32.2% by one
+    assay; BLG 51.8% -> 15.5%).
+
+- key: alac_infant_formula_target_and_milk_content
+  value: {human_milk_alac_g_per_L: 2.44, human_milk_alac_sd: 0.64, bovine_milk_alac_g_per_L: 1.3, formula_target_alac_g_per_L: 2.5, max_ingredient_use_g_per_L: 8.3}
+  unit: g/L
+  grade: A
+  source: "FDA GRN 809 (Arla), notice Sect. 1.5 and 2.4, citing Jackson et al. 2004 (human milk) and Heine et al. 1991 (bovine milk)"
+  doi_or_url: https://www.fda.gov/media/135322/download
+  locator: "notice p.6 (Sect. 1.5), p.17 (bovine milk 1.3 g/L), p.19 (quote; page numbers from the notice footers)"
+  quote: "Based on the figure of 2.44±0.64 g/L for the mean ALA concentration in human milk ... The target ALA content of formula to which Lacprodan® ALPHA-10 addition is intended is 2.5 g/L."
+  read: fulltext
+  note: >-
+    Bovine milk alpha-lac ~1.3 g/L, "3.7 % of total" protein (notice p.17). The FDA letter: the ingredient
+    'will replace 44% (for 70:30 whey:casein formulas) to 100% (for 50:50 whey:casein formulas) WPC'.
+    Used for the welfare framing (litres of milk per kg alpha-lac) and for infant-formula demand
+    (see section 5). Grade A for the milk concentrations as cited by the notice (primary papers not read).
+
+- key: alac_eu_status_not_novel
+  value: "dairy alpha-lac on the EU market before 15 May 1997 (not a novel food); a precision-fermented alpha-lac would be a novel food (Reg. (EU) 2015/2283 Art. 3(2)(a)(ii), food from microorganisms) - no EU authorisation found"
+  unit: regulatory status
+  grade: C
+  source: "FDA GRN 809 (Arla) notice Sect. 2.3/2.5, notifier's statement; EU Novel Food catalogue not searched online in this pass"
+  doi_or_url: https://www.fda.gov/media/135322/download
+  locator: "notice p.18"
+  quote: "In the European Union alpha-lactalbumin has been on the market before 1997, when the Novel Food regulation entered into force, and therefore alpha-lactalbumin does not need safety approval"
+  read: fulltext
+  note: >-
+    Notifier claim (C) for the dairy ingredient. My reading of the PF case is regulatory judgment, not a
+    source: the EU has authorised no precision-fermented dairy protein as of this pass (to be checked
+    against the Union list). China: 'falls within the definition of GB standard 11674-2010 for whey protein
+    powder' (same page).
+
+- key: alac_grn1100_909_arla_general_food
+  value: "Lacprodan ALPHA-10 (same ingredient as GRN 809) for general foods: bars, crackers, cookies up to 30 g/100 g; beverages, yogurt up to 5 g/100 g. GRN 909 (2020-21) was withdrawn at Arla's request and resubmitted as GRN 1100 (closed 2023-10-27, no questions)"
+  unit: regulatory status and use levels
+  grade: A
+  source: "FDA GRN 1100 (Arla Foods Ingredients), FDA response letter Table 1 and footnote 2; GRAS inventory pages for GRN 909 and 1100"
+  doi_or_url: "https://www.fda.gov/media/176562/download (letter); notice https://www.fda.gov/media/170787/download; GRN 909 notice https://www.fda.gov/media/139762/download (not downloaded; inventory page read)"
+  locator: "FDA letter pp.1-2, Table 1; inventory pages grn_909.html, grn_1100.html"
+  quote: "Arla notes that the ingredient described in GRN 001100 is the same ingredient as that described in GRN 000809."
+  read: fulltext
+  note: >-
+    DAIRY, not PF. GRN 1100 letter composition: 'ALA (>=41% of protein) and beta-lactoglobulin (~19% of
+    protein), other proteins ... include casein glycomacropeptide (~28% of protein)'. Mean ALA used for
+    exposure: 53.1% of protein (by the older assay). GRN 909's inventory text: 'Whey protein containing 41%
+    alpha-lactalbumin ... at levels ranging from 8.5 to 12 grams per serving'; 'At the notifier's request,
+    FDA ceased to evaluate this notice'. The 909 PDF was not downloaded in the earlier pass; 1100 is its
+    resubmission and supersedes it.
+
+- key: alac_arla_alpha20_discontinued
+  value: "Lacprodan ALPHA-20 (>=57% alpha-lac of protein) discontinued; ALPHA-10 (>=41%) is Arla's only alpha-lac ingredient"
+  unit: product status (2023)
+  grade: C
+  source: "FDA GRN 1100, Arla's amendment of 2023-07-19 (answer to FDA question 4)"
+  doi_or_url: https://www.fda.gov/media/170787/download
+  locator: "amendment 2023-07-19, p.2 (text-layer line ~2363-2368 of FDA_GRN1100_a.txt)"
+  quote: "Lacprodan Alpha-20 has been discontinued and is no longer in production."
+  read: fulltext
+  note: >-
+    Company statement (C). Relevant to question 4: the market leader moved AWAY from the higher-purity
+    grade, so the commercial infant-formula product is the ~41-48% alpha-lac WPC; purity above that is not
+    what the dairy market pays for. Arla also says its membrane fractionation 'was consistent with the
+    membrane separation approach described in Kamau et al (2010)' (FDA question 5, same page).
+
+# ---- 1b. Glycosylation (identity, continued) ----
+
+- key: alac_bovine_milk_glycosylation_occupancy
+  value: {asn45_occupancy: 0.35, asn74_occupancy: 0.04, older_literature_glycoprotein_frac: 0.10}
+  unit: fraction of molecules glycosylated at each site (bovine colostrum and milk, days 0-28, 4 cows)
+  grade: A
+  source: "Gazi I, Reiding KR, Groeneveld A, Bastiaans J, Huppertz T, Heck AJR. LacdiNAc to LacNAc: remodelling of bovine alpha-lactalbumin N-glycosylation during the transition from colostrum to mature milk. Glycobiology 34(9) cwae062 (2024)"
+  doi_or_url: 10.1093/glycob/cwae062
+  locator: "abstract; Introduction (older literature, ~10%)"
+  quote: "We found similar glycan profiles in all four cows, with partial site occupancies, averaging at 35% and 4% for Asn45 and Asn74, respectively."
+  read: fulltext
+  note: >-
+    Full text read (PMC11319639). Milk alpha-lac is partly glycosylated with complex, fucosylated,
+    sialylated glycans that yeast cannot make; the older literature says ~10% of alpha-lac is a
+    glycoprotein. So 'nature-identical' already means a mixture, and a non-glycosylated PF product is within
+    the natural range for the dominant form. A yeast high-mannose glycoform would be NEW; a sequon knock-out
+    (N45D, see Saito 2002) would change the sequence. Both are regulatory-identity questions, not mass
+    balance (glycan mass is ignored in the model).
+
+- key: alac_pichia_glycosylation_limits_secretion
+  value: "goat alpha-lac in P. pastoris: wild type secreted partly N-glycosylated and at very low amount; N45D mutant (sequon removed) secreted mostly non-glycosylated and 'greatly enhanced'"
+  unit: qualitative (no titer in abstract)
+  grade: A
+  source: "Saito A, Usui M, Song Y, Azakami H, Kato A. Secretion of glycosylated alpha-lactalbumin in yeast Pichia pastoris. J Biochem 132(1):77-82 (2002)"
+  doi_or_url: 10.1093/oxfordjournals.jbchem.a003202
+  locator: abstract
+  quote: "The total secreted amount of mutant N45D was greatly enhanced, while the secreted amounts of the wild-type and mutant D46N were very low"
+  read: abstract
+  note: >-
+    Goat, not bovine (same sequons N45-D-S, N74-I-S as bovine). Suggests ER quality control degrades
+    glycosylated alpha-lac in yeast, a plausible reason why every public K. phaffii alpha-lac titer is
+    <=0.6 g/L. Bears on the academic-titer gap and on product identity (a sequon-free mutant is not
+    nature-identical). Full text paywalled.
+
+# =======================================================================================
+# 2. Titers (every public recombinant alpha-lac titer found; searches saved as epmc1-4.json)
+# =======================================================================================
+
+- key: alac_titer_wang2025_kphaffii_ethanol
+  value: 0.60
+  unit: g/L in the culture supernatant (3 L bioreactor, 0.9 L BSM charge, human alpha-lac, ethanol-induced, methanol-free)
+  grade: A
+  source: "Wang X, Zhang X, Mao Y, Wu Y, Lv X, Liu L, Han W, Yin S, Wu R, Chen J, Liu Y. Ethanol-Inducible Bioproduction of Human alpha-Lactalbumin in Komagataella phaffii. J Agric Food Chem 73(15):9246-9260 (2025)"
+  doi_or_url: 10.1021/acs.jafc.5c01338
+  locator: "Results, 'Reducing Acetic Acid Accumulation...' p.9257 and Fig. 5E; Methods 'Production of Human alpha-LA in a 3 L Bioreactor' p.9251"
+  quote: "this approach resulted in a substantial improvement in the α-LA titer, achieving a maximum expression level of 0.6 g·L-1 (Figure 5E)"
+  read: fulltext
+  note: >-
+    FULL TEXT READ (replaces the abstract-only entry). Strain: K. phaffii GS115-ICL1-LM background,
+    LA-3C (3 genomic copies of codon-optimised human hLALBA behind 5x lacO + core PAOX1 driven by the
+    LacI-Mit1AD ethanol-induced transcriptional signal amplification device, ESAD) plus ADH2-SePPK
+    integrated at Int6 for ATP regeneration; HUMAN alpha-lac, His-tagged, secreted with a hybrid P4
+    signal peptide (OST1-type pro-region on the alpha-factor pre-region). Vessel 3 L, 0.9 L BSM; 100 mL
+    YPD seed grown 14 h and inoculated whole; DO >20% at 300-1200 rpm and 2-5 vvm; pH 5.0 (ammonium
+    hydroxide) in the growth phase, 30 C; then 28 C in the ethanol phase, and in the best run the pH was
+    'adjusted to 3 using a 2 M mixture of HCl and H2SO4 after the glycerol feeding' to suppress
+    extracellular proteases. Feeding: 40 g/L glycerol batch, 50% w/v glycerol at 18 mL/(h L) until 250 mL
+    total, then ethanol at 3 -> 7.3 -> 10.9 mL/(h L); 'The entire ethanol-fed batch phase was sustained for
+    over 90 h', and the earlier (acetic-acid-limited) run ran to 'the end of fermentation at 108 h'.
+    Titer ladder in the same 3 L vessel: 0.16 g/L (50 g/L SHMP fed), 0.19 g/L (+1 mM CaCl2), 0.11 g/L
+    (protease inhibitors), 0.6 g/L (pH 3). BASIS: supernatant, Ni-NTA-purified from 50 mL of centrifuged
+    culture and quantified by BRADFORD against a BSA standard, divided by a 10x concentration factor; the
+    authors warn 'the detectable protein titers likely underestimate the actual titer' because of
+    proteolysis. Biomass: OD600 only, NO DCW and no OD-to-DCW conversion; at pH 3 'the acidic conditions
+    inhibited cell growth, reducing biomass to suboptimal levels', and in the earlier run biomass halved
+    after acetic acid reached 134.77 g/L. No yield on substrate is reported, and no glycosylation,
+    identity (MS) or purity analysis of the product is given. Glucose/glycerol-derepressed PAOX1 variants
+    of the same strain made only 0.73-2.2 mg/L in shake flask, so ethanol is doing real work here.
+
+- key: alac_titer_deng2023_kphaffii
+  value: 0.1134
+  unit: g/L (secreted, 3 L fermentation, human alpha-lac)
+  grade: A
+  source: "Deng M, Wu Y, Lv X, Liu L, Li J, Du G, Chen J, Liu Y. Heterologous Single-Strand DNA-Annealing and Binding Protein Enhance CRISPR-Based Genome Editing Efficiency in Komagataella phaffii. ACS Synth Biol 12(11):3443-3453 (2023)"
+  doi_or_url: 10.1021/acssynbio.3c00494
+  locator: abstract
+  quote: "The final production of α-LA in the 3 L fermentation reached 113.4 mg L-1, two times higher than that of the strain without multiple site gene editing, which is the highest reported titer in K. phaffii."
+  read: abstract
+  note: >-
+    Overexpression of INO4, GAL4-like, PAB1 at three loci. Inducer not stated in the abstract (methanol
+    inferred from the AOX1 parent strain of Deng 2022; check). Superseded by Wang 2025.
+
+- key: alac_titer_deng2022_kphaffii_methanol
+  value: 0.0563
+  unit: g/L in the culture supernatant (3 L bioreactor, 0.9 L BSM charge, human alpha-lac, methanol)
+  grade: A
+  source: "Deng M, Lv X, Liu L, Li J, Du G, Chen J, Liu Y. Efficient Bioproduction of Human Milk Alpha-Lactalbumin in Komagataella phaffii. J Agric Food Chem 70(8):2664-2672 (2022)"
+  doi_or_url: 10.1021/acs.jafc.1c07908
+  locator: "Results 'Production of Human Milk alpha-LA in a 3 L Bioreactor' and Fig. 5 caption, p.2670; Methods 'Microbial Production of alpha-LA in a 3 L Bioreactor', p.2668"
+  quote: "At 30 h, methanol was used as the carbon source and inducer. At 108 h after induction, dry cell weight (DCW) reached 137 g L-1"
+  read: fulltext
+  note: >-
+    FULL TEXT READ (replaces the abstract-only entry). Strain X33-pPICZalphaA-hLALBA-hPDIA3: HUMAN
+    alpha-lac, codon-optimised, alpha-factor secretion signal, AOX1 promoter, human PDIA3 chaperone
+    co-expressed from PGAP (+27% in flask); His-tagged. Vessel 3 L with 0.9 L BSM (40 g/L glycerol batch),
+    30 C throughout, pH 5.0 with ammonium hydroxide, DO >20% at 200-800 rpm and 2-4 vvm. Feeding (Fig. 5
+    caption): 50% w/v glycerol at 8 mL/(L h) from 16 to 28 h; glycerol feed stopped at 28 h; 'the
+    methanol-feeding cultivation phase started at 30 h when the residual glycerol was consumed', with
+    methanol held at 2% (v/v) by an online control station; DCW and titer sampled every 12 h. TIME IS
+    AMBIGUOUS in the text: 'At 108 h after induction' with induction starting at 30 h would mean a 138 h
+    run, but Fig. 5's axis (not legible in the text layer) is more likely a 108 h total run, i.e. a 78 h
+    methanol phase - check the figure before setting t_prod. Final titer 56.3 mg/L, '9.4-fold of that in
+    the shaking flask', at DCW 137 g/L ('12.3-fold of that in the shaking flask'). BASIS: supernatant,
+    Ni-NTA-purified from 50 mL of 72 h supernatant and quantified by BRADFORD; identity confirmed by
+    MALDI-TOF on the 14.1 kDa band (plus a 28.2 kDa band the authors read as a dimer). 14.1 kDa is the
+    unglycosylated mass, so no hyper-mannosylated glycoform was reported; glycosylation is not discussed.
+    No yield on substrate. Derived (mine): 56.3 mg/L / 137 g DCW/L = 0.41 mg alpha-lac per g DCW, i.e.
+    about 0.0004 g/g biomass - this is the clearest statement in the literature that alpha-lac, not the
+    host, is the bottleneck. This is the paper GFI Europe 2025 cites for 'Extracellular' secretion in its
+    alpha-lac archetype (p.30), whose 20 g/L is ~355x this titer.
+
+- key: alac_titer_zhu2024_bsubtilis
+  value: 0.12204
+  unit: g/L (secreted, shake flask, 72 h, human alpha-lac with His-tag, B. subtilis RIK1285, Pglv promoter)
+  grade: A
+  source: "Zhu Y, Sun P, Li C, Zhang Y, Wang Y, Li J, Liu Y, Chen J, Deng Y. Enhanced extracellular production of alpha-lactalbumin from Bacillus subtilis through signal peptide and promoter screening. Food Sci Hum Wellness 13(4):2310-2316 (2024)"
+  doi_or_url: 10.26599/FSHW.2022.9250192
+  locator: "abstract; Sect. 3.2 (72 h supernatant); Fig. 4"
+  quote: "The results indicated that the strain RIK1285-pBE-Pglv-YjcN-LALBA had the highest α-LA yield, reaching 122.04 μg/mL."
+  read: fulltext
+  note: >-
+    Best titer whose full text was actually read here (open access, CC BY-NC-ND). Shake flask, 37 C;
+    quantified after nickel-column purification of the His-tagged protein, so a recovered amount and not a
+    food process. 173 native signal peptides screened (YjcN best); the original AprE-signal strain secreted
+    nothing ('no protein bands of corresponding size were found in the supernatant fermented for 72 h') and
+    made alpha-lac only intracellularly. Host is a bacterium, not one of the model's hosts.
+
+- key: alac_titer_wang2024_bsubtilis_bovine
+  value: 0.00102
+  unit: g/L (secreted bovine alpha-lac, engineered B. subtilis chassis, P566 promoter)
+  grade: A
+  source: "Wang B, Wu Y, Lv X, Liu L, Li J, Du G, Chen J, Liu Y. Synergistic regulation of chassis cell growth and screening of promoters, signal peptides and fusion protein linkers for enhanced recombinant protein expression in Bacillus subtilis. Int J Biol Macromol 280(Pt 3):136037 (2024)"
+  doi_or_url: 10.1016/j.ijbiomac.2024.136037
+  locator: abstract
+  quote: "using screened optimal P566 promoter and (EAAAK)3 protein linker, secretory bovine alpha-lactalbumin (α-LA) titer reached 1.02 mg/L."
+  read: abstract
+  note: >-
+    The only public BOVINE alpha-lac titer from a secreting microbial host found in this pass. Expressed as
+    a linker fusion; scale not stated in the abstract (shake flask implied).
+
+- key: alac_titer_viaene1991_scerevisiae_bovine
+  value: 0.002
+  unit: g/L in the culture supernatant (shake flask, 300 mL YPD + 50 mM MES pH 7, bovine alpha-lac)
+  grade: A
+  source: "Viaene A, Volckaert G, Joniau M, De Baetselier A, Van Cauwelaert F. Efficient expression of bovine alpha-lactalbumin in Saccharomyces cerevisiae. Eur J Biochem 202(2):471-477 (1991)"
+  doi_or_url: 10.1111/j.1432-1033.1991.tb16396.x
+  locator: "Results, 'Expression of bovine alpha-lactalbumin in yeast' p.476 (titers); Conclusion p.477; Fig. 4 caption (culture conditions)"
+  quote: "Under these conditions, production levels of 0.5 mg/l of secreted a-lactalbumin were obtained. An increase in production was noticed by growing the cells in YPD medium; expression levels of up to 2 mg/l were noted."
+  read: fulltext
+  note: >-
+    FULL TEXT READ (replaces the abstract-only entry; the paper DOES give numbers). BOVINE alpha-lac - the
+    highest public bovine titer in any yeast, and still only 2 mg/L. Host S. cerevisiae GRF181 with
+    pUDTsBLA (synthetic, yeast-codon-optimised gene) or pUDTcBLA (cDNA); both gave 'the same' level.
+    Promoter and secretion: alpha-mating-factor promoter and prepro leader, correctly cleaved (N-terminal
+    sequence identical to whey alpha-lac). Constitutive-type expression 'occurs in the log phase during
+    cell growth and does not increase during stationary phase', so there is no induction step. Culture:
+    shake flask, 300 mL YPD with 50 mM MES pH 7, 28 C, 72 h sampling (Fig. 4). BASIS: supernatant,
+    quantified by RADIOIMMUNOASSAY against commercial bovine alpha-lac (so a specific immunoassay, not
+    Bradford on a purified fraction); 'More than 95% of the total production was found in the medium'.
+    Purification was affinity chromatography on immobilised anti-alpha-lac antibodies (not a food route),
+    and the product was 'enzymatically active and in all respects identical to the whey protein, as
+    confirmed by SDS/PAGE, IEF, ultraviolet and CD spectral analysis'. KEY PROCESS CONSTRAINT: 'This had
+    to be buffered at pH 7, as below pH 5.5 no soluble a-lactalbumin could be detected' - at the pH yeast
+    drives itself to, apo alpha-lac unfolds, turns hydrophobic and sticks to the cell wall (50-60% of
+    spiked protein recovered on titrating back to neutral). Note the direct conflict with Wang 2025, which
+    got its best result at pH 3 to stop proteolysis: the pH optimum for alpha-lac solubility and for
+    protease suppression pull in opposite directions, and nobody has reconciled them. No DCW, no yield on
+    substrate. Takeda 1990 (goat, S. cerevisiae, GPD promoter) is reported here as '< 0.1 mg/l'.
+
+- key: alac_ecoli_intracellular_fusion
+  value: "~50% of total bacterial protein as an insoluble 21 kDa fusion, 3 h after T7 induction; refolded with GSH/GSSG + Ca2+, then trypsin-cleaved"
+  unit: share of total cell protein (no g/L given)
+  grade: A
+  source: "Wang M, Scott WA, Rao KR, Udey J, Conner GE, Brew K. Recombinant bovine alpha-lactalbumin obtained by limited proteolysis of a fusion protein expressed at high levels in Escherichia coli. J Biol Chem 264(35):21116-21121 (1989)"
+  doi_or_url: 10.1016/s0021-9258(19)30054-7
+  locator: abstract
+  quote: "This fusion protein was expressed in an insoluble form and accumulated to about 50% of the total bacterial protein within 3 h after induction"
+  read: abstract
+  note: >-
+    E. coli makes alpha-lac only as inclusion bodies needing oxidative refolding (also Kumagai 1990, goat,
+    CNBr cleavage, Protein Eng 3:449-452, 10.1093/protein/3.5.449), and an extra N-terminal Met
+    destabilises the native state by 3.5 kcal/mol (Chaudhuri 1999, J Mol Biol, 10.1006/jmbi.1998.2362,
+    abstract read). No food-scale route and no g/L: do not use as a titer.
+
+- key: alac_titer_perfectday_us9924728_klactis
+  value: 0.5
+  unit: g/L (recovered protein from 2 L of culture; K. lactis, galactose; the example covers each whey protein)
+  grade: B
+  source: "Perfect Day Inc., US 9,924,728 B2 (2018), whey-protein expression example; row already verified in data/titers.csv (source_key PerfectDay2018)"
+  doi_or_url: https://patents.google.com/patent/US9924728B2
+  locator: "col. 57 (locator and quote as verified in data/titers.csv)"
+  quote: "From each whey protein, two liters of culture were grown. Approximately one gram of protein was harvested from the total, suggesting a non-optimized yield/productivity of 0.5 g/L."
+  read: fulltext
+  note: >-
+    Quote and locator copied from the repo's already-verified titers.csv row, NOT re-read in this pass
+    (Google Patents returned a bot block). 'From each whey protein' covers alpha-lactalbumin as well as BLG,
+    so an alpha-lactalbumin row with the same source is justified (titers_rows.csv). Patent example,
+    explicitly 'non-optimized', and 'harvested' means recovered, so a lower bound on the titer.
+
+- key: alac_no_titer_treesei_aniger_klactis_published
+  value: "none found"
+  unit: public titer for alpha-lac in T. reesei, A. niger or K. lactis (other than the Perfect Day patent)
+  grade: A
+  source: "Europe PMC searches run in this pass (saved as .preview/alac/epmc1.json, epmc2.json): TITLE lactalbumin with recombinant/expression/secretion/pastoris/phaffii/coli/yeast (323 hits) and ABSTRACT lactalbumin with Bacillus/Aspergillus/Trichoderma/Kluyveromyces/pastoris/phaffii/cerevisiae/precision fermentation/Yarrowia/Hansenula (35 hits)"
+  doi_or_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search
+  locator: "result lists in epmc1.json and epmc2.json (titles and abstracts scanned)"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) from the search results: no hit reports alpha-lactalbumin expression in Trichoderma
+    reesei, Aspergillus niger or Kluyveromyces lactis. The non-microbial hits are transgenic animals
+    (goats, cows, pigs, mice), plants (tobacco chloroplast, maize, Arabidopsis) and in-vitro folding work.
+    So for the fungal hosts pf-tea models, alpha-lac has NO published titer at all, and the whole
+    microbial record is K. phaffii (<=0.60 g/L supernatant), S. cerevisiae (2 mg/L bovine, Viaene 1991),
+    B. subtilis (<=0.12 g/L), E. coli (inclusion bodies only) and the Perfect Day K. lactis patent
+    (0.5 g/L recovered).
+
+- key: alac_titer_chloroplast_tobacco
+  value: 0.234
+  unit: fraction of total soluble protein (human alpha-lac, transplastomic Nicotiana tabacum)
+  grade: A
+  source: "Ehsasatvatan M, Kohnehrouz BB. Transplastomic biofactory for the production of functional human alpha-lactalbumin for nutritional and therapeutic applications. Sci Rep 16:7359 (2026)"
+  doi_or_url: 10.1038/s41598-026-38965-y
+  locator: abstract
+  quote: "Immunoblotting and ELISA quantification revealed that hLA accumulated to 23.4% of total soluble protein (TSP), one of the highest levels reported for plastid-expressed human proteins."
+  read: abstract
+  note: >-
+    Not a fermentation route: context only (shows the folding/disulfides are not the bottleneck in a
+    plastid). Open access (PMC12923837) if the detail is ever wanted.
+
+- key: alac_gfieurope2025_archetype_base_case
+  value: {titer_g_L: 20, harvest_volume_m3: 80, yield_g_per_g: 0.13, substrate_usd_per_kg: 0.60, batch_d: 2.2, batches_per_yr: 162, dsp_yield_food: 0.87, dsp_yield_high: 0.70, kg_powder_per_batch_food: 1400, kg_powder_per_batch_high: 1120, unit_cost_food_usd_kg: 24, unit_cost_high_usd_kg: 100}
+  unit: as labelled (titer g/L, volume m3, yield g target per g non-water media additive, cost 2025 US$/kg)
+  grade: B
+  source: "GFI Europe / Arthur D. Little, Pathfinding precision fermentation viability (2025), alpha-lactalbumin case study"
+  doi_or_url: references/reports/GFIEurope_2025_pathfinding_precision_fermentation_viability.pdf
+  locator: "p.30 'Base case assumptions for PF-made alpha-lac'; sensitivities pp.31-32"
+  quote: "Culture volume @ harvest (m3) 80 ... Target yield on substrate (g/g)2 ... 0.13 ... Titre @ harvest (g/l) 20 ... DSP yield 87% 70% ... Base unit cost ($/kg) $24 $100"
+  read: fulltext
+  note: >-
+    Same archetype row as the existing titers.csv line (other:alpha-lactalbumin, gfieurope2025). Two grades:
+    food-grade '~95% +/-10%' purity on MF -> UF/DF -> spray dry at $24/kg, and high purity '>99%' on
+    MF -> chromatography -> UF/DF -> spray dry at $100/kg. Yeast, extracellular, US. Titer and harvest
+    volume come from the 'GFI technical team' with no data source (~33x the best public titer, Wang 2025).
+    50%-improvement case: yield 0.19, substrate $0.30/kg, 120 m3, 30 g/L -> $12/kg (food) and $86/kg (high
+    purity). The high-purity breakdown is dominated by one 75% category (apparently consumables, i.e. the
+    chromatography resin; the text layer does not label the bars, check the figure). Headline on p.30 says
+    '80l harvest volume' where the table says 80 m3 (typo in the report).
+
+- key: alac_gfieurope2025_dsp_configurations
+  value: {food_grade: "microfiltration -> ultra/diafiltration -> spray drying (DSP yield 87%)", high_purity: "microfiltration -> chromatography -> ultra/diafiltration -> spray drying (DSP yield 70%)"}
+  unit: DSP route by purity grade
+  grade: B
+  source: "GFI Europe / Arthur D. Little 2025, alpha-lactalbumin case study, p.30; archetype tables p.28"
+  doi_or_url: references/reports/GFIEurope_2025_pathfinding_precision_fermentation_viability.pdf
+  locator: "p.30 'DSP configuration' row; p.28 archetype P2 vs P6"
+  quote: "1. Microfiltration 2. Ultra / diafiltration 3. Spray drying ... 1. Microfiltration 2. Chromatography 3. Ultra / diafiltration 4. Spray drying"
+  read: fulltext
+  note: >-
+    This is the direct answer to question 4 as far as a third-party source goes: alpha-lac sits in BOTH
+    archetypes, P2 (food grade, membrane only, like BLG) and P6 (high purity, one chromatography step, like
+    lactoferrin and albumin). Neither route lyses (secreted). So the model's membrane route is the base
+    case and a one-column route is the high-purity variant; the DSP yield penalty of the column in their
+    numbers is 0.87 -> 0.70.
+
+# =======================================================================================
+# 3b. Companies making (or developing) precision-fermented alpha-lactalbumin
+# =======================================================================================
+
+- key: alac_21stbio_novonesis_program_2025
+  value: "21st.BIO licensed a Novonesis 'high-yield microbial strain' for bovine alpha-lac (announced 2025-07-10); no titer, host or price disclosed; target is price parity with dairy"
+  unit: company program
+  grade: C
+  source: "21st.BIO press release, '21st.BIO launches precision fermentation program for bovine alpha-lactalbumin' (10 July 2025)"
+  doi_or_url: https://21st.bio/21st-bio-launches-precision-fermentation-program-for-bovine-alpha-lactalbumin/
+  locator: "press release body"
+  quote: "About a thousand liters of milk must be fractionated to obtain a kilogram of α-lac"
+  read: html
+  note: >-
+    Company claim (C). Other quotes: 'exclusively licensing the high-yield microbial strain from Novonesis';
+    'with the ambition to be cost competitive with its bovine counterpart'. 21st.BIO's other programs are
+    in K. phaffii and B. licheniformis (not stated for alpha-lac in this release), so the host is unknown.
+    The 1,000 L milk per kg is a useful welfare/incumbent-cost anchor; note it implies ~1 g alpha-lac
+    recovered per litre, i.e. ~77% recovery against 1.3 g/L in milk (my arithmetic), and it is exactly the
+    kind of number a company would round. GFI Europe 2025 p.46 lists 21st.bio as the company present on
+    the alpha-lac (P6) archetype.
+
+# =======================================================================================
+# 5. Incumbent price and market
+# =======================================================================================
+
+- key: alac_market_price_gfieurope2025
+  value: {food_grade_usd_per_kg: 15, food_grade_market_t: 31828, high_purity_usd_per_kg: 123, high_purity_market_t: 3740, market_value_musd: 462}
+  unit: US$/kg of molecule and t/yr (conventional, i.e. dairy)
+  grade: C
+  source: "GFI Europe / Arthur D. Little 2025, Appendix 'Market size and prices for conventional and estimated PF molecules'"
+  doi_or_url: references/reports/GFIEurope_2025_pathfinding_precision_fermentation_viability.pdf
+  locator: "pp.47-48 (alpha-lactalbumin food-grade and high-purity rows); chart p.34"
+  quote: "α-lactalbumin (food-grade) P2 Protein 462 31,828 15 24 ... α-lactalbumin (high purity) P6 Protein 462 3,740 123 100"
+  read: fulltext
+  note: >-
+    Columns are market value (M USD), market size (t), average price (USD/kg) and 'PF average price'. The
+    same $462 M value is repeated for both grades (the two rows split one market report), so 31,828 t x
+    $15 = $477 M is self-consistent for the food grade while 3,740 t x $123 = $460 M is for the high grade:
+    they are alternative cuts, not additive (my reading). Market sizes come from secondary market-research
+    pages (FMI and a 'Global Market Study on Alpha Lactalbumin') and prices from Alibaba listings, so C at
+    best. Report chart p.34: '$123 α-lac (high purity)' vs '$425 β-lactoglobulin', '$400 Lactoferrin',
+    '$485 Albumin'. Their cost-in-use table p.33 uses $123/kg for conventional 95%-pure infant-grade
+    alpha-lac and $29/kg for conventional 80% sports-nutrition grade.
+
+- key: alac_market_fmi_2025
+  value: {market_musd_2025: 762.5, market_musd_2035: 1631.1, food_grade_usd_per_kg_low: 31, food_grade_usd_per_kg_high: 86, infant_share_2025: 0.652}
+  unit: US$ million, US$/kg, share
+  grade: C
+  source: "Future Market Insights, 'Alpha-lactalbumin Market Size, Trends & Forecast 2025 to 2035' (web page, read 2026-10-02)"
+  doi_or_url: https://www.futuremarketinsights.com/reports/alpha-lactalbumin-market
+  locator: "report summary page"
+  quote: "Food-grade alpha-lactalbumin averages USD 31-86 per kg"
+  read: html
+  note: >-
+    Market-research vendor page (C; the paid report was not bought). Also: 'The alpha-lactalbumin market is
+    valued at USD 762.5 million in 2025', 'projected to reach USD 1,631.1 million by 2035', 'infant
+    nutrition will dominate the market with a 65.2% share in 2025'. This is the same family of source GFI
+    used, and its $31-86/kg band brackets GFI's $15 (food) and $123 (high purity) oddly: treat the whole
+    incumbent price question as C with a wide band, $15-123/kg of alpha-lac molecule.
+
+- key: alac_arla_alpha50_high_purity_grade
+  value: 0.90
+  unit: alpha-lac as fraction of protein (Lacprodan Alpha-50, launched 2023 for low-protein infant formula)
+  grade: C
+  source: "Nutritional Outlook, 'Arla Foods launches new alpha-lactalbumin ingredient designed for low-protein infant formulas' (13 June 2023)"
+  doi_or_url: https://www.nutritionaloutlook.com/view/arla-foods-launches-new-alpha-lactalbumin-ingredient-designed-for-low-protein-infant-formulas
+  locator: "article body"
+  quote: "protein content of which 90% is alpha-lactalbumin"
+  read: html
+  note: >-
+    Trade press (C). Important correction to the GRAS picture: Arla DOES sell a ~90%-of-protein grade
+    (Alpha-50), launched after Alpha-20 was discontinued; GRN 1100's 'Alpha-20 discontinued' answer is
+    about that older code, not about the high-purity segment. So the dairy incumbent exists at both ~41-48%
+    (ALPHA-10, GRN 809/1100) and ~90% (Alpha-50, and Agropur's 90-96% isolate in GRN 763) of protein. A PF
+    product would be compared with the ~90% grade on purity and with either on price per kg alpha-lac.
+    No GRAS notice found for Alpha-50 in this pass (not searched exhaustively).
+
+- key: alac_arla_capacity_doubling_2015
+  value: "second production line at Arla's Jutland (Denmark) protein plant, +100% alpha-lac output (2015); no tonnage disclosed"
+  unit: capacity (qualitative)
+  grade: C
+  source: "Dairy Industries International, 'Arla Food Ingredients doubles alpha-lactalbumin output' (23 April 2015)"
+  doi_or_url: https://www.dairyindustries.com/news/17349/arla-food-ingredients-doubles-alpha-lactalbumin-output/
+  locator: "article body"
+  quote: "worldwide demand for alpha-lactalbumin is growing fast - especially in China"
+  read: html
+  note: >-
+    Trade press (C). No public tonnage for any alpha-lac producer was found in this pass, so the only
+    market-size numbers available are the market-research ones (GFI's 3,740 t high purity / 31,828 t food
+    grade and the FMI value series). A PF plant sized like the model's 10 kt/yr BLG plant would be 3x the
+    whole 'food-grade' alpha-lac market and ~2.7x the high-purity market: the plant-size question matters
+    more here than for BLG.
+
+# =======================================================================================
+# 4. Downstream: is a UF/DF concentrate enough? purity of the commercial grades; dryer feed
+# =======================================================================================
+
+- key: alac_commercial_grades_purity_ladder
+  value: {whey_wpc_wpi_baseline: "0.15-0.20 of protein", arla_alpha10: "0.41-0.52 of protein", enriched_wpc_typical: 0.45, arla_alpha50: 0.90, agropur_isolate: "0.90-0.96 of protein"}
+  unit: alpha-lac as fraction of total protein in the commercial ingredient
+  grade: A
+  source: "Layman DK, Lonnerdal B, Fernstrom JD. Applications for alpha-lactalbumin in human nutrition. Nutr Rev 76(6):444-460 (2018), for the baseline and the enriched-WPC figure; GRN 763 and GRN 809/1100 for the two specs; trade press for Alpha-50"
+  doi_or_url: 10.1093/nutrit/nuy004
+  locator: "Layman, 'alpha-Lactalbumin in food applications' section"
+  quote: "It is available commercially as α-lactalbumin-enriched whey protein concentrates obtained by filtration methods, with α-lactalbumin constituting approximately 45% of total protein."
+  read: fulltext
+  note: >-
+    Open-access review (PMC5934683), full text read. Also: alpha-lac is '15% to 20% of total protein' in
+    WPC/WPI, '~3.5% of total protein and ~17% of whey proteins in bovine milk' and '~22% of total protein
+    and ~36% of the whey proteins in human milk'. Answer to question 4: the commercial ladder runs from a
+    ~45%-of-protein enriched WPC (membranes only) to a ~90-96%-of-protein isolate (ion exchange +
+    selective precipitation). A PF broth starts with no other whey proteins, so UF/DF alone should land
+    above the enriched-WPC grade; whether it reaches the 90-96% isolate grade depends on host protein and
+    mannan carry-over, which is the same open question as for BLG (my judgment, not sourced).
+
+- key: alac_functional_properties_for_dsp
+  value: "high water solubility over pH 2-9, clean flavour, heat stable; pI 4.2-4.5; holo (Ca-bound) form in commerce"
+  unit: qualitative process properties
+  grade: A
+  source: "Layman 2018 (Nutr Rev 76:444-460); pI and holo form from FDA GRN 763 amendment (Agropur answer to FDA question 2)"
+  doi_or_url: 10.1093/nutrit/nuy004
+  locator: "Layman, food-applications section; GRN 763 amendment 2018-08-21 p.2"
+  quote: "high water solubility across a wide pH range (2.0-9.0), and heat stability, making them compatible for use in beverages"
+  read: fulltext
+  note: >-
+    Means nothing in alpha-lac's own properties limits the spray-dryer feed concentration, so the model's
+    BLG dryer feed (0.30 dry matter, 0.27-0.37) carries over as the base (analogy, D). Two process caveats
+    I did NOT find a source for: (i) alpha-lac is 14.2 kDa, so a UF/DF step needs a tighter membrane
+    (~5-10 kDa) than BLG's 18.4 kDa, which costs flux - the model's membrane flux leaf should probably get
+    a sensitivity, and no alpha-lac-specific flux datum was found (epmc4 search: only 2 hits, both
+    paywalled); (ii) apo alpha-lac (Ca stripped at low pH) is a molten globule and aggregates, so the
+    dairy literature keeps Ca2+ in and the pH near neutral (Viaene 1991 also needed neutral pH for
+    secretion). Both are judgment calls for Pablo, grade E as stated.
+
+# =======================================================================================
+# 6. Welfare framing
+# =======================================================================================
+
+- key: alac_litres_of_milk_per_kg
+  value: 1000
+  unit: litres of cow's milk fractionated per kg of alpha-lac (company claim)
+  grade: C
+  source: "21st.BIO press release (10 July 2025); cross-check against milk composition in data/evidence/milk_egg.yaml (1.2 g/kg = 1.24 g/L, 3.7% of total protein)"
+  doi_or_url: https://21st.bio/21st-bio-launches-precision-fermentation-program-for-bovine-alpha-lactalbumin/
+  locator: "press release body"
+  quote: "About a thousand liters of milk must be fractionated to obtain a kilogram of α-lac"
+  read: html
+  note: >-
+    Derived cross-check (mine): at 1.24 g alpha-lac per litre, 1 kg needs 806 L at 100% recovery, so the
+    company's 1,000 L implies ~81% overall recovery - plausible, and the claim is consistent rather than
+    inflated. Framing for the report: alpha-lac is a by-product of cheese whey like BLG (the same litres of
+    milk already yield cheese and BLG), so PF alpha-lac displaces a co-product, not a cow; the honest
+    welfare statement is the BLG one. The distinctive angle is INFANT FORMULA: the incumbent route enriches
+    bovine whey to approach human milk, and a PF route could make human alpha-lac (P00709) directly, which
+    is a nutrition argument (Trp and Cys are 'approximately half' of human levels in bovine milk,
+    Layman 2018), not a welfare one.
+
+- key: alac_gfieurope2025_plant_output_derived
+  value: 226
+  unit: t powder/yr (food-grade case) implied by the GFI Europe archetype
+  grade: B
+  source: "Derived (mine) from alac_gfieurope2025_archetype_base_case"
+  doi_or_url: references/reports/GFIEurope_2025_pathfinding_precision_fermentation_viability.pdf
+  locator: "p.30 (inputs); arithmetic mine"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - check: 80 m3 x 20 g/L = 1,600 kg protein per batch; x 0.87 DSP yield = 1,392 kg
+    powder, which matches their '1,400' row; x 162 batches = 226 t/yr. High-purity case: 1,600 x 0.70 =
+    1,120 kg (matches) x 164 = 184 t/yr. So the ADL archetype plant is a ~200 t/yr plant, i.e. ~5% of the
+    high-purity market and <1% of the food-grade market - much smaller than pf-tea's 10 kt/yr BLG plant,
+    and in the same size class as the lactoferrin design (251 t/yr).
+
+# =======================================================================================
+# 7. Recommendations for the product block (judgment, graded E unless stated)
+# =======================================================================================
+
+- key: alac_base_species_recommendation
+  value: bovine
+  unit: recommended base product (UniProt P00711, mature 123 aa, unglycosylated, holo)
+  grade: E
+  source: "Judgement (mine) from this file: identity, GRAS, company and market sections"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: fulltext
+  note: >-
+    Why bovine: (i) it keeps whey parity, so the incumbent is a priced dairy ingredient (GRN 763 isolate,
+    Arla ALPHA-10/Alpha-50) and the benchmark can be the whey band the model already has; (ii) the only
+    company program is 21st.BIO/Novonesis on BOVINE alpha-lac; (iii) EU/US precedent exists for the dairy
+    protein, so the PF novel-food case is 'same molecule, new process'. Human alpha-lac (P00709) is worth a
+    SCENARIO, not the base: all three K. phaffii titers are human alpha-lac (Deng 2022/2023, Wang 2025),
+    the premium is infant formula (GFI's $123/kg high-purity price), and human milk has ~2x the Trp and Cys
+    of bovine (Layman 2018). Elementally the two are within 0.5% on C and 3% on N, so the choice does not
+    change the mass balance (see the formula entries); it changes the price benchmark and the purity spec.
+
+- key: alac_plant_size_recommendation
+  value: 1000
+  unit: t alpha-lac/yr (recommended plant.annual_target_protein_t for product alac)
+  grade: D
+  source: "Judgement (mine) from the market entries: GFI Europe 2025 gives 3,740 t/yr high purity and 31,828 t/yr food grade (both C); the ADL design plant is ~226 t/yr (derived)"
+  doi_or_url: references/reports/GFIEurope_2025_pathfinding_precision_fermentation_viability.pdf
+  locator: "pp.30, 47-48"
+  quote: null
+  read: fulltext
+  note: >-
+    1 kt/yr is ~27% of the high-purity market and ~3% of the food-grade market: the same reasoning as
+    albumin's 1 kt/yr, and it avoids BLG's 10 kt/yr plant exceeding the whole alpha-lac market. Show
+    10 kt/yr only for comparability with BLG and OVA (as the report does for lactoferrin). The scale curve
+    0.1-10 kt/yr then spans the ADL design plant (0.23 kt) to the food-grade market.
+
+- key: alac_academic_scenario_titer_recommendation
+  value: 0.60
+  unit: g/L (recommended strain.titer_g_L for the academic scenario, K. phaffii; see the note on the whole-broth basis)
+  grade: A
+  source: "Wang 2025 (10.1021/acs.jafc.5c01338), full text read: 0.6 g/L in the supernatant of a 3 L bioreactor at pH 3, ethanol-fed"
+  doi_or_url: 10.1021/acs.jafc.5c01338
+  locator: "Results p.9257, Fig. 5E"
+  quote: "this approach resulted in a substantial improvement in the α-LA titer, achieving a maximum expression level of 0.6 g·L-1 (Figure 5E)"
+  read: fulltext
+  note: >-
+    Recommendation (the number is grade A; the choice is mine). 0.60 g/L is the best public alpha-lac titer
+    in any host, in the model's host, and methanol-free. BASIS: it is a SUPERNATANT concentration measured
+    on a Ni-NTA-purified fraction by Bradford. For a whole-broth basis the model needs to discount the cell
+    volume: Wang 2025 reports only OD600 (no DCW), and at pH 3 biomass was explicitly 'suboptimal', so no
+    clean conversion exists. The only cell-density anchor in the pair of papers is Deng 2022's 137 g DCW/L
+    in the same 3 L setup; converting that to a cell volume fraction (and so to a whole-broth discount)
+    needs the model's own wet/dry and density convention, which I have not applied here - no number of mine
+    should be read into it. Practical recommendation: run the academic scenario at 0.60 g/L on the model's
+    whole-broth basis and call it slightly optimistic, noting that the authors' own assay underestimates
+    the titer because of proteolysis, which pushes the other way; do not stack both corrections. Second number, if a bovine case is wanted:
+    0.002 g/L (Viaene 1991, S. cerevisiae) - the only bovine yeast titer, 300x lower. Either way alpha-lac
+    is a REQUIRED-TITER case (0.6 g/L is 1/33 of the GFI archetype's 20 g/L and 1/50 of base.yaml's 30 g/L).
+
+- key: alac_t_prod_recommendation
+  value: 90
+  unit: h (production phase after the growth phase)
+  grade: A
+  source: "Wang 2025 (10.1021/acs.jafc.5c01338), Methods p.9251: the ethanol-fed induction phase; cross-check Deng 2022 (methanol phase from 30 h)"
+  doi_or_url: 10.1021/acs.jafc.5c01338
+  locator: "Methods 'Production of Human alpha-LA in a 3 L Bioreactor', p.9251; Results p.9256 (end of fermentation at 108 h)"
+  quote: "The entire ethanol-fed batch phase was sustained for over 90 h."
+  read: fulltext
+  note: >-
+    Replaces the earlier 'no source' entry. t_prod = 90 h for the recommended academic case: the glycerol
+    growth phase ends when 250 mL of 50% glycerol has been fed at 18 mL/(h L), and the run that is
+    described in time terms ends 'at 108 h', so the growth phase is ~18 h and the ethanol phase >=90 h
+    (Derived (mine) from those two numbers; the paper does not state the switch time directly). Deng 2022's
+    methanol phase starts at 30 h and the text says '108 h after induction', which is either a 138 h run or
+    a 108 h run (ambiguous; Fig. 5's axis would settle it) - so 78-108 h is the methanol-route range.
+    Recommended: value 90, low 72 (base.yaml's design point), high 108. Both papers are far longer than
+    base.yaml's 72 h, which matters: at 0.6 g/L over 90 h the volumetric productivity is 6.7 mg/L/h, about
+    1/60 of the model's BLG design point (Derived (mine)).
+
+- key: alac_spec_recommendation
+  value: {plant_spec: concentrate, concentrate_target_frac_dry: 0.90, low: 0.70, high: 0.96}
+  unit: route and target protein share of dry powder
+  grade: C
+  source: "FDA GRN 763 (Agropur): protein >=95% of dry matter with >=90% of that protein alpha-lac; Arla Alpha-50 at 90% of protein (trade press); GFI Europe 2025 food-grade case '~95% +/-10%' purity on a membrane-only route"
+  doi_or_url: "https://www.fda.gov/media/125931/download"
+  locator: "GRN 763 Table 1; GFI Europe p.30"
+  quote: "Food-grade a -lactalbumin contains a minimum of 95.0% (w/w basis) protein; with a minimum of 90.0% (w/w basis) of that protein comprised of a -lactalbumin."
+  read: fulltext
+  note: >-
+    Recommendation: run alac on the same UF/DF membrane route as BLG (plant.spec: concentrate), because
+    both the dairy high-purity isolate and the GFI food-grade archetype reach ~95% protein without
+    chromatography, and the PF broth has no BLG to separate from. Target 0.90 of dry matter (0.95 protein
+    x 0.95 alpha-lac of protein = 0.90, derived) rather than base.yaml's 0.85; low 0.70 keeps base.yaml's
+    floor, high 0.96 is the Agropur isolate's upper typical composition. The chromatography variant is the
+    GFI high-purity case (>99%, DSP yield 0.70 vs 0.87): worth a scenario named like albumin's
+    alb_capture_only, i.e. alac_high_purity_column, since the high-purity market is the one that pays
+    $123/kg.
+
+- key: alac_dsp_yield_recommendation
+  value: 0.87
+  unit: overall DSP yield (membrane route)
+  grade: B
+  source: "GFI Europe / Arthur D. Little 2025, alpha-lactalbumin case study p.30 ('DSP yield 87%' food grade, 70% high purity)"
+  doi_or_url: references/reports/GFIEurope_2025_pathfinding_precision_fermentation_viability.pdf
+  locator: "p.30"
+  quote: "DSP yield 87% 70%"
+  read: fulltext
+  note: >-
+    Only a cross-check on the model's own step-by-step DSP, not an input (the model computes recovery from
+    its unit operations). The same 0.87 already appears in data/evidence/dsp.yaml as
+    dsp_yield_alac_gfieurope (referenced from lactoferrin.yaml), so this entry is a duplicate of a value
+    the repo already has: use the existing key rather than adding a second one.
+
+- key: alac_eu_novel_food_pf_pipeline_2026
+  value: "no precision-fermented dairy protein is authorised in the EU as of Q1 2026; no alpha-lactalbumin application found. Helaina's human-equivalent lactoferrin alpha was validated 2026-03-25 (lactoferrin, not alpha-lac)"
+  unit: regulatory status
+  grade: C
+  source: "CIRS Group, 'EU Novel Food Application Updates in Q1 2026' (web page, read 2026-10-02); corroborated by trade coverage of the Perfect Day (invalidated 2024) and Remilk (withdrawn) BLG dossiers"
+  doi_or_url: https://www.cirs-group.com/en/food/eu-novel-food-application-updates-in-q1-2026
+  locator: "Q1 2026 application table"
+  quote: "Human-equivalent lactoferrin alpha (heqLFα)"
+  read: html
+  note: >-
+    The quote is the only PF dairy-protein entry in that table; no alpha-lactalbumin entry exists, which is
+    the negative result I can actually source (the broader 'zero PF proteins authorised' claim is trade
+    press, C). So for the report: a PF alpha-lac would need a Reg. (EU) 2015/2283 novel-food authorisation
+    (Art. 3(2)(a)(ii), food from microorganisms) even though the dairy molecule is pre-1997, and the first
+    PF dairy dossier to clear EFSA validation is a lactoferrin, not a whey protein. Infant formula adds
+    Reg. (EU) 2016/127 and an EFSA suitability assessment on top (not checked in this pass).
+
+- key: alac_carbon_source_and_feed_rates_wang2025
+  value: {growth: "40 g/L glycerol batch + 250 mL of 50% w/v glycerol fed at 18 mL/(h L)", production: "ethanol fed at 3 -> 7.3 -> 10.9 mL/(h L) for >90 h"}
+  unit: feed strategy (3 L bioreactor, 0.9 L charge)
+  grade: A
+  source: "Wang 2025 (10.1021/acs.jafc.5c01338), Methods 'Production of Human alpha-LA in a 3 L Bioreactor', p.9251"
+  doi_or_url: 10.1021/acs.jafc.5c01338
+  locator: "Methods p.9251"
+  quote: "ethanol supplemented with 1.2% (v/v) PTM1 was supplied at a rate of 3 mL·(h·L)-1 for 1 h to adapt the cells to the ethanol. The feeding rate was then subsequently accelerated and added to 7.3 mL·(h·L)-1 ... the ethanol feeding rate was increased to approximately 10.9 mL·(h·L)-1 and maintained at this level for the remainder of the fermentation process."
+  read: fulltext
+  note: >-
+    The production phase runs on ETHANOL, not glucose or methanol. For pf-tea: the model can run methanol
+    (Deng 2022's route) or price ethanol as glucose and flag it, as the repo already does for the
+    ethanol-induced BLG row (Yao 2026). Derived (mine), rough: 10.9 mL/(h L) x 90 h = 981 mL ethanol per
+    litre of initial charge = ~774 g/L at 0.789 g/mL, plus ~139 g/L glycerol (250 mL of 50% w/v into
+    0.9 L), so ~0.9 kg of carbon substrate fed per litre of initial volume for 0.6 g/L of product: a yield
+    on substrate of order 7e-4 g/g, against the GFI archetype's assumed 0.13 g/g (~180x). Treat this as an
+    order-of-magnitude figure only: the paper reports no feed totals, no final volume and no yield, and
+    nearly a litre of feed per litre of charge means the broth was diluted or partly evaporated in ways
+    the text does not describe. It is still the most honest statement available of how far the academic
+    process is from the archetype, and it is why alpha-lac belongs in the required-titer analysis.
+
+# =======================================================================================
+# Price points for benchmarks.yaml reported_prices (main session, 2026-10-02): the two market entries above
+# restated as value/low/high/year so src/pftea/benchmarks.reported_prices can read them. Same sources, same grade.
+# =======================================================================================
+- key: alac_price_points_gfieurope2025
+  value: 25
+  low: 25
+  high: 129
+  year: 2025
+  unit: US$/kg alpha-lac (derived from GFI's ingredient prices, divided by the ingredient's alpha-lac purity)
+  grade: C
+  source: "GFI Europe / Arthur D. Little 2025, Appendix 'Market size and prices' (alac_market_price_gfieurope2025) and cost-in-use table p.33"
+  doi_or_url: references/reports/GFIEurope_2025_pathfinding_precision_fermentation_viability.pdf
+  locator: pp.47-48 (alpha-lactalbumin rows); p.33 cost-in-use table (references/text/GFIEurope_2025_*.txt l.1028-1066)
+  quote: "α-lactalbumin (food-grade) P2 Protein 462 31,828 15 24 ... α-lactalbumin (high purity) P6 Protein 462 3,740 123 100"
+  read: fulltext
+  note: >-
+    Derived (audit R14-H2): the appendix column says "USD/kg molecule", but GFI's own cost-in-use arithmetic (p.33) works
+    only per kg of INGREDIENT: general food 3.6% alpha-lac / 0.60 purity = 60 g ingredient per kg, x $15 = $0.9 as printed;
+    sports nutrition 25% / 0.80 = 313 g x $29 = $9. So $15/kg is a ~60%-alpha-lac ingredient (15 / 0.60 = $25/kg alpha-lac)
+    and $123/kg a 95% one (123 / 0.95 = $129/kg). The two rows share one $462 M market value, so they are two cuts of one
+    market, not independent observations. Listing-based prices (C at best); the year is not stated, 2025 assumed.
+- key: alac_price_points_fmi2025
+  value: 31
+  low: 31
+  high: 86
+  year: 2025
+  unit: US$/kg, food-grade alpha-lactalbumin
+  grade: C
+  source: "Future Market Insights, 'Alpha-lactalbumin Market Size, Trends & Forecast 2025 to 2035' (alac_market_fmi_2025)"
+  doi_or_url: https://www.futuremarketinsights.com/reports/alpha-lactalbumin-market
+  locator: report summary page
+  quote: "Food-grade alpha-lactalbumin averages USD 31-86 per kg"
+  read: html
+  note: "Market-research vendor page; basis (per kg product or per kg alpha-lac) not stated, so kept as context only and not in the benchmark band (audit R14-H2)."

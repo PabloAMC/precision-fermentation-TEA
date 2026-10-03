@@ -1,0 +1,16 @@
+# Soy leghemoglobin (LegH), the heme protein of Impossible Foods' beef analogue (FDA GRN 737; 21 CFR 73.520).
+# Sequence: UniProt P02236 (LGB4_SOYBN, leghemoglobin C2, gene LBC2), entry version 141: initiator Met removed, chain
+# 2-145, 144 residues, no cysteine or methionine (data/evidence/heme.yaml legh_lbc2_uniprot). The globin formula
+# C702 H1096 N176 O212, 15,394 Da; the heme b it carries (C34H32FeN4O4, 616.5 Da, 3.85% of the holoprotein at full
+# loading; heme_mass_fraction_of_holoprotein) is not in the formula: its synthesis is a small carbon sink.
+# Used only in the heme note (scenarios/heme.yaml), not as a stand-alone product.
+name: soy leghemoglobin
+key: legh
+uniprot: P02236
+mature_sequence: >-
+  GAFTEKQEALVSSSFEAFKANIPQYSVVFYTSILEKAPAAKDLFSFLSNGVDPSNPKLTGHAEKLFGLVRDSAGQLKANGTVVADAALGSIHAQKAITDPQFVVVKEALLKTIKEAVGDKWSDELSSAWEVAYDELAAAIKKAF
+disulfides: 0
+post_translational: "heme b, N-acetylglycine and plant nitrations ignored in the elemental formula"
+spec:                       # LegH Prep (GRN 737; 21 CFR 73.520): a lysate concentrate, not an isolate
+  target_min_frac_protein: {value: 0.65, grade: A, source: "21 CFR 73.520: LegH 'not less than 65 percent' of protein by SDS-PAGE (heme.yaml legh_us_color_additive_purity_spec)"}
+solubility_practical_g_L: {value: null, note: "sold as a frozen liquid at 6-9% LegH (GRN 737; heme.yaml legh_prep_legh_content_spec)"}

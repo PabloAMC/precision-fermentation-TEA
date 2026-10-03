@@ -70,7 +70,7 @@ def num(x):
 ws = wb.active
 ws.title = "README"
 lines = [
-    ("Supplementary workbook: the cost of precision-fermented BLG, OVA, ovomucoid, beta-casein, lactoferrin and serum albumin (v4)", HDR),
+    ("Supplementary workbook: the cost of precision-fermented BLG, OVA, ovomucoid, beta-casein, lactoferrin, serum albumin and alpha-lactalbumin (v4), with notes on rennet-cheese casein and heme", HDR),
     (f"Generated from results/analyses.json ({R['generated']}) and the data files of the pf-tea repository.", BODY),
     ("All sheets hold values exported by scripts/build_si_workbook.py, except 'Accounting', which is live (formulas).", BODY),
     ("Money: 2025 US dollars. Per kg = per kg of target protein unless the column says powder.", BODY),
@@ -110,10 +110,12 @@ sheet("Parameters", ["path", "label", "value (US)", "value (EU)", "low", "high",
 
 # ---------------------------------------------------------------- Scenarios
 rows = []
-for name in ("academic", "industry", "physical_limit", "lactoferrin", "casein", "albumin"):
+for name in ("academic", "industry", "physical_limit", "lactoferrin", "casein", "albumin", "cheese", "heme"):
     s = yaml.safe_load((ROOT / f"data/pf/scenarios/{name}.yaml").read_text())
     for blk, body in s.items():
         if blk in ("description", "search", "mc_paths"):
+            continue
+        if not isinstance(body or {}, dict):
             continue
         for k, x in (body or {}).items():
             rows.append([name, blk, k, json.dumps(x) if isinstance(x, dict) else num(x)])
@@ -136,6 +138,11 @@ rows += [res_row(f"physical_limit/{k}", d) for k, d in R["physical_limit"].items
 rows += [res_row(f"lactoferrin/{k}", d) for k, d in R["lactoferrin"]["cases"].items()]
 rows += [res_row(f"casein/{k}", d) for k, d in R.get("casein", {}).get("cases", {}).items()]
 rows += [res_row(f"albumin/{k}", d) for k, d in R.get("albumin", {}).get("cases", {}).items()]
+rows += [res_row(f"alac/{k}", R["alac"][k]) for k in ("at_10kt", "at_10kt_industry") if k in R.get("alac", {})]
+rows += [res_row(f"cheese/alpha-s1/{k}", d) for k, d in R.get("cheese", {}).get("as1", {}).items()]
+rows += [res_row(f"cheese/{r}/share {s}/{t} g/L", d) for r, rr in R.get("cheese", {}).get("kap", {}).items()
+         for s, dd in rr.items() for t, d in dd.items()]
+rows += [res_row(f"heme/{k}", d) for k, d in R.get("heme", {}).get("cases", {}).items()]
 sheet("Results", ["case", "titer g/L", "MSP_CCF $/kg", "COP $/kg", "MSP_DCF $/kg", "MSP_CCF $/kg powder", "TCI $",
                   "glucose kg/kg", "electricity kWh/kg", "feasible", "flags"], rows,
       [30, 10, 13, 11, 13, 16, 16, 13, 16, 9, 60])
@@ -326,11 +333,28 @@ sheet("Market_context", ["ingredient", "low $/kg protein", "high $/kg protein", 
       [42, 16, 16, 24, 8, 36], note="Protein ingredients for context (report Q1, fig 11). GFI 2025 ranges are nominal; export unit "
                                     "values are deflated to 2025 dollars. data/evidence/prices.yaml.")
 
+CH = R.get("cheese")
+if CH:
+    rows = []
+    for route in CH["routes"]:
+        for x in CH["kappa_share"]:
+            k = f"{x:g}"
+            rows += [[f"{route}, kappa share {k}, kappa {t} g/L", float(t), d["msp_ccf"], CH["blend"][route][k][i], d["feasible"]]
+                     for i, (t, d) in enumerate(CH["kap"][route][k].items())]
+            rows.append([f"{route}, kappa share {k}: kappa titer for a blend 10% above alpha-s1 alone",
+                         CH["kappa_titer_for_10pct"][route][k], None, None, None])
+    rows += [[f"alpha-s1, {k}", CH["as1"][k]["design"]["titer"], CH["as1"][k]["msp_ccf"], None, CH["as1"][k]["feasible"]]
+             for k in CH["as1"]]
+    sheet("Cheese", ["case", "titer g/L", "MSP_CCF $/kg (kappa or alpha-s1)", "blend $/kg", "feasible"], rows, [62, 10, 20, 14, 10],
+          note="Rennet-cheese casein: alpha-s1 (base design point, acid route) blended with kappa-casein from its own strain and "
+               "plant at each kappa share of a 10 kt/yr casein blend; kappa co-precipitated (acid route, 'kap') or on its own "
+               "cation-exchange column ('kap_cex'). Blend = (1 - s) x alpha-s1 + s x kappa (data/pf/scenarios/cheese.yaml).")
+
 # ---------------------------------------------------------------- data
 with (ROOT / "data/titers.csv").open() as fh:
     t = list(csv.reader(fh))
 sheet("Titers", t[0], t[1:], [14, 14, 10, 10, 8, 10, 12, 20, 6, 50, 20, 12, 8, 8, 50])
-for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein", "ovomucoid", "albumin"):
+for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein", "ovomucoid", "albumin", "alac", "heme"):
     E = yaml.safe_load((ROOT / f"data/evidence/{f}.yaml").read_text())
     rows = [[e.get("key"), num(e.get("value")) if not isinstance(e.get("value"), (dict, list)) else json.dumps(e.get("value")),
              num(e.get("low")), num(e.get("high")), e.get("unit", ""), e.get("grade", ""), e.get("source", ""),
