@@ -1650,3 +1650,13 @@
     lower mobility suggests unprocessed signal peptide. The authors close by saying the expression
     level needs improving. This remains the only peer-reviewed bacterial kappa number, and it is
     roughly 2 mg/L against a 10 g/L design basis (DERIVED, mine: a factor of about 5,000).
+- key: kappa_titer_panchanawaporn2026_aoryzae
+  value: 0.00414
+  unit: g/L kappa-casein secreted (A. oryzae BCC7051, 50 mL flask, 3 d, 10 g/L yeast extract; ELISA)
+  grade: A
+  source: "Panchanawaporn S, et al. Two-Step Engineering of Food-Grade Aspergillus oryzae via Endogenous Signal Peptides and Vesicle Trafficking Proteins to Enhance Carrier-Free Protein Secretion. J Fungi 12(4):289 (2026)"
+  doi_or_url: 10.3390/jof12040289
+  locator: "Results 'physiological optimization', Fig. 5B, Table S3 (PMC13117078; local .preview/casein2/Panchanawaporn2026_PMC13117078.txt)"
+  quote: "maximal Aokappa-casein secretion was achieved at 10 g/L YE, reaching 4.14 +/- 0.12 mg/L, as quantitated by ELISA"
+  read: fulltext
+  note: "Reference entry for the titers.csv row (source_key Panchanawaporn2026); the best peer-reviewed kappa-casein titer in any host. Below the model's secretion-search floor (~0.007 g/L), so quoted, not costed (scenarios/cheese.yaml; audit R14-M2, R15-L10)."

@@ -216,7 +216,7 @@ cation exchange) at 250 t/yr, the size of its market, and albumin on the base de
 two-column train of the industrial recombinant-albumin process (cation-exchange capture, anion-exchange
 polish) at 1 kt/yr, over a quarter of the lowest of GFI's 2030 demand scenarios and about the size of
 today's whole human-albumin market. α-Lactalbumin runs BLG's membrane route at its isolate purity at
-1 kt/yr, about a quarter of its high-purity market; small plants use smaller fermenters. With a capital charge of 14.6% of investment
+1 kt/yr, about 5% of the α-lac market; small plants use smaller fermenters. With a capital charge of 14.6% of investment
 per year the minimum selling price per kg of target protein is *#plist(p => R.base.at(p).msp_ccf)*.
 With the lighter accounting of NREL-style design reports it is #plist(p => R.base_light.at(p).msp_ccf).
 At the average titer that private companies' cost models assume (42 g/L, GFI 2025, a survey average
@@ -280,17 +280,19 @@ Eight results stand out:
 7. *α-Lactalbumin: a whey protein whose strains are far behind.* On BLG's membrane route at its
    isolate purity it costs #money(alac.msp_ccf)/kg at the base titer on a 1 kt/yr plant
    (#money(AL.at_10kt.msp_ccf) at BLG's 10 kt/yr), #where(alac.msp_ccf, MKT("alac")) the reported
-   #usd(MKT("alac").at(0), d: 0)–#usd0(MKT("alac").at(1)) band per kg of α-lac (grade C). The best public titer is
+   #usd(MKT("alac").at(0), d: 0)–#usd0(MKT("alac").at(1)) band per kg of α-lac (grade C); the isolate grade it matches sells at
+   the top of that band. The best public titer is
    0.6 g/L of human α-lac in the supernatant, #fx(S("academic/alac").design.titer, d: 2) g/L of broth (Wang et al. 2025; bovine
    α-lac in yeast: 2 mg/L), which costs #money(S("academic/alac").msp_ccf)/kg (@sec-q1).
 8. *Two notes: casein for cheese and heme.* A rennet cheese needs κ-casein at about
-   #pct(CH.kappa_share.at(1)) of its casein. Made by its own strain, κ must reach roughly α#sub[s1]'s own design
-   titer for the blend to cost within 10% of α#sub[s1]-casein alone (#money(CH.as1.base.msp_ccf)/kg); at the best published
+   #pct(CH.kappa_share.at(1)) of its casein. Made by its own strain and co-precipitated with α#sub[s1], κ must reach
+   roughly α#sub[s1]'s own design titer for the blend to cost within 10% of α#sub[s1]-casein alone (#money(CH.as1.base.msp_ccf)/kg);
+   on its own column no titer up to 42 g/L is enough. At the best published
    κ titer, a 0.25 g/L patent example, the blend costs #money(CH.blend.kap.at(str(CH.kappa_share.at(1))).at(0))–#money(CH.blend.kap_cex.at(str(CH.kappa_share.at(1))).at(0))/kg (@sec-cheese).
    Soy leghemoglobin from the best published secreting strain costs
    #money(HM.cases.at("legh_chen2025/150/humbird").msp_ccf)/kg on a 150 t/yr plant: at Impossible's 0.45% use
    level that is #usd(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value, d: 2)
-   per kg of beef analogue ex works, equal to #pct(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value / HM.use.beef_usd_kg.value)
+   per kg of beef analogue ex works (the factory-gate cost, before transport and margins), equal to #pct(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value / HM.use.beef_usd_kg.value)
    of US ground beef's retail price (@sec-heme).
 
 The least-tested assumption is secretion without growth. The production phase follows Intelligen's
@@ -338,7 +340,7 @@ secretion at the design rate without growth.
   supernatant) after 192 h of methanol induction, costed on methanol (Zhu et al. 2021; the best methanol-free, 1.5 g/L in a *S. cerevisiae* patent:
   #money(S("academic/alb_patent").msp_ccf)/kg)\; α-lac #fx(S("academic/alac").design.titer, d: 2) g/L of whole broth (0.6 g/L of human α-lac
   in the supernatant) after #fx(S("academic/alac").design.t_total_h - S("academic/alac").design.t_growth_h, d: 0) h on ethanol, priced as glucose (Wang et al. 2025).
-  α-lac's plant is 1 kt/yr; its physical limit is capped at the food-grade α-lac market, 31.8 kt/yr. Incumbents: whey protein, dried egg white and casein trade unit
+  α-lac's plant is 1 kt/yr; its physical limit is capped at the α-lac market, about 19 kt/yr of α-lac. Incumbents: whey protein, dried egg white and casein trade unit
   values 2015–2025; lactoferrin, reported prices 2013–2025; albumin, bulk bovine serum albumin trade values
   (2023–2025); α-lac, market-report prices (2025; all three grade C where reported).],
 ) <tab-key>
@@ -465,8 +467,9 @@ manufacturing practice. The base is 10 kt/yr of protein in the US Midwest, swept
 published design's output (Intelligen), swept from 0.1 to 10 kt/yr; a 10 kt/yr lactoferrin plant
 would exceed the world market several times over. Albumin's base is 1 kt/yr (a design choice, grade D):
 about today's whole human-albumin market and over a quarter of the lowest of GFI's 2030 cultivated-meat demand
-scenarios (3.6–100 kt/yr). α-Lac's base is also 1 kt/yr (grade D): about a quarter of the
-high-purity α-lac market (3.7 kt/yr) and 3% of the food-grade one (32 kt/yr; GFI Europe 2025, C).
+scenarios (3.6–100 kt/yr). α-Lac's base is also 1 kt/yr (grade D): about 5% of the α-lac market, which GFI Europe (2025, C) puts
+at 31.8 kt/yr of a food-grade ingredient or 3.7 kt/yr of a high-purity one, the same \$462 million priced two
+ways; at about 60% α-lac, the first is about 19 kt/yr of α-lac (our arithmetic).
 Money is 2025 US dollars. Excluded costs:
 R&D, strain licences, regulatory approval, sales and distribution, land, first-of-a-kind premiums
 (shown separately: @sec-capital),
@@ -747,7 +750,8 @@ evidence-graded performance (`data/evidence/dsp.yaml`, `ovomucoid.yaml`, `casein
   dry it from 5–6% solids, the low end of its range) and
   #pct(pv("dsp.dryer_feed_solids_lf")) for lactoferrin, #pct(pv("dsp.dryer_feed_solids_alb")) for albumin
   (sold as 20% solutions, Recombumin) and #pct(pv("dsp.dryer_feed_solids_alac")) for α-lac (by analogy with BLG:
-  α-lac is soluble from pH 2 to 9, Layman et al. 2018; at 14.2 kDa it needs a tighter ultrafiltration membrane than BLG, whose lower
+  the calcium-bound α-lac of commerce is soluble from pH 2 to 9, Layman et al. 2018; at 14.2 kDa it needs a tighter ultrafiltration
+  membrane than BLG does, and that membrane's lower
   flux is not modelled). Sodium caseinate is so viscous that dairy plants
   dry it from about #pct(pv("dsp.dryer_feed_solids_cas")) solids (Tetra Pak), so casein evaporates
   the most water per kg.
@@ -958,10 +962,11 @@ differently and are never averaged:
   *S. cerevisiae* sucrose fed-batch (Delta's patent, B; costed as *K. phaffii* on glucose). Version 4
   costs every methanol-induced academic case on methanol (albumin; lactoferrin, Lv et al.; β-casein, Choi
   and Jiménez-Flores) instead of as glucose. α-Lactalbumin: the best titer in any host is 0.60 g/L of human
-  α-lac, His-tagged, in the supernatant of a 3 L *K. phaffii* culture fed ethanol for over 90 h at pH 3, which
+  α-lac, His-tagged, in the supernatant of a *K. phaffii* culture in a 3 L bioreactor, fed ethanol for over 90 h at pH 3, which
   suppressed proteases (Wang et al. 2025); it is converted to whole broth with the model's cell volume at the base
-  cell density (×0.64, D; only OD was reported) and costed on glucose. The authors say their assay underestimates the
-  titer through proteolysis, by an amount not given. Bovine α-lac, the dairy protein, has reached 2 mg/L in yeast (Viaene et al. 1991):
+  cell density (×0.64, D; only OD was reported) and costed on glucose. Their cells grew poorly at pH 3, so the
+  conversion probably over-discounts, while the authors say their assay underestimates the titer through
+  proteolysis, by an amount not given. Bovine α-lac, the dairy protein, has reached 2 mg/L in yeast (Viaene et al. 1991):
   the protein unfolds and sticks to cells below pH 5.5, so solubility and protease control pull the culture pH
   in opposite directions. Yield and maintenance keep the base values: no
   measured product yield exists.
@@ -971,7 +976,7 @@ differently and are never averaged:
   and α-lac, whose public titers are one to two orders of magnitude lower.
 - *required:* the inverse problem: the titer needed for \$10, \$20 and \$50/kg (lactoferrin \$100,
   \$200 and \$400; albumin \$10, GFI's target, \$50, inside the bulk-albumin band, and \$100; α-lac \$25
-  and \$130, the ends of its band per kg of α-lac, and \$60) at each production time.
+  and \$130, the ends of its band per kg of α-lac (\$25–129) rounded, and \$60) at each production time.
 - *physical limit:* a best case at assumed limits, not a floor set by physics. Every lever moved
   from the base: product yield #yaml("../data/pf/scenarios/physical_limit.yaml").common.at("strain.Y_ps_g_g") g/g (95% of
   BLG's energetic ceiling); the lowest measured maintenance in both phases; no growth in production; a
@@ -979,8 +984,8 @@ differently and are never averaged:
   et al. 2010, which would raise the ceiling somewhat further); 400 m³ vessels; O#sub[2] transfer capped at 250 mol/m³/h
   per m³ of cell-free liquid (head pressure, not costed; grade D) and heat removal at 40 kW/m³
   (external exchangers, not costed; grade D); an 8 h turnaround; a 90% concentrate; contract sugar;
-  and 100 kt/yr (lactoferrin: 1,588 t/yr, the larger of two world-market estimates; α-lac: 31.8 kt/yr,
-  its food-grade market; for albumin, 100 kt/yr is GFI's high 2030 demand scenario). The yield is
+  and 100 kt/yr (lactoferrin: 1,588 t/yr, the larger of two world-market estimates; α-lac: about 19 kt/yr,
+  its market; for albumin, 100 kt/yr is GFI's high 2030 demand scenario). The yield is
   the same for every protein; it is #pct(yaml("../data/pf/scenarios/physical_limit.yaml").common.at("strain.Y_ps_g_g") / K.energetic.cas.ceiling) of β-casein's ceiling, the
   lowest. A search over cell density and production time puts the titer at its feasibility
   ceiling, where cost is lowest, and reports which limits bind. Secretion stays capped at
@@ -1192,7 +1197,7 @@ price; glucose is #pct(blg.per_kg.glucose / blg.msp_ccf) and spent-cell disposal
   for a column fed pigmented yeast broth; at 125 cycles the base costs
   #usd0(ALB.resin.at("dsp.cex_resin_life_cycles=125"))/kg.
 - *Why α-lac costs more than BLG on the same route.* Its plant is ten times smaller: at BLG's 10 kt/yr
-  it would cost #money(AL.at_10kt.msp_ccf)/kg, against #money(blg.msp_ccf) for BLG. On the membrane route the
+  it would cost #money(AL.at_10kt.msp_ccf)/kg, as BLG does (#money(blg.msp_ccf)). On the membrane route the
   model does not charge for purity: the target share only sets how much other dry matter travels to the
   dryer with the protein, so α-lac's range, #pct(float(AL.purity.keys().at(0))) to #pct(float(AL.purity.keys().at(1))) of dry matter,
   moves it only from #money(AL.purity.values().at(0)) to #money(AL.purity.values().at(1)). Whether membranes alone reach
@@ -1205,7 +1210,8 @@ The product made per m³ of fermenter per hour is the lever the rest of the pape
 #figure(image("../docs/figures/fig1_cost_vs_titer.png", width: 100%),
   caption: [Minimum selling price against harvest titer for three production times, one panel per
   protein on its own base plant. Vertical lines mark the best public titers, the average titers
-  assumed in published and private cost models (GFI 2025), and design or claimed titers. Lines end at
+  assumed in published and private cost models (GFI 2025), and design or claimed titers; "<<" marks titers below the
+  axis, drawn at its left edge. Lines end at
   the feasibility ceiling of the fermenter. Bands: each incumbent's price range.]) <fig-titer>
 
 Cost falls roughly as 1/titer until the ceiling (@fig-titer). At the best public titers and at the
@@ -1245,8 +1251,8 @@ titer private cost models assume:
 - *α-Lactalbumin's strains are the furthest behind.* Its best public titer, 0.6 g/L of human α-lac in the supernatant
   (#fx(S("academic/alac").design.titer, d: 2) g/L of broth) on ethanol (Wang et al. 2025), costs #money(S("academic/alac").msp_ccf)/kg on
   #thou(S("academic/alac").design.N_prod_int) fermenters, #fx(S("academic/alac").msp_ccf / MKT("alac").at(1), d: 0)× the top of
-  its reported band; the next best are 0.11 g/L (human, *K. phaffii*; Deng et al. 2023, abstract) and 0.12 g/L
-  in a *Bacillus subtilis* flask (Zhu et al. 2024). The dairy (bovine) protein has reached 2 mg/L in yeast, and
+  its reported band; the next best are 0.12 g/L of human α-lac in a *Bacillus subtilis* flask, after a His-tag
+  purification (Zhu et al. 2024), and 0.11 g/L of human α-lac in *K. phaffii* (Deng et al. 2023, abstract). The dairy (bovine) protein has reached 2 mg/L in yeast, and
   1 mg/L in *B. subtilis* (Wang et al. 2024). The GFI Europe/Arthur D. Little α-lac case assumes 20 g/L at
   0.13 g/g, about 33× the best public titer in the supernatant, and costs it at \$24/kg (membranes, food grade) and \$100/kg (with
   chromatography, above 99% pure). No company discloses a titer; 21st.BIO and Novonesis announced a bovine
@@ -1373,7 +1379,7 @@ and for albumin, where the column inputs lead,
 #{ let t = R.tornado_by_product.alb.find(t => t.path.starts-with("dsp.cex_")); if t == none [not in the ten largest] else [#lab(t.path) (#usd0(calc.abs(t.msp_high - t.msp_low)), grade #t.grade, rank #(R.tornado_by_product.alb.position(x => x.path == t.path) + 1))] }.
 
 Few strain-performance ranges are grade A; they rest on design values and company-reported averages,
-because no public fed-batch dataset for any of the six reports titer, rate and yield together.
+because no public fed-batch dataset for any of the seven reports titer, rate and yield together.
 
 #figure(image("../docs/figures/fig7_montecarlo.png", width: 92%),
   caption: [Monte Carlo over each scenario's evidence ranges (triangular), feasible plants only; the
@@ -1513,10 +1519,11 @@ For albumin, with its columns, cost flattens out as titer rises: at 72 h
 #if ta.all(tg => rqv("alb", tg) == none) [none of its targets (#ta.map(tg => "$" + str(tg)).join(", ")/kg) is reached at any titer below the ceiling.] else [it reaches #ta.filter(tg => rqv("alb", tg) != none).map(tg => "$" + str(tg) + "/kg at " + fx(rqv("alb", tg), d: 0) + " g/L").join(" and ")#if ta.any(tg => rqv("alb", tg) == none) [, and #ta.filter(tg => rqv("alb", tg) == none).map(tg => "$" + str(tg)).join(" and ")/kg at no titer below the ceiling].] GFI's
 \$#ta.at(0)/kg #if rqv("alb", ta.at(0)) == none [is out of reach of any titer with column purification.] else [needs #fx(rqv("alb", ta.at(0)), d: 0) g/L.]
 #let tl = R.required_targets.alac
-α-Lac, on BLG's route but a 1 kt/yr plant, #if rqv("alac", tl.at(0)) == none [cannot reach \$#tl.at(0)/kg, the low end of its reported band, at any titer below the ceiling;] else [reaches \$#tl.at(0)/kg, the low end of its reported band, at #fx(rqv("alac", tl.at(0)), d: 0) g/L;]
+α-Lac, on BLG's route but a 1 kt/yr plant, #if rqv("alac", tl.at(0)) == none [cannot reach \$#tl.at(0)/kg, the low end of its reported band, at any titer below the ceiling;] else [reaches \$#tl.at(0)/kg, the low end of its reported band, at #fx(rqv("alac", tl.at(0)), d: 0) g/L (a secretion rate of about
+#fx(R.required.at("alac/humbird").at(str(tl.at(0))).at(tpi(72)).q_p_mg_g_h, d: 0) mg/g/h, against #fx(blg.design.q_p_mg_g_h, d: 1) in the base design);]
 #if rqv("alac", tl.at(1)) != none [\$#tl.at(1)/kg needs #fx(rqv("alac", tl.at(1)), d: 1) g/L and] \$#tl.at(2)/kg, the high-purity price,
 #if rqv("alac", tl.at(2)) == none [is out of reach] else [#fx(rqv("alac", tl.at(2)), d: 1) g/L], against a best public titer of
-#fx(S("academic/alac").design.titer, d: 1) g/L of human α-lac.
+#fx(S("academic/alac").design.titer, d: 2) g/L of human α-lac per litre of broth.
 
 *The gate is secretion.* Cell density is a free design choice, and at a fixed titer fewer cells cost
 less; what fewer cells cannot escape is the specific productivity. @tab-best lets the model choose
@@ -1603,7 +1610,7 @@ are #PL("blg/humbird").binding.join(", ").
     },
   ),
   caption: [The physical-limit best case of each protein: 100 kt/yr (lactoferrin 1,588 t/yr; α-lac
-  31.8 kt/yr; for albumin, GFI's high 2030 demand scenario), 400 m³ vessels, secretion up to 40 mg/g/h, \$/kg target
+  about 19 kt/yr; for albumin, GFI's high 2030 demand scenario), 400 m³ vessels, secretion up to 40 mg/g/h, \$/kg target
   protein (2025).],
 ) <tab-pl-all>
 
@@ -1611,7 +1618,7 @@ It costs #usd(PL("blg/humbird").msp_ccf)/kg BLG with price-anchored capital and
 #usd(PL("blg/light").msp_ccf) with design-report capital; for OVA #usd(PL("ova/humbird").msp_ccf) and
 #usd(PL("ova/light").msp_ccf), for β-casein #usd(PL("cas/humbird").msp_ccf) and #usd(PL("cas/light").msp_ccf),
 for lactoferrin at its market's size #usd(PL("lf/humbird").msp_ccf) and #usd(PL("lf/light").msp_ccf),
-for α-lac at its food-grade market's size #usd(PL("alac/humbird").msp_ccf) and #usd(PL("alac/light").msp_ccf),
+for α-lac at its market's size #usd(PL("alac/humbird").msp_ccf) and #usd(PL("alac/light").msp_ccf),
 and for albumin #money(PL("alb/humbird").msp_ccf) and #money(PL("alb/light").msp_ccf), with its columns unchanged
 (@tab-pl-all).
 - *It is set by an assumed secretion rate.* The binding biological limit is the
@@ -1728,10 +1735,11 @@ the market could not absorb. Albumin's base case (30 g/L; @fig-scale plots its i
 #money(ALB.scale.curves.at("US, price-anchored").at(0)) at 100 t/yr,
 #money(ALB.scale.curves.at("US, price-anchored").at(3)) at 1 kt/yr and
 #money(ALB.scale.curves.at("US, price-anchored").last()) at 10 kt/yr: past about 1 kt/yr its resin, a cost per
-kg that does not scale, dominates. α-Lac's industry benchmark follows BLG's curve shifted to smaller plants:
+kg that does not scale, dominates. α-Lac's industry benchmark follows BLG's curve (the same plant at the same output), re-sizing its vessels at each output:
 #money(R.scale_by_product.alac.curves.at("US, price-anchored").at(0)) at 100 t/yr,
 #money(R.scale_by_product.alac.curves.at("US, price-anchored").at(3)) at 1 kt/yr and
-#money(R.scale_by_product.alac.curves.at("US, price-anchored").last()) at 10 kt/yr.
+#money(R.scale_by_product.alac.curves.at("US, price-anchored").last()) at 10 kt/yr (@tab-key keeps the base plant's
+#fx(vol(alac), d: 0) m³ vessels: #money(S("industry/alac").msp_ccf) at 1 kt/yr).
 
 *Siting.* A Netherlands plant costs #usd(POL.at("EU base") - POL.at("US base"))/kg more than one in
 the US Midwest (base BLG). One at a time, US-level inputs would remove:
@@ -1955,7 +1963,7 @@ Our β-casein product is an acid-casein or caseinate grade. A rennet cheese is d
 the curd by cutting κ-casein, the casein on the micelle surface, so a casein without κ makes no rennet
 curd. With fully recombinant, unphosphorylated proteins a patent example made rennet curds at 16.7–25% κ
 (New Culture, US 2023/0404098, grade B); with dairy caseins, curds were firmest near 19% κ (Antuma et al.
-2025), and milk casein is 12% κ (Runthala et al. 2023). We take #pct(CH.kappa_share.at(1)), over
+2025), and milk casein is 12% κ (Runthala et al. 2023). We take #pct(CH.kappa_share.at(1)), and show
 #pct(CH.kappa_share.at(0), d: 1)–#pct(CH.kappa_share.at(2)). Formo makes a stretched-curd analogue from
 α#sub[s1]-casein alone, by acid and calcium and without rennet (WO 2026/068856), so κ is needed for rennet
 cheese, not for every cheese.
@@ -1963,7 +1971,7 @@ cheese, not for every cheese.
 We cost the blend as two strains and two plants (`data/pf/scenarios/cheese.yaml`): α#sub[s1]-casein at the base
 design point on β-casein's precipitation route, and κ-casein from its own strain, each plant sized for its share
 of #thou(CH.casein_t_per_yr) t/yr of casein. How κ would be recovered is not known: no source measures it, and
-unphosphorylated κ (computed isoelectric point 5.85) is the casein least pulled down by acid or calcium. Two cases
+unphosphorylated κ (computed isoelectric point 5.85) is the casein least likely to precipitate with acid or calcium. Two cases
 bracket it: κ *co-precipitated* with α#sub[s1], as milk κ is, costed on the precipitation route at a 78%
 recovery (optimistic, grade E), and κ on *its own cation-exchange column*, on lactoferrin's column data (D).
 Per kg of blend at κ share $s$,
@@ -2031,9 +2039,9 @@ lysate: 6–9% LegH, at least 65% of its protein LegH (80% on average in five ba
 dry matter, made inside *K. phaffii* cells and released by bead milling (FDA GRN 737). The model has
 secreted-protein routes only, so this note estimates the cost from the best published *secreting* processes
 on the membrane route at LegH Prep's purity (43% of dry matter; `data/pf/scenarios/heme.yaml`). It is an
-estimate, not a bound: lysis and debris removal are left out (too cheap), drying a product sold frozen is
-counted (too dear), the published titers are per litre of supernatant, converted here to whole broth with the
-model's cell volume (×0.64, D), and one strain's heme loading is unknown.
+estimate, not a bound. Leaving out lysis and debris removal makes it too low; counting the drying of a product
+sold frozen makes it too high; the published titers are per litre of supernatant, converted here to whole broth
+with the model's cell volume (×0.64, D); and one strain's heme loading is unknown.
 
 #let hcase(v, t) = HM.cases.at(v + "/" + str(t) + "/humbird")
 #let use = HM.use.beef_analogue_frac
@@ -2045,7 +2053,7 @@ model's cell volume (×0.64, D), and one strain's heme loading is unknown.
       [*\$/kg beef analogue at #pct(use.value, d: 2) (#pct(use.low, d: 2)–#pct(use.high, d: 1))*]),
     hline,
     ..for (v, label) in (("legh_chen2025", [Chen et al. 2025: 6.0 g/L of supernatant (#fx(hcase("legh_chen2025", HM.scales.at(0)).design.titer, d: 1) g/L of broth) in 102 h, methanol, hemin fed; heme loading not measured]),
-                         ("legh_shao2022", [Shao et al. 2022: 3.5 g/L of supernatant (#fx(hcase("legh_shao2022", HM.scales.at(0)).design.titer, d: 1) of broth), methanol, no hemin; 93% heme-loaded]),
+                         ("legh_shao2022", [Shao et al. 2022: 3.5 g/L of supernatant (#fx(hcase("legh_shao2022", HM.scales.at(0)).design.titer, d: 1) g/L of broth), methanol, no hemin; 93% heme-loaded]),
                          ("legh", [the base design point (30 g/L, 72 h, glucose)])) {
       ([#label], ..HM.scales.map(t => [#money(hcase(v, t).msp_ccf)]),
        [#usd(hcase(v, HM.scales.at(0)).msp_ccf * use.value, d: 2) (#usd(hcase(v, HM.scales.at(0)).msp_ccf * use.low, d: 2)–#usd(hcase(v, HM.scales.at(0)).msp_ccf * use.high, d: 2))])
@@ -2058,11 +2066,12 @@ model's cell volume (×0.64, D), and one strain's heme loading is unknown.
 
 - *Cost per kg of LegH.* The best published secreted titer (Chen et al. 2025) costs
   #money(hcase("legh_chen2025", HM.scales.at(0)).msp_ccf)/kg on a #thou(HM.scales.at(0)) t/yr plant, about the size of
-  the LegH market GFI Europe and Arthur D. Little estimate from trade data, and
+  the LegH market GFI Europe and Arthur D. Little estimate from trade data (of LegH or of the preparation; the
+  source does not say), and
   #money(hcase("legh_chen2025", HM.scales.at(1)).msp_ccf) at 1 kt/yr. Their own cost range for heme proteins is \$24–33/kg in
   their text and \$32–122/kg in their chart (the report gives both); the \$275/kg they list as the "conventional"
   price is a customs value, most likely of Impossible's own shipments.
-- *Per kg of heme-loaded protein.* Only loaded globin colours and flavours. Shao et al. measured 93% loading, so their
+- *Per kg of heme-loaded protein.* Only globin that carries its heme gives colour and flavour. Shao et al. measured 93% loading, so their
   cost barely changes; Chen et al. did not measure it, and their feed carried hemin, a blood-derived
   heme source not costed here, covering at most about 41% of what full loading would need (our arithmetic).
 - *Per kg of burger.* At 0.45% the best secreted process adds
@@ -2071,8 +2080,10 @@ model's cell volume (×0.64, D), and one strain's heme loading is unknown.
   retail price (\$#fx(HM.use.beef_usd_kg.value, d: 2)/kg, BLS, August 2026). At the design point on a 1 kt/yr plant it
   would add #usd(hcase("legh", HM.scales.at(1)).msp_ccf * use.value, d: 2).
 
-Heme is therefore a small part of a plant-based burger's cost, even made from today's best published secreting
-strains. Whether it is worth that cost is a question about taste that we found no consumer study isolating, and
+Heme from today's best published secreting strains would therefore cost about
+\$#fx(hcase("legh_chen2025", HM.scales.at(0)).msp_ccf * use.value, d: 0)–#fx(hcase("legh_shao2022", HM.scales.at(0)).msp_ccf * use.value, d: 0) per kg of
+analogue at the factory gate (#pct(hcase("legh_chen2025", HM.scales.at(0)).msp_ccf * use.value / HM.use.beef_usd_kg.value)–#pct(hcase("legh_shao2022", HM.scales.at(0)).msp_ccf * use.value / HM.use.beef_usd_kg.value) of
+retail ground beef), and up to twice that at the legal maximum; at a commercial design point, cents. Whether it is worth that cost is a question about taste that we found no consumer study isolating, and
 Impossible launched in the UK in September 2026 without it (Green Queen 2026).
 
 // ================================================================ 5
@@ -2091,7 +2102,7 @@ Impossible launched in the UK in September 2026 without it (Green Queen 2026).
   Albumin costs #money(alb.msp_ccf) at the base titer and #money(S("academic/alb").msp_ccf) at the record
   titer, #where(alb.msp_ccf, MKT("alb")) the bulk-albumin band and far below catalogue prices. α-Lac costs
   #money(alac.msp_ccf) at the base titer on a 1 kt/yr plant, #where(alac.msp_ccf, MKT("alac")) its reported band, but
-  #money(S("academic/alac").msp_ccf) at its best public titer (0.6 g/L).
+  #money(S("academic/alac").msp_ccf) at its best public titer (0.6 g/L of supernatant, #fx(S("academic/alac").design.titer, d: 2) of broth).
 - *Q2.* Fermenter productivity (protein per hour of vessel time) drives the cost of every protein,
   then the capital basis (vessel prices and fixed-cost rule); sugar and energy prices come second. The
   product yield acts mainly through the feasibility ceiling. The strain parameters are the weakest
@@ -2107,7 +2118,7 @@ Impossible launched in the UK in September 2026 without it (Green Queen 2026).
 - *Q4.* The physical-limit best case is #plist(p => PL(p + "/humbird").msp_ccf, ps: COMMODITY) and
   #usd(PL("lf/humbird").msp_ccf) (lactoferrin, at its market's size) and #money(PL("alb/humbird").msp_ccf) (albumin) per kg, bound by
   #PL("blg/humbird").binding.join(", ")\; at a secretion ceiling of 10 mg/g/h the BLG case is #usd(QP(10).msp_ccf).
-  α-Lac's, at its food-grade market's size, is #money(PL("alac/humbird").msp_ccf).
+  α-Lac's, at its market's size, is #money(PL("alac/humbird").msp_ccf).
 - *Q5.* #reach.len() of #R.claims.len() claimed titers are feasible in our fed-batch model, some only with
   long production phases or secretion near the ceiling. No casein or lactoferrin titer has been claimed.
 - *Q6.* Scale matters up to about 10 kt/yr for the commodity proteins and is the main lever for
@@ -2123,7 +2134,8 @@ Impossible launched in the UK in September 2026 without it (Green Queen 2026).
   #money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf) against #money(alb.msp_ccf) with its columns, but membranes alone reach only 77% albumin.
 - *Notes.* Casein for rennet cheese needs κ-casein at about #pct(CH.kappa_share.at(1)) of it; at today's best κ titer
   (0.25 g/L, a patent example) the blend costs #money(CH.blend.kap.at(str(CH.kappa_share.at(1))).at(0))–#money(CH.blend.kap_cex.at(str(CH.kappa_share.at(1))).at(0))/kg,
-  and κ must reach roughly α#sub[s1]'s own design titer for the blend to cost within 10% of α#sub[s1]-casein alone (@sec-cheese). Secreted leghemoglobin at the best published titer costs #money(HM.cases.at("legh_chen2025/150/humbird").msp_ccf)/kg on a
+  and co-precipitated κ must reach roughly α#sub[s1]'s own design titer for the blend to cost within 10% of α#sub[s1]-casein alone
+  (on its own column, no titer up to 42 g/L is enough; @sec-cheese). Secreted leghemoglobin at the best published titer costs #money(HM.cases.at("legh_chen2025/150/humbird").msp_ccf)/kg on a
   150 t/yr plant, #usd(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value, d: 2) per kg of beef analogue (@sec-heme).
 
 == Why published PF costs are lower
@@ -2174,10 +2186,10 @@ In order of expected cost reduction per unit of evidence gained (our judgment):
    albumin, whether a cheaper route than chromatography (membranes, precipitation, a high-capacity
    polymeric resin) reaches it, and the capture recovery at scale; and whether media will keep
    albumin at all, which the leading firms' choices currently argue against.
-8. *α-Lactalbumin and κ-casein strains.* Both are three orders of magnitude short of a commodity
+8. *α-Lactalbumin and κ-casein strains.* Both are about four orders of magnitude short of a commodity
    design point in public data (bovine α-lac 2 mg/L in yeast; κ-casein 4 mg/L peer-reviewed). For α-lac the
-   culture pH is the known conflict: the protein needs neutral pH to stay soluble, proteases need low pH
-   to be suppressed. For κ, whether a recombinant κ co-precipitates with α#sub[s1] decides whether rennet
+   culture pH is the known conflict: in culture, without its calcium, the protein unfolds and sticks to cells below
+   pH 5.5, while proteases need low pH to be suppressed. For κ, whether a recombinant κ co-precipitates with α#sub[s1] decides whether rennet
    casein can use the cheap route at all.
 
 #let beats = wheyobs.filter(x => x >= S("industry/blg/light").msp_ccf).len()
@@ -2279,7 +2291,7 @@ model says nothing about which instruments would deliver them.
   registered for albumin before its first model outputs.
 - *α-Lactalbumin* (added in version 4; AI-audited only): its best titer is human α-lac, measured in the
   supernatant after a His-tag purification, on ethanol priced as glucose; its market prices are online listings
-  and market-research pages (C), and its low end is close to whey protein's own price; its dryer feed is
+  and market-research pages (C), converted to a per-kg-α-lac basis by us; its dryer feed is
   borrowed from BLG (D), and the tighter ultrafiltration membrane its 14 kDa size needs is not costed; the
   plant size is a design choice. No priors were registered for it.
 - *The rennet-cheese and heme notes* use products outside the main list, each run on an existing route
@@ -2442,7 +2454,7 @@ and locators. Calibration cases are in `data/calibration/`. The audit is `docs/A
 - Wang B, Wu Y, Lv X, Liu L, Li J, Du G, Chen J, Liu Y. Synergistic regulation of chassis cell growth and screening of promoters, signal peptides and fusion protein linkers for enhanced recombinant protein expression in _Bacillus subtilis_. Int J Biol Macromol 280:136037 (2024). doi:10.1016/j.ijbiomac.2024.136037 (abstract read)
 - Wang L, et al. The thermodynamic and gelation properties of ovalbumin and lysozyme. Gels 11:470 (2025).
 - Wang X, Zhang X, Mao Y, Wu Y, Lv X, Liu L, Han W, Yin S, Wu R, Chen J, Liu Y. Ethanol-inducible bioproduction of human α-lactalbumin in _Komagataella phaffii_. J Agric Food Chem 73:9246 (2025). doi:10.1021/acs.jafc.5c01338
-- Wang Y, et al. GCB Bioenergy 13:640 (2021) (recombinant α#sub[s1]-casein in _E. coli_).
+- Wang Y, Kubiczek D, Horlamus F, Raber HF, Hennecke T, Einfalt D, Henkel M, et al. Bioconversion of lignocellulosic 'waste' to high-value food proteins: recombinant production of bovine and human α#sub[s1]-casein based on wheat straw lignocellulose. GCB Bioenergy 13:640 (2021). doi:10.1111/gcbb.12791
 - Yao C, Zhu H, An Q, Zhang M, Zheng Y, Cai M. Omics-guided global rewiring of yeast metabolism enables high-level production of β-lactoglobulin. Food Biosci 82:109383 (2026).
 - Yen CC, Wu PY, Ou-Yang H, et al. Production of bioactive porcine lactoferrin through a novel glucose-inducible expression system in _Pichia pastoris_. Int J Mol Sci 25:1818 (2024).
 - Yver AL, et al. Fractionation of whey protein isolate with supercritical carbon dioxide: process modeling and cost estimation. Int J Mol Sci 13:240 (2012).

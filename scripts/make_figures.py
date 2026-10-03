@@ -209,10 +209,10 @@ for ax, prod in zip(axes, PRODS):
             fontsize=9, fontweight="bold", color=INK)
 h, l_ = axes[0].get_legend_handles_labels()
 fig.legend(h, [x.split(" (ceiling")[0] for x in l_], loc="lower center", ncol=3, fontsize=7.2, bbox_to_anchor=(0.5, -0.02))
-fig.text(0.01, -0.06, f"Each product's base case ({SCALES}), US Midwest, fermenters sized to each plant (200 m3 at 10 kt/yr; 100 m3 for lactoferrin and albumin), glucose fed at 500 g/L. Each line ends "
+fig.text(0.01, -0.06, f"Each product's base case ({SCALES}), US Midwest, fermenters sized to each plant (200 m3 at 10 kt/yr; 100 m3 for lactoferrin, albumin and alpha-lac), glucose fed at 500 g/L. Each line ends "
          "at the highest feasible titer in that production time (O2 transfer, heat removal, minimum fill, specific productivity).\n"
          "Price bands, per kg protein in 2025 dollars: export unit values of whey protein >80% and dried egg albumin (OVA and ovomucoid), casein export and "
-         "US import prices, reported dairy lactoferrin prices and bulk albumin trade values (grade C). Top axis: published and claimed titers (data/titers.csv).",
+         "US import prices, reported dairy lactoferrin prices, bulk albumin trade values and alpha-lac market-report prices per kg alpha-lac (grade C). Top axis: published and claimed titers (data/titers.csv).",
          fontsize=7, color=MUTED)
 save(fig, "fig1_cost_vs_titer.png")
 
@@ -257,7 +257,7 @@ for j, (ax, prod) in enumerate(zip(axes, PRODS)):
     ax.legend(fontsize=6.4, loc="best", ncol=2)
 fig.text(0.01, -0.03, "Lines: titer at which the minimum selling price equals the target (each product's base plant, US; solid "
          "price-anchored, dashed design-report capital), searched only below the feasibility ceiling; grey: designs the fermenter "
-         "cannot run. Targets bracket each product's market (lactoferrin sells for hundreds of $/kg; albumin's run from GFI's $10/kg target to $100/kg)."
+         "cannot run. Targets bracket each product's market (lactoferrin sells for hundreds of $/kg; albumin's run from GFI's $10/kg target to $100/kg; alpha-lac's $25 and $130 are the ends of its band per kg alpha-lac)."
          + (f"\nNot reachable at any production time with the base cells and yield: {', '.join(missing)}." if missing else ""),
          fontsize=7, color=MUTED, wrap=True)
 save(fig, "fig3_required_titer.png")
@@ -511,7 +511,8 @@ ROUTES = {   # (label, result) per product: the base route first, then its alter
             ("UF/DF only (Eden Brew, FSANZ A1342)", R.get("casein", {}).get("cases", {}).get("cas_ufdf_edenbrew/humbird"))],
     "lf": [("cation exchange (base)", R["base"].get("lf")),
            ("UF/DF only (Intelligen case a)", LFX.get("cases", {}).get("lf_ufdf_only/humbird"))],
-    "alac": [("UF/DF concentrate (base)", R["base"].get("alac")), ("isolate: ammonium-sulfate precipitation", R["base_isolate"].get("alac"))],
+    "alac": [("UF/DF concentrate (base)", R["base"].get("alac")),
+             ("isolate: ammonium-sulfate precipitation (not GFI's >99% grade)", R["base_isolate"].get("alac"))],
     "alb": [("cation exchange + anion-exchange polish (base)", R["base"].get("alb")),
             ("capture only (96% assumed; optimistic)", R.get("albumin", {}).get("cases", {}).get("alb_capture_only/humbird")),
             ("UF/DF only (77% albumin; below spec)", R.get("albumin", {}).get("cases", {}).get("alb_ufdf_only/humbird"))],

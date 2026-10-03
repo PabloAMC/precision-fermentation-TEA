@@ -30,7 +30,9 @@ common:
 lf:
   plant.annual_target_protein_t: 1588    # GFI Europe 2025: world lactoferrin market 1,588 t (the larger of two estimates ~5x apart; lactoferrin.yaml blf_price_gfieurope2025, C)
 alac:
-  plant.annual_target_protein_t: 31828   # GFI Europe 2025: food-grade alpha-lac market 31,828 t (alac.yaml alac_market_price_gfieurope2025, C)
+  plant.annual_target_protein_t: 19100   # GFI Europe 2025: alpha-lac market 31,828 t of food-grade INGREDIENT at ~60% alpha-lac = ~19.1 kt of
+                                         # alpha-lac (derived; the 3,740 t high-purity row is the same $462 M market at another price, not
+                                         # additive; alac.yaml alac_market_price_gfieurope2025, C; audit R15-M1)
 search:
   X_prod_g_L: [20, 30, 45, 60, 80, 100, 130]
   t_prod_h: [12, 24, 36, 48, 72, 96]

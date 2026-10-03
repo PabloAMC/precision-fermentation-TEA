@@ -98,9 +98,9 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
   #money(alac.msp_ccf)/kg at the base titer on a 1 kt/yr plant, against #usd(MKT("alac").at(0))–#money(MKT("alac").at(1)) reported per kg
   α-lac (grade C), but #money(S("academic/alac").msp_ccf) at its best public titer (0.6 g/L of supernatant, human α-lac). Rennet cheese needs
   κ-casein at about #fx(100 * CH.kappa_share.at(1))% of its casein: at the best κ titer (0.25 g/L) an α#sub[s1] + κ blend costs
-  #money(CH.blend.kap.at(str(CH.kappa_share.at(1))).at(0))–#money(CH.blend.kap_cex.at(str(CH.kappa_share.at(1))).at(0))/kg, and κ must
-  reach roughly α#sub[s1]'s design titer to add under 10%. Heme from the best secreting strain adds
-  #usd(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value, d: 2) per kg of beef analogue.
+  #money(CH.blend.kap.at(str(CH.kappa_share.at(1))).at(0))–#money(CH.blend.kap_cex.at(str(CH.kappa_share.at(1))).at(0))/kg, and κ co-precipitated
+  with α#sub[s1] must reach roughly α#sub[s1]'s design titer to add under 10%. At 0.45% use, heme from the best secreting strain adds
+  #usd(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value, d: 2) per kg of beef analogue at the factory gate.
 
 #table(
   columns: (2.1fr,) + PRODS.map(_ => 1fr),
@@ -115,14 +115,14 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
   table.hline(stroke: 0.5pt + rgb("#c3c2b7")),
   [incumbent, 2025\$ per kg protein], ..PRODS.map(p => [#money(MKT(p).at(0))–#money(MKT(p).at(1))]),
 )
-#text(size: 8pt, fill: rgb("#52514e"))[Plants: 10 kt/yr (lactoferrin 250 t/yr, albumin and α-lac 1 kt/yr); physical limit at 100 kt/yr (lactoferrin 1.6 kt/yr, α-lac 31.8 kt/yr). Albumin's incumbent: bulk bovine albumin (technical grade).]
+#text(size: 8pt, fill: rgb("#52514e"))[Plants: 10 kt/yr (lactoferrin 250 t/yr, albumin and α-lac 1 kt/yr); physical limit at 100 kt/yr (lactoferrin 1.6 kt/yr, α-lac about 19 kt/yr). Albumin's incumbent: bulk bovine albumin (technical grade).]
 
 *Where evidence would help most*, in our judgment:
 + *Secretion without growth.* How much protein a strain secretes per g of cells per hour when it
   barely grows, over days, at 1–10 m³. It sets both today's cost and the best case, for every protein here.
 + *Open fed-batch data.* Titer, productivity and sugar yield measured *together*; for casein, any
   secreted titer above a few g/L, and whether the unphosphorylated protein makes cheese like dairy casein;
-  for α-lac and κ-casein, any secreted titer above 1 g/L.
+  for bovine α-lac and κ-casein, any secreted titer above 1 g/L.
 + *Real plant costs.* Capital, staffing and running costs of recent PF plants would settle the vessel
   price basis and the fixed-cost rule (aseptic vessels would add #usd(R.base_aseptic.blg.msp_ccf - blg.msp_ccf, d: 1)/kg;
   the two accounting conventions differ by #usd(blg.msp_ccf - R.base_light.blg.msp_ccf, d: 1)/kg on BLG).
