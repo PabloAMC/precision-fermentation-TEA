@@ -162,6 +162,10 @@ dsp:
     source: "albumin is ultrafiltered to 20% w/v and sold so (Sartorius Recombumin Prime 'Liquid | 50 mL Vial | 20%w/v'; Elite 10% w/v), so a 20% UF retentate is routine (analogy as dryer feed, C). low = the 10% w/v product; high = 25% albumin solutions (pharma practice, D)"}
   dryer_feed_solids_lf: {value: 0.27, low: 0.10, high: 0.37, unit: mass fraction dry matter, grade: D,
     source: "analogy: no lactoferrin-specific value; whey-protein UF retentates reach 27-32% DM (Tetra Pak, C), so the UF-only low end is used; high as for BLG and egg white. low = Intelligen's lactoferrin design, which dries a ~10% feed and calls 100 g/L the protein's solubility limit (pp.7, 10; no citation given)"}
+  dryer_feed_solids_alac: {value: 0.30, low: 0.27, high: 0.37, unit: mass fraction dry matter, grade: D,
+    source: "analogy with BLG's whey practice (dsp.dryer_feed_solids_blg, same range): alpha-lactalbumin is 'highly soluble over pH 2-9' and heat stable (Layman 2018; alac.yaml alac_functional_properties_for_dsp), so nothing in the protein limits the feed. No alpha-lac-specific value; at 14.2 kDa it needs a tighter UF membrane (~5-10 kDa) than BLG, a flux penalty not modelled (E)"}
+  dryer_feed_solids_legh: {value: 0.156, unit: mass fraction dry matter, grade: B,
+    source: "LegH Prep, five 2016 batches: 12.6-18.4% total solids, mean 15.6% (GRN 737; heme.yaml legh_prep_solids_batches). The commercial product is this liquid, frozen; here it is spray-dried from it (the drying cost is then an overstatement)"}
   # c'. cation-exchange capture (spec 'cex': lactoferrin; the dairy route and every commercial PF route)
   cex_dbc_g_L: {value: 75, low: 50, high: 100, unit: g protein/L resin, grade: B,
     source: "EVERY US 2024/0083940 A1 [0700]: 'The ligand density would accommodate protein binding capacity between 50-100 g protein/L resin' (dsp.yaml iex_binding_capacity_cex_every; a design statement, not a measured dynamic capacity for lactoferrin)"}
@@ -234,6 +238,10 @@ dsp:
   dryer_MJ_per_kg_water: {value: 4.87, low: 3.4, high: 6.0, unit: MJ/kg water, grade: A, source: "dsp.yaml: Baker & McKenzie survey average 4.87 GJ/t water evaporated; milk powder 3.4 (3-stage) to 4.9 (1-stage), Ramirez et al."}
   dryer_fan_kWh_kg_water: {value: 0.05, unit: kWh/kg water, grade: A,
     source: "derived from Baker & McKenzie 2005 (dsp.yaml spray_dryer_sec_survey): average 4.87 GJ/t with a fuel-to-electricity ratio of about 27 -> 0.18 GJ/t = 0.05 kWh/kg"}
+  dryer_feed_solids_cas1: {value: 0.20, low: 0.15, high: 0.20, unit: mass fraction dry matter, grade: D,
+    source: "as beta-casein (dsp.dryer_feed_solids_cas): a redissolved sodium caseinate, here of alpha-s1 (analogy)"}
+  dryer_feed_solids_kap: {value: 0.20, low: 0.15, high: 0.20, unit: mass fraction dry matter, grade: D,
+    source: "as beta-casein (dsp.dryer_feed_solids_cas), analogy; kappa is only costed inside the rennet-cheese blend"}
   dryer_recovery: {value: 0.98, grade: D, source: "cyclone + bag filter losses (evidence file)"}
   spray_dryer_cost_2018usd: {value: 923650, low: 361740, high: 1377300, unit: $ (2018$) at spray_dryer_ref_kg_h, grade: B,
     source: "Yver et al. 2012 Int J Mol Sci 13:240 Table 3: spray dryer $897k (2011$, supplier-based SuperPro model) drying ~790 kg/h water, x CEPCI 603.1/585.7 to 2018$. low = BioSTEAM SprayDryer correlation (CEPCI 567, unsourced in its code) at 790 kg/h, x 603.1/567.3. high = Watson Dairy Consulting (C): mid-size milk dryer GBP 5-10M at 1,000 kg/h powder (~1,000 kg/h water) scaled to 790 kg/h at 0.68, x ECB 2025 1.3189 $/GBP, read as an installed package and divided by the model's TCI/PEC factor 4.6 and the 2018->2025 index 1.33 (audit R3-F5)"}

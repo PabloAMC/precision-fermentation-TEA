@@ -1,0 +1,16 @@
+# Bovine kappa-casein, the casein that stabilises the micelle and that chymosin cuts to set a rennet curd (milk
+# casein is ~12% kappa; casein2 entries in data/evidence/casein.yaml). Sequence: UniProt P02668 (CASK_BOVIN), entry
+# version 175: signal 1-21, mature chain 22-190, 169 residues, variant A; one intrachain disulfide (Cys11-Cys88,
+# mature numbering; casein.yaml as1_kappa_formula_crosscheck_uniprot). Milk kappa carries one phosphate and up to
+# eight O-glycans and a pyroglutamate N-terminus; none is in the formula. Formula C849 H1321 N223 O262 S4, 18,972 Da.
+# Used only in the rennet-cheese casein analysis (scenarios/cheese.yaml), not as a stand-alone product.
+name: kappa-casein
+key: kap
+uniprot: P02668
+mature_sequence: >-
+  QEQNQEQPIRCEKDERFFSDKIAKYIPIQYVLSRYPSYGLNYYQQKPVALINNQFLPYPYYAKPAAVRSPAQILQWQVLSNTVPAKSCQAQPTTMARHPHPHLSFMAIPPKKNQDKTEIPTINTIASGEPTSTPTTEAVESTVATLEDSPEVIESPPEINTVQVTSTAV
+disulfides: 1
+post_translational: "phosphate, O-glycans and N-terminal pyroglutamate ignored (recombinant)"
+spec:                       # no stand-alone kappa product exists: it is costed inside an alpha-s1 + kappa blend
+  target_min_frac_protein: {value: null, note: "none; priced only as a share of a casein blend (casein.yaml kappa_casein_price_lab_reagent)"}
+solubility_practical_g_L: {value: null, note: "soluble near neutral pH; its isoelectric behaviour alone is not measured (casein.yaml kappa_acid_route_feasibility)"}

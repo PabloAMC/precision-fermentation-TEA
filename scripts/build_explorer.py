@@ -94,6 +94,16 @@ ref = {"blg": rows_ok(
          SC.get("industry/lf/aseptic")),
     lambda: case("Physical-limit best case, 1.6 kt/yr (secretion at 40 mg/g/h)", PLR["lf/humbird"], PLR["lf/light"]),
     lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["lf/humbird/q_p_max_2.1"])),
+    "alac": rows_ok(
+    lambda: case("Best public titer (Wang 2025; human alpha-lac, ethanol-fed, priced as glucose; 0.6 g/L)", SC["academic/alac"],
+         SC["academic/alac/light"], SC.get("academic/alac/aseptic")),
+    lambda: case("Base case (Intelligen's design point), UF/DF concentrate, 1 kt/yr", R["base"]["alac"],
+         R["base_light"]["alac"], R["base_aseptic"]["alac"]),
+    lambda: case("Same, at BLG's 10 kt/yr", R["alac"]["at_10kt"]),
+    lambda: case("Industry benchmark: titer assumed in private cost models", SC["industry/alac"], SC["industry/alac/light"],
+         SC.get("industry/alac/aseptic")),
+    lambda: case("Physical-limit best case, 32 kt/yr (secretion at 40 mg/g/h)", PLR["alac/humbird"], PLR["alac/light"]),
+    lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["alac/humbird/q_p_max_2.1"])),
     "alb": rows_ok(
     lambda: case("Best public rHSA titer (Zhu 2021; 8.7 g/L of whole broth, 17.5 of supernatant, after 192 h of methanol induction)", SC["academic/alb"],
          SC["academic/alb/light"], SC.get("academic/alb/aseptic")),
@@ -121,7 +131,7 @@ _prod = yaml.safe_load((ROOT / "data/pf/products.yaml").read_text())
 BASE_POINT = {p: dict(titer=(_prod.get(p) or {}).get("strain.titer_g_L", {}).get("value", _base["titer_g_L"]["value"]),
                       t_prod=(_prod.get(p) or {}).get("strain.t_prod_h", {}).get("value", _base["t_prod_h"]["value"]))
               for p in PRODS}
-NAMES = {"blg": "&beta;-lactoglobulin", "ova": "Ovalbumin", "ovd": "Ovomucoid", "cas": "&beta;-casein", "lf": "Lactoferrin", "alb": "Serum albumin"}
+NAMES = {"blg": "&beta;-lactoglobulin", "ova": "Ovalbumin", "ovd": "Ovomucoid", "cas": "&beta;-casein", "lf": "Lactoferrin", "alb": "Serum albumin", "alac": "&alpha;-lactalbumin"}
 LFP = R.get("lactoferrin", {}).get("reported_prices", {"band": [0, 0], "points": []})
 SERIES_LABEL = {"whey_protein_gt80_us_export_unit_value": "US exports", "whey_protein_gt80_eu_export_unit_value": "EU exports",
                 "egg_albumin_dried_eu_export_unit_value": "EU exports", "casein_food_eu_export_unit_value": "EU exports",
@@ -156,6 +166,8 @@ if "lf" in PRODS:
                           value=c["value_money_year"],
                           ours=R["lactoferrin"].get("reconciliation", {}).get(c["ours"], {}).get("cop"))
                      for c in LFP.get("comparators", []) if c.get("ours")])
+if "alac" in PRODS:
+    reported_market("alac", "Dairy alpha-lactalbumin (market reports, grade C)", R["alac"]["reported_prices"])
 if "alb" in PRODS:
     reported_market("alb", "Bulk serum albumin (technical BSA trade values, grade C)", R["albumin"]["reported_prices"])
 powder_frac = {p: R["base"][p]["per_kg_powder"] / R["base"][p]["msp_ccf"] for p in PRODS}

@@ -20,6 +20,9 @@ cas:
 alb:
   strain.titer_g_L: 42            # same survey average. FLAG: no albumin maker discloses a titer (Sartorius/Albumedix,
                                   # InVitria, Healthgen); the public best is 17.47 g/L after 192 h of methanol induction
+alac:
+  strain.titer_g_L: 42            # same survey average. FLAG: no alpha-lac maker discloses a titer (21st.BIO/Novonesis; alac.yaml);
+                                  # the public best is 0.6 g/L (human alpha-lac), 70x lower
 mc_paths:
   common: [strain.titer_g_L, strain.t_prod_h, strain.Y_ps_g_g, strain.X_prod_g_L, strain.mu_prod_per_h,
     hosts.kphaffii.maint_factor, hosts.kphaffii.m_s_prod_g_g_h, fermenter.otr_cap_mol_m3_h, fermenter.turnaround_h,
@@ -29,6 +32,7 @@ mc_paths:
   blg: [dsp.concentrate_target_frac_dry]
   ova: [dsp.concentrate_target_frac_dry]
   ovd: [dsp.concentrate_target_frac_dry, dsp.dryer_feed_solids_ovd]
+  alac: [dsp.concentrate_target_frac_dry, dsp.dryer_feed_solids_alac]
   lf: [dsp.dryer_feed_solids_lf, dsp.cex_dbc_g_L, dsp.cex_cv_per_cycle, dsp.cex_flow_cv_per_h, dsp.cex_recovery,
     dsp.cex_resin_usd_L, dsp.cex_resin_life_cycles, dsp.cex_hardware_usd_per_L_resin, dsp.cex_target_frac_dry]
   alb: [dsp.dryer_feed_solids_alb, dsp.cex_dbc_g_L, dsp.cex_cv_per_cycle, dsp.cex_flow_cv_per_h, dsp.cex_recovery,

@@ -47,7 +47,15 @@ def save(fig, name):
 
 
 def money(axis):
-    axis.set_major_formatter(FuncFormatter(lambda x, _: f"${x:,.0f}" if x >= 1 else f"${x:.1f}"))
+    fmt = lambda x: f"${x:,.0f}" if x >= 1 else f"${x:.1f}"   # noqa: E731
+    axis.set_major_formatter(FuncFormatter(lambda x, _: fmt(x)))
+
+    def minor(x, _):                          # on a log axis spanning under ~2.5 decades, label the 2s and 5s
+        lo, hi = axis.get_view_interval()
+        if lo <= 0 or hi / lo > 300:
+            return ""
+        return fmt(x) if round(x / 10 ** np.floor(np.log10(x))) in (2, 5) else ""
+    axis.set_minor_formatter(FuncFormatter(minor))
 
 
 def plain(axis, ticks):
@@ -66,12 +74,12 @@ def feasible_part(xs, ys, feas):
 PRODS = list(R["base"])                      # products in results order (data/pf/products.yaml)
 PROD = {"blg": "beta-lactoglobulin (whey protein)", "ova": "ovalbumin (egg-white protein)",
         "ovd": "ovomucoid (egg-white protein)", "cas": "beta-casein (milk casein)", "lf": "lactoferrin (milk)",
-        "alb": "serum albumin (cell-culture media)"}
-SHORT = {"blg": "BLG", "ova": "OVA", "ovd": "ovomucoid", "cas": "casein", "lf": "lactoferrin", "alb": "albumin"}
-BAND = {"blg": "#e3edf9", "ova": "#fbe6dc", "ovd": "#fbe6dc", "cas": "#e6f4ec", "lf": "#efe9f7", "alb": "#f6efd9", "whey": "#e3edf9", "egg": "#fbe6dc"}
+        "alb": "serum albumin (cell-culture media)", "alac": "alpha-lactalbumin (whey protein)"}
+SHORT = {"blg": "BLG", "ova": "OVA", "ovd": "ovomucoid", "cas": "casein", "lf": "lactoferrin", "alb": "albumin", "alac": "alpha-lac"}
+BAND = {"blg": "#e3edf9", "ova": "#fbe6dc", "ovd": "#fbe6dc", "cas": "#e6f4ec", "lf": "#efe9f7", "alb": "#f6efd9", "alac": "#e3edf9", "whey": "#e3edf9", "egg": "#fbe6dc"}
 PCOL = {k: CAT[i] for i, k in enumerate(PRODS)}
 inc = R["benchmarks"]["incumbents"]
-REPORTED = {d["compare_to"]: d for d in [R.get(s_, {}).get("reported_prices") for s_ in ("lactoferrin", "albumin")] if d}
+REPORTED = {d["compare_to"]: d for d in [R.get(s_, {}).get("reported_prices") for s_ in ("lactoferrin", "albumin", "alac")] if d}
 
 
 def market(prod):
@@ -182,10 +190,13 @@ for ax, prod in zip(axes, PRODS):
         x, y = np.append(x, cx), np.append(y, cy)
     ax.plot(x, y, color=CAT[1], ls=(0, (3, 2)), lw=1.4, label="72 h production, design-report capital", zorder=3)
     ax.plot([], [], marker="D", ms=6, color=INK2, ls="none", label="cheapest feasible design at that time")
-    for t, lab in marks.get(prod, []):
-        ax.axvline(t, color=AXIS, lw=0.8, zorder=0)
-        ax.text(t, 1.012, f"{lab}: {t:.3g} g/L", transform=ax.get_xaxis_transform(), rotation=60, ha="left",
-                va="bottom", fontsize=6.2, color=INK2, rotation_mode="anchor")
+    n_low = 0
+    for t, lab in sorted(marks.get(prod, []), key=lambda m: m[0]):
+        tx = t if t >= 1.9 else 1.9 * 1.16 ** n_low   # below the axis (e.g. alpha-lac 0.4 g/L): at the left edge, staggered
+        n_low += t < 1.9
+        ax.axvline(tx, color=AXIS, lw=0.8, zorder=0, ls="-" if t == tx else ":")
+        ax.text(tx, 1.012, ("<< " if t < tx else "") + f"{lab}: {t:.3g} g/L", transform=ax.get_xaxis_transform(),
+                rotation=60, ha="left", va="bottom", fontsize=6.2, color=INK2, rotation_mode="anchor")
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlim(1.8, 170)
     ys_all = [v_ for v_ in ys_all if v_ and np.isfinite(v_)]
@@ -500,6 +511,7 @@ ROUTES = {   # (label, result) per product: the base route first, then its alter
             ("UF/DF only (Eden Brew, FSANZ A1342)", R.get("casein", {}).get("cases", {}).get("cas_ufdf_edenbrew/humbird"))],
     "lf": [("cation exchange (base)", R["base"].get("lf")),
            ("UF/DF only (Intelligen case a)", LFX.get("cases", {}).get("lf_ufdf_only/humbird"))],
+    "alac": [("UF/DF concentrate (base)", R["base"].get("alac")), ("isolate: ammonium-sulfate precipitation", R["base_isolate"].get("alac"))],
     "alb": [("cation exchange + anion-exchange polish (base)", R["base"].get("alb")),
             ("capture only (96% assumed; optimistic)", R.get("albumin", {}).get("cases", {}).get("alb_capture_only/humbird")),
             ("UF/DF only (77% albumin; below spec)", R.get("albumin", {}).get("cases", {}).get("alb_ufdf_only/humbird"))],
@@ -552,6 +564,7 @@ ACAD = {"blg": [("best public strain, 13.9 g/L (Yao 2026)", "academic/blg"), ("b
         "cas": [("best peer-reviewed in K. phaffii, intracellular (Choi 1996)", "academic/cas"),
                 ("best public casein, 3 g/L (E. coli patent)", "academic/cas_patent")],
         "lf": [("best public methanol-free (Yen 2024)", "academic/lf"), ("best public secreted (Lv 2023; methanol)", "academic/lf_lv2023")],
+        "alac": [("best public, 0.6 g/L of supernatant (Wang 2025; human alpha-lac; ethanol)", "academic/alac")],
         "alb": [("best public rHSA, 8.7 g/L of broth in 192 h (Zhu 2021; methanol)", "academic/alb"),
                 ("4.4 g/L of broth in 96 h (Zhu 2018; methanol)", "academic/alb_zhu2018"),
                 ("best methanol-free, 1.5 g/L (Delta patent)", "academic/alb_patent")]}

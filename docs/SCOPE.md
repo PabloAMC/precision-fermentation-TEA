@@ -9,8 +9,9 @@ editing this file and recording the change in PLAN.md.
 *Changed 2026-10-01 at Pablo's request (PLAN.md decisions log): ovomucoid, β-casein and lactoferrin
 are products on the same footing as BLG and OVA, in every question below. Changed 2026-10-02 (v4, Pablo:
 take the candidates "one by one, in priority order"): serum albumin for cultivated-meat media added on
-the same footing. The original BLG/OVA wording is kept for the pre-registered priors, which were written
-against it; no priors were registered for albumin before its first outputs.*
+the same footing; α-lactalbumin added the same day on the same footing, and two notes outside the product
+list (casein for rennet cheese: α<sub>s1</sub>- plus κ-casein; heme: soy leghemoglobin). The original BLG/OVA wording is kept for the pre-registered priors, which were written
+against it; no priors were registered for albumin, α-lactalbumin or the notes before their first outputs.*
 
 > What does it cost to make food-grade β-lactoglobulin, ovalbumin, ovomucoid, β-casein and lactoferrin,
 > and serum albumin for cultivated-meat media, by precision fermentation, with today's public strain
@@ -66,6 +67,22 @@ Original (v1):
 | Variants | Capture only (optimistic); methanol-induced production; capture recovery 0.40/0.86; UF/DF only (77% albumin, below spec) |
 | Plant | 1 kt/yr (design choice: ~today's human-albumin market; GFI's 2030 CM scenarios 3.6–100 kt/yr) |
 | Incumbent | Bulk bovine serum albumin, technical grade ($40–70/kg, grade C); GFI target $10/kg; catalogue rHSA $43–55k/kg |
+
+| | α-Lactalbumin (added 2026-10-02) |
+|---|---|
+| Base spec | Dairy α-lac isolate, FDA GRN 763 (Agropur): ≥95% protein, ≥90% of it α-lac, i.e. ~90% of dry matter |
+| Base downstream train | BLG's membrane route (MF, UF/DF, spray dry); GFI Europe/ADL's food-grade route |
+| Academic | Wang 2025, 0.60 g/L human α-lac (supernatant), ethanol-fed >90 h, priced as glucose |
+| Plant | 1 kt/yr (design choice: ~27% of the high-purity market, 3% of the food-grade one; GFI Europe 2025, C) |
+| Incumbent | Dairy α-lac, $15–123/kg (GFI Europe/ADL; FMI $31–86; grade C) |
+
+Notes outside the product list (run on existing routes by analogy; data/pf/scenarios/cheese.yaml, heme.yaml):
+- *Casein for rennet cheese:* α<sub>s1</sub>-casein (base design point, β-casein's acid route) blended with κ-casein
+  from its own strain and plant at 12–19% κ (Antuma 2025); output: the blend's cost against κ titer, and the κ
+  titer at which the blend costs ≤10% more than α<sub>s1</sub> alone.
+- *Heme:* soy leghemoglobin from the best published secreting strains (Chen 2025, Shao 2022) on the membrane
+  route at LegH Prep's purity; cost per kg LegH and per kg of beef analogue at 0.45% use. The commercial
+  route (intracellular, lysed, frozen liquid) is not modelled.
 
 Vessel size (v4): the designer takes the cheapest feasible plant over 50–200 m³ vessels (cap 200 m³),
 so the small plants (lactoferrin, albumin) use smaller vessels. First-of-a-kind: a pioneer-plant case

@@ -1,0 +1,41 @@
+# 'cheese': casein for a rennet cheese, a blend of alpha-s1-casein and kappa-casein, each made by its own strain and
+# plant and blended (report sec. "Casein for rennet cheese"; run_analyses.s_cheese). Neither protein is on the main
+# product list: alpha-s1 on beta-casein's acid route repeats beta-casein's mass balance within ~1%, and kappa has no bulk
+# market of its own (casein.yaml kappa_casein_price_lab_reagent). Kappa share: fully recombinant, unphosphorylated
+# blends set a rennet curd at 16.7-25% kappa (New Culture US 2023/0404098 Ex. 9, B); with dairy (phosphorylated) caseins
+# curd firmness peaks near 19% (Antuma 2025, A; their molar-ratio plateau is 19-26% kappa) and milk casein is 12% kappa.
+# Kappa's ROUTE is a judgment (audit R14-H1): no source measures recombinant kappa's recovery. Two cases bracket it:
+#   kap      acid route at recovery 0.78, standing in for kappa CO-PRECIPITATED with alpha-s1 in a shared acid line
+#            (the only acid case the evidence supports, casein.yaml kappa_acid_route_feasibility; optimistic, E);
+#   kap_cex  its own cation-exchange capture (unphosphorylated kappa is cationic below its computed pI 5.85; that entry's
+#            suggestion), on lactoferrin's column data in base.yaml (analogy, D).
+# Blend: 10 kt/yr of casein (beta-casein's base size), split between the two plants by the kappa share.
+description: "Rennet-cheese casein: alpha-s1 + kappa, two strains, blended (alpha-s1 and kappa off the main product list)"
+blend:
+  kappa_share: {value: 0.19, low: 0.167, high: 0.25, grade: B,
+    source: "New Culture US 2023/0404098 Ex. 9: recombinant, unphosphorylated alpha-s1 + kappa at 3:1, 4:1 and 5:1 (25%, 20%, 16.7% kappa) formed micelles and rennet-set cheese (casein.yaml as1_kappa_ratio_fully_recombinant_cheese, B). value = 19%, where dairy alpha:kappa curds were firmest (Antuma 2025: 162.3 Pa at 71:19 against 127.4 Pa at 80:12; kappa_ratio_rennet_firmness_antuma2025, A for dairy caseins). Milk casein is 12% kappa (Runthala 2023), context only"}
+  casein_t_per_yr: {value: 10000, grade: D, source: "beta-casein's base plant size (base.yaml plant.annual_target_protein_t), inside the 0.2-0.44 Mt/yr casein market (casein.yaml)"}
+  kappa_titers_g_L: [0.25, 1, 2, 5, 10, 20, 30, 42]   # grid from the best kappa titer, ~0.25 g/L (Redbiotec WO 2023/002061: K. lactis,
+  # galactose, shake flask, semi-quantitative Western blot), costed as K. phaffii on glucose at 72 h (analogy, D). The best
+  # peer-reviewed titer, 4.14 mg/L (Panchanawaporn 2026, A. oryzae, ELISA), is below what the model's batch can resolve
+  # (its secretion search stops at 1e-6 g/g/h, ~0.007 g/L; audit R14-M2): quoted, not costed
+cas1:                                  # alpha-s1-casein at base.yaml's design point (30 g/L, 72 h, glucose), beta-casein's acid route
+  plant.spec: acid                     # Formo's GRN 1312 alpha-s1 is acid-precipitated (pH 4, H3PO4); recombinant alpha-s1's measured pI is 5.2
+                                       # (Formo/NewMilkBuzz WO 2026/068856, IEF; casein.yaml as1_recombinant_isoelectric_point_ief): the model's pH-4.5
+                                       # dose and dsp.acid_precip_recovery (0.95, D) carry over by analogy. Purity: GRN 1312 batches are 93-97% protein,
+                                       # >97% of it alpha-s1, inside dsp.acid_target_frac_dry (0.925, 0.91-0.94)
+cas1_wang2021:                         # Wang et al. 2021: the best peer-reviewed bovine alpha-s1 titer (full text read)
+  plant.spec: acid
+  strain.titer_g_L: 1.13               # 'Bovine casein (g/L) ... 1.13' (Table 4), artificial wheat-straw hydrolysate, 24 h, 15 mL flask
+  # FLAGS: E. coli BL21(DE3), INTRACELLULAR inclusion bodies, shake flask: costed as secreted from K. phaffii on the base
+  # time, cells and yield (an analogy, D), as the beta-casein academic case. The often-quoted 1.45 g/L is HUMAN alpha-s1.
+cas1_patent:                           # Standing Ovation EP 4533954 A1 Ex. 4: 5 g/L of an alpha-s1 + beta mix (~1:1) in a 1 L fed-batch on acid whey
+  plant.spec: acid
+  strain.titer_g_L: 2.5                # half of 5 g/L (the patent's Ex. 2 split is 47-53% alpha-s1; derived, D); E. coli, intracellular, SDS-PAGE estimate
+kap:                                   # kappa-casein, its own strain; acid route = co-precipitation with alpha-s1 (optimistic, E)
+  plant.spec: acid                     # no public source measures recombinant kappa's solubility or recovery near its pI (computed 5.85
+                                       # unphosphorylated); in milk it precipitates with the other caseins (casein.yaml kappa_acid_route_feasibility)
+  dsp.acid_precip_recovery: 0.78       # that entry's "at best" figure (E): kappa is the casein least pulled down by acid or calcium
+kap_cex:                               # kappa-casein, its own strain, its own cation-exchange capture (D)
+  plant.spec: cex                      # lactoferrin's column data (base.yaml dsp.cex_*: EVERY's lactoferrin cycle, 1,000-cycle resin life);
+                                       # kappa binds while cationic (below ~pH 5.8, computed); no kappa column data exist

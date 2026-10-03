@@ -471,7 +471,8 @@ def s_scale(res):
     """Fig. 6: each product's industry-benchmark case over plant output, US vs EU, both conventions.
     Lactoferrin's range covers its market (~0.3-1.6 kt/yr) up to the others' 10 kt/yr; albumin's from
     0.1 kt/yr to 10 kt/yr (today's human-albumin market is ~0.5-1 kt/yr)."""
-    small = {"lf": [100, 250, 500, 1000, 1588, 2500, 5000, 10000], "alb": [100, 250, 500, 1000, 2500, 5000, 10000]}
+    small = {"lf": [100, 250, 500, 1000, 1588, 2500, 5000, 10000], "alb": [100, 250, 500, 1000, 2500, 5000, 10000],
+             "alac": [100, 250, 500, 1000, 2500, 5000, 10000]}
     outputs = {k: small.get(k, [1000, 2500, 5000, 10000, 25000, 50000, 100000]) for k in PRODUCTS}
     res["scale_by_product"] = {k: sc.scale_curve(sc.scenario_params("industry", k), outputs[k]) for k in PRODUCTS}
     res["scale"] = res["scale_by_product"]["blg"]
@@ -642,13 +643,85 @@ def s_albumin(res):
     res["albumin"] = out
 
 
+def s_alac(res):
+    """Alpha-lactalbumin-only results: the reported market band, the base case at BLG's 10 kt/yr (so the two
+    whey proteins compare on one plant size) and its purity target at the ends of its range."""
+    p = sc.base_params("alac")
+    out = {"reported_prices": bm.reported_prices()["alpha_lactalbumin"],
+           "at_10kt": summary(plant.evaluate(sc.size_fermenter(params.override(p, {"plant.annual_target_protein_t": 10000.0})))),
+           "at_10kt_industry": summary(plant.evaluate(sc.size_fermenter(params.override(
+               sc.scenario_params("industry", "alac"), {"plant.annual_target_protein_t": 10000.0})))),
+           "purity": {f"{x:g}": plant.evaluate(params.override(p, {"dsp.concentrate_target_frac_dry": x})).msp_ccf
+                      for x in params.bounds(p, "dsp.concentrate_target_frac_dry")}}
+    res["alac"] = out
+
+
+def s_cheese(res):
+    """Casein for a rennet cheese: alpha-s1 + kappa-casein, two strains and plants (data/pf/scenarios/cheese.yaml).
+    Per kg of blend at kappa share s,
+        c_blend = (1 - s) c_as1 + s c_kap(T_kap),
+    each plant sized for its share of the blend (casein_t_per_yr x (1 - s) and x s). Kappa on two routes that
+    bracket the unknown one: co-precipitated with alpha-s1 (acid, 'kap') and its own cation-exchange capture
+    ('kap_cex'). The kappa titer at which the blend costs at most 10% more than alpha-s1 alone is
+    scenarios.blend_titer_needed, on the feasible points only."""
+    cfg = sc.load("cheese")
+    s0, s_lo, s_hi = (cfg["blend"]["kappa_share"][k] for k in ("value", "low", "high"))
+    tot = cfg["blend"]["casein_t_per_yr"]["value"]
+    t_ind = sc.load("industry")["cas"]["strain.titer_g_L"]
+
+    def run(var, prod, t_per_yr, extra=None):
+        p = sc.size_fermenter(sc.scenario_params("cheese", prod, {"plant.annual_target_protein_t": float(t_per_yr),
+                                                                  **(extra or {})}, variant=var))
+        return summary(plant.evaluate(p))
+
+    shares = [s_lo, s0, s_hi]
+    out = {"kappa_share": shares, "casein_t_per_yr": tot, "as1": {}, "as1_by_share": {}, "kap": {}, "blend": {},
+           "kappa_titer_for_10pct": {}, "routes": ["kap", "kap_cex"], "grid": cfg["blend"]["kappa_titers_g_L"]}
+    for label, var, extra in (("base", "cas1", {}), ("base/light", "cas1", sc.LIGHT), ("academic", "cas1_wang2021", {}),
+                              ("patent", "cas1_patent", {}), ("industry", "cas1", {"strain.titer_g_L": float(t_ind)})):
+        out["as1"][label] = run(var, "cas1", tot * (1 - s0), extra)
+    out["as1"]["base/10kt"] = run("cas1", "cas1", tot)        # the whole 10 kt/yr as alpha-s1 (vs beta-casein)
+    for s in shares:
+        out["as1_by_share"][f"{s:g}"] = run("cas1", "cas1", tot * (1 - s))["msp_ccf"]
+    for route in out["routes"]:
+        out["kap"][route], out["blend"][route], out["kappa_titer_for_10pct"][route] = {}, {}, {}
+        for s in shares:
+            c_as1 = out["as1_by_share"][f"{s:g}"]
+            pts = {f"{t:g}": run(route, "kap", tot * s, {"strain.titer_g_L": float(t)}) for t in out["grid"]}
+            out["kap"][route][f"{s:g}"] = pts
+            out["blend"][route][f"{s:g}"] = [(1 - s) * c_as1 + s * d["msp_ccf"] for d in pts.values()]
+            ok = [(float(t), d["msp_ccf"]) for t, d in pts.items() if d["feasible"]]
+            out["kappa_titer_for_10pct"][route][f"{s:g}"] = sc.blend_titer_needed(
+                [x for x, _ in ok], [c for _, c in ok], c_as1, s)
+    ev_ = {e["key"]: e for e in yaml.safe_load((ROOT / "data/evidence/casein.yaml").read_text())}
+    out["kappa_lab_price_usd_g"] = ev_["kappa_casein_price_lab_reagent"]["value"]
+    res["cheese"] = out
+
+
+def s_heme(res):
+    """Heme note: soy leghemoglobin on the membrane route at LegH Prep's purity (data/pf/scenarios/heme.yaml),
+    for the base design point and the two best published secreted processes, at ~150 t/yr and 1 kt/yr.
+    Cost in use per kg of beef analogue = c_LegH x use fraction; it is set against the beef and analogue prices."""
+    cfg = sc.load("heme")
+    out = {"cases": {}, "use": {k: {kk: x for kk, x in cfg["use"][k].items() if kk in ("value", "low", "high")}
+                                for k in cfg["use"]}}
+    for var in ("legh", "legh_chen2025", "legh_shao2022"):
+        for t in cfg["scales_t_per_yr"]:
+            for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
+                p = sc.size_fermenter(sc.scenario_params("heme", "legh", {"plant.annual_target_protein_t": float(t), **extra},
+                                                         variant=var))
+                out["cases"][f"{var}/{t}/{label}"] = summary(plant.evaluate(p))
+    out["scales"] = cfg["scales_t_per_yr"]
+    res["heme"] = out
+
+
 SECTIONS = {"base": s_base, "scenarios": s_scenarios, "physical_limit": s_physical_limit, "demonstrated": s_demonstrated,
             "cost_vs_titer": s_cost_vs_titer, "bridge": s_bridge, "required": s_required, "ceiling": s_ceiling,
             "claims": s_claims,
             "policy": s_policy,
             "tornado": s_tornado,
             "monte_carlo": s_monte_carlo, "scale": s_scale, "calibration": s_calibration,
-            "equivalents": s_equivalents, "lactoferrin": s_lactoferrin, "casein": s_casein,
+            "equivalents": s_equivalents, "lactoferrin": s_lactoferrin, "casein": s_casein, "alac": s_alac, "cheese": s_cheese, "heme": s_heme,
             "albumin": s_albumin}
 
 if __name__ == "__main__":

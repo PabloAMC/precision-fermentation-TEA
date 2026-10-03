@@ -73,7 +73,9 @@ def unused_paths(p: dict) -> tuple[str, ...]:
     the leaves of downstream routes other than plant.spec (plant.evaluate reads them only on their
     route). The tornado skips them, so no zero bars."""
     key, spec = v(p, "plant.product"), v(p, "plant.spec")
-    out = [f"dsp.dryer_feed_solids_{k}" for k in PRODUCTS if k != key]
+    # other products' dryer leaves, except those that are a prefix of this product's own (cas of cas1; audit R14-L4)
+    own = f"dryer_feed_solids_{key}"
+    out = [f"dsp.{k}" for k in p["dsp"] if k.startswith("dryer_feed_solids_") and k != own and not own.startswith(k)]
     if spec != "cex":
         out.append("dsp.cex_")
     else:
@@ -94,6 +96,22 @@ def base_params(product: str, extra: dict | None = None, p: dict | None = None) 
     fermenters sized (size_fermenter)."""
     return size_fermenter(params.override(params.load() if p is None else p,
                                           {"plant.product": product, **product_base(product), **(extra or {})}))
+
+
+def blend_titer_needed(titers, costs, c_base: float, share: float, rel: float = 0.10):
+    """Titer at which a minor component (share s of a blend) keeps the blend within rel of the major one alone.
+
+        c_blend = (1 - s) c_base + s c(T) <= (1 + rel) c_base   <=>   c(T) <= c_base (1 + rel / s)
+
+    c(T) is read off the (titer, cost) points by log-log interpolation; cost must fall with titer (checked).
+    Returns None if the threshold lies outside the points."""
+    t, c = np.log(np.asarray(titers, float)), np.log(np.asarray(costs, float))
+    if not np.all(np.diff(c) < 0):
+        raise ValueError("cost must fall with titer")
+    need = np.log(c_base * (1 + rel / share))
+    if not c[-1] <= need <= c[0]:
+        return None
+    return float(np.exp(np.interp(need, c[::-1], t[::-1])))
 
 
 _SIZED: dict = {}

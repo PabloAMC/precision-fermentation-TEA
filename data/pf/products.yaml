@@ -89,3 +89,18 @@ alb:                        # serum albumin for cultivated-meat media: base.yaml
     high: 0.99
     grade: C
     source: "cell-culture rHSA specs: InVitria Cellastim S 'Purity >=96.0%'; Healthgen OsrHSA >=99% (albumin.yaml spec_invitria_cellastim_s, spec_healthgen_osrhsa_cell_culture). No food- or media-grade spec exists (media_or_food_grade_albumin_spec). low = 0.90 (judgment, D)"
+alac:                       # alpha-lactalbumin (bovine, whey): base.yaml's design point (30 g/L, 72 h, glucose); own spec and plant
+  plant.spec: {value: concentrate, note: "the membrane route of BLG (MF, UF/DF, spray drying): the GFI Europe/ADL food-grade alpha-lac case is MF -> UF/DF -> spray dry (alac.yaml alac_gfieurope2025_dsp_configurations), and a secreted broth holds no other whey protein to separate. Their high-purity (>99%) case adds one chromatography step; not modelled"}
+  plant.annual_target_protein_t:
+    value: 1000
+    low: null
+    high: null
+    unit: t/yr
+    grade: D
+    source: "design choice (alac.yaml alac_plant_size_recommendation): ~27% of the high-purity alpha-lac market (3,740 t/yr) and ~3% of the food-grade one (31,828 t/yr; GFI Europe 2025, C), as albumin's 1 kt/yr; a 10 kt/yr plant would be ~2.7x the high-purity market. The scale curve runs 0.1-10 kt/yr"
+  dsp.concentrate_target_frac_dry:
+    value: 0.90
+    low: 0.70
+    high: 0.96
+    grade: C
+    source: "the dairy alpha-lac isolate spec, FDA GRN 763 (Agropur): protein >=95% of the powder, alpha-lac >=90% of that protein, i.e. 0.855 of dry matter at the spec minimum and 0.90 at the typical 95% alpha-lac (90-96%; derived; alac.yaml alac_grn763_agropur_dairy_isolate_spec, A as a spec); GFI Europe's membrane-only food grade is '~95% +/-10%' (B). low = base.yaml's floor; high = the isolate's typical 96% of protein (alac_commercial_grades_purity_ladder). Whether UF/DF alone reaches it with yeast host protein and mannans is open, as for BLG"

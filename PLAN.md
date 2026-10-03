@@ -102,6 +102,19 @@ Phase F (external review) has not started. Open items:
     titer is per whole broth (8.74 g/L; 17.47 is per litre of supernatant); membranes alone reach only 77%
     albumin; a pioneer-plant case (capital x 1.28, RAND) is shown separately. docs/AUDIT.md, R12.
 
+- **2026-10-02, v4 continued: α-lactalbumin, rennet-cheese casein and heme (Pablo: "let's do the missing
+  proteins you have in the queue"):**
+  - Evidence by research subagents, checked here: data/evidence/alac.yaml, heme.yaml, and an α<sub>s1</sub>/κ
+    section of casein.yaml; 23 rows added to data/titers.csv (3 abstract rows replaced by full-text ones).
+  - α-Lactalbumin (`alac`, bovine P00711) is a main product: BLG's membrane route at the GRN 763 isolate purity
+    (0.90 of dry matter), 1 kt/yr, base design point; academic Wang 2025 (0.60 g/L human α-lac, ethanol,
+    priced as glucose); incumbent band $15–123/kg (C). Physical limit capped at the food-grade market (31.8 kt).
+  - α<sub>s1</sub>- and κ-casein are NOT main products (α<sub>s1</sub> on the acid route repeats β-casein within ~1%;
+    κ has no market of its own): run_analyses.s_cheese costs a two-strain blend (data/pf/scenarios/cheese.yaml).
+  - Heme is a note, not a product (as planned): run_analyses.s_heme bounds secreted LegH on the membrane route.
+  - Code: scenarios.unused_paths skips every other product's dryer leaf (off-list products have leaves too);
+    make_figures marks titer markers below the axis at its left edge.
+
 - **2026-10-02, full texts from Pablo (Chezan 2026, Kim 2025):** casein precipitated at pH 4.5 (its
   solubility minimum); precipitation recovery low end 0.78 (assay), central 0.95 kept; ovomucoid academic
   titer verified (0.929 g/L, 60 h, methanol-free). docs/AUDIT.md, v3 follow-up.

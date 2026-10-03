@@ -525,3 +525,49 @@ def test_methanol_anabolism_fixes_no_co2():
     assert pr.electron_ceiling(prot, meoh) == pytest.approx(prot.species.mw / meoh.mw, rel=1e-9)
     p = params.override(BASE, {"plant.product": "blg"})
     assert plant.methanol_yield(p) < plant.energetic_ceiling(p, "Methanol") < pr.electron_ceiling(prot, meoh)
+
+
+# ---------------------------------------------------------------- alpha-lactalbumin, rennet-cheese casein, heme
+@pytest.mark.parametrize("key, n, formula, mw", [
+    ("alac", 123, {"C": 626, "H": 958, "N": 162, "O": 196, "S": 9}, 14178),     # P00711 20-142, 4 disulfides (alac.yaml)
+    ("cas1", 199, {"C": 1035, "H": 1587, "N": 265, "O": 317, "S": 5}, 22975),   # P02662 16-214, unphosphorylated (casein.yaml)
+    ("kap", 169, {"C": 849, "H": 1321, "N": 223, "O": 262, "S": 4}, 18972),     # P02668 22-190, 1 disulfide
+    ("legh", 144, {"C": 702, "H": 1096, "N": 176, "O": 212, "S": 0}, 15394)])   # P02236 2-145, globin without heme
+def test_new_protein_formulas_from_uniprot(key, n, formula, mw):
+    """Mature-chain formulas cross-checked against UniProt's molWeight in the evidence files."""
+    p = pr.protein(key)
+    assert p.residues == n
+    assert {k: round(x) for k, x in p.formula.items()} == formula
+    assert p.mw_molecule == pytest.approx(mw, abs=1)
+
+
+def test_alac_base_case():
+    """Alpha-lac runs BLG's membrane route at its isolate purity on a 1 kt/yr plant, and is feasible."""
+    p = sc.base_params("alac")
+    assert (v(p, "plant.spec"), v(p, "plant.annual_target_protein_t")) == ("concentrate", 1000)
+    assert v(p, "dsp.concentrate_target_frac_dry") == 0.90
+    assert sc.is_feasible(plant.evaluate(p))
+
+
+def test_off_list_products_take_their_route_from_the_scenario_file():
+    """Alpha-s1, kappa and LegH are not main products; their scenario blocks set the route and spec."""
+    assert not {"cas1", "kap", "legh"} & set(sc.PRODUCTS)
+    assert v(sc.scenario_params("cheese", "kap"), "plant.spec") == "acid"
+    assert v(sc.scenario_params("cheese", "kap"), "dsp.acid_precip_recovery") == 0.78
+    h = sc.scenario_params("heme", "legh", variant="legh_chen2025")
+    assert (v(h, "plant.spec"), v(h, "dsp.concentrate_target_frac_dry"), v(h, "strain.titer_g_L")) == ("concentrate", 0.43, 3.86)
+
+
+def test_blend_titer_needed():
+    """c_blend <= 1.1 c_base  <=>  c(T) <= c_base (1 + 0.1/s); on c = 100/T with c_base 10 and s = 0.2, c(T) <= 15 at T = 6.67."""
+    ts = [1, 2, 5, 10, 20]
+    assert sc.blend_titer_needed(ts, [100 / t for t in ts], 10.0, 0.2) == pytest.approx(100 / 15, rel=1e-9)
+    assert sc.blend_titer_needed(ts, [100 / t for t in ts], 1.0, 0.2) is None          # threshold off the grid
+    with pytest.raises(ValueError):
+        sc.blend_titer_needed(ts, [5, 4, 6, 3, 2], 10.0, 0.2)                          # cost must fall with titer
+
+
+def test_unused_paths_keep_a_products_own_dryer_leaf():
+    """cas's dryer leaf is a prefix of cas1's: cas1 must not skip its own (audit R14-L4)."""
+    p = sc.scenario_params("cheese", "cas1")
+    assert not any("dsp.dryer_feed_solids_cas1".startswith(u) for u in sc.unused_paths(p))
