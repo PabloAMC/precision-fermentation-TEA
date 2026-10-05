@@ -1,0 +1,832 @@
+# data/evidence/kinetic.yaml: a sourced KINETIC UPPER BOUND on the specific secretion rate q_p
+# (mg product per g DCW per hour) of one heterologous protein in a yeast (Komagataella phaffii,
+# S. cerevisiae as analogy) or a filamentous fungus (Trichoderma reesei, Aspergillus niger).
+# Gathered 2026-10-03 by a research pass; moved here 2026-10-05. Purpose: support or replace the
+# model's strain.q_p_max_mg_g_h = 40 (grade D). Decision (2026-10-05): the value stays 40 and its
+# source text in data/pf/base.yaml now cites this file; no result changes.
+#
+# REVIEW NOTE (2026-10-05, for Pablo to check): the growth-law arithmetic in
+# derived_kphaffii_translational_throughput_at_mu counts the ~8% non-translating ribosome reserve
+# (r0) as if it were translating. With active ribosomes only (r - r0 = mu/gamma), the throughput at
+# mu = 0.2/h is gamma x (mu/gamma) x P = mu x P = 74 mg/g/h (net growth, by construction), not 163;
+# 163 assumes the reserve is recruited. At the model's near-zero growth in production the growth
+# law gives no active ribosomes at all, so the '89 mg/g/h at mu = 0.0014' line is not supported.
+# The bracket for one heterologous protein at a 0.25 share is therefore ~18-41 mg/g/h, and 40 sits
+# at its generous top. The conclusion stands: 40 is a feasibility ceiling, ~2.5x the best secretion
+# rate ever measured (15-16 mg/g/h, A. niger glucoamylase), not a target.
+#
+# Format and grades: data/evidence/README.md.
+#   A measured/official | B design basis or patent | C company claim/press
+#   D analogy or derived | E guess
+#
+# HOW QUOTES WERE NORMALISED (same convention as data/evidence/hosts.yaml):
+#   Unicode transliterated to ASCII: mu for the Greek letter, ~ for the approximately-equal
+#   sign, +/- for plus-minus, - for en/em dashes, deg for the degree sign, superscripts
+#   written inline (h-1, g-1). Line breaks and reference-marker numbers removed.
+#   A literal grep against the saved .txt dumps will therefore sometimes fail; read around
+#   the locator instead. Saved full texts (uncommitted) are in references/text/kinetic/
+#   (references/INDEX.md, section 5).
+#
+# HONESTY NOTES - READ FIRST
+#   1. EVERY mg/g/h number below is either (a) printed as mg g-1 h-1 by the source
+#      [grade A], or (b) an arithmetic conversion by me, marked `source: "Derived (mine)"`
+#      with `quote: null` and the full arithmetic in the note [grade D].
+#   2. The headline finding is NEGATIVE for a tight bound: nothing in the literature caps
+#      secretion at a number close to 40 mg/g/h. The only hard physical ceiling I could
+#      derive is the TOTAL TRANSLATIONAL THROUGHPUT of a yeast cell, ~330 mg/g DCW/h in
+#      fast-growing S. cerevisiae and ~130-160 mg/g DCW/h for K. phaffii at mu <= 0.2/h.
+#      The highest specific SECRETION rate of a single protein ever measured, in any
+#      industrial microbe I could find, is 15-16.4 mg/g/h (A. niger glucoamylase, 20 gene
+#      copies, chemostat / pH auxostat). The model's 40 sits between the two: ~2.5x above
+#      anything ever demonstrated for a secreted protein, and ~0.3x of the translational
+#      ceiling. It is defensible as a FEASIBILITY ceiling, not as an achievable target.
+#   3. Three entries read only as abstracts (Withers 1998, Swift 1998, Wiebe 2000,
+#      Pakula 2005) are marked read: abstract. Their numbers are in the abstract itself.
+#   4. Two compiled values (Peebo 2018 Table 1) are a REVIEW's tabulation of other
+#      people's primary papers; I did not read the primaries. Grade kept A for the
+#      tabulated number but flagged in the note.
+#   5. QUOTE CHECK RUN 2026-10-03: every quote was matched, punctuation- and
+#      case-insensitively, against the saved source text. Four did not match mechanically,
+#      each for a known reason, none for a wording error:
+#        kphaffii_mumax_glucose_maurer2006          - (entry dropped on the move: it duplicated
+#                                                     hosts.yaml, where it is audited)
+#        scerevisiae_ribosome_mass_turnover_...     - Greek delta written "delta-"
+#        kphaffii_er_residence_time_love2012        - subscripts written t_sec / t_ERAD
+#        compiled_qpmax_by_host_peebo2018           - table row, footnote marker "d" dropped
+#   6. I did NOT find a genome-scale secretory model that prints a maximum secretion flux
+#      in mg/gDCW/h. pcSecYeast (Li 2022) constrains the proteome, not the flux, and its
+#      published results are relative. The secretory-capacity evidence below is therefore
+#      mechanistic (where the bottleneck is), not a number.
+
+# ===========================================================================
+# 1. TOTAL PROTEIN SYNTHESIS CAPACITY
+#    The identity q_total = mu x (protein per g DCW), and the ribosome physics behind it.
+# ===========================================================================
+
+- key: kphaffii_protein_fraction_dcw_carnicer2009
+  value: 37.0
+  low: 34.9
+  high: 40.0
+  unit: "% w/w of dry biomass"
+  grade: A
+  host: kphaffii
+  source: "Carnicer M, Baumann K, Toplitz I, Sanchez-Ferrando F, Mattanovich D, Ferrer P, Albiol J. Macromolecular and elemental composition analysis and extracellular metabolite balances of Pichia pastoris growing at different oxygen levels. Microb Cell Fact 8:65 (2009)"
+  doi_or_url: 10.1186/1475-2859-8-65
+  locator: "Table 3 (Biomass composition calculated after the reconciliation procedure), Protein row"
+  quote: "Protein | 34.9 | 2.3 | 37.0 | 2.4 | 40.0 | 2.6 | 37.0 | 2.4 | 37.8 | 2.5 | 38.9 | 2.6"
+  read: html
+  note: >
+    TABLE ROW (re-check against the publisher PDF before use). Six columns are
+    Fab-expressing and control strains at 21/11/8% inlet O2, glucose-limited chemostat at
+    D = 0.1 1/h, 25 degC, reconciled by the Lange-Heijnen maximum-likelihood method.
+    sd columns interleaved. Protein rises as oxygen falls. This is THE protein-per-DCW
+    input for the q_total = mu x P identity. Note it is lower than the textbook 50%.
+
+- key: microbial_protein_fraction_rule_of_thumb_carnicer2009
+  value: 50
+  unit: "% w/w of dry biomass"
+  grade: D
+  host: generic
+  source: "Carnicer M, et al. Microb Cell Fact 8:65 (2009), quoting Lange & Heijnen (2001)"
+  doi_or_url: 10.1186/1475-2859-8-65
+  locator: "Results, 'Proteins and amino acid content'"
+  quote: "Proteins are one of the major constituents of the biomass, usually representing around 50% of the dry weight of a microorganism"
+  read: html
+  note: >
+    The textbook rule of thumb, cited (not measured) by Carnicer; their own measurement for
+    K. phaffii at D = 0.1/h is 35-40%. Use 0.37 for K. phaffii and 0.50 only as a generous
+    upper bound. Grade D because it is a secondary, unspecific statement.
+
+- key: scerevisiae_doubling_times_metzlraz2017
+  value: 1.5
+  low: 1.5
+  high: 6.5
+  unit: h (doubling time)
+  grade: A
+  host: scerevisiae
+  source: "Metzl-Raz E, Kafri M, Yaakov G, Soifer I, Gurvich Y, Barkai N. Principles of cellular resource allocation revealed by condition-dependent proteome profiling. eLife 6:e28034 (2017)"
+  doi_or_url: 10.7554/eLife.28034
+  locator: "Results, 'Growth rate is a major determinant of proteome composition'"
+  quote: "Division times of cells in the 15 conditions we examined varied between 1.5 to 6.5 hr."
+  read: html
+  note: >
+    Fastest condition 1.5 h -> mu_max = ln2/1.5 = 0.46 1/h for S. cerevisiae; slowest
+    6.5 h -> 0.107 1/h. Used as the S. cerevisiae analogue bracket for the identity.
+
+- key: scerevisiae_translation_elongation_rate_waldron1977
+  value: 10.5
+  unit: amino acids per ribosome per second
+  grade: A
+  host: scerevisiae
+  source: "Waldron C, Jund R, Lacroute F (1977), as quoted and used by Metzl-Raz E, et al. eLife 6:e28034 (2017)"
+  doi_or_url: 10.7554/eLife.28034
+  locator: "Results, 'Ribosome content scales linearly with growth rate'"
+  quote: "We can estimate gamma using measured parameters: the translation elongation rate (10.5 aa/sec) (Waldron et al., 1977) and the number of amino-acids composing the budding yeast ribosome (12,485 A.A)."
+  read: html
+  note: >
+    SECONDARY: Waldron 1977 itself not read. Metzl-Raz also discuss Bonven & Gullov (1979),
+    who report 9.6 aa/s on glucose falling to 5.4 aa/s on acetate, i.e. elongation may fall
+    at low growth rate - which would LOWER the ceiling in a slow-growing production phase.
+
+- key: scerevisiae_ribosome_mass_turnover_metzlraz2017
+  value: 20
+  unit: min (gamma^-1, time for one ribosome to translate its own mass in protein)
+  grade: A
+  host: scerevisiae
+  source: "Metzl-Raz E, et al. eLife 6:e28034 (2017)"
+  doi_or_url: 10.7554/eLife.28034
+  locator: "Results, 'Ribosome content scales linearly with growth rate'"
+  quote: "By this estimation, gamma-1 = 20 min. This predicted value is ~30% smaller than our measured slope delta-r/delta-mu = 21/ln(2) min"
+  read: html
+  note: >
+    gamma = 3.0 1/h is the key constant: mu = gamma x r_active, where r_active is the
+    ACTIVE ribosomal-protein fraction of the proteome. Equivalently, one gram of active
+    ribosome makes 3 grams of protein per hour. The measured slope (21/ln2 = 30 min) is
+    ~1.5x larger, so using gamma = 3/h is the GENEROUS (bound-friendly) choice; the
+    measured slope implies gamma = 2.0/h and a ceiling one third lower.
+
+- key: scerevisiae_ribosomal_proteome_fraction_max_warner1999
+  value: 30
+  unit: "% of proteome mass (ribosomal proteins, rapidly growing cells)"
+  grade: D
+  host: scerevisiae
+  source: "Warner JR (1999), as quoted by Metzl-Raz E, et al. eLife 6:e28034 (2017)"
+  doi_or_url: 10.7554/eLife.28034
+  locator: "Introduction"
+  quote: "Overall, ~30% of the proteome of rapidly growing cells encodes for ribosomal proteins and ~80% of all cellular RNA encodes for the rRNA components of the ribosomes"
+  read: html
+  note: >
+    SECONDARY (Warner 1999 not read). This is the maximum ribosomal allocation; it is the
+    r in the ceiling q_max = gamma x r x P. Metzl-Raz's own proteomics gives a
+    translation-related fraction of ~40% in standard medium falling to ~15% in slow-growing
+    cells, of which ribosomal proteins are the bulk - consistent with 30% at fast growth.
+
+- key: scerevisiae_inactive_ribosome_reserve_metzlraz2017
+  value: 8
+  unit: "% of proteome (non-translating ribosomal proteins)"
+  grade: A
+  host: scerevisiae
+  source: "Metzl-Raz E, et al. eLife 6:e28034 (2017)"
+  doi_or_url: 10.7554/eLife.28034
+  locator: "Abstract"
+  quote: "We find that cells produce excess ribosomal proteins, amounting to a constant ~8% of the proteome. Accordingly, ~25% of ribosomal proteins expressed in rapidly growing cells does not contribute to translation."
+  read: html
+  note: >
+    IMPORTANT FOR THE BOUND IN BOTH DIRECTIONS. (a) A real cell never runs its ribosomes
+    flat out, so the practical ceiling is below the physical one. (b) But the reserve is
+    recruitable - "these excess ribosomal proteins are employed when translation demands
+    unexpectedly increase" - so a burdened production strain has ~25% headroom over its
+    steady-state translation rate. r_active = r - 0.08.
+
+- key: scerevisiae_ribosomes_per_cell_vonderhaar2008
+  value: 190000
+  unit: ribosomes per cell (rapidly growing haploid)
+  grade: D
+  host: scerevisiae
+  source: "von der Haar T (2008), as quoted by Metzl-Raz E, et al. eLife 6:e28034 (2017)"
+  doi_or_url: 10.7554/eLife.28034
+  locator: "Introduction"
+  quote: "Rapidly growing budding yeast, for example, contain about 190,000 ribosomes (von der Haar, 2008), each of which requires the production of over a hundred different proteins."
+  read: html
+  note: >
+    SECONDARY. von der Haar's own paper (next entries, which I did read) quotes 186,000
+    active ribosomes as the figure matching the measured ribosome content. Sanity check:
+    190,000 ribosomes x 12,485 aa x 110 Da/aa = 2.6e-13 g = 0.26 pg of ribosomal protein,
+    i.e. 7% of the 3.72 pg total protein per cell - well below 30%, because most ribosomal
+    mass is rRNA, not protein. Do not mix the two accounting bases.
+
+- key: scerevisiae_protein_per_cell_vonderhaar2008
+  value: 3.72
+  low: 1.9
+  high: 5.6
+  unit: pg protein per cell
+  grade: A
+  host: scerevisiae
+  source: "von der Haar T. A quantitative estimation of the global translational activity in logarithmically growing yeast cells. BMC Syst Biol 2:87 (2008)"
+  doi_or_url: 10.1186/1752-0509-2-87
+  locator: "Results, 'Estimation of cell-wide translational activity'"
+  quote: "The total cellular protein content reflected in the curated dataset amounts to 3.72 pg per cell, and 90% confidence limits can be estimated for this value of 1.9 and 5.6 pg"
+  read: html
+  note: >
+    Fast-growing haploid S. cerevisiae, doubling time 90 min. The same paragraph notes two
+    independent experimental estimates of 5 pg. low/high are the stated 90% CI.
+
+- key: scerevisiae_proteins_per_cell_vonderhaar2008
+  value: 53e6
+  low: 30e6
+  high: 80e6
+  unit: protein molecules per cell
+  grade: A
+  host: scerevisiae
+  source: "von der Haar T. BMC Syst Biol 2:87 (2008)"
+  doi_or_url: 10.1186/1752-0509-2-87
+  locator: "Results, 'Estimation of cell-wide translational activity'"
+  quote: "about 53 million proteins for a fast-growing haploid yeast cell, with 90% confidence limits of 30-80 million"
+  read: html
+  note: >
+    With 3.72 pg/cell this implies a mean protein mass of 3.72e-12/53e6 = 7.0e-20 g =
+    42 kDa, which is the conversion factor used in the derivations below.
+
+- key: scerevisiae_global_translation_rate_vonderhaar2008
+  value: 13000
+  low: 6500
+  high: 19500
+  unit: proteins synthesised per cell per second
+  grade: A
+  host: scerevisiae
+  source: "von der Haar T. BMC Syst Biol 2:87 (2008)"
+  doi_or_url: 10.1186/1752-0509-2-87
+  locator: "Results, 'Estimation of cell-wide translational activity'"
+  quote: "The cell-wide sum of these rates amounts to about 13,000 (6,500-19,500) proteins synthesised per cell per second on average throughout the cell cycle"
+  read: html
+  note: >
+    THE single best physics-level number in this file. Derived from genome-wide protein
+    abundance plus local degradation rates plus dilution by growth; cross-checked in the
+    same paper against eIF2/eRF1 nucleotide-exchange kinetics and against ribosome counts.
+    Corresponds to 6.0 (3-9) million elongation events per second per cell.
+
+- key: scerevisiae_degradation_share_of_synthesis_vonderhaar2008
+  value: 49
+  unit: "% of total protein synthesis that merely replaces degraded protein"
+  grade: A
+  host: scerevisiae
+  source: "von der Haar T. BMC Syst Biol 2:87 (2008)"
+  doi_or_url: 10.1186/1752-0509-2-87
+  locator: "Results, 'Estimation of cell-wide translational activity'"
+  quote: "just under half of this activity (6,400 proteins per second) is required to balance protein degradation, whereas the remainder is required to balance protein dilution through cell growth"
+  read: html
+  note: >
+    6,400/13,000 = 49%. CONSEQUENCE FOR THE MODEL: the naive identity q_total = mu x P
+    UNDERSTATES translational capacity by about 2x, because half the ribosome flux is
+    turnover, not net accumulation. A non-growing production cell that let its own proteome
+    decay could in principle redirect that half to product - briefly.
+
+- key: derived_scerevisiae_translational_throughput_mg_g_h
+  value: 330
+  low: 165
+  high: 500
+  unit: mg protein/g DCW/h
+  grade: D
+  host: scerevisiae
+  source: "Derived (mine) from vonderHaar2008 + Carnicer2009"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html   # derived; inputs read as html (schema needs a value)
+  note: >
+    THE ABSOLUTE TRANSLATIONAL CEILING. Arithmetic:
+    (1) mean protein mass = 3.72 pg / 53e6 molecules = 7.02e-20 g (42 kDa).
+    (2) synthesis per cell = 13,000 /s x 7.02e-20 g = 9.13e-16 g/s = 3.29e-12 g/h = 3.29 pg/h.
+    (3) per g of CELL PROTEIN: 3.29 / 3.72 = 0.884 g protein/g protein/h.
+    (4) per g DCW, at protein = 0.37 g/g DCW (Carnicer, K. phaffii): 0.884 x 370 = 327 mg/g DCW/h.
+    Independent cross-check from the growth law: gamma x r x P = 3.0/h x 0.30 x 0.37 =
+    0.333 g/g DCW/h = 333 mg/g/h. The two routes agree to 2%, which is reassuring.
+    low/high scale the 6,500-19,500 CI on the synthesis rate (the mean protein mass is
+    fixed by the same dataset so its error partly cancels).
+    WHAT IT IS: the rate at which a fast-growing yeast cell makes protein of ALL kinds.
+    No single protein can be made faster than this, ever, in this organism.
+    WHAT IT IS NOT: an achievable q_p. It assumes 30% of the proteome is ribosome, every
+    ribosome is translating, and 100% of the output is the product (so the cell replaces
+    neither its ribosomes nor its degraded proteome). Pablo: this is the derivation to
+    check hardest - it is the one load-bearing number I computed rather than read.
+
+- key: derived_kphaffii_translational_throughput_at_mu
+  value: 160
+  low: 125
+  high: 165
+  unit: mg protein/g DCW/h
+  grade: D
+  host: kphaffii
+  source: "Derived (mine) from Metzl-Raz2017 growth law + Carnicer2009 + Maurer2006"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html   # derived; inputs read as html (schema needs a value)
+  note: >
+    Same ceiling, specialised to a K. phaffii production phase. The growth law fixes the
+    ribosome content a cell actually carries at growth rate mu: r = r0 + mu/gamma with
+    r0 = 0.08 and gamma = 3.0/h.
+      mu = 0.2/h (mu_max): r = 0.147 -> gamma x r x P = 3.0 x 0.147 x 0.37 = 163 mg/g DCW/h
+      mu = 0.1/h:          r = 0.113 -> 125 mg/g DCW/h
+      mu = 0.0014/h (the model's production phase): r = 0.080 -> 89 mg/g DCW/h
+    Of this throughput, the part needed to make NEW BIOMASS protein is mu x P
+    (74, 37 and 0.5 mg/g/h respectively); the rest replaces turnover. So the product has
+    to come out of the turnover budget, not out of free capacity. Treating half of the
+    non-growth throughput as divertible gives ~45, ~44 and ~44 mg/g/h at those three
+    growth rates - which is, coincidentally, right where the model's 40 sits.
+
+- key: derived_kphaffii_net_protein_synthesis_at_mumax
+  value: 74
+  low: 70
+  high: 104
+  unit: mg protein/g DCW/h
+  grade: D
+  host: kphaffii
+  source: "Derived (mine) from Maurer2006 mu_max and Carnicer2009 protein fraction"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html   # derived; inputs read as html (schema needs a value)
+  note: >
+    The simple identity q_total = mu_max x P = 0.2/h x 370 mg/g DCW = 74 mg/g DCW/h.
+    low = 0.2 x 349 = 70. high = 0.26 x 400 = 104 (a 30% faster mu_max and the top of
+    Carnicer's protein range). This is NET new protein only (see the degradation entry:
+    it understates throughput ~2x). It is the number to quote when someone asks "how much
+    protein can a K. phaffii cell make per hour at all?" - about 74 mg/g/h of new protein,
+    i.e. 35x the best demonstrated secretion of one product (2.1 mg/g/h, Prielhofer 2018).
+
+# ===========================================================================
+# 2. HOW LARGE A SHARE ONE PROTEIN CAN TAKE
+#    (the allocation factor that multiplies the capacity above)
+# ===========================================================================
+
+- key: scerevisiae_single_heterologous_protein_proteome_share_metzlraz2017
+  value: 25
+  unit: "% of total proteome (one heterologous protein, intracellular)"
+  grade: A
+  host: scerevisiae
+  source: "Metzl-Raz E, et al. eLife 6:e28034 (2017)"
+  doi_or_url: 10.7554/eLife.28034
+  locator: "Results, 'Forcing unneeded protein production reduces the pool of free ribosomes' (Figure 5)"
+  quote: "a library of strains expressing increasing amounts of mCherry proteins was generated, with mCherry levels reaching ~25% of the total proteome in the highest burden cells"
+  read: html
+  note: >
+    THE cleanest measurement of the burden limit in a yeast: one useless heterologous
+    protein can occupy a quarter of the proteome. Growth rate and ribosome content both
+    fall as the burden rises (Figure 5A), but the slope of the ribosome-growth scaling is
+    unchanged, i.e. the ribosomes keep working at the same speed - the cell simply spends
+    them on mCherry. For a SECRETED product the share of the SYNTHESIS FLUX, not of the
+    standing proteome, is what matters; this is the intracellular analogue.
+
+- key: treesei_cbhi_share_of_total_protein_nummi1983
+  value: 60
+  unit: "% of total protein"
+  grade: D
+  host: treesei
+  source: "Nummi M, et al. Biochem J 215:677-683 (1983), as quoted by Pakula TM, et al. Biotechnol Biofuels 9:132 (2016)"
+  doi_or_url: 10.1186/s13068-016-0547-5
+  locator: "Results, 'Description of strains' paragraph"
+  quote: "CBHI alone may constitute 60 % of the total protein"
+  read: html
+  note: >
+    SECONDARY (Nummi 1983 not read). The single largest documented share of one protein in
+    any industrial microbe's output. It is a HOMOLOGOUS, natively secreted enzyme under its
+    own promoter - the easiest possible case - which is exactly why it is the right number
+    for an upper bound on the allocation factor.
+
+- key: treesei_cellulase_share_of_secretome_pakula2016
+  value: 90
+  low: 64
+  high: 90
+  unit: "% of extracellular protein"
+  grade: A
+  host: treesei
+  source: "Pakula TM, Nygren H, Barth D, Heinonen M, Castillo S, Penttila M, Arvas M. Genome wide analysis of protein production load in Trichoderma reesei. Biotechnol Biofuels 9:132 (2016)"
+  doi_or_url: 10.1186/s13068-016-0547-5
+  locator: "Results, 'Description of strains'"
+  quote: "the four major cellulases may account for over 90 % of the extracellular proteins produced by the hypercellulolytic strains under typical production conditions. The cellobiohydrolases have been reported to account for up to 64-84 %"
+  read: html
+  note: >
+    Confirms that a fungal secretome can be almost monopolised by a handful of proteins.
+    Combined with the >100 g/L titre entry below, this is why T. reesei, not K. phaffii,
+    sets the empirical frontier for secretion.
+
+- key: treesei_heterologous_protein_share_pakula2016
+  value: 20
+  unit: "% of proteins produced (heterologous lipase)"
+  grade: A
+  host: treesei
+  source: "Pakula TM, et al. Biotechnol Biofuels 9:132 (2016)"
+  doi_or_url: 10.1186/s13068-016-0547-5
+  locator: "Results, 'Description of strains'"
+  quote: "D. capitatus lipase is readily produced by T. reesei, reaching almost 20 % of the proteins produced at early stages of cultivations in the study"
+  read: html
+  note: >
+    THE HETEROLOGOUS PENALTY, measured in the same paper and the same strains as the 60-90%
+    homologous shares. A foreign protein got to 20%, a native cellobiohydrolase to 60%. In
+    the same study a C. cinerea cutinase was "hardly detectable". BLG and OVA are
+    heterologous: use 20-25%, not 60%, as the allocation factor for this model.
+
+- key: pcsecyeast_proteome_allocation_li2022
+  value: 20.6
+  unit: "% of total proteome mass (ribosome, proteasome and secretory machinery)"
+  grade: A
+  host: scerevisiae
+  source: "Li F, Chen Y, Qi Q, Wang Y, Yuan L, Huang M, Elsemman IE, Feizi A, Kerkhoven EJ, Nielsen J. Improving recombinant protein production by yeast through genome-scale modeling using proteome constraints. Nat Commun 13:2969 (2022)"
+  doi_or_url: 10.1038/s41467-022-30689-7
+  locator: "Results, 'Reconstruction of pcSecYeast'"
+  quote: "approximately 70% of the total proteome mass (45.7% from metabolic proteins, 20.6% related to ribosome, proteosome and secretory machinery proteins and 4.6% from unmodeled secretory proteins)"
+  read: html
+  note: >
+    The proteome budget a producing cell must keep for itself: ~46% metabolism plus ~21%
+    synthesis-and-secretion machinery. A product can only eat into the remainder plus
+    whatever the cell gives up by slowing down. Supports an allocation factor well below 1.
+
+# ===========================================================================
+# 3. SECRETORY-PATHWAY CAPACITY (where the bottleneck is)
+# ===========================================================================
+
+- key: kphaffii_secretion_bottleneck_er_export_love2012
+  value: null
+  unit: "qualitative (ER-to-Golgi export identified as the limiting step)"
+  grade: A
+  host: kphaffii
+  source: "Love KR, Politano TJ, Panagiotou V, Jiang B, Stadheim TA, Love JC. Systematic single-cell analysis of Pichia pastoris reveals secretory capacity limits productivity. PLoS ONE 7:e37915 (2012)"
+  doi_or_url: 10.1371/journal.pone.0037915
+  locator: "Abstract / Introduction"
+  quote: "we show directly that the key bottleneck in protein secretion is the capacity of the secretory machinery to transport folded protein out of the endoplasmic reticulum (ER) and beyond"
+  read: html
+  note: >
+    No number, but it tells the model WHICH capacity binds: not transcription, not folding,
+    but ER export. Their inference: "these results are consistent with our model in which
+    secretory capacity is fixed, and folded proteins accumulate in the ER faster than they
+    are secreted", and raising promoter strength or copy number REDUCES per-cell secretion
+    (2-4 fold lower median rates under pAOX1 than pGAPDH).
+
+- key: kphaffii_fraction_of_cells_secreting_love2012
+  value: 65
+  low: 55
+  high: 75
+  unit: "% of cells actively secreting at a given time"
+  grade: A
+  host: kphaffii
+  source: "Love KR, et al. PLoS ONE 7:e37915 (2012)"
+  doi_or_url: 10.1371/journal.pone.0037915
+  locator: "Results, Figure 1 legend"
+  quote: "Only 65+/-10% of cells from any culture analyzed for these strains actively secreted detectable quantities of protein during our assays"
+  read: html
+  note: >
+    Population heterogeneity costs a third of the capacity, and the non-secretors are
+    neither dead nor empty (">97% of all single cells had detectable levels of internal
+    protein"). Any bound computed per cell must be multiplied by ~0.65 to get a culture
+    average - an argument for keeping the recommended bound below the physical ceiling.
+
+- key: kphaffii_er_residence_time_love2012
+  value: 80
+  low: 60
+  high: 140
+  unit: min (median ER residence time t_sec in their ODE model)
+  grade: D
+  host: kphaffii
+  source: "Love KR, et al. PLoS ONE 7:e37915 (2012)"
+  doi_or_url: 10.1371/journal.pone.0037915
+  locator: "Methods, computational model"
+  quote: "The median value of t_sec (1/k_sec) was initially chosen as 80 min, based on data from protein secretion in mammalian cells, and the median values of t_sec and t_ERAD were varied from 60 to 140 min."
+  read: html
+  note: >
+    MODEL INPUT, NOT A MEASUREMENT (and borrowed from mammalian cells) - hence grade D.
+    Useful only as an order of magnitude: a protein spends ~1 h in the ER. Their companion
+    assumption k_exp = 1 molecule/s/cell is likewise an initial value, not data, so I did
+    NOT convert it to mg/g/h.
+
+- key: kphaffii_fab_secreted_vs_degraded_peebo2018
+  value: 35
+  unit: "% of synthesised Fab that is secreted (58% degraded)"
+  grade: D
+  host: kphaffii
+  source: "Peebo K, Neubauer P. Application of Continuous Culture Methods to Recombinant Protein Production in Microorganisms. Microorganisms 6:56 (2018), Table 2, citing Pfeffer et al."
+  doi_or_url: 10.3390/microorganisms6030056
+  locator: "Table 2, P. pastoris / Fab row"
+  quote: "34S labelling identified 58% degradation and 35% secretion of Fab"
+  read: html
+  note: >
+    SECONDARY (primary not read). A hard, quantitative statement of the intracellular loss:
+    for a difficult product nearly two-thirds of what is synthesised is destroyed before it
+    leaves the cell. The synthesis-capacity ceiling therefore has to be multiplied by a
+    product-dependent survival factor of 0.35 (Fab) up to ~1 (an easy fungal enzyme).
+
+- key: pcsecyeast_yields_below_theory_li2022
+  value: null
+  unit: qualitative
+  grade: A
+  host: scerevisiae
+  source: "Li F, et al. Nat Commun 13:2969 (2022)"
+  doi_or_url: 10.1038/s41467-022-30689-7
+  locator: "Introduction"
+  quote: "Furthermore, the protein yield has typically been much lower than the theoretically estimated range."
+  read: html
+  note: >
+    HONESTY ENTRY. pcSecYeast is the state of the art in modelling yeast secretion, and it
+    does NOT publish a maximum secretion flux in mass units; its outputs are relative
+    (growth-rate penalties per unit of recombinant protein, overexpression targets). I
+    searched Europe PMC for a genome-scale secretory model printing a max flux in
+    mg/gDCW/h and found none. So item 3 of the brief cannot be answered with a number:
+    the secretory pathway is known to bind, but its capacity has not been measured in the
+    units this model needs.
+
+# ===========================================================================
+# 4. HIGHEST MEASURED SPECIFIC PRODUCTION RATES (the empirical frontier)
+# ===========================================================================
+
+- key: aniger_glucoamylase_qp_chemostat_withers1998
+  value: 16.0
+  low: 12.0
+  high: 16.4
+  unit: mg/g DCW/h
+  grade: A
+  host: aniger
+  source: "Withers JM, Swift RJ, Wiebe MG, Robson GD, Punt PJ, van den Hondel CA, Trinci AP. Optimization and stability of glucoamylase production by recombinant strains of Aspergillus niger in chemostat culture. Biotechnol Bioeng 59:407-418 (1998)"
+  doi_or_url: "10.1002/(sici)1097-0290(19980820)59:4<407::aid-bit3>3.0.co;2-k"
+  locator: abstract
+  quote: "These values correspond to specific production rates (qp) of 5.6 and 16.0 mg GAM [g biomass]-1 h-1, respectively."
+  read: abstract
+  note: >
+    THE HIGHEST SPECIFIC SECRETION RATE OF A SINGLE PROTEIN I COULD FIND IN ANY MICROBE.
+    A. niger N402[pAB6-10]B1 with 20 extra copies of the homologous glaA gene,
+    maltodextrin-limited chemostat at D = 0.13 1/h; 373 mg/L in the chemostat (5.6 mg/g/h
+    was the batch value). The same abstract reports 16.4 +/- 1.6 mg/g/h with 5 g/L
+    mycopeptone added, and growth-correlated production over D = 0.06-0.14 1/h, with
+    carbon-source dependence (glucose 12.0, potassium 6.2, ammonium 4.1, phosphate 2.0,
+    magnesium 1.5, sulphate 0.9 mg/g/h). Caveat: homologous enzyme, high copy number,
+    chemostat with a short-lived strain (morphological mutants took over within 136 h on
+    mycopeptone), and only the abstract was read.
+
+- key: aniger_glucoamylase_qp_auxostat_swift1998
+  value: 15.0
+  unit: mg/g DCW/h
+  grade: A
+  host: aniger
+  source: "Swift RJ, Wiebe MG, Robson GD, Trinci AP. Recombinant glucoamylase production by Aspergillus niger B1 in chemostat and pH auxostat cultures. Fungal Genet Biol 25:100-109 (1998)"
+  doi_or_url: 10.1006/fgbi.1998.1089
+  locator: abstract
+  quote: "the specific production rate of GAM increased with dilution rate and reached a maximum (up to 15.0 mg GAM [g biomass]-1 h-1) when A. niger B1 was grown at its maximum specific growth rate in pH auxostat culture"
+  read: abstract
+  note: >
+    Independent confirmation of the ~15-16 mg/g/h frontier, in the same strain but a
+    nutrient-EXCESS culture at mu_max - i.e. the number is not an artefact of carbon
+    limitation. Growth-associated, as in Withers. Also: 31% higher at pH 4.0 than pH 5.4.
+
+- key: compiled_qpmax_by_host_peebo2018
+  value: 15
+  low: 0.004
+  high: 170
+  unit: mg/g DCW/h (q_p,max compiled across hosts and products)
+  grade: A
+  host: generic
+  source: "Peebo K, Neubauer P. Application of Continuous Culture Methods to Recombinant Protein Production in Microorganisms. Microorganisms 6:56 (2018)"
+  doi_or_url: 10.3390/microorganisms6030056
+  locator: "Table 1 (mu-dependent product formation kinetics in continuous cultures)"
+  quote: "A. niger | PglaA | Glucoamylase | 0.05-0.26 | 0.23 | 15 | growth coupled"
+  read: html
+  note: >
+    TABLE ROW. THE SINGLE MOST USEFUL TABLE FOUND: q_p,max in mg g-1 h-1 for 29
+    organism/product pairs in continuous culture. Secreted proteins, best per host:
+      A. niger glucoamylase 15 (at mu 0.23), 12 (0.14), 7 (0.10)
+      S. cerevisiae cutinase 8, alpha-galactosidase 4.5, VHH 3.87
+      H. polymorpha alpha-galactosidase 5.5
+      K. lactis serum albumin 0.8
+      P. pastoris: trypsinogen 0.69, GM-CSF 0.5, chymotrypsinogen B 0.38, serum albumin
+        0.174-0.18, scFv 0.12, antifreeze protein 0.065, Fab 0.047-0.049, avidin 0.027
+    Intracellular proteins in E. coli are an order of magnitude higher (next entry).
+    Primary papers not read; the table is the source. This independently reproduces the
+    picture already in hosts.yaml from Looser 2015 (K. phaffii q_P,max 0.004-0.69).
+
+- key: ecoli_intracellular_qpmax_ifn_peebo2018
+  value: 170
+  low: 75
+  high: 170
+  unit: mg/g DCW/h
+  grade: A
+  host: ecoli
+  source: "Peebo K, Neubauer P. Microorganisms 6:56 (2018), Table 1"
+  doi_or_url: 10.3390/microorganisms6030056
+  locator: "Table 1, E. coli / T7 / IFN-alpha and IFN-gamma rows"
+  quote: "E. coli | T7 | IFN-alpha | 0.1-0.5 | 0.37 | 170 | growth coupled"
+  read: html
+  note: >
+    TABLE ROW; primary (ref 32 of that review) not read. CRITICAL FOR THE BOUND: an
+    INTRACELLULAR product in a T7 system reached 170 mg/g DCW/h at mu = 0.37 1/h, with
+    IFN-gamma at 75. Sanity check against the identity: E. coli protein is ~55% of DCW, so
+    net protein synthesis at mu = 0.37 is 0.37 x 550 = 204 mg/g/h; 170 is 83% of that. That
+    is only possible because T7 polymerase shuts down host transcription, so nearly all
+    translational capacity goes to the product. CONCLUSION: the translational-capacity
+    ceiling derived in section 1 is REAL and REACHABLE - but only intracellularly, in
+    bacteria, for a short induction, and at the cost of the host. No secreted product in
+    any organism comes close.
+
+- key: treesei_qp_fedbatch_jourdier2013
+  value: 11.5
+  low: 5.5
+  high: 11.5
+  unit: mg/g DCW/h (total secreted protein)
+  grade: A
+  host: treesei
+  source: "Jourdier E, Cohen C, Poughon L, Larroche C, Monot F, Ben Chaabane F. Cellulase activity mapping of Trichoderma reesei cultivated in sugar mixtures under fed-batch conditions. Biotechnol Biofuels 6:79 (2013)"
+  doi_or_url: 10.1186/1754-6834-6-79
+  locator: "Results, 'Effect of sugar mixture on protein production'"
+  quote: "Specific protein production rate was 5.5 to 11.5 mg P g X -1 h -1 with lactose as an inducer versus 5.5 to 8.9 mg P g X -1 h -1 for cellobiose."
+  read: html
+  note: >
+    Hyperproducing, glucose-derepressed strain CL847 (comparable to Rut-C30), fed-batch
+    under industrial-like conditions, lactose/glucose/xylose mixtures. The best secretion
+    rate measured in T. reesei in this survey, and 5x the best K. phaffii glucose
+    fed-batch (2.1 mg/g/h, Prielhofer 2018). Basis: TOTAL extracellular protein, i.e. the
+    whole cellulase cocktail, not one protein - but CBHI is ~60% of it (section 2).
+
+- key: treesei_qp_optimum_total_protein_pakula2005
+  value: 4.1
+  unit: mg/g DCW/h
+  grade: A
+  host: treesei
+  source: "Pakula TM, Salonen K, Uusitalo J, Penttila M. The effect of specific growth rate on protein synthesis and secretion in the filamentous fungus Trichoderma reesei. Microbiology 151:135-143 (2005)"
+  doi_or_url: 10.1099/mic.0.27458-0
+  locator: abstract
+  quote: "Secreted proteins were produced most efficiently at low specific growth rates, 0.022-0.033 h(-1), the highest specific rate of total protein production being 4.1 mg g(-1) h(-1) at the specific growth rate 0.031 h(-1)."
+  read: abstract
+  note: >
+    Already in hosts.yaml (treesei_optimal_mu_for_secretion_pakula2005); repeated for
+    completeness. CAUTION ON INTERPRETATION: at mu = 0.031 1/h the cell must make
+    0.031 x 400 = 12.4 mg/g/h of biomass protein just to grow, which is 3x the quoted
+    4.1 - so their "total protein production" must mean the measured (secreted plus
+    cell-associated) product proteins, not the whole proteome. Do not read 4.1 as a
+    proteome-wide synthesis rate.
+
+- key: treesei_industrial_titer_pakula2016
+  value: 100
+  unit: g/L extracellular protein
+  grade: A
+  host: treesei
+  source: "Pakula TM, et al. Biotechnol Biofuels 9:132 (2016)"
+  doi_or_url: 10.1186/s13068-016-0547-5
+  locator: "Abstract, Background"
+  quote: "In industrial cultivations, it can produce over 100 g/l of extracellular protein, mostly constituting of cellulases and hemicellulases."
+  read: html
+  note: >
+    The standard citation for the fungal ceiling (it traces to Cherry & Fidantsef 2003,
+    not read; the same claim appears in Ellila 2017 and Paloheimo 2015). Secreted protein
+    exceeding the cell dry weight by several fold proves the secretory pathway itself is
+    not the binding constraint in a filamentous fungus - the rate is.
+
+- key: treesei_titer_and_productivity_ellila2017
+  value: 37.3
+  low: 19.3
+  high: 37.3
+  unit: g/L extracellular protein (0.20 g/L/h overall)
+  grade: A
+  host: treesei
+  source: "Ellila S, Fonseca L, Uchima C, Cota J, Goldman GH, Saloheimo M, Sacon V, Siika-aho M. Development of a low-cost cellulase production process using Trichoderma reesei for Brazilian biorefineries. Biotechnol Biofuels 10:30 (2017)"
+  doi_or_url: 10.1186/s13068-017-0717-0
+  locator: "Results, 'Fermentations on molasses and soybean hulls' (Fig. 9)"
+  quote: "and 37.3 g/l in 183 h (0.20 g/l h) when combined with soybean hulls"
+  read: html
+  note: >
+    The best openly published real T. reesei enzyme fermentation I found with both titre
+    and time. The quote is the contiguous second half of the sentence; its first half reads
+    "we were able to reach extracellular protein concentrations of 34.1 g/l in 214 h
+    (0.16 g/l h) on molasses alone", which is the low end of this entry. Also in the same paper: a modelled process assuming "an enzyme productivity
+    of 0.42 g/l h and final titer of 50 g/l" (that is Klein-Marcuschamer's TEA, a design
+    basis, grade B). NO BIOMASS CONCENTRATION IS REPORTED, which blocks a clean q_p.
+
+- key: derived_treesei_qp_from_ellila2017
+  value: 6.7
+  low: 5.0
+  high: 10.0
+  unit: mg/g DCW/h
+  grade: D
+  host: treesei
+  source: "Derived (mine) from Ellila 2017 volumetric productivity and an ASSUMED biomass"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html   # derived; inputs read as html (schema needs a value)
+  note: >
+    0.20 g/L/h / X g/L of biomass. Ellila does not report X (soybean-hull solids make DCW
+    unmeasurable), so I assume X = 20-40 g/L, the usual range for T. reesei enzyme
+    fed-batch: 0.20/0.030 = 6.7 mg/g/h central, 5.0 at 40 g/L, 10.0 at 20 g/L.
+    THE BIOMASS IS A GUESS (grade E input), so the whole entry is grade D and must not be
+    used as evidence on its own. It is here only to show that a real industrial fungal
+    process sits in the same 5-12 mg/g/h band as Jourdier's measured 5.5-11.5.
+
+- key: kphaffii_calb_qp_looser2017
+  value: 1.15
+  low: 0.4
+  high: 1.15
+  unit: mg/g DCW/h
+  grade: A
+  host: kphaffii
+  source: "Looser V, Luthy D, Straumann M, Hecht K, Melzoch K, Kovar K. Effects of glycerol supply and specific growth rate on methanol-free production of CALB by P. pastoris. Appl Microbiol Biotechnol 101:3163-3176 (2017)"
+  doi_or_url: 10.1007/s00253-017-8123-x
+  locator: "Results, 'Product formation in fedbatch culture under glycerol-limited growth' (Fig. 4a, Table 1)"
+  quote: "Initially, high but transient secretion rates of 1.03 to 1.15 mg g-1 h-1 were observed, comparable to stable and still considerably high, secretion rates found when cells were grown at mu = 0.038 h-1."
+  read: html
+  note: >
+    Methanol-free, glycerol-limited fed-batch, synthetic promoter. Shows the K. phaffii
+    reality: a stable 0.93 mg/g/h at mu = 0.038 1/h, a basal 0.4-0.6 mg/g/h independent of
+    mu from 0.017 to 0.115 1/h, and transients to 1.15 that decay by 57% within ~23 h.
+    THE DECAY MATTERS for a TEA: the peak q_p is not sustained over a 100 h production phase.
+
+- key: bacillus_secreted_titer_vandijl2013
+  value: 22.5
+  low: 20
+  high: 25
+  unit: g/L secreted protein
+  grade: A
+  host: bsubtilis
+  source: "van Dijl JM, Hecker M. Bacillus subtilis: from soil bacterium to super-secreting cell factory. Microb Cell Fact 12:3 (2013)"
+  doi_or_url: 10.1186/1475-2859-12-3
+  locator: Editorial, opening paragraphs
+  quote: "Bacillus subtilis, Bacillus amyloliquefaciens and Bacillus licheniformis have become most popular due to their excellent fermentation properties, high product yields (20 to 25 gram per litre) and the complete lack of toxic by-products."
+  read: html
+  note: >
+    Bacterial benchmark, TITRE ONLY - the review gives no biomass or time, so no q_p can be
+    derived without guessing both. For scale: 25 g/L in 40 h at 30 g/L DCW would be
+    21 mg/g/h, same order as the A. niger frontier, but that arithmetic rests on two
+    unsourced numbers and is deliberately NOT entered as a value here.
+
+# ===========================================================================
+# 5. RECOMMENDATION
+# ===========================================================================
+
+- key: recommendation_qp_max_kinetic_upper_bound
+  value: 40
+  low: 15
+  high: 80
+  unit: mg product/g DCW/h
+  grade: D
+  host: kphaffii
+  source: "Derived (mine): allocation factor x translational capacity, cross-checked against the measured frontier"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html   # derived; inputs read as html (schema needs a value)
+  note: >
+    RECOMMENDED REPLACEMENT TEXT FOR data/pf/base.yaml q_p_max_mg_g_h. The judgment of 40
+    survives, but it can now be DERIVED rather than asserted, and its status changes from
+    "a physiological ceiling" to "a feasibility ceiling about 2.5x above anything ever
+    demonstrated for a secreted protein".
+    DERIVATION CHAIN (every input traceable above):
+      (i)   protein = 0.37 g/g DCW [A, Carnicer 2009, K. phaffii chemostat]
+      (ii)  gamma = 3.0 1/h, r = 0.08 + mu/gamma [A, Metzl-Raz 2017 growth law]
+      (iii) translational throughput at mu = 0.1-0.2 1/h: 125-163 mg/g DCW/h [D, derived]
+      (iv)  of which mu x P = 37-74 mg/g/h is committed to new biomass protein; the rest
+            (~88 mg/g/h) is proteome turnover and is what a product must displace
+      (v)   maximum share one HETEROLOGOUS protein has ever taken: ~20-25% of output
+            [A, Metzl-Raz mCherry 25%; Pakula 2016 lipase 20%] - homologous proteins reach
+            60-90% but that is not the case here
+      (vi)  0.25 x 163 = 41 mg/g/h  ->  VALUE = 40.
+    LOW = 15 mg/g/h: the best specific secretion rate of one protein ever measured in any
+      industrial microbe (A. niger glucoamylase, 15-16.4, Withers/Swift 1998, grade A),
+      with T. reesei fed-batch at 5.5-11.5 and K. phaffii at 0.7-2.1. If the model wants a
+      bound that no real organism has ever beaten, 15 is that number.
+    HIGH = 80 mg/g/h: half the translational throughput at mu_max, i.e. an allocation
+      factor of 0.5 (the homologous-enzyme regime). The ABSOLUTE physical ceiling is
+      ~330 mg/g/h (derived_scerevisiae_translational_throughput_mg_g_h) and E. coli has
+      reached 170 mg/g/h for an intracellular product, so 80 is not the physics limit -
+      it is the physics limit discounted for being a secreted, heterologous protein.
+    HONEST CAVEAT, as asked: the literature does NOT support a bound tighter than the total
+      synthesis capacity on physical grounds. Everything between 15 and 80 is an
+      allocation judgment. The one genuinely hard statement is that q_p can never exceed
+      ~160 mg/g/h in K. phaffii at mu <= 0.2 1/h, and that the gap between that ceiling and
+      the 2.1 mg/g/h actually demonstrated on glucose is a factor of ~75 - i.e. the binding
+      constraint in a real process is strain and secretory engineering, not physics.
+    WHAT WOULD TIGHTEN IT: a measured ER-export flux per cell in K. phaffii (mass units),
+      or a genome-scale secretory model reporting a maximum secretion flux in mg/gDCW/h.
+      Neither exists in the open literature as of this search.
+
+- key: recommendation_qp_demonstrated_frontier_secreted
+  value: 15
+  low: 11.5
+  high: 16.4
+  unit: mg product/g DCW/h
+  grade: A
+  host: generic
+  source: "Withers 1998 and Swift 1998 (A. niger glucoamylase); Jourdier 2013 (T. reesei); Peebo & Neubauer 2018 Table 1"
+  doi_or_url: "10.1006/fgbi.1998.1089"
+  locator: "see the individual entries above"
+  quote: null
+  read: abstract   # derived; inputs read as abstract (schema needs a value)
+  note: >
+    THE EMPIRICAL FRONTIER, stated separately so the model can distinguish "never been
+    beaten" from "physically impossible". Highest measured specific secretion rates:
+      A. niger glucoamylase (20 glaA copies)   15.0-16.4 mg/g/h   chemostat / pH auxostat
+      T. reesei CL847 cellulase cocktail        5.5-11.5 mg/g/h   fed-batch, industrial-like
+      S. cerevisiae cutinase                    8      mg/g/h     chemostat
+      H. polymorpha alpha-galactosidase         5.5    mg/g/h     chemostat
+      K. phaffii, best of ~10 products          0.69   mg/g/h     chemostat (trypsinogen)
+      K. phaffii, best glucose fed-batch        2.1    mg/g/h     Prielhofer 2018 (hosts.yaml)
+    quote: null because this is a compilation of the quoted entries above, not a single
+    source. Grade A because every component number is a quoted, measured value.
+    All of them are HOMOLOGOUS or easy enzymes except the K. phaffii cases; a heterologous
+    food protein should be expected at the bottom of this list, not the top.
+
+- key: recommendation_qp_absolute_physical_ceiling
+  value: 330
+  low: 160
+  high: 500
+  unit: mg protein/g DCW/h
+  grade: D
+  host: scerevisiae
+  source: "Derived (mine) from von der Haar 2008 and Metzl-Raz 2017; see derived_scerevisiae_translational_throughput_mg_g_h"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: html   # derived; inputs read as html (schema needs a value)
+  note: >
+    The number to quote if the report ever needs "the physics limit". Total translational
+    throughput of a fast-growing yeast cell, by two independent routes agreeing to 2%
+    (13,000 proteins/s/cell x 42 kDa / 3.72 pg protein per cell x 0.37 g protein/g DCW;
+    and gamma x r x P = 3.0 x 0.30 x 0.37). For K. phaffii at mu <= 0.2 1/h the
+    corresponding figure is ~160 mg/g/h because ribosome content scales with growth rate.
+    Not reachable for a secreted product: it assumes every ribosome is translating only the
+    product and the cell replaces nothing of itself. The closest anything has come is
+    E. coli T7 IFN-alpha at 170 mg/g/h, intracellular.
