@@ -52866,7 +52866,515 @@
    ]
   }
  },
- "generated": "2026-10-03 05:06",
+ "generated": "2026-10-05 21:57",
  "fast": false,
- "runtime_s": 1541.13778424263
+ "runtime_s": 37.53041315078735,
+ "floor": {
+  "products": {
+   "blg": {
+    "us_midwest": {
+     "floor": {
+      "yield_g_g": 0.5634788366891144,
+      "substrate_kg": 1.7746777235259277,
+      "nh3_kg": 0.19195457204360566,
+      "o2_mol": 11.695824089294485,
+      "heat_MJ": 6.794347002023221,
+      "kWh_per_kmol_o2": 48.4769839003111,
+      "cost": {
+       "substrate": 0.7098710894103711,
+       "ammonia": 0.11709228894659945,
+       "aeration and cooling electricity": 0.04887352739788907
+      },
+      "total": 0.8758369057548596,
+      "p_max_o2_kg_m3_h": 17.100120391094595,
+      "p_max_heat_kg_m3_h": 13.246306079627637,
+      "p_max_kg_m3_h": 13.246306079627637
+     },
+     "msp": 21.174365714953797,
+     "glucose_kg": 10.280103190070609,
+     "glucose_usd": 4.112041276028243,
+     "cells_kg": 3.4975716467026716,
+     "other": 17.062324438925554
+    },
+    "eu_nw": {
+     "floor": {
+      "yield_g_g": 0.5634788366891144,
+      "substrate_kg": 1.7746777235259277,
+      "nh3_kg": 0.19195457204360566,
+      "o2_mol": 11.695824089294485,
+      "heat_MJ": 6.794347002023221,
+      "kWh_per_kmol_o2": 48.4769839003111,
+      "cost": {
+       "substrate": 1.082553411350816,
+       "ammonia": 0.11709228894659945,
+       "aeration and cooling electricity": 0.08255203699689848
+      },
+      "total": 1.2821977372943139,
+      "p_max_o2_kg_m3_h": 17.100120391094595,
+      "p_max_heat_kg_m3_h": 13.246306079627637,
+      "p_max_kg_m3_h": 13.246306079627637
+     },
+     "msp": 24.322617010498377,
+     "glucose_kg": 10.280103190070609,
+     "glucose_usd": 6.270862945943071,
+     "cells_kg": 3.4975716467026716,
+     "other": 18.051754064555304
+    }
+   },
+   "ova": {
+    "us_midwest": {
+     "floor": {
+      "yield_g_g": 0.5699256438253659,
+      "substrate_kg": 1.754603166192832,
+      "nh3_kg": 0.19880382470900007,
+      "o2_mol": 11.919348430458115,
+      "heat_MJ": 6.8613770388582145,
+      "kWh_per_kmol_o2": 48.44598419175873,
+      "cost": {
+       "substrate": 0.7018412664771329,
+       "ammonia": 0.12127033307249004,
+       "aeration and cooling electricity": 0.049775721557998885
+      },
+      "total": 0.8728873211076218,
+      "p_max_o2_kg_m3_h": 16.77944068561079,
+      "p_max_heat_kg_m3_h": 13.11690051287091,
+      "p_max_kg_m3_h": 13.11690051287091
+     },
+     "msp": 21.276975324815,
+     "glucose_kg": 10.250822034484079,
+     "glucose_usd": 4.100328813793633,
+     "cells_kg": 3.486502780483074,
+     "other": 17.176646511021367
+    },
+    "eu_nw": {
+     "floor": {
+      "yield_g_g": 0.5699256438253659,
+      "substrate_kg": 1.754603166192832,
+      "nh3_kg": 0.19880382470900007,
+      "o2_mol": 11.919348430458115,
+      "heat_MJ": 6.8613770388582145,
+      "kWh_per_kmol_o2": 48.44598419175873,
+      "cost": {
+       "substrate": 1.0703079313776276,
+       "ammonia": 0.12127033307249004,
+       "aeration and cooling electricity": 0.08407592875689836
+      },
+      "total": 1.275654193207016,
+      "p_max_o2_kg_m3_h": 16.77944068561079,
+      "p_max_heat_kg_m3_h": 13.11690051287091,
+      "p_max_kg_m3_h": 13.11690051287091
+     },
+     "msp": 24.52450904140849,
+     "glucose_kg": 10.250822034484079,
+     "glucose_usd": 6.2530014410352885,
+     "cells_kg": 3.486502780483074,
+     "other": 18.2715076003732
+    }
+   },
+   "ovd": {
+    "us_midwest": {
+     "floor": {
+      "yield_g_g": 0.6026422355847435,
+      "substrate_kg": 1.65934825026026,
+      "nh3_kg": 0.20355482711101447,
+      "o2_mol": 13.40674832771209,
+      "heat_MJ": 7.30248414045316,
+      "kWh_per_kmol_o2": 48.25567518262839,
+      "cost": {
+       "substrate": 0.663739300104104,
+       "ammonia": 0.12416844453771882,
+       "aeration and cooling electricity": 0.05576723589844107
+      },
+      "total": 0.8436749805402639,
+      "p_max_o2_kg_m3_h": 14.917860402182303,
+      "p_max_heat_kg_m3_h": 12.324573154692946,
+      "p_max_kg_m3_h": 12.324573154692946
+     },
+     "msp": 21.348007984589906,
+     "glucose_kg": 10.23829201623317,
+     "glucose_usd": 4.095316806493268,
+     "cells_kg": 3.4815402812243237,
+     "other": 17.252691178096637
+    },
+    "eu_nw": {
+     "floor": {
+      "yield_g_g": 0.6026422355847435,
+      "substrate_kg": 1.65934825026026,
+      "nh3_kg": 0.20355482711101447,
+      "o2_mol": 13.40674832771209,
+      "heat_MJ": 7.30248414045316,
+      "kWh_per_kmol_o2": 48.25567518262839,
+      "cost": {
+       "substrate": 1.0122024326587584,
+       "ammonia": 0.12416844453771882,
+       "aeration and cooling electricity": 0.09419616643634594
+      },
+      "total": 1.2305670436328233,
+      "p_max_o2_kg_m3_h": 14.917860402182303,
+      "p_max_heat_kg_m3_h": 12.324573154692946,
+      "p_max_kg_m3_h": 12.324573154692946
+     },
+     "msp": 24.647448166798235,
+     "glucose_kg": 10.23829201623317,
+     "glucose_usd": 6.245358129902234,
+     "cells_kg": 3.4815402812243237,
+     "other": 18.402090036896
+    }
+   },
+   "cas": {
+    "us_midwest": {
+     "floor": {
+      "yield_g_g": 0.5574386003232437,
+      "substrate_kg": 1.793907595510261,
+      "nh3_kg": 0.19354027526931145,
+      "o2_mol": 11.108919041782146,
+      "heat_MJ": 6.595437155440783,
+      "kWh_per_kmol_o2": 48.53631652914218,
+      "cost": {
+       "substrate": 0.7175630382041045,
+       "ammonia": 0.11805956791427998,
+       "aeration and cooling electricity": 0.04647783414031727
+      },
+      "total": 0.8821004402587017,
+      "p_max_o2_kg_m3_h": 18.003551853044655,
+      "p_max_heat_kg_m3_h": 13.645797523179517,
+      "p_max_kg_m3_h": 13.645797523179517
+     },
+     "msp": 22.049643425412317,
+     "glucose_kg": 10.515713055509918,
+     "glucose_usd": 4.206285222203967,
+     "cells_kg": 3.577098295830225,
+     "other": 17.84335820320835
+    },
+    "eu_nw": {
+     "floor": {
+      "yield_g_g": 0.5574386003232437,
+      "substrate_kg": 1.793907595510261,
+      "nh3_kg": 0.19354027526931145,
+      "o2_mol": 11.108919041782146,
+      "heat_MJ": 6.595437155440783,
+      "kWh_per_kmol_o2": 48.53631652914218,
+      "cost": {
+       "substrate": 1.094283633261259,
+       "ammonia": 0.11805956791427998,
+       "aeration and cooling electricity": 0.07850548318828532
+      },
+      "total": 1.2908486843638243,
+      "p_max_o2_kg_m3_h": 18.003551853044655,
+      "p_max_heat_kg_m3_h": 13.645797523179517,
+      "p_max_kg_m3_h": 13.645797523179517
+     },
+     "msp": 25.39069691966119,
+     "glucose_kg": 10.515713055509918,
+     "glucose_usd": 6.41458496386105,
+     "cells_kg": 3.577098295830225,
+     "other": 18.97611195580014
+    }
+   },
+   "lf": {
+    "us_midwest": {
+     "floor": {
+      "yield_g_g": 0.5801234337837049,
+      "substrate_kg": 1.7237596016907604,
+      "nh3_kg": 0.2114564733512732,
+      "o2_mol": 11.936211063127377,
+      "heat_MJ": 6.819587773380329,
+      "kWh_per_kmol_o2": 47.9998605720048,
+      "cost": {
+       "substrate": 0.6895038406763042,
+       "ammonia": 0.12898844874427665,
+       "aeration and cooling electricity": 0.04938712343713726
+      },
+      "total": 0.8678794128577181,
+      "p_max_o2_kg_m3_h": 16.755735881533457,
+      "p_max_heat_kg_m3_h": 13.197278631900188,
+      "p_max_kg_m3_h": 13.197278631900188
+     },
+     "msp": 167.7915615057024,
+     "glucose_kg": 34.907665184507465,
+     "glucose_usd": 13.963066073802986,
+     "cells_kg": 13.965857966268322,
+     "other": 153.8284954318994
+    },
+    "eu_nw": {
+     "floor": {
+      "yield_g_g": 0.5801234337837049,
+      "substrate_kg": 1.7237596016907604,
+      "nh3_kg": 0.2114564733512732,
+      "o2_mol": 11.936211063127377,
+      "heat_MJ": 6.819587773380329,
+      "kWh_per_kmol_o2": 47.9998605720048,
+      "cost": {
+       "substrate": 1.0514933570313638,
+       "ammonia": 0.12898844874427665,
+       "aeration and cooling electricity": 0.08341954956435249
+      },
+      "total": 1.2639013553399931,
+      "p_max_o2_kg_m3_h": 16.755735881533457,
+      "p_max_heat_kg_m3_h": 13.197278631900188,
+      "p_max_kg_m3_h": 13.197278631900188
+     },
+     "msp": 181.59363102429512,
+     "glucose_kg": 34.907665184507465,
+     "glucose_usd": 21.293675762549555,
+     "cells_kg": 13.965857966268322,
+     "other": 160.29995526174557
+    }
+   },
+   "alb": {
+    "us_midwest": {
+     "floor": {
+      "yield_g_g": 0.5758640637331429,
+      "substrate_kg": 1.736509364150695,
+      "nh3_kg": 0.20148672607844925,
+      "o2_mol": 11.933555074561971,
+      "heat_MJ": 6.841860338685388,
+      "kWh_per_kmol_o2": 48.364374189355225,
+      "cost": {
+       "substrate": 0.694603745660278,
+       "ammonia": 0.12290690290785404,
+       "aeration and cooling electricity": 0.049751099165650965
+      },
+      "total": 0.8672617477337831,
+      "p_max_o2_kg_m3_h": 16.759465117509514,
+      "p_max_heat_kg_m3_h": 13.154317034377353,
+      "p_max_kg_m3_h": 13.154317034377353
+     },
+     "msp": 215.47654056123855,
+     "glucose_kg": 18.49139912666632,
+     "glucose_usd": 7.396559650666528,
+     "cells_kg": 6.290481768316938,
+     "other": 208.07998091057203
+    },
+    "eu_nw": {
+     "floor": {
+      "yield_g_g": 0.5758640637331429,
+      "substrate_kg": 1.736509364150695,
+      "nh3_kg": 0.20148672607844925,
+      "o2_mol": 11.933555074561971,
+      "heat_MJ": 6.841860338685388,
+      "kWh_per_kmol_o2": 48.364374189355225,
+      "cost": {
+       "substrate": 1.059270712131924,
+       "ammonia": 0.12290690290785404,
+       "aeration and cooling electricity": 0.08403433919395338
+      },
+      "total": 1.2662119542337313,
+      "p_max_o2_kg_m3_h": 16.759465117509514,
+      "p_max_heat_kg_m3_h": 13.154317034377353,
+      "p_max_kg_m3_h": 13.154317034377353
+     },
+     "msp": 225.55556015685679,
+     "glucose_kg": 18.49139912666632,
+     "glucose_usd": 11.279753467266453,
+     "cells_kg": 6.290481768316938,
+     "other": 214.27580668959033
+    }
+   },
+   "alac": {
+    "us_midwest": {
+     "floor": {
+      "yield_g_g": 0.5803448213767352,
+      "substrate_kg": 1.7231020288562586,
+      "nh3_kg": 0.19459871898779552,
+      "o2_mol": 11.823472231239794,
+      "heat_MJ": 6.768048922896708,
+      "kWh_per_kmol_o2": 48.350149834911,
+      "cost": {
+       "substrate": 0.6892408115425035,
+       "ammonia": 0.11870521858255526,
+       "aeration and cooling electricity": 0.049277665570434274
+      },
+      "total": 0.857223695695493,
+      "p_max_o2_kg_m3_h": 16.915504691723562,
+      "p_max_heat_kg_m3_h": 13.29777621664712,
+      "p_max_kg_m3_h": 13.29777621664712
+     },
+     "msp": 33.81445948932182,
+     "glucose_kg": 10.280862483933163,
+     "glucose_usd": 4.112344993573265,
+     "cells_kg": 3.497895986705257,
+     "other": 29.702114495748553
+    },
+    "eu_nw": {
+     "floor": {
+      "yield_g_g": 0.5803448213767352,
+      "substrate_kg": 1.7231020288562586,
+      "nh3_kg": 0.19459871898779552,
+      "o2_mol": 11.823472231239794,
+      "heat_MJ": 6.768048922896708,
+      "kWh_per_kmol_o2": 48.350149834911,
+      "cost": {
+       "substrate": 1.0510922376023177,
+       "ammonia": 0.11870521858255526,
+       "aeration and cooling electricity": 0.08323466481502588
+      },
+      "total": 1.253032120999899,
+      "p_max_o2_kg_m3_h": 16.915504691723562,
+      "p_max_heat_kg_m3_h": 13.29777621664712,
+      "p_max_kg_m3_h": 13.29777621664712
+     },
+     "msp": 37.75607798287979,
+     "glucose_kg": 10.280862483933163,
+     "glucose_usd": 6.271326115199229,
+     "cells_kg": 3.497895986705257,
+     "other": 31.484751867680558
+    }
+   }
+  },
+  "animals": {
+   "broiler": {
+    "label": "chicken meat (broiler)",
+    "regions": {
+     "us_midwest": {
+      "feed": 6.68,
+      "feed_low": 4.62,
+      "feed_high": 11.42,
+      "alloc": 1.0,
+      "year": 2025,
+      "share": 0.742,
+      "total": 9.002695417789758,
+      "total_low": 6.226415094339623,
+      "total_high": 15.390835579514825,
+      "other": 2.322695417789758,
+      "share_low": 0.742,
+      "share_high": 0.742,
+      "grades": {
+       "feed": "D",
+       "share": "D",
+       "allocation": ""
+      },
+      "keys": [
+       "derived_us_broiler_delivered_feed_usd_per_edible_protein",
+       "derived_broiler_feed_share_wur_us2017"
+      ]
+     },
+     "eu_nw": {
+      "feed": 8.87,
+      "feed_low": 6.25,
+      "feed_high": 11.57,
+      "alloc": 1.0,
+      "year": 2024,
+      "share": 0.687,
+      "total": 12.911208151382821,
+      "total_low": 8.76577840112202,
+      "total_high": 18.078125,
+      "other": 4.041208151382822,
+      "share_low": 0.64,
+      "share_high": 0.713,
+      "grades": {
+       "feed": "D",
+       "share": "D",
+       "allocation": ""
+      },
+      "keys": [
+       "derived_eu_broiler_feed_usd_per_edible_protein",
+       "derived_broiler_feed_share_wur_eu2021"
+      ]
+     }
+    }
+   },
+   "layer": {
+    "label": "hen's eggs",
+    "regions": {
+     "us_midwest": {
+      "feed": 4.69,
+      "feed_low": 4.35,
+      "feed_high": 6.99,
+      "alloc": 1.0,
+      "year": 2025,
+      "share": 0.695,
+      "total": 6.7482014388489215,
+      "total_low": 6.258992805755396,
+      "total_high": 10.057553956834534,
+      "other": 2.058201438848921,
+      "share_low": 0.695,
+      "share_high": 0.695,
+      "grades": {
+       "feed": "D",
+       "share": "D",
+       "allocation": ""
+      },
+      "keys": [
+       "derived_layer_feed_usd_per_edible_protein",
+       "derived_layer_feed_share_wur_us2021"
+      ]
+     },
+     "eu_nw": {
+      "feed": 7.88,
+      "feed_low": 6.3,
+      "feed_high": 10.36,
+      "alloc": 1.0,
+      "year": 2024,
+      "share": 0.68,
+      "total": 11.588235294117647,
+      "total_low": 9.26470588235294,
+      "total_high": 15.235294117647056,
+      "other": 3.708235294117647,
+      "share_low": 0.68,
+      "share_high": 0.68,
+      "grades": {
+       "feed": "D",
+       "share": "D",
+       "allocation": ""
+      },
+      "keys": [
+       "derived_eu_layer_feed_usd_per_edible_protein",
+       "derived_layer_feed_share_wur_eu2021"
+      ]
+     }
+    }
+   },
+   "dairy": {
+    "label": "cow's milk",
+    "regions": {
+     "us_midwest": {
+      "feed": 5.79912,
+      "feed_low": 5.23848,
+      "feed_high": 8.76,
+      "alloc": 0.876,
+      "year": 2025,
+      "share": 0.42,
+      "total": 13.807428571428572,
+      "total_low": 9.700888888888889,
+      "total_high": 20.857142857142858,
+      "other": 8.008308571428572,
+      "share_low": 0.42,
+      "share_high": 0.54,
+      "grades": {
+       "feed": "D",
+       "share": "A",
+       "allocation": "D"
+      },
+      "keys": [
+       "derived_dairy_feed_per_edible_protein",
+       "dairy_feed_share_of_cost_ers",
+       "derived_us_dairy_milk_share_of_value_ers"
+      ]
+     },
+     "eu_nw": {
+      "feed": 4.8786,
+      "feed_low": 3.6849,
+      "feed_high": 5.4495,
+      "alloc": 0.865,
+      "year": 2024,
+      "share": null,
+      "total": null,
+      "total_low": null,
+      "total_high": null,
+      "other": null,
+      "grades": {
+       "feed": "D",
+       "share": "",
+       "allocation": "D"
+      },
+      "keys": [
+       "derived_eu_milk_feed_usd_per_edible_protein",
+       "derived_eu_dairy_milk_share_of_value_emb"
+      ]
+     }
+    }
+   }
+  }
+ }
 }

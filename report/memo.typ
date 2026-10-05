@@ -41,9 +41,9 @@
 #let wheyobs = inc.whey.series.values().map(s => s.values()).flatten()
 #let above(x) = wheyobs.filter(p => p >= x).len()
 
-#set page(paper: "a4", margin: (x: 2cm, y: 1.5cm))
+#set page(paper: "a4", margin: (x: 2cm, y: 1.3cm))
 #set text(font: ("Libertinus Serif", "New Computer Modern"), size: 9.8pt)
-#set par(justify: true, leading: 0.52em, spacing: 0.75em)
+#set par(justify: true, leading: 0.5em, spacing: 0.7em)
 #set table(stroke: none, inset: (x: 4pt, y: 2.3pt))
 #show table: set text(size: 8.6pt)
 
@@ -74,6 +74,7 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
   With today's biology and capital, design alone reaches #money(BD(40).msp_ccf)/kg BLG at 40 mg/g/h
   and #money(BD(10).msp_ccf) at 10. No published *K. phaffii* process is near either rate: the best glucose
   fed-batch we found reached 2.1, and in the one near-zero-growth study secretion fell as growth slowed.
+- *Sugar is not the problem.* Base-case glucose (#usd(R.floor.products.blg.us_midwest.glucose_usd, d: 1)/kg BLG) costs no more than animal feed per kg of protein (#usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1), US 2025, our derivation); the gap is the plant (#usd(R.floor.products.blg.us_midwest.other, d: 0)/kg against #usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.other)), d: 0)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.other)), d: 0) of non-feed farm cost).
 - *Best case, not a floor.* With every assumed limit at its best, 400 m³ vessels and 100 kt/yr, BLG,
   OVA, ovomucoid and β-casein cost #money(PL("blg/humbird").msp_ccf), #money(PL("ova/humbird").msp_ccf),
   #money(PL("ovd/humbird").msp_ccf) and #money(PL("cas/humbird").msp_ccf) per kg if cells secrete 40 mg/g/h; at 10 mg/g/h BLG costs

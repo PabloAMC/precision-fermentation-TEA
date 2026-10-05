@@ -658,3 +658,60 @@ if ctx:
              "100 kt/yr), which include a return on capital but no margin, sales or distribution. Lactoferrin and albumin, "
              "which are not food-ingredient commodities, are in Figs 1 and 10.", fontsize=6.8, color=MUTED, wrap=True)
     save(fig, "fig11_protein_context.png")
+
+# ------------------------------------------------------------------ Fig 12 feedstock and conversion: PF against the animal
+FL = R.get("floor")
+if FL:
+    ANI = FL["animals"]
+    fprods = [k for k in PRODS if FL["products"][k]["us_midwest"]["msp"] < 60]      # food proteins; lf and alb are off-scale
+    offs = [FL["products"][k][loc_]["msp"] for k in PRODS if k not in fprods for loc_ in FL["products"][k]]
+    xmax = 1.25 * max(FL["products"][k][loc_]["msp"] for k in fprods for loc_ in FL["products"][k])
+    locs = [("us_midwest", "United States"), ("eu_nw", "European Union")]
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 0.36 * (len(ANI) + len(fprods) + 1) + 2.0), sharey=True)
+    FEED, REST = CAT[3], "#c9dcf3"
+    for ax, (loc, title) in zip(axes, locs):
+        rows = []                                    # (label, feedstock, other, total range or None, kind)
+        for name, a in ANI.items():
+            d = a["regions"].get(loc)
+            rows.append((a["label"] + " (farm gate)", d and d["feed"], d and d["other"],
+                         d and d["total"] and (d["total_low"], d["total_high"]), "animal"))
+        for prod in fprods:
+            d = FL["products"][prod][loc]
+            rows.append((f"PF {SHORT[prod]} (base case, ex works)", d["glucose_usd"], d["other"], None, "pf"))
+        f0 = FL["products"]["blg"][loc]["floor"]
+        rows.append(("PF metabolic floor (inputs only)", f0["cost"]["substrate"], f0["total"] - f0["cost"]["substrate"], None, "floor"))
+        for i, (lab, fs, ot, rng, kind) in enumerate(rows):
+            y = len(rows) - 1 - i
+            if fs is None:
+                ax.text(0.3, y, "not gathered", fontsize=6.8, color=MUTED, va="center")
+                continue
+            ax.barh(y, fs, color=FEED, height=0.62, zorder=3)
+            if ot is None:                           # feed only: no comparable farm cost (EU milk)
+                ax.text(fs + 0.4, y, f"${fs:.1f} feed (lower bound); farm cost not comparable", fontsize=6.6, color=INK2, va="center")
+                continue
+            ax.barh(y, ot, left=fs, color=REST, height=0.62, zorder=3, hatch="////" if kind == "floor" else None,
+                    edgecolor=SURF if kind != "floor" else INK2, lw=0)
+            if rng:
+                ax.plot(rng, [y, y], color=INK2, lw=1.0, zorder=4)
+                for x_ in rng:
+                    ax.plot([x_, x_], [y - 0.15, y + 0.15], color=INK2, lw=1.0, zorder=4)
+            ax.text(max(fs + ot, rng[1] if rng else 0) + 0.4, y, f"${fs:.1f} + ${ot:.1f}", fontsize=6.6, color=INK2, va="center")
+        ax.set_yticks(range(len(rows)))
+        ax.set_yticklabels([r[0] for r in rows][::-1], fontsize=7.6)
+        ax.axhline(len(rows) - len(ANI) - 0.5, color=AXIS, lw=0.8)
+        ax.set_xlim(0, xmax)
+        money(ax.xaxis)
+        ax.grid(axis="y", visible=False)
+        ax.set_xlabel("$ per kg edible or ingredient protein")
+        ax.set_title(title, loc="left")
+    fig.legend(handles=[Patch(color=FEED, label="feedstock: animal feed, or glucose"),
+                        Patch(color=REST, label="everything else (housing, labour, capital; PF plant and DSP)")],
+               fontsize=7, loc="upper center", ncol=2, bbox_to_anchor=(0.5, 1.0))
+    fig.text(0.01, -0.05, "Animals: feed bill per kg of edible crude protein, parent and pullet feed included, milk net of the beef credit (derived "
+             "from breeder targets, industry, USDA, Eurostat and Wageningen data, grade D), and the rest of the farm's cost from the "
+             "feed share of cost (bars: US " + str(ANI["broiler"]["regions"]["us_midwest"]["year"]) + ", EU "
+             + str(ANI["broiler"]["regions"]["eu_nw"]["year"]) + "; whiskers: other years' feed prices and the feed-share range). "
+             "Farm gate, before slaughter, grading or processing. EU milk values home-grown forage at its seed and fertiliser cost only. PF: each product's base case, price-anchored capital, glucose "
+             "against everything else; the floor is the least glucose, ammonia and aeration power any process needs (BLG; "
+             "hatched = ammonia and power). " + (f"Lactoferrin and albumin (${min(offs):.0f}-{max(offs):.0f}/kg) are off this scale." if offs else ""), fontsize=6.8, color=MUTED, wrap=True)
+    save(fig, "fig12_feed_vs_floor.png")

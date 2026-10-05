@@ -168,3 +168,29 @@ claims:                    # Q5: is the claimed titer reachable within O2/heat l
      label: "T. reesei homologous secreted protein (Behm 2022, grade C)"}
   - {product: ova, source_key: intelligen_ovalbumin2025, host: T. reesei, model_host: treesei, model_product: ova,
      label: "Onego platform claim (protein not specified; tested as OVA; press, grade C)"}
+
+feed_bills:                # the incumbent animals' feed bill and farm-gate cost per kg of edible crude protein
+  # (benchmarks.feed_bills; report section on the metabolic floor, Fig. 12). Every number is read by key from
+  # data/evidence/feed.yaml: `feed` = USD of feed per kg edible protein (derived, grade D), `feed_share` = feed / total
+  # farm cost on the same scope (parent and pullet feed included), `allocation` = share of farm output value that is
+  # the food itself (co-product credit). No `feed_share`: the farm cost is not comparable and is not shown.
+  # Regions use the model's location keys. US poultry shares and EU shares: Wageningen model farms (one method).
+  broiler:
+    label: "chicken meat (broiler)"
+    regions:
+      us_midwest: {year: 2025, feed: {key: derived_us_broiler_delivered_feed_usd_per_edible_protein},   # corn + soy x delivered-feed premium
+                   feed_share: {key: derived_broiler_feed_share_wur_us2017}}
+      eu_nw: {year: 2024, feed: {key: derived_eu_broiler_feed_usd_per_edible_protein}, feed_share: {key: derived_broiler_feed_share_wur_eu2021}}
+  layer:
+    label: "hen's eggs"
+    regions:
+      us_midwest: {year: 2025, feed: {key: derived_layer_feed_usd_per_edible_protein}, feed_share: {key: derived_layer_feed_share_wur_us2021}}
+      eu_nw: {year: 2024, feed: {key: derived_eu_layer_feed_usd_per_edible_protein}, feed_share: {key: derived_layer_feed_share_wur_eu2021}}
+  dairy:
+    label: "cow's milk"
+    regions:
+      us_midwest: {year: 2025, feed: {key: derived_dairy_feed_per_edible_protein},
+                   feed_share: {key: dairy_feed_share_of_cost_ers},   # of total costs listed, incl. land and unpaid labour (PF's MSP includes a return on capital)
+                   allocation: {key: derived_us_dairy_milk_share_of_value_ers}}
+      eu_nw: {year: 2024, feed: {key: derived_eu_milk_feed_usd_per_edible_protein},   # a LOWER BOUND: home-grown forage at its specific costs only
+               allocation: {key: derived_eu_dairy_milk_share_of_value_emb}}

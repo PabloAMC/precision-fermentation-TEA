@@ -350,6 +350,25 @@ if CH:
                "plant at each kappa share of a 10 kt/yr casein blend; kappa co-precipitated (acid route, 'kap') or on its own "
                "cation-exchange column ('kap_cex'). Blend = (1 - s) x alpha-s1 + s x kappa (data/pf/scenarios/cheese.yaml).")
 
+FLR = R.get("floor")
+if FLR:
+    rows = []
+    for prod, by in FLR["products"].items():
+        for loc, d in by.items():
+            f = d["floor"]
+            rows.append([f"PF {prod} (floor)", loc, f["substrate_kg"], f["cost"]["substrate"], f["total"] - f["cost"]["substrate"],
+                         f["total"], None, f["p_max_kg_m3_h"]])
+            rows.append([f"PF {prod} (base case)", loc, d["glucose_kg"], d["glucose_usd"], d["other"], d["msp"], None, None])
+    for name, a in FLR["animals"].items():
+        for loc, d in a["regions"].items():
+            rows.append([f"{a['label']} (farm gate)", loc, None, d["feed"], d["other"], d["total"], d["share"], None])
+    sheet("Floor_vs_feed", ["case", "location", "glucose kg/kg protein", "feedstock $/kg protein", "everything else $/kg",
+                            "total $/kg", "feed share of farm cost", "productivity bound kg/m3/h"], rows,
+          [40, 12, 14, 14, 14, 12, 14, 16],
+          note="Metabolic floor (src/pftea/floor.py), each product's base case split into glucose and the rest, and the incumbent "
+               "animals' feed bill and farm-gate cost per kg of edible protein (data/evidence/feed.yaml, grade D). Report section "
+               "'Feedstock against feed'.")
+
 # ---------------------------------------------------------------- data
 with (ROOT / "data/titers.csv").open() as fh:
     t = list(csv.reader(fh))
