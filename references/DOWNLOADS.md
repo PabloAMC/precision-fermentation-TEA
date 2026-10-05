@@ -1,5 +1,11 @@
 # Documents to download (for Pablo)
 
+**Status 2026-10-05 (titer check).** 43 of 134 rows in data/titers.csv are not verified in full text. No base case and
+no headline scenario uses any of them. Four uses do, so these three papers come first (all paywalled):
+**15** Liu 2026 (lactoferrin marker, report Figure 3), **32** Hu 2025 (lactoferrin marker, report Figure 3) and **48** Zhu 2018 (albumin
+marker and the `alb_zhu2018` variant). Their chart labels now say "abstract only". The other 39 rows are literature
+context (P3) and change nothing.
+
 **Status 2026-09-27.**
 - Received and filed: 1 (Li), 2 (Yao), 3 (Aro), 4 (Järviö, article and Supplementary
   Information), 5 (Nielsen), FDA GRN 1056, plus Shukla 2026, Behm 2022, Zhang 2024, Yamanie 2026,

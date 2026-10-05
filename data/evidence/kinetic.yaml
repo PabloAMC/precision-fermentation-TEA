@@ -13,7 +13,8 @@
 # law gives no active ribosomes at all, so the '89 mg/g/h at mu = 0.0014' line is not supported.
 # The bracket for one heterologous protein at a 0.25 share is therefore ~18-41 mg/g/h, and 40 sits
 # at its generous top. The conclusion stands: 40 is a feasibility ceiling, ~2.5x the best secretion
-# rate ever measured (15-16 mg/g/h, A. niger glucoamylase), not a target.
+# rate we found published (15-16 mg/g/h, A. niger glucoamylase), not a target. The entries below were corrected
+# to match this note after audit R16 (L6).
 #
 # Format and grades: data/evidence/README.md.
 #   A measured/official | B design basis or patent | C company claim/press
@@ -34,13 +35,14 @@
 #   2. The headline finding is NEGATIVE for a tight bound: nothing in the literature caps
 #      secretion at a number close to 40 mg/g/h. The only hard physical ceiling I could
 #      derive is the TOTAL TRANSLATIONAL THROUGHPUT of a yeast cell, ~330 mg/g DCW/h in
-#      fast-growing S. cerevisiae and ~130-160 mg/g DCW/h for K. phaffii at mu <= 0.2/h.
-#      The highest specific SECRETION rate of a single protein ever measured, in any
-#      industrial microbe I could find, is 15-16.4 mg/g/h (A. niger glucoamylase, 20 gene
+#      fast-growing S. cerevisiae and, for K. phaffii at mu = 0.2/h, 74 mg/g DCW/h with active
+#      ribosomes only, up to ~163 if the idle ribosome reserve is recruited (see the REVIEW NOTE).
+#      The highest specific SECRETION rate of a single protein I could find published, in any
+#      industrial microbe, is 15-16.4 mg/g/h (A. niger glucoamylase, 20 gene
 #      copies, chemostat / pH auxostat). The model's 40 sits between the two: ~2.5x above
-#      anything ever demonstrated for a secreted protein, and ~0.3x of the translational
-#      ceiling. It is defensible as a FEASIBILITY ceiling, not as an achievable target.
-#   3. Three entries read only as abstracts (Withers 1998, Swift 1998, Wiebe 2000,
+#      anything found published for a secreted protein, and ~0.25-0.55x of K. phaffii's
+#      translational capacity at mu = 0.2/h. It is defensible as a FEASIBILITY ceiling, not as an achievable target.
+#   3. Four entries read only as abstracts (Withers 1998, Swift 1998, Wiebe 2000,
 #      Pakula 2005) are marked read: abstract. Their numbers are in the abstract itself.
 #   4. Two compiled values (Peebo 2018 Table 1) are a REVIEW's tabulation of other
 #      people's primary papers; I did not read the primaries. Grade kept A for the
@@ -291,9 +293,9 @@
     check hardest - it is the one load-bearing number I computed rather than read.
 
 - key: derived_kphaffii_translational_throughput_at_mu
-  value: 160
-  low: 125
-  high: 165
+  value: 74
+  low: 37
+  high: 163
   unit: mg protein/g DCW/h
   grade: D
   host: kphaffii
@@ -306,14 +308,15 @@
     Same ceiling, specialised to a K. phaffii production phase. The growth law fixes the
     ribosome content a cell actually carries at growth rate mu: r = r0 + mu/gamma with
     r0 = 0.08 and gamma = 3.0/h.
-      mu = 0.2/h (mu_max): r = 0.147 -> gamma x r x P = 3.0 x 0.147 x 0.37 = 163 mg/g DCW/h
-      mu = 0.1/h:          r = 0.113 -> 125 mg/g DCW/h
-      mu = 0.0014/h (the model's production phase): r = 0.080 -> 89 mg/g DCW/h
-    Of this throughput, the part needed to make NEW BIOMASS protein is mu x P
-    (74, 37 and 0.5 mg/g/h respectively); the rest replaces turnover. So the product has
-    to come out of the turnover budget, not out of free capacity. Treating half of the
-    non-growth throughput as divertible gives ~45, ~44 and ~44 mg/g/h at those three
-    growth rates - which is, coincidentally, right where the model's 40 sits.
+      mu = 0.2/h (mu_max): r = 0.147; with ACTIVE ribosomes only (r - r0 = mu/gamma) the
+        throughput is gamma x (mu/gamma) x P = mu x P = 0.2 x 370 = 74 mg/g DCW/h; counting
+        the idle reserve r0 as translating gives 3.0 x 0.147 x 0.37 = 163 (the HIGH).
+      mu = 0.1/h: 37 (active only) to 125 (reserve recruited).
+    CORRECTED 2026-10-05 (audit R16-L6): the first version also gave 89 mg/g/h at the model's
+    production-phase mu = 0.0014/h, from r0 alone. r0 is the NON-translating reserve, so the
+    growth law gives no active capacity at near-zero growth and does not bound q_p there; that
+    line and a 'half of turnover is divertible, ~44 mg/g/h' estimate were removed. The bracket
+    is stated at mu = 0.2/h only.
 
 - key: derived_kphaffii_net_protein_synthesis_at_mumax
   value: 74
@@ -757,14 +760,13 @@
     DERIVATION CHAIN (every input traceable above):
       (i)   protein = 0.37 g/g DCW [A, Carnicer 2009, K. phaffii chemostat]
       (ii)  gamma = 3.0 1/h, r = 0.08 + mu/gamma [A, Metzl-Raz 2017 growth law]
-      (iii) translational throughput at mu = 0.1-0.2 1/h: 125-163 mg/g DCW/h [D, derived]
-      (iv)  of which mu x P = 37-74 mg/g/h is committed to new biomass protein; the rest
-            (~88 mg/g/h) is proteome turnover and is what a product must displace
+      (iii) translational throughput at mu = 0.2 1/h: 74 mg/g DCW/h with active ribosomes,
+            up to 163 if the idle reserve is recruited [D, derived; corrected 2026-10-05]
       (v)   maximum share one HETEROLOGOUS protein has ever taken: ~20-25% of output
             [A, Metzl-Raz mCherry 25%; Pakula 2016 lipase 20%] - homologous proteins reach
             60-90% but that is not the case here
-      (vi)  0.25 x 163 = 41 mg/g/h  ->  VALUE = 40.
-    LOW = 15 mg/g/h: the best specific secretion rate of one protein ever measured in any
+      (vi)  0.25 x 74-163 = 18-41 mg/g/h  ->  VALUE = 40, the generous top of the bracket.
+    LOW = 15 mg/g/h: the best specific secretion rate of one protein we found published for any
       industrial microbe (A. niger glucoamylase, 15-16.4, Withers/Swift 1998, grade A),
       with T. reesei fed-batch at 5.5-11.5 and K. phaffii at 0.7-2.1. If the model wants a
       bound that no real organism has ever beaten, 15 is that number.
@@ -775,9 +777,9 @@
       it is the physics limit discounted for being a secreted, heterologous protein.
     HONEST CAVEAT, as asked: the literature does NOT support a bound tighter than the total
       synthesis capacity on physical grounds. Everything between 15 and 80 is an
-      allocation judgment. The one genuinely hard statement is that q_p can never exceed
-      ~160 mg/g/h in K. phaffii at mu <= 0.2 1/h, and that the gap between that ceiling and
-      the 2.1 mg/g/h actually demonstrated on glucose is a factor of ~75 - i.e. the binding
+      allocation judgment. The one genuinely hard statement is that q_p cannot exceed
+      the cell's translational capacity, ~74-163 mg/g/h in K. phaffii at mu = 0.2 1/h, and that
+      the gap between that and the 2.1 mg/g/h actually demonstrated on glucose is a factor of ~35-75 - i.e. the binding
       constraint in a real process is strain and secretory engineering, not physics.
     WHAT WOULD TIGHTEN IT: a measured ER-export flux per cell in K. phaffii (mass units),
       or a genome-scale secretory model reporting a maximum secretion flux in mg/gDCW/h.

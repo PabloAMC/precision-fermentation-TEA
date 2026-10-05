@@ -661,9 +661,10 @@ if ctx:
 
 # ------------------------------------------------------------------ Fig 12 feedstock and conversion: PF against the animal
 FL = R.get("floor")
+FNAME = {"cas": "β-casein", "alac": "α-lactalbumin"}
 if FL:
     ANI = FL["animals"]
-    fprods = [k for k in PRODS if FL["products"][k]["us_midwest"]["msp"] < 60]      # food proteins; lf and alb are off-scale
+    fprods = [k for k in FL["food_products"] if k in PRODS]          # benchmarks.yaml feed_bills.food_products
     offs = [FL["products"][k][loc_]["msp"] for k in PRODS if k not in fprods for loc_ in FL["products"][k]]
     xmax = 1.25 * max(FL["products"][k][loc_]["msp"] for k in fprods for loc_ in FL["products"][k])
     locs = [("us_midwest", "United States"), ("eu_nw", "European Union")]
@@ -677,7 +678,7 @@ if FL:
                          d and d["total"] and (d["total_low"], d["total_high"]), "animal"))
         for prod in fprods:
             d = FL["products"][prod][loc]
-            rows.append((f"PF {SHORT[prod]} (base case, ex works)", d["glucose_usd"], d["other"], None, "pf"))
+            rows.append((f"PF {FNAME.get(prod, SHORT[prod])} (base case, ex works)", d["glucose_usd"], d["other"], None, "pf"))
         f0 = FL["products"]["blg"][loc]["floor"]
         rows.append(("PF metabolic floor (inputs only)", f0["cost"]["substrate"], f0["total"] - f0["cost"]["substrate"], None, "floor"))
         for i, (lab, fs, ot, rng, kind) in enumerate(rows):
@@ -691,27 +692,30 @@ if FL:
                 continue
             ax.barh(y, ot, left=fs, color=REST, height=0.62, zorder=3, hatch="////" if kind == "floor" else None,
                     edgecolor=SURF if kind != "floor" else INK2, lw=0)
-            if rng:
-                ax.plot(rng, [y, y], color=INK2, lw=1.0, zorder=4)
+            if rng:                                  # range of the farm cost, drawn above the bar
+                yw = y + 0.42
+                ax.plot(rng, [yw, yw], color=INK2, lw=1.0, zorder=4)
                 for x_ in rng:
-                    ax.plot([x_, x_], [y - 0.15, y + 0.15], color=INK2, lw=1.0, zorder=4)
-            ax.text(max(fs + ot, rng[1] if rng else 0) + 0.4, y, f"${fs:.1f} + ${ot:.1f}", fontsize=6.6, color=INK2, va="center")
+                    ax.plot([x_, x_], [yw - 0.09, yw + 0.09], color=INK2, lw=1.0, zorder=4)
+            ax.text(fs + ot + 0.4, y, f"${fs:.1f} + ${ot:.1f}", fontsize=6.6, color=INK2, va="center")
         ax.set_yticks(range(len(rows)))
         ax.set_yticklabels([r[0] for r in rows][::-1], fontsize=7.6)
         ax.axhline(len(rows) - len(ANI) - 0.5, color=AXIS, lw=0.8)
         ax.set_xlim(0, xmax)
-        money(ax.xaxis)
+        ax.xaxis.set_major_formatter(FuncFormatter(lambda x_, _: f"${x_:,.0f}"))
         ax.grid(axis="y", visible=False)
         ax.set_xlabel("$ per kg edible or ingredient protein")
         ax.set_title(title, loc="left")
     fig.legend(handles=[Patch(color=FEED, label="feedstock: animal feed, or glucose"),
                         Patch(color=REST, label="everything else (housing, labour, capital; PF plant and DSP)")],
                fontsize=7, loc="upper center", ncol=2, bbox_to_anchor=(0.5, 1.0))
-    fig.text(0.01, -0.05, "Animals: feed bill per kg of edible crude protein, parent and pullet feed included, milk net of the beef credit (derived "
-             "from breeder targets, industry, USDA, Eurostat and Wageningen data, grade D), and the rest of the farm's cost from the "
-             "feed share of cost (bars: US " + str(ANI["broiler"]["regions"]["us_midwest"]["year"]) + ", EU "
-             + str(ANI["broiler"]["regions"]["eu_nw"]["year"]) + "; whiskers: other years' feed prices and the feed-share range). "
+    fig.text(0.01, -0.05, "Animals: feed bill per kg of edible crude protein, all of it charged to the protein (milk's and eggs' feed also makes "
+             "their fat and lactose), parent and pullet feed included, milk net of the cattle credit (derived from breeder targets, "
+             "industry, USDA, Eurostat and Wageningen data, grade D), and the rest of the farm's cost from the feed share of cost "
+             "(bars: US " + str(ANI["broiler"]["regions"]["us_midwest"]["year"]) + ", EU " + str(ANI["broiler"]["regions"]["eu_nw"]["year"])
+             + " in that year's dollars; whiskers above the bars: the farm cost over feed-price years, feed conversion and edible "
+             "yield, at the central feed share; US milk year by year). "
              "Farm gate, before slaughter, grading or processing. EU milk values home-grown forage at its seed and fertiliser cost only. PF: each product's base case, price-anchored capital, glucose "
-             "against everything else; the floor is the least glucose, ammonia and aeration power any process needs (BLG; "
+             "against everything else; the floor is the least glucose, ammonia and aeration power at the host's energetic ceiling (BLG; "
              "hatched = ammonia and power). " + (f"Lactoferrin and albumin (${min(offs):.0f}-{max(offs):.0f}/kg) are off this scale." if offs else ""), fontsize=6.8, color=MUTED, wrap=True)
     save(fig, "fig12_feed_vs_floor.png")

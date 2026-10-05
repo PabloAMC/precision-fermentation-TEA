@@ -174,14 +174,16 @@ def feed_bills() -> dict:
         total C = F / s,   s = feed share of the farm's total cost (feed / all costs, incl. a return on capital and
                   unpaid labour where the source counts them)
         other   = C - F    (housing, labour, young stock, energy, vets, capital: the animal's "conversion bill")
-    low/high of C pair the low feed bill with the high feed share and vice versa. Nominal dollars of the
-    entry's year (2025, the model's money year); low/high span other years. Farm gate: a live bird, a shell
+    low/high of C hold the share at its central value (a dear-feed year has a high share, so pairing extremes would
+    overstate the range; audit R16-M2), unless `total_range` names a year-paired farm cost (US milk). Nominal dollars of the
+    entry's year (US 2025, the model's money year; EU 2024 at the 2024 exchange rate); low/high span other years. Farm gate: a live bird, a shell
     egg, raw milk, before slaughter, grading or processing; PF costs are ex works for a purified ingredient.
     Returns {animal: {label, regions: {location: {feed, feed_low, feed_high, share, share_low, share_high,
     alloc, total, total_low, total_high, other, year, grades, keys}}}}; share, total and other are None where
     the config gives no feed share (no comparable farm cost).
     """
-    cfg = yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())["feed_bills"]
+    cfg = {k: c for k, c in yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())["feed_bills"].items()
+           if k != "food_products"}
     ev = {e["key"]: e for e in yaml.safe_load((ROOT / "data/evidence/feed.yaml").read_text())}
 
     def num(ref):
@@ -204,9 +206,13 @@ def feed_bills() -> dict:
             ks, gs = "", ""
             if "feed_share" in r:                                         # else: no comparable farm cost
                 s, slo, shi, gs, ks = num(r["feed_share"])
-                d.update(share=s, share_low=slo, share_high=shi, total=f * a / s, total_low=flo * a / shi,
-                         total_high=fhi * a / slo, other=f * a / s - f * a)
-            d.update(grades=dict(feed=gf, share=gs, allocation=ga), keys=[k for k in (kf, ks, ka) if k])
+                d.update(share=s, share_low=slo, share_high=shi, total=f * a / s, total_low=flo * a / s,
+                         total_high=fhi * a / s, other=f * a / s - f * a)
+                if "total_range" in r:                                    # observed, year-paired farm cost
+                    _, tlo, thi, _, kt = num(r["total_range"])
+                    d.update(total_low=tlo, total_high=thi)
+                    ks = ks + "," + kt
+            d.update(grades=dict(feed=gf, share=gs, allocation=ga), keys=[k for k in (kf, *ks.split(","), ka) if k])
             regions[loc] = d
         out[name] = dict(label=c["label"], regions=regions)
     return out

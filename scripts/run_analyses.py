@@ -720,7 +720,8 @@ def s_floor(res):
     """Metabolic floor (floor.py) of every product beside its base case's own feedstock bill, and the incumbent
     animals' feed bill and farm-gate cost per kg of edible protein (benchmarks.feed_bills), US and EU.
     PF splits the same way as the animal: feedstock (glucose) and everything else (MSP - glucose)."""
-    out = {"products": {}, "animals": bm.feed_bills()}
+    out = {"products": {}, "animals": bm.feed_bills(),
+           "food_products": yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())["feed_bills"]["food_products"]}
     for prod in PRODUCTS:
         out["products"][prod] = {}
         for loc in params.LOCATIONS:
@@ -728,7 +729,9 @@ def s_floor(res):
             r = plant.evaluate(p)
             out["products"][prod][loc] = dict(floor=floor.metabolic_floor(p), msp=r.msp_ccf, glucose_kg=r.physical["glucose_kg"],
                                               glucose_usd=r.per_kg["glucose"], cells_kg=r.physical["cells_kg"],
-                                              other=r.msp_ccf - r.per_kg["glucose"])
+                                              other=r.msp_ccf - r.per_kg["glucose"],
+                                              # what real cells could make at most: the secretion ceiling x the packing limit
+                                              cells_cap_kg_m3_h=params.v(p, "strain.q_p_max_mg_g_h") / 1000 * params.v(p, "strain.X_max_g_L"))
     res["floor"] = out
 
 
