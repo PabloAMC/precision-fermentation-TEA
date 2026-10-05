@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from pftea import benchmarks as bm  # noqa: E402
 from pftea import calibration as cal  # noqa: E402
+from pftea import floor  # noqa: E402
 from pftea import humbird_yeast as hy  # noqa: E402
 from pftea import params, plant  # noqa: E402
 from pftea import scenarios as sc  # noqa: E402
@@ -715,6 +716,22 @@ def s_heme(res):
     res["heme"] = out
 
 
+def s_floor(res):
+    """Metabolic floor (floor.py) of every product beside its base case's own feedstock bill, and the incumbent
+    animals' feed bill and farm-gate cost per kg of edible protein (benchmarks.feed_bills), US and EU.
+    PF splits the same way as the animal: feedstock (glucose) and everything else (MSP - glucose)."""
+    out = {"products": {}, "animals": bm.feed_bills()}
+    for prod in PRODUCTS:
+        out["products"][prod] = {}
+        for loc in params.LOCATIONS:
+            p = sc.base_params(prod, {"plant.location": loc})
+            r = plant.evaluate(p)
+            out["products"][prod][loc] = dict(floor=floor.metabolic_floor(p), msp=r.msp_ccf, glucose_kg=r.physical["glucose_kg"],
+                                              glucose_usd=r.per_kg["glucose"], cells_kg=r.physical["cells_kg"],
+                                              other=r.msp_ccf - r.per_kg["glucose"])
+    res["floor"] = out
+
+
 SECTIONS = {"base": s_base, "scenarios": s_scenarios, "physical_limit": s_physical_limit, "demonstrated": s_demonstrated,
             "cost_vs_titer": s_cost_vs_titer, "bridge": s_bridge, "required": s_required, "ceiling": s_ceiling,
             "claims": s_claims,
@@ -722,7 +739,7 @@ SECTIONS = {"base": s_base, "scenarios": s_scenarios, "physical_limit": s_physic
             "tornado": s_tornado,
             "monte_carlo": s_monte_carlo, "scale": s_scale, "calibration": s_calibration,
             "equivalents": s_equivalents, "lactoferrin": s_lactoferrin, "casein": s_casein, "alac": s_alac, "cheese": s_cheese, "heme": s_heme,
-            "albumin": s_albumin}
+            "albumin": s_albumin, "floor": s_floor}
 
 if __name__ == "__main__":
     t0 = time.time()

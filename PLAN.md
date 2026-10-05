@@ -79,14 +79,21 @@ Phase F (external review) has not started. Open items:
 ## Decisions log
 
 - **2026-10-05, metabolic floor and the animals' feed bill (Pablo, 2026-10-02: evaluate the price better, no
-  forecasting; Claude built it, for Pablo's review):**
+  forecasting; 2026-10-05: "do all of that"; Claude built it, for Pablo's review):**
   - src/pftea/floor.py: substrate, NH3, O2 and heat per kg of protein at the energetic yield ceiling, their cost,
-    and the productivity bound from O2 transfer and heat removal. BLG: 1.78 kg glucose, $0.88/kg of inputs
-    ($0.71 of it glucose at $0.40/kg), at most ~13 kg/m3/h (heat-limited). Tested for C and electron balance.
-  - data/evidence/feed.yaml (32 entries, US only): feed per kg of edible protein and its cost. Central 2025:
-    broiler $5.4, eggs $4.7, milk $6.6 per kg of protein, 7-12x PF's glucose floor (grade D, derived). Open:
-    no EU column; feed priced as corn + soy only; no cull-cow or spent-hen credit; breeder-male feed omitted.
-  - Not yet in run_analyses, the figures or the report.
+    and the productivity bound from O2 transfer and heat removal. BLG: 1.77 kg glucose, $0.88/kg of inputs
+    ($0.71 of it glucose at $0.40/kg; EU $1.28), at most ~13 kg/m3/h (cooling-limited; the base case makes 0.27).
+  - data/evidence/feed.yaml (US and EU, 58 entries): feed per kg of edible protein and its cost, parent and pullet
+    feed included, US broiler feed raised by a sourced delivered-feed premium (1.23), milk credited for its beef by
+    value. Feed shares from Wageningen's model farms (EU and US poultry) and USDA ERS (US milk) turn a feed bill into
+    a farm-gate cost. EU milk is a lower bound (forage at specific costs) and gets no farm cost.
+  - Result (run_analyses.s_floor, Fig. 12, report section "Feedstock against feed", memo bullet, SI sheet Floor_vs_feed):
+    the base case's glucose ($4.1/kg BLG US) costs no more than the animals' feed ($4.7-6.7 US, $7.9-8.9 EU poultry);
+    PF's gap is everything else ($17 vs $2-8 on the farm). The glucose floor is 7-9x below the feed bills.
+  - Secretion ceiling: data/evidence/kinetic.yaml (39 entries) brackets strain.q_p_max_mg_g_h = 40 between the highest
+    secretion rate ever measured (15-16 mg/g/h, A. niger glucoamylase) and the translational capacity of K. phaffii.
+    Value unchanged (no result changes); base.yaml's source text now cites it. A flaw in its growth-law arithmetic
+    (the inactive ribosome reserve counted as translating) is noted in the file's header.
 
 - **2026-10-02, v4: model review and serum albumin (Pablo: take the candidates "one by one, in priority
   order"; "consider if this is the best possible model ... no artificial complexity, but SOTA or close";

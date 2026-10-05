@@ -588,3 +588,16 @@ def test_metabolic_floor_balances(prod):
     assert 24 * glc_mol == pytest.approx(prot.species.gamma * n + 4 * f["o2_mol"], rel=1e-6)
     assert f["p_max_kg_m3_h"] == min(f["p_max_o2_kg_m3_h"], f["p_max_heat_kg_m3_h"])
     assert f["total"] == pytest.approx(sum(f["cost"].values()))
+
+
+def test_feed_bills_identity():
+    """Farm-gate cost = allocated feed bill / feed share; 'other' is the rest; the ranges bracket the central."""
+    from pftea import benchmarks as bm
+    for animal in bm.feed_bills().values():
+        for d in animal["regions"].values():
+            if d["share"] is None:
+                assert d["total"] is None and d["other"] is None and d["feed"] > 0
+                continue
+            assert d["total"] == pytest.approx(d["feed"] / d["share"], rel=1e-12)
+            assert d["other"] == pytest.approx(d["total"] - d["feed"], rel=1e-12)
+            assert d["total_low"] <= d["total"] <= d["total_high"] and 0 < d["share"] <= 1 and 0 < d["alloc"] <= 1
