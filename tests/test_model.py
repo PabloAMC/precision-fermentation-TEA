@@ -571,3 +571,20 @@ def test_unused_paths_keep_a_products_own_dryer_leaf():
     """cas's dryer leaf is a prefix of cas1's: cas1 must not skip its own (audit R14-L4)."""
     p = sc.scenario_params("cheese", "cas1")
     assert not any("dsp.dryer_feed_solids_cas1".startswith(u) for u in sc.unused_paths(p))
+
+
+# ---------------------------------------------------------------- metabolic floor
+@pytest.mark.parametrize("prod", ["blg", "alb"])
+def test_metabolic_floor_balances(prod):
+    """At the ceiling: substrate = 1/Y*, and electrons close: 24 per glucose = gamma_p per C-mol of protein + 4 per O2
+    (NH3 as the N source, Roels' convention)."""
+    from pftea import floor
+    p = sc.base_params(prod)
+    f = floor.metabolic_floor(p)
+    assert f["substrate_kg"] == pytest.approx(1 / f["yield_g_g"], rel=1e-4)    # glucose molar mass rounding
+    prot = pr.protein(prod)
+    n = 1000 / prot.species.mw
+    glc_mol = f["substrate_kg"] * 1000 / 180.156
+    assert 24 * glc_mol == pytest.approx(prot.species.gamma * n + 4 * f["o2_mol"], rel=1e-6)
+    assert f["p_max_kg_m3_h"] == min(f["p_max_o2_kg_m3_h"], f["p_max_heat_kg_m3_h"])
+    assert f["total"] == pytest.approx(sum(f["cost"].values()))
