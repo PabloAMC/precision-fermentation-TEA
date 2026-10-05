@@ -1,7 +1,7 @@
 # data/evidence/feed.yaml: feed bill of the animal products that precision fermentation replaces, per kg of
 # EDIBLE PROTEIN: broiler chicken meat, hen's eggs, cow's milk (US). Gathered 2026-10-03; moved here 2026-10-05.
-# Not read by the model yet (src/pftea/floor.py computes the PF side).
-# Purpose: compare the PF metabolic floor (~1.78 kg glucose per kg protein, ~$0.55-0.71/kg protein at $0.31-0.40/kg
+# Read by src/pftea/benchmarks.py feed_bills (keys named in data/pf/benchmarks.yaml); the PF side is src/pftea/floor.py.
+# Purpose: compare the PF metabolic floor (~1.77 kg glucose per kg protein, ~$0.55-0.71/kg protein at $0.31-0.40/kg
 # glucose; see data/evidence/prices.yaml glucose_* keys) with the feed bill of the incumbent animal.
 # Format: data/evidence/README.md, plus the extra fields of prices.yaml/milk_egg.yaml: `year` (year of `value`),
 # `values` (series or component map). `read: html` = HTML page, text file, CSV or JSON record read via curl
@@ -380,7 +380,7 @@
   locator: "Items 'Total, feed costs', 'Total, operating costs', 'Total, costs listed', U.S. total"
   quote: "Total, operating costs ... U.S. total, United States, 2025, 13.75 ... Total, costs listed ... U.S. total, United States, 2025, 23.36"
   read: "html"
-  note: "Shares computed by me, e.g. 2025: 9.82/23.36 = 0.420; 9.82/13.75 = 0.714. ERS gross value of production 2025 = 23.99 USD/cwt, of which milk 21.02 (rest cattle and other income)."
+  note: "Grade A kept: a ratio of two items of one official table (audit R16-L3). Shares computed by me, e.g. 2025: 9.82/23.36 = 0.420; 9.82/13.75 = 0.714. ERS gross value of production 2025 = 23.99 USD/cwt, of which milk 21.02 (rest cattle and other income)."
 
 - key: "layer_feed_share_of_cost_eic"
   value: 0.54
@@ -923,25 +923,27 @@
     So feed.yaml's '10-20% (unsourced)' is about right for layers and slightly low for broilers. Wageningen's US prices
     are model inputs (B), not market quotes. Extract: references/text/feed/ers_corn_monthly_soy_my_extract.csv.
 
-- key: "derived_us_broiler_delivered_feed_usd_per_edible_protein"
-  value: 6.68
-  low: 4.62
-  high: 11.42
+- key: derived_us_broiler_delivered_feed_usd_per_edible_protein
+  value: 6.57
+  low: 5.27
+  high: 10.48
   year: 2025
-  unit: "USD feed per kg edible crude protein, US broiler meat incl. parent hens, ingredient proxy x delivered-feed premium"
-  values: {by_year_central: {2020: 7.16, 2021: 9.07, 2022: 9.79, 2023: 7.82, 2024: 6.66, 2025: 6.68}, plus_breeder_males_kg_feed_per_kg_protein: 0.13}
-  grade: "D"
-  source: "Derived (mine) from feed.yaml derived_broiler_feed_per_edible_protein, broiler_feed_price_nass_model_my, and derived_us_delivered_feed_premium"
+  unit: "USD feed per kg edible crude protein, US broiler meat incl. parent hens: corn + soy ingredient proxy + a delivered-feed adder of 53.35 USD/t"
+  values: {by_year_central: {2020: 6.97, 2021: 8.52, 2022: 9.09, 2023: 7.51, 2024: 6.56, 2025: 6.58}, adder_usd_per_t: {2013: 22.4, 2015: 58.2, 2017: 48.5, used_mean_2015_2017: 53.35}, ratio_method_v1: {value: 6.68, low: 4.62, high: 11.42}}
+  grade: D
+  source: "Derived (mine) from derived_broiler_feed_per_edible_protein, broiler_feed_price_nass_model_my and derived_us_delivered_feed_premium (delivered_usd_per_t - proxy_usd_per_t)"
   doi_or_url: "see component entries"
   locator: "component entries"
   quote: null
-  read: "fulltext"
+  read: fulltext
   note: >-
-    Derived, not a quote. Central 21.5 kg feed/kg protein x 0.252 USD/kg (MY 2025) x 1.233 = 6.68; low 17.3 x 0.251 x
-    1.063 = 4.62; high 24.8 x 0.369 (2022) x 1.248 = 11.42. Adding breeder males (+0.011 kg/kg live / 0.0849 = +0.13 kg
-    feed per kg protein) changes the result by <1% - ignored. Eggs: feed.yaml's layer figure already uses the EIC
-    delivered-feed formula, so no premium is applied; Wageningen's 2021 US layer feed (267.5 USD/st) is 8% above that
-    formula on national prices (248), i.e. the US egg figure may be ~5-8% low (flag, not revised).
+    Derived, not a quote. The delivered premium behaves as a roughly fixed adder (milling, premix, transport), not a ratio:
+    2013 +22.4, 2015 +58.2, 2017 +48.5 USD/t over the corn + soy proxy (2013 a drought-price year). Adder = mean of 2015 and 2017
+    = 53.35 USD/t. Central 21.5 kg feed/kg protein x (0.252 + 0.05335) USD/kg = 6.57 (2025); low 17.3 x (0.251 + 0.05335) = 5.27;
+    high 24.8 x (0.369 + 0.05335) = 10.48 (2022). The first version multiplied by a ratio (1.233; low and high paired premiums
+    with other years' prices) and gave 6.68 (4.62-11.42); changed after audit R16-M2. Breeder males add <1% (ignored).
+    Eggs: feed.yaml's layer figure already uses the EIC delivered-feed formula, so no adder; Wageningen's 2021 US layer feed
+    is 8% above that formula on national prices (flag, not revised).
 
 - key: "derived_eu_broiler_feed_usd_per_edible_protein"
   value: 8.87
@@ -1088,16 +1090,54 @@
     costs; the Wageningen basis is used for the US and EU alike.
 
 - key: derived_us_dairy_milk_share_of_value_ers
-  value: 0.876
-  unit: "fraction: milk / gross value of production (milk + cattle + other), US dairy farms, 2025"
+  value: 0.903
+  low: 0.903
+  high: 0.952
+  unit: "fraction: milk sold / (milk sold + cattle), US dairy farms, 2025 (2020-2025 range 0.903-0.952)"
   year: 2025
+  values: {2020: 0.937, 2021: 0.946, 2022: 0.952, 2023: 0.929, 2024: 0.920, 2025: 0.903, other_income_usd_cwt_2025: 0.72}
   grade: D
-  source: "Derived (mine) from USDA ERS Milk Cost of Production Estimates (dairy_feed_share_of_cost_ers note: gross value 23.99, milk 21.02 USD/cwt, 2025)"
+  source: "Derived (mine) from USDA ERS Milk Cost of Production Estimates, items 'Milk sold' and 'Cattle' (Gross value of production), U.S. total"
   doi_or_url: "https://www.ers.usda.gov/media/4980/milk.csv"
-  locator: "Items 'Milk', 'Total, gross value of production', U.S. total, 2025"
+  locator: "Gross value of production: 'Milk sold', 'Cattle', U.S. total, 2020-2025"
+  quote: "Gross value of production, Milk sold ... 2025, 21.02 ... Cattle ... 2025, 2.25"
+  read: html
+  note: >-
+    21.02 / (21.02 + 2.25) = 0.903: the share of the farm's feed and costs charged to milk when cull cows and calves are
+    credited by value. 'Other income' (0.72 USD/cwt in 2025: not cattle) is left out of the allocation (audit R16-L2; the first
+    version used milk / gross value, 0.876). File references/text/feed/ers_milk_cop.csv.
+
+- key: derived_us_dairy_farm_cost_per_edible_protein_ers
+  value: 14.23
+  low: 14.05
+  high: 17.55
+  unit: "USD of total costs listed per kg milk crude protein, after the cattle credit, US, 2025 (2020-2025 range)"
+  year: 2025
+  values: {2020: 14.05, 2021: 14.63, 2022: 17.55, 2023: 16.75, 2024: 14.67, 2025: 14.23}
+  grade: D
+  source: "Derived (mine) from USDA ERS Milk Cost of Production Estimates ('Total, costs listed') and derived_us_dairy_milk_share_of_value_ers"
+  doi_or_url: "https://www.ers.usda.gov/media/4980/milk.csv"
+  locator: "'Total, costs listed', U.S. total, 2020-2025"
   quote: null
   read: html
-  note: "21.02 / 23.99 = 0.876: the share of the farm's feed and costs charged to milk when cull cows and calves are credited by value."
+  note: >-
+    Each year's total costs listed (USD/cwt) / 45.359 kg / 0.0327 kg protein per kg milk x that year's milk share: 2025
+    23.36/45.359/0.0327 x 0.903 = 14.23; 2022 27.33 -> 17.55. Year-paired, so the range is what was observed (audit R16-M2:
+    pairing the lowest feed bill with the highest feed share gave 9.7-20.9). Used as the farm-cost range for US milk.
+
+- key: derived_us_layer_nonfeed_cost_eic2023
+  value: 4.23
+  unit: "USD of non-feed cost per kg egg crude protein, US conventional eggs, 2023 (feed incl. pullet feed excluded)"
+  year: 2023
+  grade: D
+  source: "Derived (mine) from layer_feed_share_of_cost_eic (total 85.98 c/dozen; feed incl. pullet feed 52.77 c/dozen, its note)"
+  doi_or_url: "see component entry"
+  locator: "component entry"
+  quote: null
+  read: fulltext
+  note: >-
+    (85.98 - 52.77) / 100 / 0.0785 kg protein per dozen = 4.23 USD. An absolute check on the farm 'other' cost, which the model
+    gets as feed x (1/s - 1) and so scales with the feed price (audit R16-L1): the model gives ~2.1 for 2025 eggs.
 
 - key: derived_eu_dairy_milk_share_of_value_emb
   value: 0.865

@@ -581,10 +581,10 @@ def test_metabolic_floor_balances(prod):
     from pftea import floor
     p = sc.base_params(prod)
     f = floor.metabolic_floor(p)
-    assert f["substrate_kg"] == pytest.approx(1 / f["yield_g_g"], rel=1e-4)    # glucose molar mass rounding
+    assert f["substrate_kg"] == pytest.approx(1 / f["yield_g_g"], rel=1e-9)
     prot = pr.protein(prod)
     n = 1000 / prot.species.mw
-    glc_mol = f["substrate_kg"] * 1000 / 180.156
+    glc_mol = f["substrate_kg"] * 1000 / th.get("Glucose (s)").mw
     assert 24 * glc_mol == pytest.approx(prot.species.gamma * n + 4 * f["o2_mol"], rel=1e-6)
     assert f["p_max_kg_m3_h"] == min(f["p_max_o2_kg_m3_h"], f["p_max_heat_kg_m3_h"])
     assert f["total"] == pytest.approx(sum(f["cost"].values()))

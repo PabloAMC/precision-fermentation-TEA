@@ -359,12 +359,18 @@ if FLR:
             rows.append([f"PF {prod} (floor)", loc, f["substrate_kg"], f["cost"]["substrate"], f["total"] - f["cost"]["substrate"],
                          f["total"], None, f["p_max_kg_m3_h"]])
             rows.append([f"PF {prod} (base case)", loc, d["glucose_kg"], d["glucose_usd"], d["other"], d["msp"], None, None])
+            rows[-2] += [None] * 9
+            rows[-1] += [None] * 9
     for name, a in FLR["animals"].items():
         for loc, d in a["regions"].items():
-            rows.append([f"{a['label']} (farm gate)", loc, None, d["feed"], d["other"], d["total"], d["share"], None])
+            rows.append([f"{a['label']} (farm gate)", loc, None, d["feed"], d["other"], d["total"], d["share"], None,
+                         d["feed_low"], d["feed_high"], d["total_low"], d["total_high"], d["alloc"], d["year"],
+                         f"feed {d['grades']['feed']}, share {d['grades']['share'] or '-'}", ", ".join(d["keys"]), None])
     sheet("Floor_vs_feed", ["case", "location", "glucose kg/kg protein", "feedstock $/kg protein", "everything else $/kg",
-                            "total $/kg", "feed share of farm cost", "productivity bound kg/m3/h"], rows,
-          [40, 12, 14, 14, 14, 12, 14, 16],
+                            "total $/kg", "feed share of farm cost", "productivity bound kg/m3/h", "feed low", "feed high",
+                            "total low", "total high", "share of farm value charged (co-product credit)", "year", "grades",
+                            "evidence keys (data/evidence/feed.yaml)", ""], rows,
+          [40, 12, 14, 14, 14, 12, 14, 16, 10, 10, 10, 10, 14, 8, 16, 60, 2],
           note="Metabolic floor (src/pftea/floor.py), each product's base case split into glucose and the rest, and the incumbent "
                "animals' feed bill and farm-gate cost per kg of edible protein (data/evidence/feed.yaml, grade D). Report section "
                "'Feedstock against feed'.")

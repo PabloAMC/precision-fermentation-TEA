@@ -84,16 +84,21 @@ Phase F (external review) has not started. Open items:
     and the productivity bound from O2 transfer and heat removal. BLG: 1.77 kg glucose, $0.88/kg of inputs
     ($0.71 of it glucose at $0.40/kg; EU $1.28), at most ~13 kg/m3/h (cooling-limited; the base case makes 0.27).
   - data/evidence/feed.yaml (US and EU, 58 entries): feed per kg of edible protein and its cost, parent and pullet
-    feed included, US broiler feed raised by a sourced delivered-feed premium (1.23), milk credited for its beef by
+    feed included, US broiler feed plus a sourced delivered-feed adder (~$53/t), milk credited for its cattle sales by
     value. Feed shares from Wageningen's model farms (EU and US poultry) and USDA ERS (US milk) turn a feed bill into
     a farm-gate cost. EU milk is a lower bound (forage at specific costs) and gets no farm cost.
-  - Result (run_analyses.s_floor, Fig. 12, report section "Feedstock against feed", memo bullet, SI sheet Floor_vs_feed):
-    the base case's glucose ($4.1/kg BLG US) costs no more than the animals' feed ($4.7-6.7 US, $7.9-8.9 EU poultry);
-    PF's gap is everything else ($17 vs $2-8 on the farm). The glucose floor is 7-9x below the feed bills.
+  - Result (run_analyses.s_floor, docs/figures/fig12_feed_vs_floor.png = report Figure 13, report section "Feedstock
+    against feed", memo bullet, SI sheet Floor_vs_feed): with ALL the animal's feed charged to its protein, the base case's
+    glucose ($4.1/kg BLG US, 19% of its cost) costs no more than the animals' feed ($4.7-6.6 US, $7.9-8.9 EU poultry); for
+    milk and eggs an energy split would put their protein's feed below PF's glucose (audit R16-M1). PF's gap is everything
+    else ($17 vs $2-8 on the farm, which may understate the farm's). The glucose floor is 7-9x below the feed bills.
   - Secretion ceiling: data/evidence/kinetic.yaml (39 entries) brackets strain.q_p_max_mg_g_h = 40 between the highest
     secretion rate ever measured (15-16 mg/g/h, A. niger glucoamylase) and the translational capacity of K. phaffii.
     Value unchanged (no result changes); base.yaml's source text now cites it. A flaw in its growth-law arithmetic
-    (the inactive ribosome reserve counted as translating) is noted in the file's header.
+    (the inactive ribosome reserve counted as translating) was corrected; the bracket is 18-41 mg/g/h at mu 0.2/h.
+  - Audit R16 (AI, docs/AUDIT.md): no HIGH findings; six MEDIUM and the LOW fixed. Titer check: 43 of 134 titers.csv rows
+    unverified, none in a base case or headline scenario; four uses (one albumin variant, three chart markers) rest on
+    three paywalled papers, now labelled 'abstract only' and first on references/DOWNLOADS.md.
 
 - **2026-10-02, v4: model review and serum albumin (Pablo: take the candidates "one by one, in priority
   order"; "consider if this is the best possible model ... no artificial complexity, but SOTA or close";

@@ -559,3 +559,30 @@ conclusion stated as $/kg of analogue ex works and % of retail beef, not "a smal
 (supernatant vs broth) consistent (M8); low-severity fixes to figure footnotes and labels, the Wang 2021 reference (title,
 DOI), a Panchanawaporn 2026 evidence entry, Chen 2025's author list, and ten clarity rewrites. Report:
 `.preview/audit_R15.md` (local).
+
+### R16 (2026-10-05): AI audit of the metabolic floor and the animals' feed bill
+
+Read-only audit of floor.py, benchmarks.feed_bills, data/evidence/feed.yaml (every derived chain recomputed; quotes matched
+against the saved texts and the Eurostat JSON), kinetic.yaml's review note, s_floor, Fig. 13 (fig12_feed_vs_floor.png), the SI
+sheet, the report section, its Answers and Limitations bullets and the memo bullet. Every new number matched
+results/analyses.json. No HIGH findings. Fixes:
+- M1: "PF spends no more on feedstock than the animals" holds only with all the feed charged to protein; milk's and eggs' feed
+  also makes fat and lactose. The report, Answers, memo and figure now say so; the robust part (glucose is 19% of PF's cost) leads.
+  An energy- or value-allocated column is not built (no sourced composition prices).
+- M2: whiskers paired extremes that never co-occur. Farm-cost ranges now hold the feed share at its central value, and US milk
+  uses year-paired ERS costs ($14.1-17.6, was $9.7-20.9). The US broiler delivered-feed premium is now an adder (~$53/t,
+  2015-2017), not a ratio paired with other years' prices: US broiler feed $6.57 (5.27-10.48), was $6.68 (4.62-11.42).
+- M3: "no cell can do better" is now "no K. phaffii process": the floor rests on the host's P/O (1.48, a model value).
+- M4: the 13 kg/m3/h vessel bound is set beside what cells could make (q_p,max x X_max = 6) and the physical-limit case (1.3);
+  the capital floor is set by the cells (secretion and O2 for maintenance), not by the vessel. Cooling-range bounds computed.
+- M5: the Limitations bullet names each pricing basis. M6: EU hens convert feed slightly worse than US hens (2.00 vs 1.96).
+- Low: non-feed farm costs may be understated (EIC 2023: $4.2/kg egg protein vs our $2.1) (L1); milk credited by milk/(milk +
+  cattle), 0.903, not milk/gross value (L2); grade A of the ERS feed share documented (L3); EU bills stated in 2024 dollars (L4);
+  "2-3 cents per MJ" for broiler feed (L5); kinetic.yaml's derivation corrected to its own review note (L6); "the highest we
+  found published" (L7); figure whiskers above the bars, beta-casein and alpha-lactalbumin labels, axis format, footnote (L8);
+  food proteins from an explicit list, feed_bills.food_products (L9); molar masses from thermo (L10); floor.py docstring heat
+  per O2 (L11); SI sheet ranges, keys and grades (L12); feed.yaml header and the 17-week pullet scope (L13); the 10% downstream
+  loss named (L14).
+Also: titer check. 43 of 134 titers.csv rows are unverified; none is used in a base case or headline scenario. Four uses (the
+alb_zhu2018 variant and three Fig. 3 markers: Liu 2026, Hu 2025, Zhu 2018) rest on paywalled papers, now labelled "abstract
+only" and listed first in references/DOWNLOADS.md. Report: `.preview/audit_R16.md` (local).

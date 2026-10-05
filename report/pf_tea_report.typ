@@ -1966,12 +1966,12 @@ has been disclosed, so this is a cost comparison only.
 #let FAe(a) = FLR.animals.at(a).regions.eu_nw
 #let FE = yaml("../data/evidence/feed.yaml")
 #let FEk(k) = FE.find(e => e.key == k)
-#let FOODP = FLR.products.keys().filter(p => FLR.products.at(p).us_midwest.msp < 60)
+#let FOODP = FLR.food_products
 #figure(image("../docs/figures/fig12_feed_vs_floor.png", width: 100%),
   caption: [What a kg of protein costs, split into feedstock (animal feed, or glucose) and everything else: the
   incumbent animals at the farm gate, each PF food protein's base case ex works, and the metabolic floor, in the
-  US and the EU. Animal rows are derived from industry and USDA data (grade D); see the text for what each side
-  includes.]) <fig-floor>
+  US and the EU. Animal rows charge all the feed to the protein and are derived from industry, USDA, Eurostat and
+  Wageningen data (grade D); see the text for what each side includes.]) <fig-floor>
 
 Chickens, hens and cows are also machines that turn crop calories into protein, and their main cost is
 feed. This section puts PF on the same footing: what it must spend on feedstock at the least, what it
@@ -1984,17 +1984,23 @@ fix how much glucose that takes once the ATP is paid by respiring glucose (the e
 #fx(F0.floor.nh3_kg, d: 2) kg of ammonia and #fx(F0.floor.o2_mol, d: 1) mol of O#sub[2] per kg of protein, releasing
 #fx(F0.floor.heat_MJ, d: 1) MJ of heat. At our prices those inputs cost #usd(F0.floor.total, d: 2) per kg in the US
 (#usd(F0.floor.cost.substrate, d: 2) of it glucose) and #usd(F0e.floor.total, d: 2) in the EU; the other food proteins are
-within a few per cent. No cell or fermenter can do better, because the floor leaves out transport, secretion,
-folding and protein turnover, all of which only add to it. The same accounting bounds the fermenter: with
+within a few per cent. No *K. phaffii* process can do better: the floor leaves out transport, secretion, folding and
+protein turnover, all of which only add to it. It does rest on the host's P/O ratio
+(#fx(pv("hosts.kphaffii.po_ratio"), d: 2) mol ATP per mol O, a genome-scale-model value; none is measured), so a host
+that made more ATP per O#sub[2] would need slightly less. The same accounting bounds the fermenter: with
 every mole of O#sub[2] and every joule going to product, a vessel at our O#sub[2]-transfer and cooling limits could make
-at most #fx(F0.floor.p_max_kg_m3_h, d: 0) kg of protein per m#super[3] per hour (#if F0.floor.p_max_heat_kg_m3_h < F0.floor.p_max_o2_kg_m3_h [cooling] else [O#sub[2] transfer] binds first). The base case makes
-#fx(blg.design.titer / blg.design.t_total_h, d: 2) kg/m#super[3]/h over its batch: the capital floor is not physical but biological,
-set by how fast cells secrete.
+at most #fx(F0.floor.p_max_kg_m3_h, d: 0) kg of protein per m#super[3] per hour (#if F0.floor.p_max_heat_kg_m3_h < F0.floor.p_max_o2_kg_m3_h [cooling] else [O#sub[2] transfer] binds first; #fx(F0.floor.p_max_heat_range_kg_m3_h.at(0), d: 0)–#fx(F0.floor.p_max_heat_range_kg_m3_h.at(1), d: 0) over our range of cooling limits).
+Real cells cannot approach it: at our secretion ceiling and packing limit
+(#fx(pv("strain.q_p_max_mg_g_h"), d: 0) mg/g/h at #fx(pv("strain.X_max_g_L"), d: 0) g/L) they would make at most
+#fx(F0.cells_cap_kg_m3_h, d: 0) kg/m#super[3]/h, and their own respiration takes most of the O#sub[2]. The physical-limit case reaches
+#fx(PL("blg/humbird").titer / PL("blg/humbird").design.t_total_h, d: 1) kg/m#super[3]/h, the base case
+#fx(blg.design.titer / blg.design.t_total_h, d: 2). So the capital floor is set by the cells, by how fast they secrete and how much
+O#sub[2] they burn staying alive, not by the vessel.
 
 *Today against the floor.* The base case uses #fx(F0.glucose_kg, d: 1) kg of glucose per kg of BLG,
 #fx(F0.glucose_kg / F0.floor.substrate_kg, d: 1)× the floor. Most of the difference is the yeast: the batch grows
 #fx(F0.cells_kg, d: 1) kg of cells per kg of protein before and while it produces, and keeps them alive; the product is
-made below the ceiling yield as well (@sec-stoich). The glucose costs #usd(F0.glucose_usd, d: 2)/kg,
+made below the ceiling yield, and #pct(1 - blg.design.recovery) of it is lost downstream (@sec-stoich, @sec-dsp). The glucose costs #usd(F0.glucose_usd, d: 2)/kg,
 #pct(F0.glucose_usd / F0.msp) of the base cost. At the physical-limit best case (@sec-q4) it is
 #fx(PL("blg/humbird").physical.glucose_kg, d: 1) kg (#usd(PL("blg/humbird").per_kg.glucose, d: 2)), #fx(PL("blg/humbird").physical.glucose_kg / F0.floor.substrate_kg, d: 1)× the floor.
 
@@ -2003,26 +2009,32 @@ edible protein, counting its parents' feed and only the meat that is eaten; a la
 #fx(FEk("derived_layer_feed_per_edible_protein").value, d: 0) kg per kg of egg protein (`data/evidence/feed.yaml`, our
 arithmetic from breeder targets, industry averages and USDA yields, grade D). In 2025 that feed cost
 #usd(FA("broiler").feed, d: 1) per kg of chicken protein, #usd(FA("layer").feed, d: 1) per kg of egg protein and
-#usd(FA("dairy").feed, d: 1) per kg of milk protein (US dollars; 2020–2025 range in @fig-floor). Feed is no dearer per
-unit of energy than glucose (about two US cents per MJ for both; `broiler_feed_me_ross_specs`), so the
+#usd(FA("dairy").feed, d: 1) per kg of milk protein (US dollars; 2020–2025 range in @fig-floor). These charge
+all of the feed to the protein; milk's and eggs' feed also makes their fat and lactose. Broiler feed is no dearer per
+unit of energy than glucose (2–3 US cents per MJ for both; `broiler_feed_me_ross_specs`), so the
 #fx(calc.min(FA("broiler").feed, FA("layer").feed, FA("dairy").feed) / F0.floor.cost.substrate, d: 0)–#fx(calc.max(FA("broiler").feed, FA("layer").feed, FA("dairy").feed) / F0.floor.cost.substrate, d: 0)×
 gap between the feed bills and the glucose floor is the animal's conversion loss: a broiler's feed carries about
 #fx(FEk("derived_broiler_feed_per_edible_protein").values.glucose_equivalent_kg_per_kg_protein, d: 0) kg of glucose-equivalent
 energy per kg of edible protein against the floor's #fx(F0.floor.substrate_kg, d: 1). US broiler feed is priced
-as delivered compound feed (corn and soybean meal raised #pct(FEk("derived_us_delivered_feed_premium").value - 1) by the
-delivered-feed premium in Wageningen's US costings), and milk's bill is net of the cull cows and calves sold with it
-(#pct(1 - FA("dairy").alloc) of the farm's revenue, credited by value). Dividing by the feed's share of the farm's costs, on the
+as delivered compound feed (corn and soybean meal plus about
+\$#fx(FEk("derived_us_broiler_delivered_feed_usd_per_edible_protein").values.adder_usd_per_t.used_mean_2015_2017, d: 0) per tonne
+for milling and delivery, from Wageningen's US costings), and milk's bill is net of the cull cows and calves sold with it
+(#pct(1 - FA("dairy").alloc) of milk and cattle sales, credited by value). Dividing by the feed's share of the farm's costs, on the
 same scope (#pct(FA("broiler").share) for broilers and #pct(FA("layer").share) for eggs, Wageningen's model farms with parent and
 pullet feed added; #pct(FA("dairy").share) for milk, of USDA costs that include land and unpaid labour) gives a farm-gate cost of about
-#usd(FA("broiler").total, d: 1), #usd(FA("layer").total, d: 1) and #usd(FA("dairy").total, d: 1) per kg of protein.
+#usd(FA("broiler").total, d: 1), #usd(FA("layer").total, d: 1) and #usd(FA("dairy").total, d: 1) per kg of protein. This scales the
+non-feed costs with the feed price, which may understate them: the Egg Industry Center's 2023 survey puts eggs' non-feed
+costs at #usd(FEk("derived_us_layer_nonfeed_cost_eic2023").value, d: 1) per kg of protein, against our
+#usd(FA("layer").other, d: 1).
 
 *In the EU* feed is dearer: in Wageningen's 2017 costings broiler feed cost
 €#fx(FEk("eu_broiler_cost_wur_2017").values.EU.feed_price_eur_100kg, d: 1) per 100 kg in the EU against
 €#fx(FEk("eu_broiler_cost_wur_2017").values.USA.feed_price_eur_100kg, d: 1) in the US, and Eurostat's 2024 EU price was
-€#fx(FEk("eu_broiler_feed_price_eurostat").value, d: 1) (mean of Germany, France and the Netherlands). EU birds and hens
-convert feed as well as or better than US ones (feed per kg live weight #fx(FEk("eu_broiler_cost_wur_2017").values.EU.fcr, d: 2)
-against #fx(FEk("eu_broiler_cost_wur_2017").values.USA.fcr, d: 2) in 2017, at a lighter bird). So the feed bills are higher,
-#usd(FAe("broiler").feed, d: 1) per kg of chicken protein and #usd(FAe("layer").feed, d: 1) per kg of egg protein (2024), and the
+€#fx(FEk("eu_broiler_feed_price_eurostat").value, d: 1) (mean of Germany, France and the Netherlands). EU broilers convert feed about as well as US ones
+(#fx(FEk("eu_broiler_cost_wur_2017").values.EU.fcr, d: 2) against #fx(FEk("eu_broiler_cost_wur_2017").values.USA.fcr, d: 2) kg
+per kg live weight in 2017, at a lighter bird), EU hens slightly worse (#fx(FEk("eu_layer_cost_wur_2021").values.EU.fcr, d: 2) against
+#fx(FEk("eu_layer_cost_wur_2021").values.USA.fcr, d: 2) kg per kg of eggs in 2021). So the EU feed bills are higher, mainly because the feed is dearer:
+#usd(FAe("broiler").feed, d: 1) per kg of chicken protein and #usd(FAe("layer").feed, d: 1) per kg of egg protein (2024 dollars), and the
 farm-gate costs #usd(FAe("broiler").total, d: 1) and #usd(FAe("layer").total, d: 1). EU milk's feed bill,
 #usd(FAe("dairy").feed, d: 1), is a lower bound: the EU farm accounts value home-grown forage only at its seed, fertiliser
 and spray costs, where USDA values it at market prices, so the two milk figures are not comparable and no EU farm cost is
@@ -2031,19 +2043,22 @@ shown for milk. EU glucose is dearer too (#usd(pveu("utilities.glucose_usd_kg"),
 #usd(F0e.floor.cost.substrate, d: 2) per kg, its base-case glucose #usd(F0e.glucose_usd, d: 1), against
 #usd(FAe("layer").feed, d: 1)–#usd(FAe("broiler").feed, d: 1) of poultry feed.
 
-*What it means.* At the base case PF already spends no more on feedstock than the animals:
-#usd(F0.glucose_usd, d: 1) of glucose per kg of BLG against #usd(calc.min(FA("broiler").feed, FA("layer").feed, FA("dairy").feed), d: 1)–#usd(calc.max(FA("broiler").feed, FA("layer").feed, FA("dairy").feed), d: 1) of feed.
+*What it means.* Charging the animal's whole feed bill to its protein, PF at the base case spends no more on feedstock
+than the animals: #usd(F0.glucose_usd, d: 1) of glucose per kg of BLG against #usd(calc.min(FA("broiler").feed, FA("layer").feed, FA("dairy").feed), d: 1)–#usd(calc.max(FA("broiler").feed, FA("layer").feed, FA("dairy").feed), d: 1) of feed.
+That framing flatters PF for milk and eggs: their feed also makes fat and lactose, and charged by energy content their
+protein's share of it would fall below PF's glucose (we have not costed this split). Chicken meat, which is mostly protein,
+would stay above. What holds either way is that glucose is only #pct(F0.glucose_usd / F0.msp) of PF's cost.
 Its handicap is the rest, the plant, its capital and the purification:
 #plist(p => FLR.products.at(p).us_midwest.other, ps: FOODP) per kg, against
 #usd(calc.min(FA("broiler").other, FA("layer").other, FA("dairy").other), d: 0)–#usd(calc.max(FA("broiler").other, FA("layer").other, FA("dairy").other), d: 0) for
 the farm. The room PF has is large on paper, since its feedstock floor is #fx(calc.min(FA("broiler").feed, FA("layer").feed, FA("dairy").feed) / F0.floor.cost.substrate, d: 0)–#fx(calc.max(FA("broiler").feed, FA("layer").feed, FA("dairy").feed) / F0.floor.cost.substrate, d: 0) times below the animals' feed bills, but it is
 taken up by the conversion plant, which is why fermenter productivity, not sugar, drives the cost (@sec-q2).
-Four cautions. The animal is costed at the farm gate, as a live bird, a shell egg or raw milk, before slaughter,
+Four further cautions. The animal is costed at the farm gate, as a live bird, a shell egg or raw milk, before slaughter,
 grading or processing, and its protein comes in a whole food with fat and other value; PF's is a purified
-ingredient ex works. The delivered-feed premium for US broilers rests on
-Wageningen's 2013–2017 US prices; the US egg bill uses the Egg Industry Center's feed formula on national prices, which
-may be 5–8% low. Milk is credited for its beef, but spent hens (about 1% of egg costs) and offal are not, and the feed
-shares are for 2017–2021, applied at other years' feed prices. And the feed bills are our derivations, grade D.
+ingredient ex works. The delivered-feed adder for US broilers rests on
+Wageningen's 2015–2017 US prices; the US egg bill uses the Egg Industry Center's feed formula on national prices, which
+may be 5–8% low. Milk is credited for its beef, but spent hens (about 1% of egg costs) and offal are not; the feed
+shares are for 2017–2021, applied at other years' feed prices; and pullet feed is counted to 17 weeks only. And the feed bills are our derivations, grade D.
 
 == Casein for rennet cheese: α#sub[s1]- plus κ-casein <sec-cheese>
 
@@ -2220,10 +2235,10 @@ Impossible launched in the UK in September 2026 without it (Green Queen 2026).
   powder, membrane-only β-casein (Eden Brew) about 6%, in a powder that is mostly yeast carbohydrate. Intelligen's lactoferrin model costs
   #fx(IB.value_money_year / REC("lf").cop, d: 1)× ours to produce. Albumin by UF/DF alone would cost
   #money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf) against #money(alb.msp_ccf) with its columns, but membranes alone reach only 77% albumin.
-- *Feedstock.* PF's least possible feedstock is #fx(R.floor.products.blg.us_midwest.floor.substrate_kg, d: 1) kg of glucose per kg of
-  protein, #usd(R.floor.products.blg.us_midwest.floor.cost.substrate, d: 2) in the US: several times below the animals' feed bills
-  (#usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1) per kg of protein, grade D). The base case already spends no more
-  on glucose (#usd(R.floor.products.blg.us_midwest.glucose_usd, d: 1)); its gap is the conversion plant
+- *Feedstock.* PF's least feedstock is #fx(R.floor.products.blg.us_midwest.floor.substrate_kg, d: 1) kg of glucose per kg of
+  protein at the host's energetic ceiling, #usd(R.floor.products.blg.us_midwest.floor.cost.substrate, d: 2) in the US: several times below the animals' feed bills
+  (#usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1) per kg of protein with all the feed charged to protein, grade D). The base case's glucose
+  (#usd(R.floor.products.blg.us_midwest.glucose_usd, d: 1)) is #pct(R.floor.products.blg.us_midwest.glucose_usd / R.floor.products.blg.us_midwest.msp) of its cost and no more than that feed; its gap is the conversion plant
   (#usd(R.floor.products.blg.us_midwest.other, d: 0)/kg against #usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.other)), d: 0)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.other)), d: 0) on the farm; @sec-floor).
 - *Notes.* Casein for rennet cheese needs κ-casein at about #pct(CH.kappa_share.at(1)) of it; at today's best κ titer
   (0.25 g/L, a patent example) the blend costs #money(CH.blend.kap.at(str(CH.kappa_share.at(1))).at(0))–#money(CH.blend.kap_cex.at(str(CH.kappa_share.at(1))).at(0))/kg,
@@ -2350,7 +2365,8 @@ model says nothing about which instruments would deliver them.
   concentration (500 g/L glucose) and the cell density, which together set the base ceiling; the
   O#sub[2] cap and its basis (200 mol/m³/h per m³ of cell-free liquid); the heat-removal ceiling
   (25 kW/m³, grade D); and the secretion ceiling (40 mg/g/h), a judgment: about 2.5 times the highest
-  specific secretion rate measured for any protein (15–16 mg/g/h, *A. niger* glucoamylase; `data/evidence/kinetic.yaml`).
+  specific secretion rate we found published for any protein (15–16 mg/g/h, *A. niger* glucoamylase, chemostat and pH
+  auxostat; `data/evidence/kinetic.yaml`).
 - *Directions of the simplifications.* k#sub[L]a ignores viscosity and foam (optimistic at high cell
   density and titer); specific productivity is constant for up to 120 h (optimistic for long
   production phases); no product is made during growth (conservative for constitutive promoters);
@@ -2395,9 +2411,11 @@ model says nothing about which instruments would deliver them.
   for unphosphorylated recombinant caseins rests on one patent example. The supernatant titers of α-lac and LegH
   are converted to whole broth with the model's cell volume (D). Hemin fed to the best LegH strain is not costed.
 - *The feed comparison* (@sec-floor) sets PF ex works against the animal at the farm gate. Its feed bills are
-  our arithmetic (grade D) on breeder targets, industry averages, USDA and Eurostat statistics and Wageningen costings, priced as corn and soybean
-  meal (broilers raised by a delivered-feed premium), with milk credited for its beef only; layer-breeder feed is left out, and
-  the EU milk bill is a lower bound not comparable with the US one.
+  our arithmetic (grade D) on breeder targets, industry averages, USDA and Eurostat statistics and Wageningen costings: US
+  broiler feed as corn and soybeans plus a delivered-feed adder, US layer feed by the Egg Industry Center's delivered-feed
+  formula, EU poultry feed at Eurostat complete-feed prices, and milk at USDA and EU farm-account feed costs. All the feed
+  is charged to the protein (milk's and eggs' also makes fat and lactose); milk is credited for its beef only; layer-breeder
+  feed is left out; and the EU milk bill is a lower bound not comparable with the US one.
 - *Not costed:* start-up and commissioning, working capital (except in the DCF price), failed
   batches, QC release testing, packaging, dewatering and inactivation of spent cells, and external
   heat-exchange loops for the largest vessels.
