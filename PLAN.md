@@ -78,6 +78,16 @@ Phase F (external review) has not started. Open items:
 
 ## Decisions log
 
+- **2026-10-05, metabolic floor and the animals' feed bill (Pablo, 2026-10-02: evaluate the price better, no
+  forecasting; Claude built it, for Pablo's review):**
+  - src/pftea/floor.py: substrate, NH3, O2 and heat per kg of protein at the energetic yield ceiling, their cost,
+    and the productivity bound from O2 transfer and heat removal. BLG: 1.78 kg glucose, $0.88/kg of inputs
+    ($0.71 of it glucose at $0.40/kg), at most ~13 kg/m3/h (heat-limited). Tested for C and electron balance.
+  - data/evidence/feed.yaml (32 entries, US only): feed per kg of edible protein and its cost. Central 2025:
+    broiler $5.4, eggs $4.7, milk $6.6 per kg of protein, 7-12x PF's glucose floor (grade D, derived). Open:
+    no EU column; feed priced as corn + soy only; no cull-cow or spent-hen credit; breeder-male feed omitted.
+  - Not yet in run_analyses, the figures or the report.
+
 - **2026-10-02, v4: model review and serum albumin (Pablo: take the candidates "one by one, in priority
   order"; "consider if this is the best possible model ... no artificial complexity, but SOTA or close";
   Claude built it, for Pablo's review):**
