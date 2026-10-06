@@ -957,8 +957,7 @@ differently and are never averaged:
   measured by ELISA only (Lv et al. 2023), is a variant. Albumin: the highest recombinant-albumin titer
   published, 17.47 g/L after 192 h of methanol induction in a 5 L vessel (Zhu et al. 2021), is per litre of
   supernatant; the cells fill half the culture, and the paper's 21.84 g in 2.5 L gives 8.74 g/L of whole
-  broth, the model's basis. The same group's 8.86 g/L of supernatant in 96 h (Zhu et al. 2018; abstract
-  only), scaled by the same ratio to 4.4 g/L, is a variant, as is the best methanol-free titer, 1.5 g/L in an 8 m³
+  broth, the model's basis. The same group's 8.86 g/L of supernatant in 96 h (Zhu et al. 2018), scaled by the same ratio to 4.4 g/L, is a variant, as is the best methanol-free titer, 1.5 g/L in an 8 m³
   *S. cerevisiae* sucrose fed-batch (Delta's patent, B; costed as *K. phaffii* on glucose). Version 4
   costs every methanol-induced academic case on methanol (albumin; lactoferrin, Lv et al.; β-casein, Choi
   and Jiménez-Flores) instead of as glucose. α-Lactalbumin: the best titer in any host is 0.60 g/L of human

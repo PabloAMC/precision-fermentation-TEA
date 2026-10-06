@@ -4849,11 +4849,11 @@
     ],
     [
      2.214,
-     "human LF, methanol (Liu 2026; abstract only)"
+     "human LF, methanol (Liu 2026)"
     ],
     [
      1.3495,
-     "human LF, T. reesei (Hu 2025; abstract only)"
+     "human LF, T. reesei on cellulose (Hu 2025)"
     ],
     [
      10.0,
@@ -4885,7 +4885,7 @@
     ],
     [
      4.432657999999999,
-     "rHSA (Zhu 2018; methanol; whole broth by analogy; abstract only)"
+     "rHSA (Zhu 2018; methanol; whole broth by analogy)"
     ],
     [
      14.8,
@@ -52866,9 +52866,9 @@
    ]
   }
  },
- "generated": "2026-10-05 22:21",
+ "generated": "2026-10-06 10:21",
  "fast": false,
- "runtime_s": 37.570042848587036,
+ "runtime_s": 115.03464221954346,
  "floor": {
   "products": {
    "blg": {
