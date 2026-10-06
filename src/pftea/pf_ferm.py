@@ -37,6 +37,20 @@ Kinetics (per C-mol biomass per hour; thermo and product modules):
     chemostat estimate), so a chemostat-level Tijhuis value overstates it there;
     product: q_p [g product / g DCW / h] through the product reaction at yield Y_ps (the yield of
     the product-forming reaction alone; maintenance and growth are added separately).
+    Methanol (review G1): in the production phase a fraction f (Strain.meoh_frac) of every
+    reaction - growth at mu_prod, maintenance and product formation - runs on methanol, the rest on
+    glucose. The reactions are linear in their extents, so the rates are the f-weighted sum of the
+    all-glucose and all-methanol rates (element and electron balances hold for any f). On methanol:
+    the growth stoichiometry is Heijnen's for a C1 source; maintenance is the measured m_s on
+    methanol (Host.m_s_prod_meoh, g methanol/g DCW/h), which includes the energy alcohol oxidase
+    wastes (CH3OH + O2 -> HCHO + H2O2 conserves none), so it is set from data, not from the Gibbs
+    energy; the product reaction runs at the same fraction of its energetic ceiling as on glucose:
+    Y_ps,MeOH = Y_ps x ceiling_MeOH / ceiling_glc (plant.methanol_yield; an assumption, D), where
+    methanol yields 2 x P/O ATP (only formaldehyde and formate dehydrogenase pass electrons to
+    respiration) and all product carbon comes from methanol (thermo.anabolic). Methanol is fed neat
+    (c_meoh = its density, 791 g/L). O2 and heat follow from the formation enthalpies as for
+    glucose; per mol O2 they are nearly the same (Thompson's rule), so methanol's costs are its
+    price per electron, the extra O2 of building carbon from a C1 source, and its maintenance.
 Two phases:
     1. Growth at mu_max, slowed so that OUR <= OTR_max and net heat <= heat_max, until
        X = X_prod [g DCW/L] (the last step is shortened to land on X_prod).
@@ -46,7 +60,7 @@ Two phases:
     solved so the final titer equals the target. A design whose W0 is below the minimum
     working fill is flagged.
 Volume balance (broth tracked as M = 1000 kg per m3; feeds by concentration c in kg/m3 = g/L):
-    dM/dt = 1000 (glucose/c_s + NH3/c_N) + O2 absorbed - CO2 released - water evaporated
+    dM/dt = 1000 (glucose/c_s + methanol/c_m + NH3/c_N) + O2 absorbed - CO2 released - water evaporated
     so a 500 g/L glucose solution (about 42 wt%) adds 2 L per kg of glucose.
 Heat: -sum r_i dHf_i + agitation - evaporation; chiller electricity = rt x heat.
 """
@@ -62,7 +76,8 @@ from . import product as pr
 from . import thermo as th
 
 RHO = 1000.0            # kg/m3 broth
-MW = {"glc": 180.1572, "O2": 31.9988, "CO2": 44.0098, "NH3": 17.0304, "H2O": 18.0152}
+GLC, MEOH = "Glucose (s)", "Methanol"
+MW = {"glc": 180.1572, "meoh": 32.042, "O2": 31.9988, "CO2": 44.0098, "NH3": 17.0304, "H2O": 18.0152}
 CELL_DRY_FRAC = fm.Broth().cell_dry_frac   # 0.3 g dry / g wet cells [A.1!C67]
 
 
@@ -247,10 +262,14 @@ class Host:
     T_C: float = 30.0
     maint_factor: float = 1.0        # multiplies Tijhuis maintenance (growth phase; both phases if m_s_prod is None)
     m_s_prod: float | None = None    # g glucose/g DCW/h in the production phase (measured, near-zero growth)
+    m_s_prod_meoh: float | None = None   # g methanol/g DCW/h in a methanol production phase (measured)
 
     @property
     def growth(self) -> th.GrowthModel:
         return _growth_model(self.bio, self.T_C)
+
+    def growth_on(self, cs: str) -> th.GrowthModel:
+        return _growth_model(self.bio, self.T_C, cs)
 
     @property
     def m_s_tijhuis(self) -> float:
@@ -258,16 +277,21 @@ class Host:
         g = self.growth
         return -g.maint.of("Glucose (s)") * MW["glc"] / g.bio.mw
 
-    def maint(self, prod: bool) -> float:
-        """Multiplier on the Tijhuis maintenance reaction in the given phase."""
+    def maint(self, prod: bool, cs: str = GLC) -> float:
+        """Multiplier on the Tijhuis maintenance reaction in the given phase and carbon source."""
+        if cs == MEOH:
+            if prod and self.m_s_prod_meoh is not None:
+                g = self.growth_on(MEOH)
+                return self.m_s_prod_meoh / (-g.maint.of(MEOH) * MW["meoh"] / g.bio.mw)
+            return self.maint_factor
         if prod and self.m_s_prod is not None:
             return self.m_s_prod / self.m_s_tijhuis
         return self.maint_factor
 
 
 @lru_cache(maxsize=16)
-def _growth_model(bio: th.Species, T_C: float) -> th.GrowthModel:
-    return th.GrowthModel(bio, th.get("Glucose (s)"), T_C)
+def _growth_model(bio: th.Species, T_C: float, cs: str = GLC) -> th.GrowthModel:
+    return th.GrowthModel(bio, th.get(cs), T_C)
 
 
 @dataclass
@@ -279,6 +303,8 @@ class Strain:
     t_prod: float                    # h of production
     q_p: float | None = None         # g/g/h; solved in titer mode
     X_max: float = 150.0             # g DCW/L: growth stops here (feed-limited plateau)
+    meoh_frac: float = 0.0           # fraction of the production phase run on methanol
+    Y_ps_meoh: float | None = None   # g product / g methanol through the product reaction
 
 
 @dataclass
@@ -310,27 +336,41 @@ class Batch:
     heat_max_kW: float               # peak total heat load of one fermenter
     comp_max_kW: float
     air_max_kmol_h: float
+    methanol_kg: float = 0.0
     series: dict = field(default_factory=dict)
     profile: dict = field(default_factory=dict)   # step start t [h], heat [kW] and air [kmol/h], always kept
 
 
-def _rates(host: Host, strain: Strain, mu: float, qp: float, F: float, prod: bool = False):
-    """kmol/h of glucose, O2, CO2, NH3, H2O and the heat [kW] for cells F kg."""
-    g = host.growth
+def _rates_on(host: Host, strain: Strain, mu: float, qp: float, F: float, prod: bool, cs: str):
+    """kmol/h of the carbon source cs, O2, CO2, NH3, H2O and the heat [kW] for cells F kg, all on cs."""
+    g = host.growth_on(cs)
     cmol = F / g.bio.mw
-    glc = th.get("Glucose (s)")
     out = {}
-    km = host.maint(prod)
-    for name in ("Glucose (s)", "O2 (aq)", "CO2 (aq)", "NH3 (aq)", "H2O (l)"):
+    km = host.maint(prod, cs)
+    for name in (cs, "O2 (aq)", "CO2 (aq)", "NH3 (aq)", "H2O (l)"):
         out[name] = (g.growth.of(name) * mu + km * g.maint.of(name)) * cmol
     heat = -(sum(out[n] * th.get(n).dHf for n in out) + mu * cmol * g.bio.dHf) * 1000 / 3600
     if qp > 0:
         p = strain.product
-        rx = pr.product_reaction(p, glc, strain.Y_ps)
+        rx = pr.product_reaction(p, th.get(cs), strain.Y_ps if cs == GLC else strain.Y_ps_meoh)
         pcmol = qp * F / p.species.mw                  # kmol C-mol product/h
         for name in out:
             out[name] += rx.of(name) * pcmol
         heat += -(sum(rx.of(n) * th.get(n).dHf for n in out) + p.species.dHf) * pcmol * 1000 / 3600
+    return out, heat
+
+
+def _rates(host: Host, strain: Strain, mu: float, qp: float, F: float, prod: bool = False):
+    """kmol/h of glucose, methanol, O2, CO2, NH3, H2O and the heat [kW] for cells F kg: the
+    production phase runs a fraction meoh_frac on methanol (module docstring)."""
+    f = strain.meoh_frac if prod else 0.0
+    out, heat = _rates_on(host, strain, mu, qp, F, prod, GLC) if f < 1 else ({}, 0.0)
+    if f > 0:
+        om, hm = _rates_on(host, strain, mu, qp, F, prod, MEOH)
+        out = {k: (1 - f) * out.get(k, 0.0) + f * om.get(k, 0.0) for k in set(out) | set(om)}
+        heat = (1 - f) * heat + f * hm
+    out.setdefault(GLC, 0.0)
+    out.setdefault(MEOH, 0.0)
     return out, heat
 
 
@@ -346,13 +386,13 @@ def _heat_density(host, strain, b, mu, F, W, dt, omax, ours_tab, agit_tab, air_t
 
 def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: float, qp: float,
              c_s: float = 500.0, c_nh3: float = 268.0, dt_g: float = 0.25, dt_p: float = 1.0,
-             keep_series: bool = False) -> Batch:
-    """Run one batch from initial broth W0 [m3] at X0 [g/L]; feeds at c_s, c_nh3 [kg/m3]."""
-    w_s, w_nh3 = c_s / RHO, c_nh3 / RHO            # kg solute per kg of broth-equivalent volume
+             keep_series: bool = False, c_meoh: float = 791.0) -> Batch:
+    """Run one batch from initial broth W0 [m3] at X0 [g/L]; feeds at c_s, c_meoh, c_nh3 [kg/m3]."""
+    w_s, w_nh3, w_m = c_s / RHO, c_nh3 / RHO, c_meoh / RHO   # kg solute per kg of broth-equivalent volume
     b = fm.Broth(T_C=c.T_C, p_back_bar=v.p_back_bar)
     ours_tab, comp_tab, agit_tab, air_tab = aeration_table(v, c)
     t, F, P, M = 0.0, W0 * X0, 0.0, W0 * RHO
-    acc = dict(glc=0.0, glc_p=0.0, nh3=0.0, o2=0.0, co2=0.0, evap=0.0, feedw=0.0, comp=0.0, agit=0.0, heat=0.0, ref=0.0)
+    acc = dict(glc=0.0, glc_p=0.0, meoh=0.0, nh3=0.0, o2=0.0, co2=0.0, evap=0.0, feedw=0.0, comp=0.0, agit=0.0, heat=0.0, ref=0.0)
     our_peak = heat_peak = heat_peak_kW = comp_peak = air_peak = 0.0
     phase, t_growth = 1, None
     ser = {k: [] for k in ("t", "X", "titer", "our", "W")} if keep_series else {}
@@ -418,13 +458,15 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
         air = np.interp(min(our, omax), ours_tab, air_tab) * W
         evap = b.y_water / (1 - b.y_water) * (air + r["O2 (aq)"] + r["CO2 (aq)"]) * MW["H2O"]
         heat_total = heat + agit - evap / 3600 * fm.H2O_VAP_HEAT
-        glc_kg_h = -r["Glucose (s)"] * MW["glc"]
+        glc_kg_h = -r[GLC] * MW["glc"]
+        meoh_kg_h = -r[MEOH] * MW["meoh"]
         nh3_kg_h = -r["NH3 (aq)"] * MW["NH3"]
-        dM = (glc_kg_h / w_s + nh3_kg_h / w_nh3 + (-r["O2 (aq)"]) * MW["O2"]
+        dM = (glc_kg_h / w_s + meoh_kg_h / w_m + nh3_kg_h / w_nh3 + (-r["O2 (aq)"]) * MW["O2"]
               - r["CO2 (aq)"] * MW["CO2"] - evap)
         acc["glc"] += glc_kg_h * dt
         if phase == 2:
             acc["glc_p"] += glc_kg_h * dt
+        acc["meoh"] += meoh_kg_h * dt
         acc["nh3"] += nh3_kg_h * dt
         acc["o2"] += -r["O2 (aq)"] * dt
         acc["co2"] += r["CO2 (aq)"] * dt
@@ -454,7 +496,7 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
                  feed_water_kg=acc["feedw"], comp_kWh=acc["comp"], agit_kWh=acc["agit"],
                  heat_kWh=acc["heat"], heat_ref_kWh=acc["ref"], our_max=our_peak,
                  heat_max_kW_m3=heat_peak, heat_max_kW=heat_peak_kW, comp_max_kW=comp_peak,
-                 air_max_kmol_h=air_peak, series=ser, profile=prof)
+                 air_max_kmol_h=air_peak, methanol_kg=acc["meoh"], series=ser, profile=prof)
 
 
 def _bisect(f, lo, hi, n=40, log=False, rtol=1e-4):
@@ -488,7 +530,8 @@ def _bisect(f, lo, hi, n=40, log=False, rtol=1e-4):
 
 
 def run_batch(v: STR, c: Conditions, host: Host, strain: Strain, X0: float, titer: float | None = None,
-              c_s: float = 500.0, c_nh3: float = 268.0, keep_series: bool = False) -> Batch:
+              c_s: float = 500.0, c_nh3: float = 268.0, keep_series: bool = False,
+              c_meoh: float = 791.0) -> Batch:
     """Solve W0 (end exactly at fill_max) and, in titer mode, q_p (end at the target titer).
 
     Both unknowns enter monotonically, so bracketed root finding is used: W_end rises with W0,
@@ -498,7 +541,7 @@ def run_batch(v: STR, c: Conditions, host: Host, strain: Strain, X0: float, tite
     V_end = v.fill_max * v.volume_m3
 
     def sim(w0, qp, keep=False):
-        return simulate(v, c, host, strain, w0, X0, qp, c_s, c_nh3, keep_series=keep)
+        return simulate(v, c, host, strain, w0, X0, qp, c_s, c_nh3, keep_series=keep, c_meoh=c_meoh)
 
     def solve_W0(qp):
         return _bisect(lambda w0: sim(w0, qp).W_end - V_end, 0.02 * V_end, 0.98 * V_end, n=40, rtol=1e-5)

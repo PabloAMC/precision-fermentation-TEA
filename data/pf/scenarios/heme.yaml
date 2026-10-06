@@ -1,0 +1,33 @@
+# 'heme': a cost-in-use bound for soy leghemoglobin (LegH), the heme protein of plant-based beef (report sec. "Heme";
+# run_analyses.s_heme). Not on the main product list: the commercial LegH Prep (GRN 737) and Motif's myoglobin (GRN 1001)
+# are INTRACELLULAR lysate concentrates (bead mill, centrifuge, MF, UF; frozen liquid), and pf-tea has secreted routes only
+# (heme.yaml pftea_route_gap_intracellular). The bound below costs the best published SECRETED processes on the membrane
+# route at LegH Prep's purity, spray-dried. It is an estimate, not a bound (audit R14-M6): lysis and debris removal are
+# left out (+), drying a product sold frozen is counted (-), the titers are per litre of supernatant, converted to whole
+# broth below (+ if the conversion is too generous), and Chen's heme loading is unknown (+ per functional protein).
+description: "Heme note: secreted leghemoglobin on the membrane route (a bound, not the commercial route)"
+common:
+  plant.spec: concentrate
+  dsp.concentrate_target_frac_dry: 0.43   # LegH is 38-51% of LegH Prep's dry matter in five batches, mean 43% (GRN 737; heme.yaml legh_prep_solids_batches, B)
+legh:                                  # base.yaml's design point (30 g/L, 72 h, glucose): what a commercial secreted process might reach
+  {}
+legh_chen2025:                         # Chen et al. 2025: the best published secreted LegH (full text read)
+  strain.titer_g_L: 3.86               # 'the secretory titer of LegH reached 6.0 g/L in 102 h' (sect. 3.4), per litre of SUPERNATANT (SDS-PAGE +
+                                       # Bradford) x 0.643 = whole broth: the model's wet-cell volume at the base 107 g/L dry cells, X/300 = 0.357 of
+                                       # the broth (plant.py convention; derived, D; audit R14-M4). Albumin's 0.50 came from its paper's own data
+  strain.t_prod_h: 65                  # 102 h total less the model's 37 h growth phase (audit R10-1 convention)
+  strain.methanol_frac_prod: 1         # AOX1 promoter, mu-stat methanol feed with a sorbitol co-feed: costed on methanol
+  # FLAGS: 100 mg/L hemin per litre of methanol feed (bovine-blood-derived, not costed) covers at most ~41% of the heme 6 g/L of holo-LegH needs
+  # (heme.yaml, derived); heme loading NOT reported. 5 L vessel; base cell density kept.
+legh_shao2022:                         # Shao et al. 2022: hemin-free, 93% heme-loaded (full text read)
+  strain.titer_g_L: 2.25               # 'reaching 3.5 g/L and 93 %' (Table 2, strain HA-KU70), 10 L vessel, per litre of SUPERNATANT x 0.643 =
+                                       # whole broth (as Chen's above; derived, D)
+  strain.methanol_frac_prod: 1         # AOX1, methanol induction
+  # Total time only in a figure (not stated numerically): base production time kept (72 h). Heme from the cell's own
+  # pathway, no hemin: the better basis for a food process.
+scales_t_per_yr: [150, 1000]           # ~150 t/yr: GFI Europe/ADL's leghemoglobin market (Volza trade data, basis unclear, C); 1 kt/yr for comparison
+use:                                   # LegH per kg of beef analogue and the beef price it is compared with (the analogue's retail price is not on file
+                                       # with a verifiable quote, audit R14-M5)
+  beef_analogue_frac: {value: 0.0045, low: 0.0025, high: 0.008, grade: B,
+    source: "Impossible Foods, FSANZ A1186: 'added at use levels of 0.45% in beef analogue products and 0.25% in pork analogue products' (heme.yaml legh_actual_use_level_beef, B); high = the US legal maximum, 0.8% (21 CFR 73.520(c), A)"}
+  beef_usd_kg: {value: 15.26, grade: A, source: "BLS average price, ground beef 100%, US city average, Aug 2026: $6.923/lb (heme.yaml beef_retail_price_us_2026)"}

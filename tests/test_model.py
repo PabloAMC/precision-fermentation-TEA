@@ -459,3 +459,145 @@ def test_ovomucoid_base_case():
     assert bm.equivalents()["egg"]["target_g"]["ovd"] == pytest.approx(0.40)
     for name in ("academic", "industry"):
         assert sc.is_feasible(sc.run(name, "ovd"))
+
+
+# ---------------------------------------------------------------- v4: methanol, vessel sizing, rank correlations
+@pytest.mark.parametrize("f", [0.0, 0.5, 1.0])
+def test_methanol_blend_conserves_carbon_and_electrons(f):
+    """Production-phase rates on a glucose/methanol blend (review G1) close the carbon and the
+    electron (degree-of-reduction) balances: substrates in = cells + product + CO2 (+ O2 for
+    electrons), whatever the methanol fraction."""
+    p = params.override(BASE, {"plant.product": "blg"})
+    host = plant._host(p)
+    strain = pf.Strain(product=pr.protein("blg"), Y_ps=v(p, "strain.Y_ps_g_g"), X_prod=100, mu_prod=0.002,
+                       t_prod=72, meoh_frac=f, Y_ps_meoh=plant.methanol_yield(p))
+    F, mu, qp = 1000.0, 0.002, 0.004
+    r, _ = pf._rates(host, strain, mu, qp, F, prod=True)
+    bio, prot = host.growth.bio, strain.product.species
+    made = {"bio": mu * F / bio.mw, "prot": qp * F / prot.mw}                  # kmol C-mol/h
+    sp = {n: th.get(n) for n in r}
+    carbon = sum(r[n] * sp[n].C for n in r) + made["bio"] * bio.C + made["prot"] * prot.C
+    electrons = sum(r[n] * sp[n].gamma for n in r) + made["bio"] * bio.gamma + made["prot"] * prot.gamma   # O2: gamma -4
+    scale = -r[pf.GLC] * 6 - r[pf.MEOH]
+    assert abs(carbon) < 1e-9 * scale
+    assert abs(electrons) < 1e-6 * scale * 4
+    assert (r[pf.MEOH] < 0) == (f > 0) and (r[pf.GLC] < 0) == (f < 1)
+
+
+def test_methanol_fraction_zero_is_the_glucose_model(blg):
+    p, r = blg
+    r0 = plant.evaluate(params.override(p, {"strain.methanol_frac_prod": 0.0}))
+    r1 = plant.evaluate(params.override(p, {"strain.methanol_frac_prod": 1.0}))
+    assert r0.msp_ccf == pytest.approx(r.msp_ccf, rel=1e-12) and r0.physical["methanol_kg"] == 0
+    # methanol replaces production-phase glucose and costs more O2 per kg (C1 carbon, alcohol oxidase)
+    assert r1.physical["methanol_kg"] > 0 and r1.physical["glucose_kg"] < r.physical["glucose_kg"]
+    assert r1.physical["o2_kg"] > r.physical["o2_kg"]
+
+
+def test_vessel_sizing_cheapest_up_to_cap():
+    """size_fermenter (review G2): commodity plants keep the 200 m3 cap; the 250 t/yr lactoferrin
+    plant sizes down and is cheaper than in 200 m3 vessels; fixed sizing leaves the vessel alone."""
+    assert v(sc.base_params("blg"), "fermenter.volume_m3") == 200
+    p = sc.base_params("lf")
+    assert v(p, "fermenter.volume_m3") < 200
+    fixed = sc.base_params("lf", {"fermenter.sizing": "fixed"})
+    assert v(fixed, "fermenter.volume_m3") == 200
+    assert plant.evaluate(p).msp_ccf < plant.evaluate(fixed).msp_ccf
+
+
+def test_monte_carlo_rank_correlation_sign():
+    """Spearman rho (review G4): higher titer lowers cost, so its rho is strongly negative."""
+    p = sc.base_params("blg")
+    mc = sc.monte_carlo(p, ["strain.titer_g_L", "utilities.glucose_usd_kg"], n=40, seed=3)
+    assert mc["rank_corr"]["strain.titer_g_L"] < -0.8
+    assert mc["rank_corr"]["utilities.glucose_usd_kg"] > 0
+
+
+def test_methanol_anabolism_fixes_no_co2():
+    """Methanol is more reduced than biomass: all cell and product carbon comes from it, the surplus
+    electrons go to O2 (Heijnen), and no CO2 is fixed; the carbon cap on the protein yield is then
+    M_protein,C-mol / M_methanol (~0.70 g/g). Glucose anabolism is unchanged (releases CO2)."""
+    meoh, glc = th.get("Methanol"), th.get("Glucose (s)")
+    a = th.anabolic(th.biomass(), meoh)
+    assert a.of("CO2 (aq)") == 0 and a.of("O2 (aq)") < 0 and a.of("Methanol") == pytest.approx(-1.0)
+    assert th.anabolic(th.biomass(), glc).of("CO2 (aq)") > 0
+    prot = pr.protein("blg")
+    assert pr.electron_ceiling(prot, meoh) == pytest.approx(prot.species.mw / meoh.mw, rel=1e-9)
+    p = params.override(BASE, {"plant.product": "blg"})
+    assert plant.methanol_yield(p) < plant.energetic_ceiling(p, "Methanol") < pr.electron_ceiling(prot, meoh)
+
+
+# ---------------------------------------------------------------- alpha-lactalbumin, rennet-cheese casein, heme
+@pytest.mark.parametrize("key, n, formula, mw", [
+    ("alac", 123, {"C": 626, "H": 958, "N": 162, "O": 196, "S": 9}, 14178),     # P00711 20-142, 4 disulfides (alac.yaml)
+    ("cas1", 199, {"C": 1035, "H": 1587, "N": 265, "O": 317, "S": 5}, 22975),   # P02662 16-214, unphosphorylated (casein.yaml)
+    ("kap", 169, {"C": 849, "H": 1321, "N": 223, "O": 262, "S": 4}, 18972),     # P02668 22-190, 1 disulfide
+    ("legh", 144, {"C": 702, "H": 1096, "N": 176, "O": 212, "S": 0}, 15394)])   # P02236 2-145, globin without heme
+def test_new_protein_formulas_from_uniprot(key, n, formula, mw):
+    """Mature-chain formulas cross-checked against UniProt's molWeight in the evidence files."""
+    p = pr.protein(key)
+    assert p.residues == n
+    assert {k: round(x) for k, x in p.formula.items()} == formula
+    assert p.mw_molecule == pytest.approx(mw, abs=1)
+
+
+def test_alac_base_case():
+    """Alpha-lac runs BLG's membrane route at its isolate purity on a 1 kt/yr plant, and is feasible."""
+    p = sc.base_params("alac")
+    assert (v(p, "plant.spec"), v(p, "plant.annual_target_protein_t")) == ("concentrate", 1000)
+    assert v(p, "dsp.concentrate_target_frac_dry") == 0.90
+    assert sc.is_feasible(plant.evaluate(p))
+
+
+def test_off_list_products_take_their_route_from_the_scenario_file():
+    """Alpha-s1, kappa and LegH are not main products; their scenario blocks set the route and spec."""
+    assert not {"cas1", "kap", "legh"} & set(sc.PRODUCTS)
+    assert v(sc.scenario_params("cheese", "kap"), "plant.spec") == "acid"
+    assert v(sc.scenario_params("cheese", "kap"), "dsp.acid_precip_recovery") == 0.78
+    h = sc.scenario_params("heme", "legh", variant="legh_chen2025")
+    assert (v(h, "plant.spec"), v(h, "dsp.concentrate_target_frac_dry"), v(h, "strain.titer_g_L")) == ("concentrate", 0.43, 3.86)
+
+
+def test_blend_titer_needed():
+    """c_blend <= 1.1 c_base  <=>  c(T) <= c_base (1 + 0.1/s); on c = 100/T with c_base 10 and s = 0.2, c(T) <= 15 at T = 6.67."""
+    ts = [1, 2, 5, 10, 20]
+    assert sc.blend_titer_needed(ts, [100 / t for t in ts], 10.0, 0.2) == pytest.approx(100 / 15, rel=1e-9)
+    assert sc.blend_titer_needed(ts, [100 / t for t in ts], 1.0, 0.2) is None          # threshold off the grid
+    with pytest.raises(ValueError):
+        sc.blend_titer_needed(ts, [5, 4, 6, 3, 2], 10.0, 0.2)                          # cost must fall with titer
+
+
+def test_unused_paths_keep_a_products_own_dryer_leaf():
+    """cas's dryer leaf is a prefix of cas1's: cas1 must not skip its own (audit R14-L4)."""
+    p = sc.scenario_params("cheese", "cas1")
+    assert not any("dsp.dryer_feed_solids_cas1".startswith(u) for u in sc.unused_paths(p))
+
+
+# ---------------------------------------------------------------- metabolic floor
+@pytest.mark.parametrize("prod", ["blg", "alb"])
+def test_metabolic_floor_balances(prod):
+    """At the ceiling: substrate = 1/Y*, and electrons close: 24 per glucose = gamma_p per C-mol of protein + 4 per O2
+    (NH3 as the N source, Roels' convention)."""
+    from pftea import floor
+    p = sc.base_params(prod)
+    f = floor.metabolic_floor(p)
+    assert f["substrate_kg"] == pytest.approx(1 / f["yield_g_g"], rel=1e-9)
+    prot = pr.protein(prod)
+    n = 1000 / prot.species.mw
+    glc_mol = f["substrate_kg"] * 1000 / th.get("Glucose (s)").mw
+    assert 24 * glc_mol == pytest.approx(prot.species.gamma * n + 4 * f["o2_mol"], rel=1e-6)
+    assert f["p_max_kg_m3_h"] == min(f["p_max_o2_kg_m3_h"], f["p_max_heat_kg_m3_h"])
+    assert f["total"] == pytest.approx(sum(f["cost"].values()))
+
+
+def test_feed_bills_identity():
+    """Farm-gate cost = allocated feed bill / feed share; 'other' is the rest; the ranges bracket the central."""
+    from pftea import benchmarks as bm
+    for animal in bm.feed_bills().values():
+        for d in animal["regions"].values():
+            if d["share"] is None:
+                assert d["total"] is None and d["other"] is None and d["feed"] > 0
+                continue
+            assert d["total"] == pytest.approx(d["feed"] / d["share"], rel=1e-12)
+            assert d["other"] == pytest.approx(d["total"] - d["feed"], rel=1e-12)
+            assert d["total_low"] <= d["total"] <= d["total_high"] and 0 < d["share"] <= 1 and 0 < d["alloc"] <= 1

@@ -455,3 +455,134 @@ variant: the bridge varies base.yaml directly, so it could not carry ovomucoid's
 - Found while checking: the report's casein methods text still carried R9-5/R9-6 (Formo "needed heat",
   "no membrane concentration") and R9-16/R9-17 (viscosity threshold, phosphorylation wording), logged
   as fixed above but not yet applied to that passage. Now applied.
+
+## v4 (2026-10-02): independent review of the method against the state of the art
+
+Pablo asked whether this is "the best possible model for this ... no artificial complexity, but SOTA or
+close". An AI reviewer read the code, data and report and the published PF, recombinant-protein and
+cultivated-meat TEAs (Humbird 2021, BioSTEAM-based work, Intelligen SuperPro models, GFI Europe/ADL 2025,
+Voutilainen, Järviö, NREL). Its report: `.preview/sota_review.md` (local, git-ignored). Verdict: at or
+above the published state of the art for a public multi-protein screening TEA (its P ~0.85 that no
+structural change moves the commodity base cases by >10%); conventions (design-report capital −22%,
+aseptic vessels +46% on BLG) and strain data dominate. Each gap and the decision:
+
+| # | Gap (reviewer) | Decision | Effect |
+|---|---|---|---|
+| G1 | Methanol costed but missing from the O2 and heat balance; matters for albumin (all high titers methanol-induced) | **Done.** Production phase blends glucose and methanol reactions (`strain.methanol_frac_prod`); methanol anabolism takes no CO2 (all carbon from methanol, surplus electrons to O2: Heijnen; a first implementation that fixed CO2 gave a >1 g/g ceiling and was corrected before any result used it); yield on methanol = the glucose yield's share of the energetic ceiling with 2 x P/O ATP per methanol (D); maintenance on methanol from Dietzsch 2011 (0.016, A) scaled to near-zero growth (0.0050, D), matching Tomas-Gamisans 2018's NGAM converted at 2.96 ATP/methanol (0.0048). Tests: carbon and electron balances at f = 0, 0.5, 1; no CO2 fixation | Base cases unchanged (f = 0). BLG base with methanol induction +12%. Methanol-induced academic cases (lactoferrin Lv 2023, beta-casein Choi 1996, albumin) now costed on methanol |
+| G2 | Vessel size fixed at 200 m3 even for small plants (whole vessels) | **Done.** `scenarios.size_fermenter`: cheapest feasible of 50/100/150/200 m3 up to the 200 m3 cap, on each product's base case; scale curve re-sizes per output; explorer grid keeps the base plant | Commodity plants unchanged (200 m3; 500 m3 would be ~5% cheaper, kept as a sensitivity because 200 m3 is near PF practice). Lactoferrin 100 m3 (as Intelligen), $177.7 -> $167.8/kg base |
+| G3 | Secretion decoupled from growth (q_p = beta) | **Not done.** An optional alpha defaulting to 0 changes no result; the growth dependence is stated in the report (Rebnegger 2024, Looser 2015, Prielhofer 2018) | — |
+| G4 | No global sensitivity measure | **Done.** Spearman rank correlations over feasible Monte Carlo draws (report table, SI sheet MonteCarlo_rank) | Titer leads (rho -0.80 for industry BLG); sum of rho^2 ~1, as expected for independent inputs |
+| G5 | First-of-a-kind penalty promised in SCOPE but not implemented | **Scope corrected.** No sourced premium on file (RAND blocks scripted downloads; GFI Europe 2025 gives none). SCOPE and PLAN now exclude it until RAND R-2569 is read (DOWNLOADS P7) | — |
+| G6 | Chromatography is one column | **Superseded by R12-H1:** albumin's base now has a capture column plus an anion-exchange polish (`dsp.polish_columns`); capture-only is the optimistic variant | — |
+| — | "Not worth it": mechanistic chromatography, CFD/viscosity-corrected kLa, genome-scale models, continuous operation, Sobol indices, rebuilding in SuperPro/BioSTEAM | Agreed | — |
+
+Albumin evidence pass (AI research agent; main session spot-checked identity, formula, column data,
+prices and specs; formula C2936H4590N786O889S41 reproduced independently): `data/evidence/albumin.yaml`
+(52 entries), 9 titer rows. Reference titles in the report were checked against the evidence files and
+Crossref after the first draft had some from memory (Zhu 2021, Delta patents: corrected).
+
+### R12 (2026-10-02): AI audit of the v4 model changes and the albumin data
+
+Independent reviewer, read-only, with computations (report: `.preview/audit_R12.md`, local). Methanol physics
+checked and fine (balances close, no CO2 fixed, maintenance conversion dimensionally right, heat signs, blend
+only in production, Y_ps on methanol below both ceilings); sizing side effects and cache fine; every albumin
+source value matches its source (Comtrade and 1.13 g/L recomputed). Findings and decisions:
+
+| # | Finding | Decision |
+|---|---|---|
+| H1 | One CEX capture reaching >=96% has no support (the >96% Pichia results used dye affinity; the patent's affinity step removes the 45 kDa fragment, antigens and pigment) | **Fixed.** Base = the patent's minimal claimed train, CEX then AEX polish (US 6,638,740: AEX loaded 30 +/- 10 g/L, "approximately 110%" monomer yield -> recovery 1.0), via `dsp.polish_columns` on the existing column arithmetic. Albumin base $143 -> ~$216/kg; capture-only kept as `alb_capture_only` (optimistic) |
+| H2 | Resin life 1,000 cycles (whey lactoferrin) is the favourable end for pigmented yeast broth | **Stated, not changed** (no albumin-specific lifetime exists; the base keeps the one industrial measurement, as for lactoferrin). Report shows the 125-cycle case beside the base and calls the base the favourable end |
+| M1 | Vessel tornado bar is one-sided where sizing chose 100 m3 | **Fixed.** `scenarios.design_choices` skips it in the tornado |
+| M2 | Methanol uptake about 2x low; the x0.31 near-zero scaling (D) | **Kept**, with the independent check (Tomas-Gamisans NGAM -> 0.0048 g/g/h) and the Zhu 2021 comparison stated in the report (model's methanol per kg made well below the 58 g/g fed) |
+| M3 | Protease loss during the pH-4.5 hold not modelled | **Limitation**; recovery low end 0.40 covers it |
+| M4 | Intelligen OVA anchor silently lost its methanol inducer cost | **Fixed.** `media.methanol_inducer_kg_per_kg_product` (cost only, as in v3) |
+| L1 | Methanol yield ceiling leaves out the ATP of methanol assimilation (~+$0.7) | Limitation (stated) |
+| L2 | Neat methanol in the volume balance by volume | Not changed (consistent with the feed convention; ~+$0.7) |
+| L3 | Acetate note wrong by 30x | **Fixed** note (~$1/kg at the NaCl price) |
+| L4 | Patent step volumes are maxima; eluate 6.5 not 8.5 CV | Limitation (conservative) |
+| L5 | Load-conductivity limit not checked (~$2-3) | Limitation |
+| L6 | Spearman rho is noise for constant inputs | **Fixed** (None when an input does not vary) |
+| L7 | Base-case variants re-size the vessel | **Documented** in the sizing note |
+| L8 | Recovery and step tables from different patent examples | Limitation |
+
+Also on 2026-10-02 (Pablo's downloads): Zhu 2021 full text (the 17.47 g/L is per litre of supernatant; whole
+broth 8.74 g/L is now the academic titer; membranes alone bounded at 77% albumin; capture recovery high end
+0.86 measured) and RAND R-2569 (OCR'd; pioneer capital 1/0.78 = 1.28x as a separate sensitivity, never in the
+base; start-up performance 72% recorded, not modelled).
+
+### R13 (2026-10-02): AI audit of the compiled v4 report and memo
+
+More than 60 numbers checked against results/analyses.json: all match (albumin, pioneer, methanol, Spearman,
+tornado, scale; all 21 cells of the per-kg-cultivated-meat table); prose claims that follow numbers hold.
+Fixes applied: albumin's two-column route in every caption and sentence (H2); three semicolons swallowed by
+Typst after a function call, in the report and memo (H3); the missing evidence entry for the polish column,
+hsa_delta_aex_polish, and the products.yaml route note (H4); Zhu titer markers placed on the whole-broth basis
+(H1, `factor` in benchmarks titer markers); resin life for albumin graded D (borrowed from whey lactoferrin)
+and the polish inputs sampled in the Monte Carlo (M2, M6); the pioneer factor stated as the reciprocal of
+RAND's mean ratio, with the mean overrun ~1.36 beside it, 'conservative' dropped, resin first fill noted (M4);
+the methanol-maintenance check reworded (M5); 'favourable end' limited to resin life and purification (M1);
+scale-section clarifications (M3); Spearman noise floor stated (M6); route-figure labels and rounding (M7);
+references sorted; low-severity wording. Report: `.preview/audit_R13.md` (local).
+
+### R14 (2026-10-02): AI audit of the α-lactalbumin, rennet-cheese casein and heme data and logic
+
+Read-only audit of the additions (formulas, evidence, scenario values, s_cheese/s_heme, titers.csv rows). Verified:
+the four formulas and sequences, and every number the main session relies on against the local full texts. Fixes:
+- H1: κ-casein alone on the pH-4.5 acid route was unsupported by its own evidence entry. Now two cases bracket its
+  unknown recovery: co-precipitated with α-s1 (acid route, 78%, E) and its own cation-exchange column on lactoferrin's
+  column data (D); the report shows both.
+- H2: GFI Europe's α-lac prices ($15, $123) are per kg of ingredient at 60% and 95% α-lac (their p.33 arithmetic):
+  restated per kg of α-lac, $25–129 (derived); FMI's $31–86 (basis unknown) dropped from the band; targets 25/60/130.
+- M1: κ share 0.19 (0.167–0.25, grade B, New Culture's recombinant blends); Antuma's plateau is 19–26% κ, not 15–19%.
+- M2: the 4.14 mg/L κ point sat below the model's secretion search floor (it simulated 7.4 mg/L): removed from the grid
+  and quoted; infeasible points are filtered before interpolation.
+- M3: scenarios.blend_titer_needed checks that cost falls with titer (tested); α-s1 baseline per κ share; the
+  industry titer read from industry.yaml.
+- M4: supernatant titers (α-lac Wang 2025; LegH Chen 2025, Shao 2022) converted to whole broth with the model's cell
+  volume (×0.643 at 107 g/L dry cells, D), as albumin's were in R12.
+- M5: the Impossible Burger retail price (no verifiable quote) removed from the heme scenario.
+- M6: the heme note is an estimate, not a bound; the signs of its omissions are stated.
+- Low: α-lac purity derivation (0.855 at the spec minimum, 0.90 typical); LegH purity 0.43 (batch mean); hemin coverage
+  "at most" 41%; unused_paths no longer hides cas1's own dryer leaf (tested); cas1.yaml evidence pointer; marker label.
+  Not changed: four evidence quotes over 40 words (L9) and scale_L conventions in the new titers.csv rows (L10).
+Report: `.preview/audit_R14_data.md` (local).
+
+### R15 (2026-10-03): AI audit of the compiled report's new content (α-lac, rennet-cheese casein, heme)
+
+58 numbers checked against results/analyses.json: all match; every new citation has a matching reference entry; no
+Typst defects. No HIGH findings. Fixes: GFI Europe's two α-lac market sizes are one $462 M market priced two ways, in
+tonnes of ingredient, so the physical-limit cap is ~19 kt/yr of α-lac (31.8 kt at ~60%), not 31.8 kt (M1); the κ
+requirement now names its route everywhere (co-precipitated: ~α-s1's design titer; own column: none up to 42 g/L) (M2);
+"about four orders of magnitude" (M3); α-lac solubility stated consistently (calcium-bound form soluble pH 2–9; unfolds
+in culture below pH 5.5) (M4); a stale limitation on the old $15 price (M5); the Q6 α-lac scale sentence (M6); the heme
+conclusion stated as $/kg of analogue ex works and % of retail beef, not "a small part" (M7); α-lac titer basis
+(supernatant vs broth) consistent (M8); low-severity fixes to figure footnotes and labels, the Wang 2021 reference (title,
+DOI), a Panchanawaporn 2026 evidence entry, Chen 2025's author list, and ten clarity rewrites. Report:
+`.preview/audit_R15.md` (local).
+
+### R16 (2026-10-05): AI audit of the metabolic floor and the animals' feed bill
+
+Read-only audit of floor.py, benchmarks.feed_bills, data/evidence/feed.yaml (every derived chain recomputed; quotes matched
+against the saved texts and the Eurostat JSON), kinetic.yaml's review note, s_floor, Fig. 13 (fig12_feed_vs_floor.png), the SI
+sheet, the report section, its Answers and Limitations bullets and the memo bullet. Every new number matched
+results/analyses.json. No HIGH findings. Fixes:
+- M1: "PF spends no more on feedstock than the animals" holds only with all the feed charged to protein; milk's and eggs' feed
+  also makes fat and lactose. The report, Answers, memo and figure now say so; the robust part (glucose is 19% of PF's cost) leads.
+  An energy- or value-allocated column is not built (no sourced composition prices).
+- M2: whiskers paired extremes that never co-occur. Farm-cost ranges now hold the feed share at its central value, and US milk
+  uses year-paired ERS costs ($14.1-17.6, was $9.7-20.9). The US broiler delivered-feed premium is now an adder (~$53/t,
+  2015-2017), not a ratio paired with other years' prices: US broiler feed $6.57 (5.27-10.48), was $6.68 (4.62-11.42).
+- M3: "no cell can do better" is now "no K. phaffii process": the floor rests on the host's P/O (1.48, a model value).
+- M4: the 13 kg/m3/h vessel bound is set beside what cells could make (q_p,max x X_max = 6) and the physical-limit case (1.3);
+  the capital floor is set by the cells (secretion and O2 for maintenance), not by the vessel. Cooling-range bounds computed.
+- M5: the Limitations bullet names each pricing basis. M6: EU hens convert feed slightly worse than US hens (2.00 vs 1.96).
+- Low: non-feed farm costs may be understated (EIC 2023: $4.2/kg egg protein vs our $2.1) (L1); milk credited by milk/(milk +
+  cattle), 0.903, not milk/gross value (L2); grade A of the ERS feed share documented (L3); EU bills stated in 2024 dollars (L4);
+  "2-3 cents per MJ" for broiler feed (L5); kinetic.yaml's derivation corrected to its own review note (L6); "the highest we
+  found published" (L7); figure whiskers above the bars, beta-casein and alpha-lactalbumin labels, axis format, footnote (L8);
+  food proteins from an explicit list, feed_bills.food_products (L9); molar masses from thermo (L10); floor.py docstring heat
+  per O2 (L11); SI sheet ranges, keys and grades (L12); feed.yaml header and the 17-week pullet scope (L13); the 10% downstream
+  loss named (L14).
+Also: titer check. 43 of 134 titers.csv rows are unverified; none is used in a base case or headline scenario. Four uses (the
+alb_zhu2018 variant and three Fig. 3 markers: Liu 2026, Hu 2025, Zhu 2018) rest on paywalled papers, now labelled "abstract
+only" and listed first in references/DOWNLOADS.md. Report: `.preview/audit_R16.md` (local).

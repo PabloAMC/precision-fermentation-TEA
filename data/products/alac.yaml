@@ -1,0 +1,16 @@
+# Bovine α-lactalbumin (whey), the protein of α-lac-enriched whey ingredients for infant formula (FDA GRN 763, 809, 1100;
+# all dairy). Sequence: UniProt P00711 (LALBA_BOVIN), entry version 193: signal 1-19, mature chain 20-142, 123 residues
+# (data/evidence/alac.yaml). 4 disulfides (8 Cys), one Ca2+ site; milk α-lac is partly N-glycosylated (Asn45, Asn74),
+# ignored in the formula. Formula C626 H958 N162 O196 S9, 14,178 Da. Human α-lac (P00709, the species of every K. phaffii
+# titer) differs by <0.5% C and 3% N: the choice changes the price benchmark, not the mass balance.
+name: alpha-lactalbumin
+key: alac
+uniprot: P00711
+mature_sequence: >-
+  EQLTKCEVFRELKDLKGYGGVSLPEWVCTTFHTSGYDTQAIVQNNDSTEYGLFQINNKIWCKDDQNPHSSNICNISCDKFLDDDLTDDIMCVKKILDKVGINYWLAHKALCSEKLDQWLCEKL
+disulfides: 4
+post_translational: "partial N-glycosylation and bound Ca2+ ignored in the elemental formula"
+spec:                       # base = a high-purity α-lac ingredient, as the dairy isolate of FDA GRN 763 (Agropur)
+  protein_min_frac_powder: {value: 0.95, grade: A, source: "FDA GRN 763: protein >=95% (alac.yaml)"}
+  target_min_frac_protein: {value: 0.90, grade: A, source: "FDA GRN 763: alpha-lactalbumin >=90% of protein (typical 90-96%)"}
+solubility_practical_g_L: {value: null, note: "not limiting: soluble over pH 2-9 in its Ca2+-bound form (alac.yaml)"}

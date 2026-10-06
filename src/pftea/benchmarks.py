@@ -165,8 +165,62 @@ def equivalents() -> dict:
     return out
 
 
+def feed_bills() -> dict:
+    """The incumbent animals' feed bill and farm-gate cost per kg of edible crude protein (benchmarks.yaml `feed_bills`).
+
+    Per animal and region, from data/evidence/feed.yaml (derived entries, grade D):
+        feed  F = feed bill per kg edible protein x a,   a = share of the farm's output value that is the food
+                  itself (co-products such as cull cows carry the rest; 1 where no credit is taken)
+        total C = F / s,   s = feed share of the farm's total cost (feed / all costs, incl. a return on capital and
+                  unpaid labour where the source counts them)
+        other   = C - F    (housing, labour, young stock, energy, vets, capital: the animal's "conversion bill")
+    low/high of C hold the share at its central value (a dear-feed year has a high share, so pairing extremes would
+    overstate the range; audit R16-M2), unless `total_range` names a year-paired farm cost (US milk). Nominal dollars of the
+    entry's year (US 2025, the model's money year; EU 2024 at the 2024 exchange rate); low/high span other years. Farm gate: a live bird, a shell
+    egg, raw milk, before slaughter, grading or processing; PF costs are ex works for a purified ingredient.
+    Returns {animal: {label, regions: {location: {feed, feed_low, feed_high, share, share_low, share_high,
+    alloc, total, total_low, total_high, other, year, grades, keys}}}}; share, total and other are None where
+    the config gives no feed share (no comparable farm cost).
+    """
+    cfg = {k: c for k, c in yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())["feed_bills"].items()
+           if k != "food_products"}
+    ev = {e["key"]: e for e in yaml.safe_load((ROOT / "data/evidence/feed.yaml").read_text())}
+
+    def num(ref):
+        """(value, low, high, grade, key) of a literal {value, low, high, grade} or an evidence {key}; `pick: high`
+        uses the entry's high as a point value (where it, not the central, matches the feed bill's scope)."""
+        e = ev[ref["key"]] if "key" in ref else ref
+        if "pick" in ref:
+            x = float(e[ref["pick"]])
+            return x, x, x, str(e.get("grade", "")), ref.get("key", "")
+        x = float(e["value"])
+        return x, float(e.get("low", x)), float(e.get("high", x)), str(e.get("grade", "")), ref.get("key", "")
+    out = {}
+    for name, c in cfg.items():
+        regions = {}
+        for loc, r in c["regions"].items():
+            f, flo, fhi, gf, kf = num(r["feed"])
+            a, _, _, ga, ka = num(r.get("allocation", {"value": 1.0}))   # no co-product credit by default
+            d = dict(feed=f * a, feed_low=flo * a, feed_high=fhi * a, alloc=a, year=r.get("year"), share=None, total=None,
+                     total_low=None, total_high=None, other=None)
+            ks, gs = "", ""
+            if "feed_share" in r:                                         # else: no comparable farm cost
+                s, slo, shi, gs, ks = num(r["feed_share"])
+                d.update(share=s, share_low=slo, share_high=shi, total=f * a / s, total_low=flo * a / s,
+                         total_high=fhi * a / s, other=f * a / s - f * a)
+                if "total_range" in r:                                    # observed, year-paired farm cost
+                    _, tlo, thi, _, kt = num(r["total_range"])
+                    d.update(total_low=tlo, total_high=thi)
+                    ks = ks + "," + kt
+            d.update(grades=dict(feed=gf, share=gs, allocation=ga), keys=[k for k in (kf, *ks.split(","), ka) if k])
+            regions[loc] = d
+        out[name] = dict(label=c["label"], regions=regions)
+    return out
+
+
 def titer_markers() -> dict:
-    """{product: [(titer g/L, label)]} from data/titers.csv."""
+    """{product: [(titer g/L, label)]} from data/titers.csv; a marker's optional `factor` converts the reported
+    titer to the model's basis (whole broth), e.g. a supernatant titer."""
     cfg = yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())["titer_markers"]
     rows = list(csv.DictReader((ROOT / "data/titers.csv").open()))
     out = {}
@@ -177,7 +231,7 @@ def titer_markers() -> dict:
                     and r["source_key"] == m["source_key"] and r["host"] == m["host"] and r["titer_g_per_L"]]
             if not vals:
                 raise KeyError(f"no titer row for {m}")
-            out[prod].append((max(vals), m["label"]))
+            out[prod].append((max(vals) * m.get("factor", 1.0), m["label"]))   # factor: e.g. supernatant -> whole broth
     return out
 
 

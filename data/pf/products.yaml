@@ -2,7 +2,8 @@
 # base.yaml is written around Intelligen's ovalbumin design (30 g/L in 72 h, UF/DF concentrate,
 # 10 kt/yr), which serves BLG and OVA unchanged. Lactoferrin's base case is its own design report
 # (Intelligen's lactoferrin design) on its own purification route, at a plant size that fits its
-# market. Scenario files (academic, industry, physical_limit) are applied on top of these blocks
+# market. Albumin (cell-culture media) is on the cation-exchange route with its own column data and a
+# 1 kt/yr plant. Scenario files (academic, industry, physical_limit) are applied on top of these blocks
 # (scenarios.scenario_params). Leaves replace the base.yaml leaf's value, range and source; a null
 # low/high removes the range (no sampling or tornado bar).
 blg: {}
@@ -39,3 +40,67 @@ lf:
     unit: h
     grade: B
     source: "Intelligen's 5-day lactoferrin batch (p.4) less the model's 37 h growth phase (audit R10-1); range as base.yaml"
+alb:                        # serum albumin for cultivated-meat media: base.yaml's design point (30 g/L, 72 h, glucose); its own route and plant
+  plant.spec: {value: cex, note: "cation-exchange capture at pH 4.5 straight from the clarified broth, eluted at pH 5.5, then an anion-exchange polish (dsp.polish_columns), UF/DF and spray drying: the minimal two-column train claimed in US 6,638,740 (Delta/Recombumin; albumin.yaml hsa_delta_cex_capture_conditions, hsa_delta_aex_polish). Pharma trains add affinity and gel filtration for >=99.9%; whether two columns reach the cell-culture grade (>=96%) is a judgment (D); capture only is the optimistic variant scenarios/albumin.yaml alb_capture_only"}
+  plant.annual_target_protein_t:
+    value: 1000
+    low: null
+    high: null
+    unit: t/yr
+    grade: D
+    source: "design choice: the size of today's whole human-albumin market (~0.5 to >1 kt/yr, poorly sourced, albumin.yaml plasma_hsa_tonnage_shortage, C) and ~28% of GFI's low 2030 cultivated-meat demand scenario (3.6 kt/yr; 100 kt/yr high, gfi2023_albumin_demand_2030, C). The scale curve runs 0.1-10 kt/yr and the physical limit 100 kt/yr (GFI's high scenario)"
+  dsp.polish_columns: {value: 1, grade: D, note: "anion-exchange polish after the capture: the minimal two-column train claimed in US 6,638,740 ('cation exchange chromatography ... and then anion exchange chromatography'), where the capture eluate still holds the 45 kDa fragment, yeast antigens and pigment that US 5,728,553 removes downstream. Whether two columns reach the cell-culture grade is a judgment (D; audit R12-H1); capture only is the optimistic variant scenarios/albumin.yaml alb_capture_only"}
+  dsp.cex_dbc_g_L:
+    value: 40
+    low: 30
+    high: 50
+    unit: g protein/L resin
+    grade: B
+    source: "US 5,728,553 Ex. 2 (Delta, rHA on S-Sepharose FF): 'a column loading of 40+/-10 g rHA/L matrix' (an operating load, not a measured dynamic capacity; albumin.yaml hsa_delta_cex_capture_conditions)"
+  dsp.cex_cv_per_cycle:
+    value: 34
+    low: 16
+    high: 34
+    grade: B
+    source: "US 5,728,553 Table 4: equilibration 4 + wash 11.5 + elution 2 + eluate 6.5 + 2 M NaCl strip 3.5 + NaOH 3 + storage 3 + 0.5 = 34 CV per cycle (hsa_delta_cex_step_table, derived). low = EVERY's lactoferrin table (16 CV, base.yaml)"
+  dsp.cex_elution_cv: {value: 8.5, grade: B, source: "US 5,728,553 Table 4: elution 2 CV + eluate collection 6.5 CV (hsa_delta_cex_step_table)"}
+  dsp.cex_elution_nacl_kg_m3: {value: 13.6, grade: D, source: "elution is a pH step in ~0.1 M acetate, not 1 M NaCl: 'sodium acetate trihydrate 13.6 g/L' at pH 5.5 (US 5,728,553 recipe 2; hsa_delta_cex_step_table). Priced as NaCl (no acetate leaf): about $1/kg albumin at the NaCl price, so a few $/kg at an acetate price; the acetic acid for the pH-4.5 load and the octanoate of the pharma recipe are not costed (audit R12-L3)"}
+  dsp.cex_cip_cv: {value: 3, grade: B, source: "US 5,728,553 Table 4: NaOH 3 CV"}
+  dsp.cex_cip_naoh_kg_m3: {value: 20.0, grade: B, source: "0.5 M NaOH = 20.0 kg/m3 (US 5,728,553 Table 4 recipe 4; hsa_delta_cex_step_table)"}
+  dsp.cex_regen_cv: {value: 3.5, grade: B, source: "US 5,728,553 Table 4: the 2 M NaCl strip after elution, 3.5 CV"}
+  dsp.cex_regen_nacl_kg_m3: {value: 117, grade: B, source: "2 M NaCl: 'NaCl 117 g/L' (US 5,728,553 recipe 3)"}
+  dsp.cex_regen_etoh_kg_m3: {value: 0.0, grade: B, source: "no ethanol in the rHA cycle: storage is 20 mM NaOH (US 5,728,553 Table 4)"}
+  dsp.cex_resin_life_cycles:
+    value: 1000
+    low: 125
+    high: 1000
+    unit: cycles
+    grade: D
+    source: "no albumin-specific lifetime is published: borrowed from industrial whey lactoferrin CEX ('After over a thousand cycles, the column must be replaced', Pires 2025; base.yaml, grade A there), the favourable end for a column fed pigmented yeast broth (audit R12-H2, R13-M2). low = Petrides' biopharma 50-200 cycles (midpoint)"
+  dsp.cex_recovery:
+    value: 0.56
+    low: 0.40
+    high: 0.86
+    grade: B
+    source: "US 6,638,740 (Delta): 'the anticipated recovery of rHA monomer is between 46 and 66%' over the CEX capture (midpoint 0.56; US 5,728,553 Table 4: '>40%', with different assays in and out); every public rHSA train recovers 0.46-0.68 overall (Zhu 2018 58%, Zhu 2021 67.5%, rice 46-56%). low = Table 4's >40%; high = Zhu 2021 Table 1: one capture step (dye affinity, load pH 5.0) recovered 86.25% at 96.4% purity (zhu2021_purification, A; another chemistry, so an analogy for the CEX step)"
+  dsp.cex_target_frac_dry:
+    value: 0.96
+    low: 0.90
+    high: 0.99
+    grade: C
+    source: "cell-culture rHSA specs: InVitria Cellastim S 'Purity >=96.0%'; Healthgen OsrHSA >=99% (albumin.yaml spec_invitria_cellastim_s, spec_healthgen_osrhsa_cell_culture). No food- or media-grade spec exists (media_or_food_grade_albumin_spec). low = 0.90 (judgment, D)"
+alac:                       # alpha-lactalbumin (bovine, whey): base.yaml's design point (30 g/L, 72 h, glucose); own spec and plant
+  plant.spec: {value: concentrate, note: "the membrane route of BLG (MF, UF/DF, spray drying): the GFI Europe/ADL food-grade alpha-lac case is MF -> UF/DF -> spray dry (alac.yaml alac_gfieurope2025_dsp_configurations), and a secreted broth holds no other whey protein to separate. Their high-purity (>99%) case adds one chromatography step; not modelled"}
+  plant.annual_target_protein_t:
+    value: 1000
+    low: null
+    high: null
+    unit: t/yr
+    grade: D
+    source: "design choice (alac.yaml alac_plant_size_recommendation): ~27% of the high-purity alpha-lac market (3,740 t/yr) and ~3% of the food-grade one (31,828 t/yr; GFI Europe 2025, C), as albumin's 1 kt/yr; a 10 kt/yr plant would be ~2.7x the high-purity market. The scale curve runs 0.1-10 kt/yr"
+  dsp.concentrate_target_frac_dry:
+    value: 0.90
+    low: 0.70
+    high: 0.96
+    grade: C
+    source: "the dairy alpha-lac isolate spec, FDA GRN 763 (Agropur): protein >=95% of the powder, alpha-lac >=90% of that protein, i.e. 0.855 of dry matter at the spec minimum and 0.90 at the typical 95% alpha-lac (90-96%; derived; alac.yaml alac_grn763_agropur_dairy_isolate_spec, A as a spec); GFI Europe's membrane-only food grade is '~95% +/-10%' (B). low = base.yaml's floor; high = the isolate's typical 96% of protein (alac_commercial_grades_purity_ladder). Whether UF/DF alone reaches it with yeast host protein and mannans is open, as for BLG"

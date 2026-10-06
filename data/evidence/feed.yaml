@@ -1,0 +1,1154 @@
+# data/evidence/feed.yaml: feed bill of the animal products that precision fermentation replaces, per kg of
+# EDIBLE PROTEIN: broiler chicken meat, hen's eggs, cow's milk (US). Gathered 2026-10-03; moved here 2026-10-05.
+# Read by src/pftea/benchmarks.py feed_bills (keys named in data/pf/benchmarks.yaml); the PF side is src/pftea/floor.py.
+# Purpose: compare the PF metabolic floor (~1.77 kg glucose per kg protein, ~$0.55-0.71/kg protein at $0.31-0.40/kg
+# glucose; see data/evidence/prices.yaml glucose_* keys) with the feed bill of the incumbent animal.
+# Format: data/evidence/README.md, plus the extra fields of prices.yaml/milk_egg.yaml: `year` (year of `value`),
+# `values` (series or component map). `read: html` = HTML page, text file, CSV or JSON record read via curl
+# (raw text, never a model summary) except where `note` says the WebFetch markdown converter was used.
+# Local copies (uncommitted, as for every source; references/INDEX.md, section 'Feed bill'): PDFs in
+# references/reports/, text, CSV, JSON, HTML and XML records in references/text/feed/ (file named in each `note`).
+# Reused from data/evidence/milk_egg.yaml (not duplicated here): milk_whole_protein_fdc_foundation (3.27 g/100 g),
+# egg_whole_protein_fdc_sr_legacy (12.56 g/100 g), egg_whole_protein_fdc_foundation (12.4 g/100 g),
+# us_all_milk_price_nass (2020-2025 USD/cwt), us_wholesale_eggs_ny_ers, us_market_egg_price_nass_jul2026.
+# Conversions (mine): 1 lb = 0.45359237 kg; 1 cwt = 100 lb = 45.359 kg; 1 short ton (st) = 2000 lb = 907.185 kg;
+# corn 56 lb/bu, soybeans 60 lb/bu. "Protein" = crude protein (N x 6.25 meat/egg, N x 6.38 milk), as in milk_egg.yaml.
+# Sections 1-9 are US; the EU column, the US delivered-feed premium and the feed shares follow at the end of the file.
+
+
+# ---------------- 1. Broiler chicken: feed conversion ----------------
+
+- key: "broiler_fcr_us_industry_ncc"
+  value: 1.70
+  low: 1.69
+  high: 1.79
+  unit: "lb feed per lb live weight (= kg/kg), US industry average, grow-out only"
+  year: 2025
+  values: {2015: 1.89, 2016: 1.86, 2017: 1.83, 2018: 1.82, 2019: 1.80, 2020: 1.79, 2021: 1.79, 2022: 1.77, 2023: 1.75, 2024: 1.69, 2025: 1.70}
+  grade: "C"
+  source: "National Chicken Council. U.S. Broiler Performance (statistics page), table 1925-2025"
+  doi_or_url: "https://www.nationalchickencouncil.org/about-the-industry/statistics/u-s-broiler-performance/"
+  locator: "table columns 'Market Age', 'Market Weight (lbs liveweight)', 'Feed to Meat Gain', 'Mortality (%)', rows 2015-2025"
+  quote: "2025 | 47.5 | 6.63 | 1.70 | 5.95 ... All data are from USDA or other reliable source. No estimated or forward-looking figures are provided by NCC."
+  read: "html"
+  note: >-
+    Grade C: industry-association compilation; underlying source not named (Agri Stats is the usual industry
+    benchmark but NCC does not say so). Read via the WebFetch markdown converter because curl was blocked by
+    Cloudflare (references/text/feed/ncc_broiler_performance_webfetch.md). Page footer says 'Last Updated: February 2022' although
+    it carries 2024-2025 rows. 'Feed to meat gain' = lb feed per lb live weight at market (6.63 lb = 3.01 kg in 2025,
+    47.5 d, mortality 5.95%). Whether feed eaten by birds that died is included is not stated (likely yes in an
+    industry flock-level figure). Excludes parent-stock feed (see broiler_parent_feed_ross308). The 2020-2025 range
+    1.69-1.79 is the low/high.
+
+- key: "broiler_fcr_ross308_objective"
+  value: 1.531
+  low: 1.493
+  high: 1.569
+  unit: "kg feed per kg live weight, as-hatched, at 2.998 kg (day 42); low/high at 2.80 kg (day 40) and 3.20 kg (day 44)"
+  grade: "B"
+  source: "Aviagen. Ross 308/308 FF Broiler: Performance Objectives 2022 (RossxRoss308-BroilerPerformanceObjectives2022-EN.pdf)"
+  doi_or_url: "https://aviagen.com/assets/Tech_Center/Ross_Broiler/RossxRoss308-BroilerPerformanceObjectives2022-EN.pdf"
+  locator: "p.3 'As-Hatched Performance' (metric, g), rows day 40, 42, 44; footnote 3"
+  quote: "42  2998  100  70  207  4586  1.531 ... FCR includes initial body weight at placement and does not account for mortality."
+  read: "fulltext"
+  note: >-
+    Breeder's target under good management, not a field average: US actual (NCC 1.70 at 3.01 kg) is ~11% worse,
+    mainly mortality (5.95%), field conditions and the feed eaten by birds that die (excluded here). Cumulative intake
+    4.586 kg/bird at 42 d. File references/reports/ross308_broiler_PO_2022.pdf.
+
+- key: "broiler_parent_feed_ross308"
+  value: 0.367
+  unit: "kg feed per day-old broiler chick produced (parent-stock females, day old to 64 weeks)"
+  values: {feed_per_100_chicks_kg: 36.7, feed_per_100_hatching_eggs_kg: 31.3, chicks_per_female_housed: 152.2, hatchability_pct: 85.3, hatching_eggs_per_hen_housed: 178.5}
+  grade: "B"
+  source: "Aviagen. Ross 308 Parent Stock: Performance Objectives 2021 (Ross308-ParentStock-PerformanceObjectives-2021-EN.pdf)"
+  doi_or_url: "https://en.aviagen.com/assets/Tech_Center/Ross_PS/Ross308-ParentStock-PerformanceObjectives-2021-EN.pdf"
+  locator: "p.1 'Performance Summary' and footnote ***"
+  quote: "Chicks/female housed at 175 days (25 weeks) 152.2 ... Feed/100 Chicks*** day old - 448 days (0–64 weeks) 36.7 kg ... *** Feed amounts expressed in the table do not include male feed allocations."
+  read: "fulltext"
+  note: >-
+    Includes rearing and laying feed of the hen. EXCLUDES breeder-male feed (not given here; males are a minority
+    of the flock but eat more per head, so true parent feed is somewhat higher - not quantified, flag) and
+    grandparent/great-grandparent generations (negligible per broiler). Per kg broiler live weight (mine):
+    0.367 / 3.007 kg (NCC 2025 market weight) = 0.122; divided by (1 - 0.0595 broiler mortality) = 0.130 kg/kg.
+    Spent breeder hens are sold for meat (credit ignored). File references/reports/ross308_PS_PO_2021.pdf.
+
+
+# ---------------- 2. Broiler chicken: edible yield and protein ----------------
+
+- key: "broiler_rtc_yield_nass"
+  value: 0.7567
+  unit: "kg ready-to-cook (RTC) weight certified per kg live weight slaughtered, US young chickens, federally inspected"
+  year: 2025
+  values: {2024: 0.7563, 2025: 0.7567, live_weight_2025_1000lb: 63443212, rtc_2025_1000lb: 48006482, avg_live_weight_2025_lb: 6.62}
+  grade: "A"
+  source: "USDA NASS. Poultry Slaughter 2025 Annual Summary (February 27, 2026), pslaan26.txt"
+  doi_or_url: "https://esmis.nal.usda.gov/sites/default/release-files/795797/pslaan26.txt"
+  locator: "tables 'Young Chickens Slaughtered and Total Live Weight by Month' and 'Young Chickens Average Live Weight and Pounds Certified by Month', United States, 2025 Total / 2024 Total"
+  quote: "Total live weight ... United States ......: ... 63,443,212 62,139,063 ... Pounds certified 1/ ... United States ......: ... 48,006,482 46,995,202 ... 1/ Total chilled and frozen ready-to-cook weight."
+  read: "html"
+  note: >-
+    Ratio computed by me: 48,006,482 / 63,443,212 = 0.7567 (2024: 46,995,202 / 62,139,063 = 0.7563). RTC = the
+    eviscerated carcass as sold, which can include giblets/neck and retained chill water; Ross's 'dry'
+    eviscerated yield at 3.0 kg is 73.4% (broiler_meat_yield_ross308), consistent. File references/text/feed/pslaan26.txt.
+
+- key: "broiler_meat_yield_ross308"
+  value: 43.10
+  low: 42.58
+  high: 43.55
+  unit: "% of live weight: total deboned meat (breast meat + leg meat, no skin, no bone), males at 3.0 kg (low 2.8 kg, high 3.2 kg)"
+  values: {eviscerated_pct_3p0kg_male: 73.42, breast_meat_pct_3p0kg_male: 25.86, leg_meat_pct_3p0kg_male: 17.24}
+  grade: "B"
+  source: "Aviagen. Ross 308/308 FF Broiler: Performance Objectives 2022"
+  doi_or_url: "https://aviagen.com/assets/Tech_Center/Ross_Broiler/RossxRoss308-BroilerPerformanceObjectives2022-EN.pdf"
+  locator: "p.11 'Carcass Yield - Male', row 3.0 kg; definitions below the table"
+  quote: "3.0  6.61  73.42  25.86  13.96  9.79  7.50  17.24  25.86  43.10 ... Total meat %: Whole leg and breast (without skin and bone) as a percentage of live weight."
+  read: "fulltext"
+  note: >-
+    Modern-bird lower bound for edible lean meat: excludes wing meat, back/neck/frame meat and skin. Females (p.12)
+    are similar. Breeder target under trial conditions ('dry yield', no chill water). File references/reports/ross308_broiler_PO_2022.pdf.
+
+- key: "chicken_meat_refuse_sr28"
+  value: 52
+  unit: "% refuse of the carcass for 'meat only' (32% bone, 12% skin, 8% separable fat); edible meat only = 48% of carcass"
+  values: {meat_only_refuse_pct: 52, meat_and_skin_refuse_pct: 32, meat_skin_giblets_neck_refuse_pct: 31}
+  grade: "A"
+  source: "USDA ARS. National Nutrient Database for Standard Reference, Release 28 (2016), FOOD_DES.txt, NDB 05011, 05006, 05001"
+  doi_or_url: "https://www.ars.usda.gov/ARSUserFiles/80400535/DATA/SR/sr28/dnload/sr28asc.zip"
+  locator: "FOOD_DES fields Ref_desc and Refuse for NDB 05011 'Chicken, broilers or fryers, meat only, raw', 05006 'meat and skin, raw', 05001 'meat and skin and giblets and neck, raw'"
+  quote: "~05011~^~0500~^~Chicken, broilers or fryers, meat only, raw~ ... ~32% bone, 12% skin, 8% separable fat~^52 ... ~05006~ ... meat and skin, raw~ ... ~Bone~^32"
+  read: "html"
+  note: >-
+    Refuse is per 'as purchased' whole broiler carcass (ready-to-cook). These are old (pre-2000) carcass
+    dissections; modern broilers carry more breast meat, so 48% meat is likely conservative (Ross implies
+    43.1% of live / 73.4% eviscerated = 59% of the carcass as breast+leg meat alone). File references/text/feed/sr28/FOOD_DES.txt.
+
+- key: "chicken_meat_only_protein_fdc_sr_legacy"
+  value: 21.39
+  unit: "g crude protein / 100 g raw broiler meat only (N x 6.25)"
+  values: {meat_and_skin_protein_g_per_100g: 18.6, meat_and_skin_dataPoints: 82}
+  grade: "A"
+  source: "USDA ARS FoodData Central, SR Legacy, FDC ID 171052 'Chicken, broilers or fryers, meat only, raw' and FDC ID 171447 'Chicken, broilers or fryers, meat and skin, raw' (publicationDate 4/1/2019)"
+  doi_or_url: "https://api.nal.usda.gov/fdc/v1/food/171052?api_key=DEMO_KEY&format=full (and /171447)"
+  locator: "foodNutrients 'Protein'; nutrientConversionFactors 'Protein From Nitrogen'"
+  quote: "171052 Chicken, broilers or fryers, meat only, raw: Protein 21.39 g (dataPoints 24); Protein From Nitrogen 6.25. 171447 meat and skin, raw: Protein 18.6 g (dataPoints 82)"
+  read: "html"
+  note: "Files references/text/feed/fdc_171052.json, fdc_171447.json. Meat-only fat 3.08 g/100 g; meat-and-skin fat 15.06 g/100 g."
+
+
+# ---------------- 3. Layers: feed conversion, pullets, edible yield ----------------
+
+- key: "layer_fcr_hyline_w36"
+  value: 2.005
+  low: 1.93
+  high: 2.08
+  unit: "kg feed per kg eggs (shell on), 20-100 weeks of age, laying hen only"
+  values: {fcr_20_60wk: [1.81, 1.94], fcr_20_100wk: [1.93, 2.08], feed_per_dozen_20_100wk_kg: [1.36, 1.49], hen_housed_eggs_to_100wk: [456, 472], egg_mass_per_hen_housed_18_100wk_kg: [27.4, 29.4], livability_to_100wk_pct: 92.0}
+  grade: "B"
+  source: "Hy-Line International. W-36 Commercial Layers Performance Standards Guide (International Standards), January 2020 (file W36_CS_Cage_v2026.01.20_EN)"
+  doi_or_url: "https://www.hyline.com/filesimages/Hy-Line-Products/Hy-Line-Product-PDFs/W-36/36%20STD%20ENG.pdf"
+  locator: "p.3 'Summary of Performance Standards'"
+  quote: "Feed Conversion Rate, kg Feed/kg Eggs (20–100 weeks) 1.93–2.08 ... Feed Consumption per Dozen Eggs (20–100 weeks) 1.36–1.49 kg"
+  read: "fulltext"
+  note: >-
+    W-36 is the dominant US white-egg strain. Central = midpoint (mine). Breeder target for conventional cages, not a
+    field average. Implied egg mass per dozen (mine): 1.36/1.93 = 0.705 kg, 1.49/2.08 = 0.716 kg; mean 0.711 kg/dozen,
+    used to convert per-dozen figures. Excludes pullet rearing (next entry) and breeder flocks (layer parent stock:
+    not gathered; each breeder hen yields on the order of 100 pullets, so likely ~1% - not quantified, flag).
+    File references/reports/hyline_W36_STD.pdf.
+
+- key: "layer_pullet_feed_hyline_w36"
+  value: 5.65
+  low: 5.36
+  high: 5.94
+  unit: "kg feed per pullet, hatch to 17 weeks"
+  grade: "B"
+  source: "Hy-Line International. W-36 Commercial Layers Performance Standards Guide, January 2020"
+  doi_or_url: "https://www.hyline.com/filesimages/Hy-Line-Products/Hy-Line-Product-PDFs/W-36/36%20STD%20ENG.pdf"
+  locator: "p.3 'Summary of Performance Standards', 'REARING PERIOD (TO 17 WEEKS)'"
+  quote: "REARING PERIOD (TO 17 WEEKS): Livability 97% Feed Consumed 5.36–5.94 kg Body Weight at 17 Weeks 1190–1250 g"
+  read: "fulltext"
+  note: >-
+    Per kg egg (mine): 5.65 / 28.4 kg egg mass per hen housed = 0.199 kg/kg (range 5.36/29.4 = 0.182 to
+    5.94/27.4 = 0.217). Weeks 17-20 (transition) are partly uncounted between the two Hy-Line windows (small).
+    Rearing mortality (3%) ignored. Spent-hen meat credit ignored.
+
+- key: "layer_feed_per_dozen_eic_survey"
+  value: 3.23
+  unit: "lb feed per dozen eggs, conventional 1-cycle flocks to 90 weeks (layer only)"
+  values: {pullet_feed_lb_to_19wk: 14.2, pullet_feed_lb_to_16wk: 11.7, eggs_per_hen_housed: 412, layer_diet: "67% corn, 22% soybean meal, 8% limestone, 3% other"}
+  grade: "C"
+  source: "Egg Industry Center (Iowa State University), compiled by M. Ibarburu. U.S. Egg Cost of Production and Prices, January 9, 2024 (data for December 2023)"
+  doi_or_url: "https://www.eggindustrycenter.org/media/cms/Costs_and_Prices_for_December_2023__36ED6C7DE3179.pdf"
+  locator: "report note (front pages); Table 5 assumptions; Table 6 note"
+  quote: "Feed conversion is assumed to be 3.23 lbs./dozen in conventional systems, based on producers surveys. ... Assumes: 14.2 lbs. of feed consumed per pullet for conventional systems"
+  read: "fulltext"
+  note: >-
+    Producer-survey basis (April 2023), so closer to field reality than Hy-Line. Including pullet feed (mine):
+    14.2 lb / (412/12 = 34.33 dozen) = 0.414 lb/dozen; total 3.644 lb = 1.653 kg/dozen; at 0.711 kg eggs/dozen
+    (layer_fcr_hyline_w36) = 2.33 kg feed/kg shell egg, vs Hy-Line 2.20. File references/reports/eic_cop_dec2023.pdf.
+    The EIC monthly series stops at Dec 2024 on the public site (website transition); 2023 is the latest full
+    report read.
+
+- key: "egg_shell_refuse_sr28"
+  value: 12
+  unit: "% of whole egg weight that is shell (refuse); edible = 88%"
+  grade: "A"
+  source: "USDA ARS. National Nutrient Database for Standard Reference, Release 28 (2016), FOOD_DES.txt, NDB 01123 'Egg, whole, raw, fresh'"
+  doi_or_url: "https://www.ars.usda.gov/ARSUserFiles/80400535/DATA/SR/sr28/dnload/sr28asc.zip"
+  locator: "FOOD_DES fields Ref_desc, Refuse for NDB 01123"
+  quote: "~01123~^~0100~^~Egg, whole, raw, fresh~^~EGG,WHL,RAW,FRSH~^~~^~~^~Y~^~Shell~^12^"
+  read: "html"
+  note: >-
+    Edible protein per kg shell egg (mine): 0.88 x 12.56% (egg_whole_protein_fdc_sr_legacy, milk_egg.yaml) = 0.1105 kg;
+    with Foundation 12.4% = 0.1091 kg. Per dozen: 0.711 x 0.1105 = 0.0785 kg protein.
+
+
+# ---------------- 4. Dairy: feed per kg milk ----------------
+
+- key: "dairy_feed_efficiency_lactating_hutjens"
+  value: 1.5
+  low: 1.4
+  high: 1.6
+  unit: "lb milk per lb dry matter intake (= kg/kg), lactating cows only, one-group herd at 150-225 days in milk"
+  grade: "B"
+  source: "Hutjens MF. Feed Efficiency and Its Impact on Feed Intake. Feed Management fact sheet, University of Illinois / USDA NRCS CIG (dated 6-20-2006)"
+  doi_or_url: "https://s3.wp.wsu.edu/uploads/sites/346/2014/11/DairyFeedEfficiencyfinal.pdf"
+  locator: "Table 2 'Benchmarks for feed efficiency comparisons', row 'One group, all cows'"
+  quote: "Feed efficiency values in the field can vary from 1.1 to 2.0 (Table 2). ... One group, all cows 150 to 225 1.4 to 1.6"
+  read: "fulltext"
+  note: >-
+    Extension benchmark (2006; US yields have risen since, which pushes FE up). Excludes dry cows and replacement
+    heifers. Inverse (mine): 0.625-0.714 kg DM per kg milk; per kg milk protein (3.27%): 19.1-21.8 kg DM.
+    Whole-herd DM per kg milk (incl. dry cows ~12% of adult cow-years and ~0.9 heifers per cow, Capper & Cady 2020 Table 4)
+    is materially higher; no US DM figure found - flag. File references/reports/hutjens_feed_efficiency_wsu.pdf.
+
+- key: "dairy_feed_whole_herd_capper_cady2020"
+  value: 1.57
+  unit: "kg feedstuffs (FRESH weight, not dry matter) per kg energy-corrected milk (ECM), whole US dairy population 2017"
+  values: {2007: 1.90, 2017: 1.57, heifer_to_cow_ratio_2017: 0.92, dry_cows_per_1MMT_ECM_2017_thousand: 10.5, lactating_cows_per_1MMT_ECM_2017_thousand: 76.0}
+  grade: "B"
+  source: "Capper JL, Cady RA. The effects of improved performance in the U.S. dairy cattle industry on environmental impacts between 2007 and 2017. J Anim Sci 98(1):skz291 (2020)"
+  doi_or_url: "10.1093/jas/skz291 (PMC6978902)"
+  locator: "Table 5 'Resource use ... per 1.0 MMT of saleable energy-corrected milk', row 'Total feedstuffs', footnote 1; Table 4 population"
+  quote: "Total feedstuffs 1 , kg | 1.90 × 10 9 | 1.57 × 10 9 | 82.7 | ... 1 Freshweight."
+  read: "fulltext"
+  note: >-
+    Deterministic model (ration software, NASS crop data), so grade B. Includes lactating and dry cows, replacement
+    heifers and bulls. FRESH weight includes the water in silages, so it is not comparable with poultry feed
+    (~88-90% DM) and cannot be costed per kg; used only as the whole-herd physical check. Per kg protein needs
+    ECM-to-milk conversion (US milk at 4.2-4.3% fat is ~10% above ECM per kg; mine, approximate) - not converted.
+    File references/text/feed/capper_cady_2020.txt.
+
+- key: "dairy_dmc_feed_cost_formula"
+  value: 1.022
+  unit: "lb of feed (as fed: corn grain + soybean meal + alfalfa hay) per lb milk implied by the statutory DMC formula"
+  values: {corn_bu_per_cwt: 1.0728, sbm_ton_per_cwt: 0.00735, alfalfa_hay_ton_per_cwt: 0.0137, corn_lb_per_cwt: 60.08, sbm_lb_per_cwt: 14.7, hay_lb_per_cwt: 27.4}
+  grade: "A"
+  source: "7 CFR 1430.411 (Dairy Margin Coverage Program), 'Calculation of average feed cost and actual dairy production margins' (84 FR 28176, June 18, 2019, as amended 86 FR 70708, Dec. 13, 2021)"
+  doi_or_url: "https://www.ecfr.gov/current/title-7/subtitle-B/chapter-XIV/subchapter-B/part-1430/subpart-D/section-1430.411"
+  locator: "§ 1430.411(b)-(c)"
+  quote: "(1) The product determined by multiplying 1.0728 by the price of corn per bushel; (2) ... 0.00735 by the price of soybean meal per ton; and (3) ... 0.0137 by the price of alfalfa hay per ton."
+  read: "html"
+  note: >-
+    Official (statutory) proxy of the feed cost of a cwt of milk, not a measured ration. Physical reading (mine):
+    1.0728 bu x 56 lb = 60.1 lb corn + 0.00735 x 2000 = 14.7 lb SBM + 0.0137 x 2000 = 27.4 lb hay = 102.2 lb per
+    100 lb milk = 1.02 kg/kg as fed (~0.9 kg DM/kg); per kg milk protein = 31.2 kg as fed. It omits silage and by-products
+    and is usually read as a lactating-cow ration; whether it covers dry cows/heifers is not stated. Hay = premium
+    and supreme alfalfa (§ 1430.411(c)(3)). File references/text/feed/ecfr_7cfr1430.xml.
+
+
+# ---------------- 5. Feed prices, 2020-2025 ----------------
+
+- key: "nass_modeled_feed_price_basis"
+  value: null
+  unit: "composition of the NASS commercial-feed price proxies (by weight) and July 2026 check values"
+  values: {broiler_feed: "58% corn, 42% soybeans", layer_feed: "75% corn, 25% soybeans", dairy_16pct_feed: "51% corn, 8% soybeans, 41% alfalfa", jul2026_broiler_feed_ratio: 5.3, jul2026_egg_feed_ratio: 7.4, jul2026_milk_feed_ratio: 2.12, jul2026_broiler_live_usd_lb: 0.662, jul2026_corn_usd_bu: 4.26, jul2026_soybeans_usd_bu: 11.60}
+  grade: "A"
+  source: "USDA NASS. Agricultural Prices, released August 31, 2026 (agpr0826.txt)"
+  doi_or_url: "https://esmis.nal.usda.gov/sites/default/release-files/796040/agpr0826.txt"
+  locator: "table 'Feed Price Ratios - United States: July 2026 with Comparisons', footnotes 1/-4/; table 'Prices Received Used to Calculate Feed Price Ratios'"
+  quote: "The price of commercial prepared broiler feed is based on current United States prices received for corn and soybeans. The modeled feed uses 58 percent corn and 42 percent soybeans."
+  read: "html"
+  note: >-
+    Check (mine): 0.58 x 4.26/56 + 0.42 x 11.60/60 = 0.1253 USD/lb vs implied 0.662/5.3 = 0.1249 USD/lb; layer
+    0.75 x 0.0761 + 0.25 x 0.1933 = 0.1054 vs 0.783/7.4 = 0.1058; dairy 0.51 x 0.0761 + 0.08 x 0.1933 + 0.41 x 203/2000
+    = 0.0959 vs 20.30/100/2.12 = 0.0958. So the NASS feed prices are plain ingredient-weighted sums: no milling,
+    premix, fat, minerals, transport or mark-up, i.e. a LOW estimate of delivered complete-feed cost (EIC's layer
+    formula adds ~10-15% over its corn+SBM content; analogy). July 2026 implied: broiler feed 250 USD/st
+    (0.275 USD/kg), layer 211 USD/st, dairy 16% 192 USD/st.
+
+- key: "corn_soybean_price_received_my_ers"
+  value: null
+  unit: "USD/bu, US season-average price received by farmers, marketing year Sep-Aug (year = MY start)"
+  values: {corn: {2020: 4.53, 2021: 6.00, 2022: 6.54, 2023: 4.55, 2024: 4.24, 2025: 4.15}, soybeans: {2020: 10.8, 2021: 13.3, 2022: 14.2, 2023: 12.4, 2024: 10.0, 2025: 10.2}}
+  grade: "A"
+  source: "USDA ERS. Feed Grains Database, Yearbook Tables (Table 1, corn) and Oil Crops Yearbook (Table 3, soybeans), CSV downloads accessed 2026-10-03"
+  doi_or_url: "https://www.ers.usda.gov/media/5766/feed-grains-yearbook-tables-all-years.csv ; https://www.ers.usda.gov/media/5218/all-tables-oil-crops-yearbook.csv"
+  locator: "Feed grains Table 1 'Corn ... price received by farmers', Marketing year Sep-Aug; Oil crops Table 3 'Season-average price received by farmers', MY Total"
+  quote: "Corn, Price received by farmers, 2024, Marketing year Sep-Aug, Dollars per bushel, 4.2400 ... Soybeans, Season-average price received by farmers, 2024/25, MY Total, 10, Dollars/bushel"
+  read: "html"
+  note: >-
+    2025/26 values (corn 4.15, soybeans 10.2) may still be ERS estimates rather than final NASS figures (MY ended
+    Aug 2026). Extracts: references/text/feed/ers_feedgrains_extract.csv, ers_oilcrops_extract.csv. Soybean meal (Central
+    Illinois, ERS Table 16, MY Oct-Sep): 2020 392.4, 2021 440.2, 2022 451.1, 2023 384.3, 2024 299.2 USD/st.
+
+- key: "broiler_feed_price_nass_model_my"
+  value: 0.252
+  low: 0.251
+  high: 0.369
+  unit: "USD/kg broiler feed (NASS ingredient proxy: 58% corn + 42% soybeans), marketing year 2025/26 (range 2020/21-2025/26)"
+  year: 2025
+  values: {2020: 0.270, 2021: 0.342, 2022: 0.369, 2023: 0.295, 2024: 0.251, 2025: 0.252, usd_per_short_ton: {2020: 245.0, 2021: 310.5, 2022: 334.3, 2023: 267.9, 2024: 227.8, 2025: 228.8}}
+  grade: "D"
+  source: "Derived (mine) from nass_modeled_feed_price_basis (formula) and corn_soybean_price_received_my_ers (prices)"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: "html"
+  note: >-
+    Derived, not a quote. USD/lb = 0.58 x corn/56 + 0.42 x soybeans/60; e.g. 2025: 0.58 x 0.0741 + 0.42 x 0.1700 =
+    0.1144 USD/lb = 228.8 USD/st = 0.252 USD/kg. Ingredient-only proxy: real delivered broiler feed (fat, premix,
+    amino acids, milling, transport) is likely ~10-20% dearer - not sourced for broilers, flag. Layer proxy
+    (75/25): 2020 211, 2021 272, 2022 294, 2023 225, 2024 197, 2025 196 USD/st.
+
+- key: "layer_feed_price_eic"
+  value: 287.35
+  unit: "USD/short ton layer feed delivered, 5-region US average, calendar 2023"
+  year: 2023
+  values: {midwest_2023: 266.08, northwest_2023: 335.17, formula: "(0.67 corn + 0.22 SBM + 4.54 calcium + 14.58 other) x 1.025 + 6.50 milling + 2.09 transport, USD/st"}
+  grade: "C"
+  source: "Egg Industry Center. U.S. Egg Cost of Production and Prices, January 9, 2024"
+  doi_or_url: "https://www.eggindustrycenter.org/media/cms/Costs_and_Prices_for_December_2023__36ED6C7DE3179.pdf"
+  locator: "Table 3 'Estimated layer feed cost by region ($/ton) - 2023' and its assumptions box"
+  quote: "12 Month Avg. 275.38 282.82 266.08 277.31 335.17 287.35 ... Source: Egg Industry Center. Estimated based on corn and soybean meal prices reported by USDA AMS Marketnews"
+  read: "fulltext"
+  note: >-
+    Formula reverse-checked by me: Midwest Jan 2023 (corn 237.53, SBM 482.35 USD/st) gives
+    (159.15 + 106.12 + 4.54 + 14.58) x 1.025 + 6.50 + 2.09 = 300.08 = table value. Applying the same formula to the
+    national DMC corn price (x 2000/56) and Central Illinois SBM (dmc_feed_cost_monthly_fsa) gives calendar-year
+    layer feed (mine, D): 2020 186, 2021 248, 2022 299, 2023 275 (EIC 287 with its regional prices), 2024 213,
+    2025 201 USD/st = 0.205-0.329 USD/kg.
+
+- key: "dmc_feed_cost_monthly_fsa"
+  value: 10.03
+  unit: "USD per cwt of milk, DMC 'average feed cost', calendar-year mean of monthly values"
+  year: 2025
+  values: {2020: 8.87, 2021: 11.78, 2022: 14.83, 2023: 13.77, 2024: 10.62, 2025: 10.03, "2026_jan_aug": 10.21, corn_usd_bu_cy: {2020: 3.50, 2021: 5.40, 2022: 6.76, 2023: 5.95, 2024: 4.27, 2025: 4.29}, sbm_usd_st_cy: {2020: 319.5, 2021: 386.6, 2022: 465.1, 2023: 448.0, 2024: 354.3, 2025: 298.2}, premium_alfalfa_usd_st_cy: {2020: 201.6, 2021: 229.5, 2022: 303.6, 2023: 299.2, 2024: 251.3, 2025: 236.5}}
+  grade: "A"
+  source: "USDA FSA. Dairy Margin Coverage (DMC) Program Updates and Prices, monthly tables 2019-2026"
+  doi_or_url: "https://www.fsa.usda.gov/resources/programs/dairy-margin-coverage-program-dmc/prices-updates"
+  locator: "tables '2025 Rates' ... '2020 Rates', column 'Final Feed Costs for DMC ($/cwt)'"
+  quote: "January | 4.29 | 242.00 | 316.97 | 24.10 | 10.25 | 13.85 | ... December | 4.10 | 211.00 | 311.93 | 19.00 | 9.58 | 9.42"
+  read: "html"
+  note: >-
+    Annual = simple mean of 12 monthly values (computed). Formula check (mine), Jan 2025: 1.0728 x 4.29 + 0.00735 x
+    316.97 + 0.0137 x 242 = 10.247. Per kg milk protein (mine, 3.27%): 2025 10.03/45.359/0.0327 = 6.76 USD;
+    2020 5.98; 2022 10.00. File references/text/feed/fsa_dmc_prices.txt.
+
+- key: "ers_milk_feed_cost_per_cwt"
+  value: 9.82
+  unit: "USD per cwt of milk SOLD, total feed costs (purchased + homegrown harvested + grazed), US total"
+  year: 2025
+  values: {2020: 10.11, 2021: 11.93, 2022: 14.77, 2023: 13.56, 2024: 10.31, 2025: 9.82, purchased_2025: 6.30, homegrown_2025: 3.48, grazed_2025: 0.04}
+  grade: "A"
+  source: "USDA ERS. Milk Cost of Production Estimates (Commodity Costs and Returns), milk.csv, accessed 2026-10-03"
+  doi_or_url: "https://www.ers.usda.gov/media/4980/milk.csv (page: https://www.ers.usda.gov/data-products/milk-cost-of-production-estimates)"
+  locator: "Item 'Total, feed costs', Region 'U.S. total', Size 'No specific size', units 'dollars per hundredweight sold'"
+  quote: "Milk, Operating costs, Total, feed costs, dollars per hundredweight sold, No specific size, U.S. total, United States, 2025, 9.82, Base survey of 2021"
+  read: "html"
+  note: >-
+    ARMS-survey based (2021 base; 2020 on 2016 base; non-survey years indexed with NASS prices-paid). Homegrown
+    feed is valued at quantities fed x crop prices (ERS documentation). The documentation pages read do not state
+    whether feed for replacement heifers raised on farm is in the dairy enterprise (the enterprise sells cattle and
+    cull cows: 'Cattle'/'Milk cows' income items) - treat as roughly whole-herd, flag. Per kg milk protein
+    (mine, 3.27%): 2020 6.82, 2021 8.04, 2022 9.96, 2023 9.14, 2024 6.95, 2025 6.62 USD. File references/text/feed/ers_milk_cop.csv.
+
+
+# ---------------- 6. Feed share of production cost ----------------
+
+- key: "dairy_feed_share_of_cost_ers"
+  value: 0.42
+  low: 0.42
+  high: 0.54
+  unit: "fraction: total feed costs / total costs listed (incl. opportunity costs of land and unpaid labour), US, 2025 (range 2020-2025)"
+  year: 2025
+  values: {total_costs_listed_usd_cwt: {2020: 22.24, 2021: 22.94, 2022: 27.33, 2023: 26.74, 2024: 23.65, 2025: 23.36}, operating_costs_usd_cwt: {2020: 13.18, 2021: 14.94, 2022: 18.56, 2023: 17.57, 2024: 14.24, 2025: 13.75}, feed_share_of_total: {2020: 0.455, 2021: 0.520, 2022: 0.540, 2023: 0.507, 2024: 0.436, 2025: 0.420}, feed_share_of_operating: {2020: 0.767, 2021: 0.799, 2022: 0.796, 2023: 0.772, 2024: 0.724, 2025: 0.714}}
+  grade: "A"
+  source: "USDA ERS. Milk Cost of Production Estimates, milk.csv"
+  doi_or_url: "https://www.ers.usda.gov/media/4980/milk.csv"
+  locator: "Items 'Total, feed costs', 'Total, operating costs', 'Total, costs listed', U.S. total"
+  quote: "Total, operating costs ... U.S. total, United States, 2025, 13.75 ... Total, costs listed ... U.S. total, United States, 2025, 23.36"
+  read: "html"
+  note: "Grade A kept: a ratio of two items of one official table (audit R16-L3). Shares computed by me, e.g. 2025: 9.82/23.36 = 0.420; 9.82/13.75 = 0.714. ERS gross value of production 2025 = 23.99 USD/cwt, of which milk 21.02 (rest cattle and other income)."
+
+- key: "layer_feed_share_of_cost_eic"
+  value: 0.54
+  low: 0.54
+  high: 0.61
+  unit: "fraction: layer feed cost / total cost of conventional eggs, US 5-region average, calendar 2023 (high = including pullet feed, mine)"
+  year: 2023
+  values: {feed_cost_c_per_dozen: 46.41, pullet_cost_c_per_dozen: 12.72, other_costs_c_per_dozen: 27.0, total_cost_c_per_dozen: 85.98}
+  grade: "C"
+  source: "Egg Industry Center. U.S. Egg Cost of Production and Prices, January 9, 2024"
+  doi_or_url: "https://www.eggindustrycenter.org/media/cms/Costs_and_Prices_for_December_2023__36ED6C7DE3179.pdf"
+  locator: "Table 7 (feed cost, cents/doz), Table 6 (pullet cost), Table 8 (total cost), 12-month averages, 5-region average"
+  quote: "TABLE 7 ESTIMATED FEED COST ... 12 Month Avg. 44.47 45.68 42.97 44.79 54.13 46.41 ... TABLE 8 ESTIMATED TOTAL COSTS ... 12 Month Avg. 83.83 85.17 82.16 84.18 94.58 85.98"
+  read: "fulltext"
+  note: >-
+    46.41/85.98 = 0.540. Pullet feed (mine): 14.2 lb x 287.35 USD/st x 1.07 / 2000 = 2.18 USD/pullet / 34.33 dozen =
+    6.36 c/dozen; feed incl. pullet = 52.77 c/dozen = 0.614 of total. Total feed per kg egg protein 2023 (mine):
+    0.5277 / 0.0785 kg protein per dozen = 6.72 USD. Excludes California (cage-free mandate).
+
+- key: "broiler_feed_share_of_cost_ers"
+  value: 0.70
+  unit: "fraction of the cost of raising broilers that is feed (lower bound: 'more than 70 percent')"
+  grade: "C"
+  source: "Johnson ME, Williams A, Valdes C, Ajewole K, Beckman J. Demand for Alternative Feed Grains for Broiler Production in an Era of Global Price Uncertainty: The Case of Sorghum. USDA ERS Economic Research Report ERR-350 (April 2025)"
+  doi_or_url: "https://www.ers.usda.gov/sites/default/files/_laserfiche/publications/111313/ERR-350.pdf"
+  locator: "p.2, 'Importance of Feed and Its Composition in Chicken Production'"
+  quote: "Feed constitutes more than 70 percent of the cost of raising broiler chickens, the rest being operation costs such as labor, energy, water, veterinary services, and maintenance costs (Alhotan, 2021)."
+  read: "fulltext"
+  note: >-
+    Graded C despite the ERS imprint: a secondary citation of a review (Alhotan 2021), not US cost data; refers to
+    live production (feed, chicks, grower pay, etc.), excluding processing. No public US broiler cost-of-production
+    series exists (Agri Stats is proprietary). Cross-check (mine): feed 1.83 kg/kg live x 0.252 USD/kg (2025) =
+    0.46 USD/kg live = 29% of the 2025 live value 1.58 USD/kg - consistent with feed ~70% of a live cost well below
+    the (high-margin 2025) live value. File references/reports/ers_ERR350.pdf.
+
+
+# ---------------- 7. Producer prices (context) ----------------
+
+- key: "broiler_live_value_per_lb_nass"
+  value: 0.716
+  unit: "USD per lb live weight (value of production / live-weight production), US broilers"
+  year: 2025
+  values: {2024: 0.744, 2025: 0.716, value_2025_1000usd: 44567421, liveweight_2025_1000lb: 62245000, value_2024_1000usd: 45434590, liveweight_2024_1000lb: 61068000}
+  grade: "A"
+  source: "USDA NASS. Poultry - Production and Value 2025 Summary (April 2026), plva0426"
+  doi_or_url: "https://esmis.nal.usda.gov/sites/default/release-files/795885/plva0426.pdf"
+  locator: "p.7 'Broiler Production and Value - States and United States: 2025' (and p.6 for 2024), row United States"
+  quote: "United States ................................................... 9,397,200 62,245,000 44,567,421"
+  read: "fulltext"
+  note: >-
+    Unit value computed by me: 44,567,421 / 62,245,000 = 0.716 USD/lb = 1.58 USD/kg live (2024: 0.744 USD/lb).
+    Year = Dec 2024-Nov 2025. Per kg edible protein (mine): 1.58 / 0.0849 = 18.6 USD. NASS monthly live price
+    July 2026: 0.662 USD/lb (agpr0826). File references/reports/plva0426.pdf.
+
+- key: "eggs_all_value_per_dozen_nass"
+  value: 3.59
+  unit: "USD per dozen, value of all egg production / dozens produced (table AND hatching eggs), US"
+  year: 2025
+  values: {2024: 2.33, 2025: 3.59, value_2025_1000usd: 31500605, dozens_2025_1000: 8770543.3, value_2024_1000usd: 21160650, dozens_2024_1000: 9094116.3}
+  grade: "A"
+  source: "USDA NASS. Poultry - Production and Value 2025 Summary (April 2026), plva0426"
+  doi_or_url: "https://esmis.nal.usda.gov/sites/default/release-files/795885/plva0426.pdf"
+  locator: "p.12 'All Eggs Production and Value - States and United States: 2024 and 2025', row United States"
+  quote: "United States ...... 109,129.4 105,246.5 9,094,116.3 8,770,543.3 21,160,650 31,500,605"
+  read: "fulltext"
+  note: >-
+    Unit value computed by me. Inflated relative to table eggs by hatching eggs (dearer) and by the 2025 avian-
+    influenza price spike; for table-egg farm prices use us_wholesale_eggs_ny_ers and us_market_egg_price_nass_jul2026
+    (milk_egg.yaml; e.g. July 2026 0.783 USD/dozen). Per kg egg protein (mine): 2024 2.33/0.0785 = 29.6 USD;
+    July 2026 table eggs 0.783/0.0785 = 10.0 USD. Milk for comparison: us_all_milk_price_nass 2025 21.19 USD/cwt
+    = 0.467 USD/kg = 14.3 USD/kg protein at 3.27% (mine).
+
+
+# ---------------- 8. Feed energy (optional, for the sugar-equivalent intuition) ----------------
+
+- key: "broiler_feed_me_ross_specs"
+  value: 13.0
+  low: 12.4
+  high: 13.1
+  unit: "MJ metabolizable energy per kg broiler feed (as fed); starter 12.4, grower 12.8, finisher 13.0-13.1"
+  grade: "B"
+  source: "Aviagen. Ross Broiler: Nutrition Specifications 2022 (Ross-BroilerNutritionSpecifications2022-EN.pdf)"
+  doi_or_url: "https://aviagen.com/assets/Tech_Center/Ross_Broiler/Ross-BroilerNutritionSpecifications2022-EN.pdf"
+  locator: "p.4 Table 2 'Nutrition Specifications for As-Hatched Broilers - Target Live Weight 2.0 - 3.5 kg'"
+  quote: "Starter Grower Finisher 1 Finisher 2 ... Energy per kg kcal 2975 3050 3100 3125 MJ 12.4 12.8 13.0 13.1"
+  read: "fulltext"
+  note: >-
+    Most feed by mass is finisher, so ~13.0 MJ/kg is representative (mine). Crude protein 23.0/21.5/19.5/18.0%.
+    Glucose: 15.56 MJ/kg (enthalpy of combustion 2803 kJ/mol / 180.16 g/mol; textbook constant, not re-fetched);
+    for a monogastric, glucose ME ~ GE. So 1 kg broiler feed ~ 13.0/15.56 = 0.84 kg glucose-equivalent of ME (mine).
+    Price per MJ (mine): broiler feed 2025 0.252/13.0 = 0.019 USD/MJ vs glucose 0.31-0.40/15.56 = 0.020-0.026 USD/MJ.
+    File references/reports/ross_broiler_nutrition_specs_2022.pdf.
+
+
+# ---------------- 9. Derived (mine): feed per kg edible protein ----------------
+
+- key: "derived_broiler_feed_per_edible_protein"
+  value: 21.5
+  low: 17.3
+  high: 24.8
+  unit: "kg feed per kg edible crude protein, US broiler incl. parent-stock hens"
+  values: {feed_kg_per_kg_live: {central: 1.83, low: 1.65, high: 1.92}, edible_protein_kg_per_kg_live: {central: 0.0849, low: 0.0777, high: 0.0957}, usd_feed_per_kg_protein: {2020: 5.82, 2021: 7.37, 2022: 7.94, 2023: 6.36, 2024: 5.41, 2025: 5.43, low: 4.34, high: 9.12}, glucose_equivalent_kg_per_kg_protein: 18.0}
+  grade: "D"
+  source: "Derived (mine) from broiler_fcr_us_industry_ncc, broiler_fcr_ross308_objective, broiler_parent_feed_ross308, broiler_rtc_yield_nass, broiler_meat_yield_ross308, chicken_meat_refuse_sr28, chicken_meat_only_protein_fdc_sr_legacy, broiler_feed_price_nass_model_my, broiler_feed_me_ross_specs"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: "html"
+  note: >-
+    Derived, not a quote; check the arithmetic. Feed per kg live: central = NCC 2025 1.70 + 0.367/(1-0.0595)/3.007
+    = 1.70 + 0.130 = 1.83; low = Ross 1.531 + 0.367/3.0 = 1.65; high = NCC 2020 1.79 + 0.367/(1-0.050)/2.908 = 1.92.
+    Edible protein per kg live: (a) 0.7567 RTC x 0.48 meat x 0.2139 = 0.0777 (old carcass dissection);
+    (b) Ross 0.4310 breast+leg meat x 0.2139 = 0.0922 (modern bird, excludes wing/frame meat); central = mean of
+    (a),(b) = 0.0849; high (meat + skin) 0.7567 x 0.68 x 0.186 = 0.0957. Feed per kg protein: 1.83/0.0849 = 21.5;
+    low 1.65/0.0957 = 17.3; high 1.92/0.0777 = 24.8. USD: central x NASS-proxy broiler feed price by MY
+    (2025: 21.5 x 0.252 = 5.43); low 17.3 x 0.251 = 4.34; high 24.8 x 0.369 = 9.12. Ingredient-only feed price ->
+    true feed bill likely ~10-20% higher (unsourced, flag). Glucose-equivalent ME: 21.5 x 0.835 = 18.0 kg per kg
+    protein, ~10x the PF floor of 1.78 kg glucose. Not allocated: spent-hen meat, offal, feathers, by-product meals
+    (all would lower the meat's share somewhat).
+
+- key: "derived_layer_feed_per_edible_protein"
+  value: 19.9
+  low: 19.1
+  high: 21.3
+  unit: "kg feed per kg edible crude protein, US table eggs incl. pullet rearing"
+  values: {feed_kg_per_kg_shell_egg: {hyline_central: 2.20, hyline_low: 2.11, hyline_high: 2.30, eic_survey: 2.33}, edible_protein_kg_per_kg_shell_egg: {sr_legacy: 0.1105, foundation: 0.1091}, usd_feed_per_kg_protein: {2020: 4.35, 2021: 5.79, 2022: 6.99, 2023: 6.43, 2024: 4.97, 2025: 4.69, eic_2023_published_prices: 6.72}}
+  grade: "D"
+  source: "Derived (mine) from layer_fcr_hyline_w36, layer_pullet_feed_hyline_w36, layer_feed_per_dozen_eic_survey, egg_shell_refuse_sr28, egg_whole_protein_fdc_sr_legacy and egg_whole_protein_fdc_foundation (milk_egg.yaml), layer_feed_price_eic, dmc_feed_cost_monthly_fsa"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: "html"
+  note: >-
+    Derived, not a quote. Feed per kg shell egg: Hy-Line 2.005 + 5.65/28.4 = 2.20 (low 1.93 + 5.36/29.4 = 2.11;
+    high 2.08 + 5.94/27.4 = 2.30); EIC field survey 1.653 kg/dozen / 0.711 kg/dozen = 2.33. Protein per kg shell egg
+    0.88 x 0.1256 = 0.1105 (0.1091 with 12.4%). Feed per kg protein: 2.20/0.1105 = 19.9; low 2.11/0.1105 = 19.1;
+    high 2.33/0.1091 = 21.3 (EIC central 2.33/0.1098 = 21.2). USD: EIC feed per dozen incl. pullet =
+    (3.23 + 0.414 x 1.07)/2000 x layer feed USD/st (EIC formula on national corn/SBM, CY) / 0.0785 kg protein per dozen:
+    2020 186.1 -> 0.342 USD/dozen -> 4.35; 2022 298.8 -> 6.99; 2025 200.5 -> 4.69; with EIC's own 2023 regional
+    prices 6.72. Excludes layer breeder flocks (~1%?, unsourced) and spent-hen credit.
+
+- key: "derived_dairy_feed_per_edible_protein"
+  value: 6.62
+  low: 5.98
+  high: 10.00
+  unit: "USD feed per kg milk crude protein (central = ERS 2025; range = ERS and DMC 2020-2025)"
+  values: {usd_per_kg_protein_ers: {2020: 6.82, 2021: 8.04, 2022: 9.96, 2023: 9.14, 2024: 6.95, 2025: 6.62}, usd_per_kg_protein_dmc: {2020: 5.98, 2021: 7.94, 2022: 10.00, 2023: 9.29, 2024: 7.16, 2025: 6.76}, kg_feed_per_kg_protein: {lactating_dm_hutjens: [19.1, 21.8], dmc_ration_as_fed: 31.2, whole_herd: "not available on a DM basis (Capper & Cady 2020: 1.57 kg FRESH feed per kg ECM)"}}
+  grade: "D"
+  source: "Derived (mine) from ers_milk_feed_cost_per_cwt, dmc_feed_cost_monthly_fsa, dairy_dmc_feed_cost_formula, dairy_feed_efficiency_lactating_hutjens, milk_whole_protein_fdc_foundation (milk_egg.yaml)"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: "html"
+  note: >-
+    Derived, not a quote. USD per kg protein = (USD/cwt) / 45.359 kg / 0.0327 kg protein per kg milk; e.g. ERS 2025
+    9.82/45.359/0.0327 = 6.62; DMC 2022 14.83 -> 10.00. Physical: 0.625-0.714 kg DM per kg milk (lactating only) /
+    0.0327 = 19.1-21.8 kg DM; DMC ration 1.022/0.0327 = 31.2 kg as fed. The physical numbers are NOT comparable
+    with poultry: ruminant feed is mostly forage (cellulose, inedible to humans) and the whole herd (dry cows,
+    heifers) adds substantially to the lactating-cow figure. The USD figure is the robust comparison. Not
+    allocated: beef from cull cows and calves (ERS: ~12% of gross value of production in 2025, 23.99 vs 21.02 USD/cwt
+    for milk), which would lower milk's share of the feed bill by roughly that fraction. Uses crude protein 3.27%
+    (retail whole milk; producer milk 3.28%, milk_egg.yaml).
+
+- key: "derived_feed_vs_pf_floor_summary"
+  value: null
+  unit: "comparison table (USD per kg edible protein; PF floor = 1.78 kg glucose/kg protein at 0.31-0.40 USD/kg glucose)"
+  values: {pf_sugar_floor_usd: [0.55, 0.71], broiler_feed_usd: {central_2025: 5.4, range: [4.3, 9.1]}, egg_feed_usd: {central_2025: 4.7, range: [4.3, 7.0]}, milk_feed_usd: {central_2025: 6.6, range: [6.0, 10.0]}, ratio_feed_to_pf_floor_2025: {broiler: [7.6, 9.9], eggs: [6.6, 8.5], milk: [9.3, 12.0]}, feed_share_of_cost: {broiler: ">0.70 (C)", eggs: "0.54-0.61 (2023)", milk: "0.42-0.54 of total listed; 0.71-0.80 of operating (2020-2025)"}}
+  grade: "D"
+  source: "Derived (mine) from the derived_* entries above and data/evidence/prices.yaml glucose keys"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: "html"
+  note: >-
+    Derived, not a quote. Ratios: 2025 central feed bill / PF floor, e.g. broiler 5.43/0.71 = 7.6 to 5.43/0.55 = 9.9;
+    eggs 4.69/0.71 = 6.6 to 4.69/0.55 = 8.5; milk 6.62/0.71 = 9.3 to 6.62/0.55 = 12.0. Caveats: (1) the animal
+    column is the whole feed bill, the PF column only the sugar floor (PF also needs N, O2, power, DSP);
+    (2) feed is priced as cheap commodity energy and protein (corn, soy, forage), at ~0.02 USD/MJ - no cheaper than
+    glucose per MJ - so the 7-12x gap is almost entirely the animal's conversion inefficiency (~18 kg glucose-
+    equivalent ME per kg broiler protein vs 1.78); (3) mixed time bases (broiler MY Sep-Aug; eggs and DMC calendar
+    year; ERS calendar year).
+
+# =======================================================================================
+# Feed bill per kg edible protein in US$ (2026-10-03): the central/low/high stated in the notes of
+# derived_broiler_feed_per_edible_protein and derived_layer_feed_per_edible_protein, restated as fields so the model
+# can read them. Same derivations, same grade.
+# =======================================================================================
+- key: derived_broiler_feed_usd_per_edible_protein
+  value: 5.43
+  low: 4.34
+  high: 9.12
+  year: 2025
+  unit: USD feed per kg edible crude protein, US broiler meat incl. parent-stock hens (ingredient-only feed price)
+  grade: D
+  source: "Derived (mine) from derived_broiler_feed_per_edible_protein x broiler_feed_price_nass_model_my"
+  doi_or_url: null
+  locator: "this file, the two entries named"
+  quote: null
+  read: fulltext
+  note: "central 21.5 kg feed/kg protein x 0.252 USD/kg (2025 marketing year) = 5.43; low 17.3 x 0.251 = 4.34; high 24.8 x 0.369 = 9.12 (2022). The price is corn + soybeans only; real delivered feed is likely 10-20% dearer (unsourced). No co-product credit (spent hens, offal)."
+- key: derived_layer_feed_usd_per_edible_protein
+  value: 4.69
+  low: 4.35
+  high: 6.99
+  year: 2025
+  unit: USD feed per kg edible crude protein, US table eggs incl. pullet rearing (EIC layer-feed formula on national prices)
+  grade: D
+  source: "Derived (mine) from layer_feed_per_dozen_eic_survey, layer_pullet_feed_hyline_w36, layer_feed_price_eic formula"
+  doi_or_url: null
+  locator: "this file, derived_layer_feed_per_edible_protein note"
+  quote: null
+  read: fulltext
+  note: "2025 4.69 (layer feed 200.5 USD/st); low 2020 4.35; high 2022 6.99. Excludes layer breeder flocks and spent-hen credit."
+
+
+# =======================================================================================
+# EU column, US delivered-feed premium, breeder-male feed and co-product values (research pass 2026-10-05,
+# merged after checking: derived arithmetic recomputed, Wageningen and EMB quotes matched against the saved texts).
+# Conversions: EUR -> USD at ECB annual averages (prices.yaml eurusd_annual_average), except where a Wageningen report
+# converted USD -> EUR with its own rate: there the report's own rate is inverted to recover the USD input (stated).
+# Main finding: EU feed is dearer than US feed, so the EU feed bill per kg edible protein is ~1.3-1.6x the US one,
+# although EU feed conversion is similar or better. EU and US milk figures are NOT comparable (see the EU milk entry).
+# =======================================================================================
+
+# ---------------- 1. EU compound-feed prices (official statistics) ----------------
+
+- key: "eu_broiler_feed_price_eurostat"
+  value: 39.62
+  low: 31.30
+  high: 47.16
+  unit: "EUR per 100 kg complete broiler feed, in bulk, purchase price paid by farmers; simple mean of DE, FR, NL (2024; low 2019, high 2022)"
+  year: 2024
+  values: {mean_DE_FR_NL: {2019: 31.30, 2020: 31.35, 2021: 35.72, 2022: 47.16, 2023: 43.83, 2024: 39.62}, DE_bulk: {2017: 31.67, 2019: 32.73, 2020: 33.17, 2021: 37.71, 2022: 51.29, 2023: 47.15, 2024: 42.0}, FR_bulk: {2017: 28.92, 2019: 29.61, 2020: 29.49, 2021: 32.4, 2022: 39.9, 2023: 40.99, 2024: 38.07}, NL_bulk: {2017: 31.45, 2019: 31.57, 2020: 31.4, 2021: 37.05, 2022: 50.3, 2023: 43.35, 2024: 38.8}, PL_bulk: {2023: 56.4, 2024: 51.25}, PL_sacks: {2019: 43.83, 2020: 42.64, 2021: 44.53, 2022: 56.77, 2023: 61.82, 2024: 60.34}, ES_sacks: {2019: 33.0, 2020: 33.91, 2021: 39.17, 2022: 51.15, 2023: 48.18, 2024: 41.68}}
+  grade: "A"
+  source: "Eurostat. Purchase prices of the means of agricultural production (absolute prices) - annual price (from 2000 onwards), dataset apri_ap_ina (updated 2025-05-15)"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/apri_ap_ina?format=JSON&lang=EN"
+  locator: "prod_inp 20624502 'Complete feed for broiler production (in bulk) - prices per 100 kg' (and 20624501 'in sacks'), currency EUR, geo DE/FR/NL/PL/ES, time 2017-2024"
+  quote: "20624502 Complete feed for broiler production (in bulk) - prices per 100 kg, EUR: DE 2024 42.0; FR 2024 38.07 (p); NL 2024 38.8; DE 2022 51.29; NL 2022 50.3; FR 2022 39.9"
+  read: "html"
+  note: >-
+    Official national price statistics reported to Eurostat. Mean of DE, FR, NL computed by me (simple, unweighted);
+    PL (largest EU broiler producer) reports bulk only from 2023 and its prices sit far above the others (56.4, 51.25)
+    and above Wageningen's PL estimate (2021 implied 36 EUR/100 kg), so PL is shown but excluded from the mean - flag.
+    ES reports sacks only. FR 2018-2020 and 2024 flagged 'p' (provisional). Latest year 2024 (no 2025 yet).
+    Cross-check with Wageningen 2017 (eu_broiler_cost_wur_2017): NL 31.1, DE 31.5, FR 29.2 vs Eurostat 31.45, 31.67,
+    28.92 - consistent. In USD (ECB): 2024 39.62 x 1.0824 = 42.9 USD/100 kg = 0.429 USD/kg; 2019 0.350; 2022 0.497
+    USD/kg (vs US NASS ingredient proxy 0.251-0.369 USD/kg, feed.yaml). File references/text/feed/eurostat_apri_ap_ina.json.
+
+- key: "eu_layer_feed_price_eurostat"
+  value: 36.12
+  low: 28.64
+  high: 45.16
+  unit: "EUR per 100 kg complete feed for (battery) laying hens; simple mean of DE bulk, NL bulk, ES sacks (2024; low 2019, high 2022)"
+  year: 2024
+  values: {mean_DE_NL_ES: {2019: 28.64, 2020: 29.03, 2021: 33.77, 2022: 45.16, 2023: 40.98, 2024: 36.12}, DE_bulk: {2019: 28.57, 2020: 28.9, 2021: 34.6, 2022: 46.76, 2023: 41.2, 2024: 36.85}, NL_bulk: {2019: 25.57, 2020: 25.85, 2021: 30.7, 2022: 40.95, 2023: 36.2, 2024: 31.65}, ES_sacks: {2019: 31.78, 2020: 32.34, 2021: 36.01, 2022: 47.76, 2023: 45.54, 2024: 39.85}, PL_bulk: {2022: 48.21, 2023: 51.14, 2024: 46.11}, rearing_pullet_bulk_NL: {2019: 25.27, 2024: 31.1}, rearing_pullet_bulk_FR: {2019: 23.56, 2024: 30.27}}
+  grade: "A"
+  source: "Eurostat, dataset apri_ap_ina (as above)"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/apri_ap_ina?format=JSON&lang=EN"
+  locator: "prod_inp 20624302 'Complete feed for battery laying hens (in bulk)', 20624301 '(in sacks)', 20624202 'Complete feed for rearing pullet (in bulk)'; EUR; 2019-2024"
+  quote: "20624302 Complete feed for battery laying hens (in bulk) - prices per 100 kg, EUR: DE 2024 36.85; NL 2024 31.65; DE 2022 46.76. 20624301 (in sacks): ES 2024 39.85"
+  read: "html"
+  note: >-
+    FR and IT (large egg producers) report no layer-feed price; FR reports rearing-pullet feed only. Mean computed by
+    me; mixing ES sacks (dearer than bulk) is a mild upward bias. Wageningen's 2021 EU layer feed (30.0 EUR/100 kg,
+    eu_layer_cost_wur_2021) is ~11% below Eurostat's 2021 mean (33.77): Wageningen NL 29.5 vs Eurostat 30.7, DE 30.5 vs
+    34.6 - flag (2021 prices rose through the year). In USD (ECB): 2024 0.391 USD/kg; 2019 0.321; 2022 0.476.
+    File references/text/feed/eurostat_apri_ap_ina.json.
+
+- key: "eu_dairy_compound_feed_price_eurostat"
+  value: 28.69
+  unit: "EUR per 100 kg complementary (compound) feed for stall-fed dairy cattle, in bulk, DE 2024"
+  year: 2024
+  values: {DE: {2019: 23.14, 2020: 23.37, 2021: 27.22, 2022: 36.28, 2023: 32.69, 2024: 28.69}, NL: {2019: 25.95, 2020: 26.4, 2021: 29.75, 2022: 37.6, 2023: 37.0, 2024: 33.2}, DK: {2019: 25.42, 2024: 33.29}, PL: {2022: 39.69, 2023: 45.48, 2024: 42.7}, protein_rich_DE: {2019: 24.47, 2024: 31.3}, protein_rich_NL: {2019: 32.5, 2024: 45.15}}
+  grade: "A"
+  source: "Eurostat, dataset apri_ap_ina (as above)"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/apri_ap_ina?format=JSON&lang=EN"
+  locator: "prod_inp 20622922 'Complementary feed for dairy cattle (stall-fed) (in bulk)' and 20622932 'Protein-rich ...'; EUR"
+  quote: "20622922 Complementary feed for dairy cattle (stall-fed) (in bulk) - prices per 100 kg, EUR: DE 2024 28.69; NL 2024 33.2; DE 2019 23.14"
+  read: "html"
+  note: >-
+    Context only: price of the purchased concentrate, not a cost per kg milk (dairy rations are mostly forage). Shows the
+    2019 -> 2022 -> 2024 path (DE +57% then -21%) used to read the EU milk feed-cost years. File as above.
+
+
+# ---------------- 2. Wageningen international cost comparisons (EU and US columns) ----------------
+
+- key: "eu_broiler_cost_wur_2021"
+  value: 57.9
+  low: 52.5
+  high: 61.2
+  unit: "eurocents feed cost per kg LIVE weight, conventional broilers at farm (grow-out only), simple mean of NL, DE, FR, IT, ES, PL, 2021 (low FR, high IT)"
+  year: 2021
+  values: {feed_c_per_kg_live: {NL: 56.5, DE: 58.1, FR: 52.5, IT: 61.2, ES: 61.1, PL: 58.0}, fcr: {NL: 1.57, DE: 1.57, FR: 1.50, IT: 1.61, ES: 1.65, PL: 1.61}, live_weight_g: {NL: 2500, DE: 2500, FR: 2000, IT: 2500, ES: 2600, PL: 2500}, mortality_pct: {NL: 3.5, DE: 4.0, FR: 4.0, IT: 4.0, ES: 4.5, PL: 4.0}, nl_feed_price_c_per_kg: 36.0, total_cost_c_per_kg_live: {NL: 92.4, DE: 95.5, FR: 93.4, IT: 94.6, ES: 94.7, PL: 89.7}, slaughter_yield: 0.73}
+  grade: "B"
+  source: "van Horne PLM, Vissers L. Economics of slow growing broilers. Memo for Eurogroup for Animals, Wageningen University & Research, 21 December 2022"
+  doi_or_url: "https://www.eurogroupforanimals.org/files/eurogroupforanimals/2023-03/Wageningen%20UR%20-%20Factsheet%20Economic%20analysis%20of%20ECC-21dec2022_FINAL%20(1).pdf"
+  locator: "Annex 2, Table A2.1 (assumptions) and Table A2.2 (costs, cent/kg live weight), PDF p.8; Table A1.1 (NL feed price), PDF p.7"
+  quote: "Table A2.2. Production costs (in cent/kg live weight) ... Feed 56.5 60.6 58.1 62.3 52.5 54.7 61.2 65.5 61.1 65.2 58.0 62.0"
+  read: "fulltext"
+  note: >-
+    Columns alternate Conv/ECC for NL, DE, FR, IT, ES, PL; conventional values used. Grade B: standardized model-farm
+    calculation by a research institute from collected national price and performance data, not a farm survey; the
+    underlying update ('Van Horne, 2022 ... base year 2021. Update 2021 data') is cited as 'Not published'. Commissioned
+    by an NGO; the conventional baseline is the neutral part. Feed cost = FCR x feed price exactly (NL: 1.57 x 36.0 =
+    56.5), so implied 2021 feed prices (mine): DE 37.0, FR 35.0, IT 38.0, ES 37.0, PL 36.0 EUR/100 kg (Eurostat 2021
+    bulk: DE 37.71, FR 32.4, NL 37.05). Means (mine): FCR 1.585, live weight 2.433 kg, mortality 4.0%. Excludes parent
+    stock (inside the day-old-chick price, 13.7-16.1 c/kg live). File references/reports/wur_vanhorne_vissers_2022_economics_slow_growing_broilers_memo.pdf.
+
+- key: "eu_broiler_cost_wur_2017"
+  value: 50.7
+  unit: "eurocents feed cost per kg LIVE weight, EU average of nine member states, 2017 (grow-out only)"
+  year: 2017
+  values: {EU: {feed_price_eur_100kg: 31.1, fcr: 1.63, live_weight_g: 2294, feed_c_kg_live: 50.7, total_cost_c_kg_live: 82.5}, USA: {feed_price_eur_100kg: 24.1, fcr: 1.83, live_weight_g: 2700, feed_c_kg_live: 44.1, total_cost_c_kg_live: 64.5}, BRA: {feed_price_eur_100kg: 24.4, fcr: 1.79, feed_c_kg_live: 43.7}, feed_price_eur_100kg_by_ms: {NL: 31.1, DE: 31.5, FR: 29.2, UK: 31.5, IT: 33.1, ES: 31.5, DK: 30.8, PL: 31.4, HU: 30.2}, fcr_by_ms: {NL: 1.58, DE: 1.58, FR: 1.67, UK: 1.62, IT: 1.68, ES: 1.72, DK: 1.55, PL: 1.62, HU: 1.63}, usd_per_eur_used: 0.8905}
+  grade: "B"
+  source: "van Horne PLM. Competitiveness of the EU poultry meat sector, base year 2017; International comparison of production costs. Wageningen Economic Research Report 2018-116 (December 2018), commissioned by AVEC"
+  doi_or_url: "https://doi.org/10.18174/465696"
+  locator: "Table 3.4 and Table 3.5 (EU vs non-EU), PDF p.26; Table 3.1 (member states), PDF p.23; Table A1.1 (exchange rates), PDF p.37"
+  quote: "Table 3.4 ... EU USA THA BRA ARG RUS UKR / Feed price (euro /100 kg) 31.1 24.1 29.6 24.4 27.2 27.8 24.2 ... Feed conversion 1.63 1.83 1.65 1.79 1.80 1.67 1.74"
+  read: "fulltext"
+  note: >-
+    Table 3.5 gives feed 50.7 (EU) and 44.1 (USA) c/kg live. EU = 'an average of the nine EU countries' (simple mean).
+    US data 'based on information from the National Chicken Council (NCC)'; the US FCR 1.83 equals NCC's 2017 value in
+    feed.yaml, a consistency check. Grade B (model farm on collected data). Industry (AVEC) commissioned. Table A1.1:
+    USA 0.8905 EUR per USD (2017) -> US feed 24.1 / 0.8905 = 27.06 USD/100 kg (used in derived_us_delivered_feed_premium).
+    File references/reports/wur_poultrymeat_competitiveness_base2017_report2018-116.pdf (text: references/text/feed/wur_poultrymeat_base2017.txt).
+
+- key: "us_broiler_feed_price_wur"
+  value: 24.1
+  unit: "EUR per 100 kg broiler feed paid at farm, USA, 2017 (Wageningen model inputs); 2013 and 2015 editions in values"
+  year: 2017
+  values: {eur_100kg: {2013: 28.5, 2015: 26.3, 2017: 24.1}, eur_per_usd_used: {2013: 0.7541, 2015: 0.8981, 2017: 0.8905}, usd_per_t_mine: {2013: 377.9, 2015: 292.8, 2017: 270.6}, us_fcr: {2013: 1.93, 2015: 1.86, 2017: 1.83}, eu_feed_eur_100kg: {2013: 38.0, 2015: 32.7, 2017: 31.1}, eu_fcr: {2013: 1.76, 2015: 1.66, 2017: 1.63}}
+  grade: "B"
+  source: "van Horne PLM (2018) Report 2018-116 (base year 2017); van Horne PLM (2017) Competitiveness of the EU poultry meat sector, base year 2015, Wageningen Economic Research Report 2017-005; van Horne PLM, Bondt N (2014) ... base year 2013, LEI Report 2014-038"
+  doi_or_url: "https://doi.org/10.18174/465696 ; https://edepot.wur.nl/404949 ; https://edepot.wur.nl/323512"
+  locator: "2017: Table 3.4 PDF p.26, Table A1.1 PDF p.37; 2015: Table 2.4 PDF p.21, Table A1.1 PDF p.32; 2013: Table 3.4 PDF p.27-28, exchange rates PDF p.45"
+  quote: "2015: Feedprice (euros /100 kg) 32,7 26,3 31,5 23,6 ... Table A1.1 ... USA 0.8981. 2013: Feed price (€ /100 kg) 38.0 28.5 34.8 ... USA 0.7541"
+  read: "fulltext"
+  note: >-
+    First column EU, second USA. USD per tonne (mine) = EUR/100 kg / (EUR per USD) x 10, e.g. 2017 24.1/0.8905 x 10 =
+    270.6 USD/t = 245.5 USD/st. This is a delivered compound-feed price (not an ingredient sum), the number feed.yaml
+    lacked. 2013-2017 are outside the 2019-2025 window: no later public Wageningen poultry-meat edition with a US column
+    was found (the 2021 update is unpublished). Files references/reports/wur_poultrymeat_competitiveness_base2015_report2017-005.pdf,
+    wur_poultrymeat_competitiveness_base2013_LEI2014-038.pdf (text in references/text/feed/wur_poultrymeat_base2015.txt, _base2013.txt).
+    The 2015 report's Table 2.2 header says '2013' for a 2015 table (source typo).
+
+- key: "eu_layer_cost_wur_2021"
+  value: 60.1
+  unit: "eurocents feed cost per kg eggs (laying period only, 20 weeks to depletion), EU average of eight member states, enriched cages, 2021"
+  year: 2021
+  values: {EU: {feed_price_eur_100kg: 30.0, fcr: 2.00, eggs_per_hen: 400, egg_weight_g: 61.9, laying_days: 450, hen_20wk_eur: 4.84, feed_c_kg: 60.1, hen_cost_c_kg: 19.7, spent_hen_c_kg: -1.0, total_c_kg: 98.5}, USA: {feed_price_eur_100kg: 24.8, fcr: 1.96, eggs_per_hen: 430, egg_weight_g: 60.0, feed_c_kg: 48.5, spent_hen_c_kg: 0.0, total_c_kg: 77.6}, fcr_by_ms: {NL: 1.96, DE: 1.97, FR: 2.02, ES: 2.01, IT: 2.00, DK: 1.96, PL: 2.00, HU: 2.10}, feed_price_by_ms: {NL: 29.5, DE: 30.5, FR: 29.5, ES: 31.0, IT: 31.0, DK: 30.0, PL: 30.5, HU: 28.0}, eggs_per_hen_by_ms: {NL: 438, DE: 431, FR: 395, ES: 395, IT: 385, DK: 420, PL: 390, HU: 345}, eur_per_usd_used: 0.841}
+  grade: "B"
+  source: "van Horne PLM, Bondt N. Competitiveness of the EU egg sector, base year 2021; International comparison of production costs of eggs and egg products. Wageningen Economic Research Report 2023-006 (2022/23), commissioned by EEPTA and EEPA"
+  doi_or_url: "https://doi.org/10.18174/583668"
+  locator: "Table 4.1 and 4.2 (EU vs non-EU), PDF p.29-30; Tables 3.1-3.2 (member states), PDF p.22-23; Table A1.1, PDF p.48; Appendix sources ('USA Egg Industry Center at Iowa State University')"
+  quote: "Table 4.1 ... EU USA UKR ARG IND / Feed price (euro/100 kg) 30.0 24.8 25.5 27.5 28.5 ... Feed conversion 2.00 1.96 2.03 2.07 2.24"
+  read: "fulltext"
+  note: >-
+    Table 4.2: feed 60.1 (EU) and 48.5 (USA) c/kg eggs. EU = mean of NL, DE, FR, ES, IT, DK, PL, HU. Pullet rearing feed
+    is NOT in 'feed' (it sits in 'hen cost at 20 weeks', a purchase price). US inputs from the Egg Industry Center.
+    US delivered layer feed (mine): 24.8/0.841 x 10 = 294.9 USD/t = 267.5 USD/st, vs feed.yaml's EIC formula on national
+    2021 prices 248 USD/st (+8%). Grade B (model farm). File references/reports/wur_egg_competitiveness_base2021_report2023-006.pdf.
+
+- key: "eu_layer_cost_wur_2017"
+  value: 50.3
+  unit: "eurocents feed cost per kg eggs (laying period), EU average, enriched cages, 2017"
+  year: 2017
+  values: {EU: {feed_price_eur_100kg: 25.0, fcr: 2.02, eggs_per_hen: 369, egg_weight_g: 62.5, feed_c_kg: 50.3, spent_hen_c_kg: -1.2}, USA: {feed_price_eur_100kg: 20.0, fcr: 1.98, eggs_per_hen: 414, egg_weight_g: 60.0, feed_c_kg: 39.5, spent_hen_c_kg: -0.5}, eur_per_usd_used: 0.8905}
+  grade: "B"
+  source: "van Horne PLM. Competitiveness of the EU egg sector, base year 2017; International comparison of production costs. Wageningen Economic Research Report 2019-008 (February 2019), commissioned by EUWEP"
+  doi_or_url: "https://doi.org/10.18174/469616"
+  locator: "Table 4.1 and 4.2, PDF p.30-31; Table A1.1, PDF p.49"
+  quote: "Table 4.1 ... EU USA UKR ARG IND / Feed price (euro/100 kg) 25.0 20.0 21.0 22.5 24.6 ... Feed conversion 2.02 1.98 2.10 2.15 2.43"
+  read: "fulltext"
+  note: >-
+    US delivered layer feed 2017 (mine): 20.0/0.8905 x 10 = 224.6 USD/t. File references/reports/wur_egg_competitiveness_base2017_report2019-008.pdf.
+
+
+# ---------------- 3. EU dairy: feed cost per kg milk ----------------
+
+- key: "eu_milk_feed_cost_emb"
+  value: 17.03
+  low: 17.03
+  high: 19.04
+  unit: "eurocents per kg milk: bought-in feed + fodder production (seeds, fertilizers, plant protection, other), EU-27 specialist dairy farms, 2024 (high = 2023)"
+  year: 2024
+  values: {2024: {bought_in_feed: 13.77, fodder_production: 3.26, beef_value_deducted: 7.56, milk_price: 48.42}, 2023: {bought_in_feed: 15.64, fodder_production: 3.40, beef_value_deducted: 7.18, milk_price: 46.96}, by_country_2024_bought_in_plus_fodder: {BE: 18.45}}
+  grade: "C"
+  source: "BAL (Büro für Agrarsoziologie und Landwirtschaft) for the European Milk Board. Calculating the cost of milk production in the EU countries ... and EU average for the year 2024 (Gesamtschau_2024_EN_final.pdf); same series for 2023"
+  doi_or_url: "https://www.europeanmilkboard.org/fileadmin/Dokumente/Milk_Production_Costs/Gesamtbroschuere/Kosten_mehrere_L%C3%A4nder/2024_8_Laender_und_EU/Gesamtschau_2024_EN_final.pdf"
+  locator: "slide 'Composition of milk production costs in the EU-27 2024*', PDF p.68; 2023 edition slide 'Composition of milk production costs 2023*' (EU), PDF p.12; milk price from 'Development of milk production costs 2015-2024 in the EU-27'"
+  quote: "Composition of milk production costs in the EU-27 2024* ... Bought-in feed 13.77 Fodder production (seeds, fertilizers, plant protection products, other) 3.26 ... - Production value of beef -7.56"
+  read: "fulltext"
+  note: >-
+    Grade C: farmers' association (EMB) study, though computed from the official FADN with the DG AGRI milk-cost
+    allocation; 2024 and 2023 are BAL extrapolations from FADN 2022 (EU-27 without EL, CY) and Eurostat indices, i.e.
+    not observed. Costs per kg of delivered milk, beef not yet deducted in these two lines. Basis differs from the US ERS
+    figure in feed.yaml: home-grown forage is valued only at its specific crop inputs (no machinery, contract work, land
+    or labour), so this is a LOWER bound of the economic feed cost (ERS values home-grown feed at market prices); whether
+    farm use of home-grown cereals is inside 'bought-in feed' is not stated - flag. No official DG AGRI series per 100 kg
+    milk could be machine-read (the agridata dairy dashboard is a Qlik app). In USD (ECB): 2024 18.4, 2023 20.6 USD per
+    100 kg milk (US ERS 2024 10.31 USD/cwt = 22.7 USD/100 kg, 2025 21.6). Files references/reports/emb_bal_milk_cost_study_2024.pdf,
+    emb_bal_milk_cost_study_2023.pdf (text: references/text/feed/emb_milk_cost_2024.txt, emb_milk_cost_2023.txt).
+
+- key: "eu_milk_feed_share_dgagri"
+  value: 0.50
+  unit: "fraction of milk operating costs that is feed, EU-28 specialist dairy farms (FADN 2018); of feed, 70% purchased, 30% home-grown"
+  year: 2018
+  values: {purchased_share_of_feed: 0.70, homegrown_share_of_feed: 0.30, operating_costs_eur_t_2019_estimate: 249, milk_price_eur_t_2019_estimate: 359}
+  grade: "A"
+  source: "European Commission, DG AGRI. EU Dairy farms report based on 2018 FADN data (Ref. Ares(2021)2098183, 25/03/2021)"
+  doi_or_url: "https://agriculture.ec.europa.eu/system/files/2022-08/fadn-dairy-report-2021_en.pdf"
+  locator: "section 3.1 'Introduction', PDF p.12; executive summary, PDF p.4; Annex I (model), PDF p.37"
+  quote: "feed costs (around 50% of operating costs, 70% of which are for purchased feed and 30% for home-grown feed)"
+  read: "fulltext"
+  note: >-
+    p.4: 'A further increase in operating costs (EUR 249/t) is expected, mainly due to an increase in compound feedstuff'
+    (2019 estimate). Implied 2019 feed cost (mine, D): 0.50 x 249 = ~125 EUR/t = 12.5 c/kg milk ('around 50%' is
+    approximate). Same model as eu_milk_feed_cost_emb (forage at specific costs only). The model ignores calves and cull
+    cows (p.37: 'The value of sales of cull dairy cows cannot be deducted because of the scarcity of information').
+    File references/reports/dgagri_eu_dairy_farms_report_fadn2018.pdf.
+
+
+# ---------------- 4. Broiler breeder males ----------------
+
+- key: "broiler_parent_male_feed_ross308"
+  value: 56.6
+  low: 55.5
+  unit: "kg feed per breeder male, day old to 64 weeks (sum of the weekly g/bird/day allowances x 7); low = weeks 1-63 only"
+  values: {g_per_day: {wk1: 33, wk10: 69, wk20: 102, wk25: 123, wk30: 128, wk40: 136, wk50: 145, wk64: 154}, rearing_wk1_21_kg: 8.78, energy_basis_kcal_me_per_kg: 2800}
+  grade: "B"
+  source: "Aviagen. Ross 308 Parent Stock: Performance Objectives 2021 (Ross308-ParentStock-PerformanceObjectives-2021-EN.pdf)"
+  doi_or_url: "https://en.aviagen.com/assets/Tech_Center/Ross_PS/Ross308-ParentStock-PerformanceObjectives-2021-EN.pdf"
+  locator: "'Male Body Weight and Feeding Program', printed p.7, column 'Feed (g/bird/day)', rows 0-64 weeks"
+  quote: "Day Old 0 40 ad lib ... 7 1 150 110 33 ... 140 20 3035 160 102 ... 448 64 5170 30 154 11.39 0.07 33.9 430"
+  read: "fulltext"
+  note: >-
+    Cumulative sum computed by me (each weekly row x 7 d; week 0 is 'ad lib', not counted). 'Feed quantities are a guide
+    only, based on recommended dietary energy levels of 2800 kcal ME/kg'. Male mortality and culls not counted. Same
+    file as feed.yaml's broiler_parent_feed_ross308: references/reports/ross308_PS_PO_2021.pdf (text references/text/feed/ross308_PS_PO_2021.txt).
+
+- key: "broiler_breeder_mating_ratio_ross"
+  value: 9.75
+  low: 6.75
+  high: 10.0
+  unit: "good-quality males per 100 females: 9.5-10.0 at 22-24 weeks, falling to 6.5-7.0 from 50 weeks to depletion"
+  values: {wk22_24: [9.5, 10.0], wk24_30: [8.5, 9.5], wk30_35: [8.0, 8.5], wk35_40: [7.5, 8.0], wk40_50: [7.0, 7.5], wk50_depletion: [6.5, 7.0]}
+  grade: "B"
+  source: "Aviagen. Ross Parent Stock Management Handbook 2023 (Table 18); same table in Ross Parent Stock Pocket Guide, Production 20 weeks to depletion, 2024"
+  doi_or_url: "https://www.rosspoultrybreeders.co.za/downloads/breeder/Aviagen_Ross_PS_Handbook_2023_Interactive_EN.pdf ; https://aviagen.com/assets/Tech_Center/Ross_PS/Ross_PS_PocketGuide_Production_2024-EN.pdf"
+  locator: "Pocket Guide 2024 'A guide to typical mating ratios', PDF p.38 (quoted); same values in Handbook 2023 'Mating Ratio', Table 18, PDF p.66"
+  quote: "A guide to typical mating ratios. ... 154 - 168 22 - 24 9.50 - 10.00 ... 280 - 350 40 - 50 7.00 - 7.50 / 350 to 50 to 6.50 - 7.00 depletion depletion"
+  read: "fulltext"
+  note: >-
+    Handbook copy is hosted by Aviagen's South African distributor (Aviagen URLs for the handbook redirected to HTML).
+    Number of males REARED per 100 females (before selection at mating-up) not found - flag; the derivation below uses
+    10 per 100 for weeks 0-21 (assumption, E-level). Files references/reports/ross_PS_handbook_2023.pdf, ross_PS_pocketguide_production_2024.pdf.
+
+- key: "derived_broiler_parent_male_feed_per_chick"
+  value: 0.030
+  low: 0.030
+  high: 0.037
+  unit: "kg breeder-male feed per day-old broiler chick (to add to broiler_parent_feed_ross308's 0.367 kg female feed)"
+  grade: "D"
+  source: "Derived (mine) from broiler_parent_male_feed_ross308, broiler_breeder_mating_ratio_ross, broiler_parent_feed_ross308 (152.2 chicks per female housed)"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: "fulltext"
+  note: >-
+    Derived, not a quote. Male feed per 100 females = sum over weeks of (males per 100 females) x (g/day) x 7: weeks 1-21
+    at 10 males (assumed), then Table 18 midpoints (9.75, 9.0, 8.25, 7.75, 7.25, 6.75) = 453 kg per 100 females;
+    / 15,220 chicks = 0.0298 kg/chick (12 males per 100 during rearing: 0.0309). High: 10 males per 100 females
+    throughout = 566 kg -> 0.0372. So true parent feed = 0.367 + 0.030 = 0.397 kg/chick (+8%). Per kg broiler live
+    weight (US, feed.yaml basis): 0.030/(1-0.0595)/3.007 = 0.011 kg/kg, i.e. +0.6% on the 1.83 total - negligible.
+
+
+# ---------------- 5. Co-product credits ----------------
+
+- key: "spent_hen_value_wur"
+  value: 1.0
+  low: 0.0
+  high: 2.3
+  unit: "eurocents per kg eggs: revenue from spent laying hens, EU average enriched cages 2021 (low = USA 2021 and DK; high = PL 2017)"
+  year: 2021
+  values: {EU_2021: 1.0, USA_2021: 0.0, EU_2017: 1.2, USA_2017: 0.5, NL_2021: 1.1, HU_2021: 1.7, per_hen_eur_NW_Europe_2021_enriched_cage: 0.29, per_hen_eur_NW_Europe_2017: 0.30}
+  grade: "B"
+  source: "van Horne & Bondt (2022/23) Report 2023-006 (base year 2021); van Horne (2019) Report 2019-008 (base year 2017)"
+  doi_or_url: "https://doi.org/10.18174/583668 ; https://doi.org/10.18174/469616"
+  locator: "2021: Table 4.2 PDF p.30, Table 3.2 PDF p.23, Table 1.1 PDF p.13; 2017: Table 4.2 PDF p.31, Table 1.1 PDF p.13"
+  quote: "Table 4.2 ... EU USA UKR ARG IND ... Revenue spent hen -1.0 0.0 -4.2 -1.9 -5.2"
+  read: "fulltext"
+  note: >-
+    Table 1.1 (2021, NW Europe, per hen housed): 'Revenue spent hen -0.29 -0.29 -0.38 -0.38 -0.45' vs total cost
+    26.77 EUR/hen (enriched cage) = ~1%. Spent-hen credit is ~1% of egg cost in the EU and ~0 in the US: ignorable.
+    Per dozen (mine): 1.0 c/kg x 0.743 kg (12 x 61.9 g) = 0.74 eurocent/dozen. PL 2017 (2.3 c/kg) is the highest member-state credit.
+
+- key: "eu_dairy_beef_coproduct_emb"
+  value: 0.135
+  low: 0.133
+  high: 0.135
+  unit: "fraction: production value of beef (calves, cull cows) / (milk price + beef value), per kg milk, EU-27 specialist dairy farms, 2024 (low 2023)"
+  year: 2024
+  values: {beef_c_per_kg_milk: {2023: 7.18, 2024: 7.56}, milk_price_c_per_kg: {2023: 46.96, 2024: 48.42}, beef_by_country_2024_c_kg: {BE: 5.80, DK: 4.98, DE: 7.22, FR: 7.86, IE: 8.49, LT: 5.74, LU: 7.80, NL: 3.58}}
+  grade: "C"
+  source: "BAL for the European Milk Board, cost study 2024 (as eu_milk_feed_cost_emb)"
+  doi_or_url: "https://www.europeanmilkboard.org/fileadmin/Dokumente/Milk_Production_Costs/Gesamtbroschuere/Kosten_mehrere_L%C3%A4nder/2024_8_Laender_und_EU/Gesamtschau_2024_EN_final.pdf"
+  locator: "slide 'Composition of costs in 2024 (in c/kg)', row 'Production value of beef (deducted)', and EU-27 slides PDF p.68-70"
+  quote: "Production value of beef (deducted) -5.80 -4.98 -7.22 -7.86 -8.49 -5.74 -7.80 -3.58 -7.56"
+  read: "fulltext"
+  note: >-
+    Columns BE, DK, DE, FR, IE, LT, LU, NL, EU. Share computed by me: 7.56/(48.42+7.56) = 0.135 (2023: 7.18/(46.96+7.18)
+    = 0.133), close to the US ERS ~12% in feed.yaml. Excludes coupled/CAP payments. Same caveats as eu_milk_feed_cost_emb.
+
+# Spent broiler-breeder hens (item 4c): no sourced value found (Wageningen puts the parent flock inside the day-old-chick
+# price; Aviagen gives no carcass value). Not entered.
+
+
+# ---------------- 6. Derived (mine): US delivered-feed premium; EU and US-delivered feed per kg edible protein --------
+
+- key: "derived_us_delivered_feed_premium"
+  value: 1.23
+  low: 1.06
+  high: 1.25
+  unit: "ratio: US delivered compound feed price (Wageningen) / NASS ingredient proxy for the same calendar year; broilers (central = mean 2015, 2017; low 2013; high 2015)"
+  values: {broiler: {2013: 1.063, 2015: 1.248, 2017: 1.219}, layer: {2017: 1.209, 2021: 1.108, eic_2023_regional_vs_proxy: 1.054}, proxy_usd_per_t: {broiler: {2013: 355.5, 2015: 234.6, 2017: 222.1}, layer: {2017: 185.7, 2021: 266.2, 2023: 300.6}}, delivered_usd_per_t: {broiler: {2013: 377.9, 2015: 292.8, 2017: 270.6}, layer: {2017: 224.6, 2021: 294.9, 2023_eic: 316.7}}}
+  grade: "D"
+  source: "Derived (mine) from us_broiler_feed_price_wur, eu_layer_cost_wur_2021, eu_layer_cost_wur_2017, feed.yaml nass_modeled_feed_price_basis and layer_feed_price_eic, and USDA ERS monthly corn / soybean MY prices"
+  doi_or_url: "https://www.ers.usda.gov/media/5766/feed-grains-yearbook-tables-all-years.csv ; https://www.ers.usda.gov/media/5218/all-tables-oil-crops-yearbook.csv"
+  locator: "ERS Feed Grains Table 9 (corn, price received, monthly); Oil Crops Table 3 (soybeans, season-average price received, MY)"
+  quote: null
+  read: "html"
+  note: >-
+    Derived, not a quote. Proxy (NASS formula, feed.yaml): broiler 0.58 corn + 0.42 soybeans, layer 0.75/0.25, USD/lb =
+    share x price/56 (corn) or /60 (soy). Calendar-year inputs: corn = mean of 12 monthly prices received (2013 6.154,
+    2015 3.706, 2017 3.359, 2021 5.397, 2023 5.948 USD/bu); soybeans = 8/12 x MY(t-1) + 4/12 x MY(t) season-average
+    (2013 13.93, 2015 9.72, 2017 9.42, 2021 11.63, 2023 13.60 USD/bu; approximation). E.g. 2017 broiler proxy =
+    (0.58 x 3.359/56 + 0.42 x 9.423/60)/0.45359 x 1000 = 222.1 USD/t; delivered 270.6 -> 1.219. Layer 2023: EIC 287.35
+    USD/st = 316.7 USD/t vs proxy 300.6 -> 1.054. Reading: broiler delivered feed ~20-25% above the corn+soy sum
+    (2013, a drought-price year, 6%); layer feed 5-21% (layer rations carry cheap limestone, which dilutes the premium).
+    So feed.yaml's '10-20% (unsourced)' is about right for layers and slightly low for broilers. Wageningen's US prices
+    are model inputs (B), not market quotes. Extract: references/text/feed/ers_corn_monthly_soy_my_extract.csv.
+
+- key: derived_us_broiler_delivered_feed_usd_per_edible_protein
+  value: 6.57
+  low: 5.27
+  high: 10.48
+  year: 2025
+  unit: "USD feed per kg edible crude protein, US broiler meat incl. parent hens: corn + soy ingredient proxy + a delivered-feed adder of 53.35 USD/t"
+  values: {by_year_central: {2020: 6.97, 2021: 8.52, 2022: 9.09, 2023: 7.51, 2024: 6.56, 2025: 6.58}, adder_usd_per_t: {2013: 22.4, 2015: 58.2, 2017: 48.5, used_mean_2015_2017: 53.35}, ratio_method_v1: {value: 6.68, low: 4.62, high: 11.42}}
+  grade: D
+  source: "Derived (mine) from derived_broiler_feed_per_edible_protein, broiler_feed_price_nass_model_my and derived_us_delivered_feed_premium (delivered_usd_per_t - proxy_usd_per_t)"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived, not a quote. The delivered premium behaves as a roughly fixed adder (milling, premix, transport), not a ratio:
+    2013 +22.4, 2015 +58.2, 2017 +48.5 USD/t over the corn + soy proxy (2013 a drought-price year). Adder = mean of 2015 and 2017
+    = 53.35 USD/t. Central 21.5 kg feed/kg protein x (0.252 + 0.05335) USD/kg = 6.57 (2025); low 17.3 x (0.251 + 0.05335) = 5.27;
+    high 24.8 x (0.369 + 0.05335) = 10.48 (2022). The first version multiplied by a ratio (1.233; low and high paired premiums
+    with other years' prices) and gave 6.68 (4.62-11.42); changed after audit R16-M2. Breeder males add <1% (ignored).
+    Eggs: feed.yaml's layer figure already uses the EIC delivered-feed formula, so no adder; Wageningen's 2021 US layer feed
+    is 8% above that formula on national prices (flag, not revised).
+
+- key: "derived_eu_broiler_feed_usd_per_edible_protein"
+  value: 8.87
+  low: 6.25
+  high: 11.57
+  year: 2024
+  unit: "USD feed per kg edible crude protein, EU broiler meat incl. parent stock (Eurostat delivered complete feed, mean DE/FR/NL)"
+  values: {kg_feed_per_kg_live: {central: 1.755, low: 1.707, high: 1.810}, kg_feed_per_kg_protein: {central: 20.67, low: 17.83, high: 23.30}, eur_per_kg_protein: {2019: 6.47, 2020: 6.48, 2021: 7.38, 2022: 9.75, 2023: 9.06, 2024: 8.19, low: 5.58, high: 10.99}, usd_per_kg_protein: {2019: 7.24, 2020: 7.40, 2021: 8.73, 2022: 10.27, 2023: 9.80, 2024: 8.87}, wur_2021_growout_only_eur: 6.82}
+  grade: "D"
+  source: "Derived (mine) from eu_broiler_cost_wur_2021, eu_broiler_cost_wur_2017, eu_broiler_feed_price_eurostat, broiler_parent_feed_ross308 (feed.yaml), derived_broiler_parent_male_feed_per_chick, and feed.yaml's edible-protein factors in derived_broiler_feed_per_edible_protein"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: "fulltext"
+  note: >-
+    Derived, not a quote; check the arithmetic. Feed per kg live = FCR + (0.367 female + 0.030 male parent feed per
+    chick)/(1 - mortality)/live weight. Central (2021 six-country means): 1.585 + 0.367/0.96/2.433 + 0.030/0.96/2.433 =
+    1.585 + 0.157 + 0.013 = 1.755. Low (NL): 1.57 + 0.397/0.965/2.5 = 1.735; FR 1.50 + 0.397/0.96/2.0 = 1.707 (used).
+    High (ES 2021): 1.65 + 0.397/0.955/2.6 = 1.810 (EU 2017: 1.63 + 0.397/0.96/2.294 = 1.810). Edible protein per kg live
+    reused from feed.yaml derived_broiler_feed_per_edible_protein (central 0.0849, low-cost case 0.0957, high-cost case
+    0.0777; US carcass and Ross yields - EU birds are lighter, yields similar, flag). Feed per kg protein: 1.755/0.0849 =
+    20.67; low 1.707/0.0957 = 17.83; high 1.810/0.0777 = 23.30. EUR = 20.67 x Eurostat price/100: 2024 20.67 x 0.3962
+    = 8.19 EUR x 1.0824 = 8.87 USD; low 17.83 x 0.3130 (2019) = 5.58 EUR x 1.1195 = 6.25 USD; high 23.30 x 0.4716
+    (2022) = 10.99 EUR x 1.053 = 11.57 USD. Cross-check: Wageningen 2021 grow-out feed 57.9 c/kg live / 0.0849 = 6.82
+    EUR (no parents) vs 7.38 here. vs US delivered 2024 6.66 USD: EU ~1.3x, driven by feed price (EU 0.43 vs US ~0.31
+    USD/kg delivered in 2024), not by conversion. No co-product credit.
+
+- key: "derived_eu_layer_feed_usd_per_edible_protein"
+  value: 7.88
+  low: 6.30
+  high: 10.36
+  year: 2024
+  unit: "USD feed per kg edible crude protein, EU table eggs (enriched cage) incl. pullet rearing (Eurostat layer feed, mean DE/NL/ES)"
+  values: {kg_feed_per_kg_shell_egg: {central: 2.228, low: 2.171, high: 2.378}, kg_feed_per_kg_protein: {central: 20.16, low: 19.65, high: 21.79}, eur_per_kg_protein: {2019: 5.78, 2020: 5.85, 2021: 6.81, 2022: 9.11, 2023: 8.26, 2024: 7.28, low: 5.63, high: 9.84}, usd_per_kg_protein: {2019: 6.47, 2020: 6.69, 2021: 8.05, 2022: 9.59, 2023: 8.94, 2024: 7.88}, wur_2021_price_30eur_usd: 7.15}
+  grade: "D"
+  source: "Derived (mine) from eu_layer_cost_wur_2021, eu_layer_feed_price_eurostat, feed.yaml layer_pullet_feed_hyline_w36, egg_shell_refuse_sr28, and milk_egg.yaml egg_whole_protein_fdc_sr_legacy / egg_whole_protein_fdc_foundation"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: "fulltext"
+  note: >-
+    Derived, not a quote. Feed per kg shell egg = laying FCR + pullet feed / egg mass per hen. Central: EU 2021 FCR 2.00
+    + 5.65 kg (Hy-Line W-36 to 17 wk) / (400 x 0.0619 = 24.76 kg) = 2.00 + 0.228 = 2.228. Low (NL): 1.96 + 5.65/(438 x
+    0.061) = 2.171. High (HU): 2.10 + 5.94/(345 x 0.062) = 2.378. Pullet feed is a white-hen value to 17 weeks; EU flocks
+    are mostly brown hens housed at ~17-20 weeks, so this is likely a slight underestimate (not quantified, flag).
+    Protein per kg shell egg 0.1105 (0.88 x 12.56%; high case 0.1091). Feed per kg protein: 2.228/0.1105 = 20.16; low
+    2.171/0.1105 = 19.65; high 2.378/0.1091 = 21.79. EUR = 20.16 x price/100: 2024 x 0.3612 = 7.28 EUR x 1.0824 = 7.88
+    USD; low 19.65 x 0.2864 (2019) = 5.63 EUR = 6.30 USD; high 21.79 x 0.4516 (2022) = 9.84 EUR = 10.36 USD. With
+    Wageningen's 2021 price (30.0): 6.05 EUR = 7.15 USD. vs US 2024 4.97 USD (feed.yaml): EU ~1.6x. Spent-hen credit
+    ~1% (spent_hen_value_wur), ignored; breeder flocks excluded as in feed.yaml.
+
+- key: "derived_eu_milk_feed_usd_per_edible_protein"
+  value: 5.64
+  low: 4.26
+  high: 6.30
+  year: 2024
+  unit: "USD feed per kg milk crude protein, EU-27 specialist dairy farms (bought-in feed + specific costs of home-grown fodder); low = 2019 DG AGRI-implied, high = 2023"
+  values: {eur_per_kg_protein: {2019_dgagri_implied: 3.81, 2023: 5.82, 2024: 5.21}, usd_per_kg_protein: {2019_dgagri_implied: 4.26, 2023: 6.30, 2024: 5.64}, beef_share_if_allocated: 0.135}
+  grade: "D"
+  source: "Derived (mine) from eu_milk_feed_cost_emb, eu_milk_feed_share_dgagri, and milk_egg.yaml milk_whole_protein_fdc_foundation (3.27 g/100 g)"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: "fulltext"
+  note: >-
+    Derived, not a quote. EUR per kg protein = (c/kg milk)/100/0.0327: 2024 (13.77 + 3.26)/100/0.0327 = 5.21 EUR x
+    1.0824 = 5.64 USD; 2023 19.04 -> 5.82 EUR x 1.0813 = 6.30 USD; 2019 0.50 x 249 EUR/t = 12.45 c/kg -> 3.81 EUR x
+    1.1195 = 4.26 USD. LOWER BOUND relative to the US ERS figure (6.95 USD in 2024, 6.62 in 2025): FADN values home-grown
+    forage only at seed/fertiliser/crop-protection cost, while ERS values it at market prices. So 'EU milk feed is
+    cheaper per kg protein than US' should NOT be read from these numbers. Uses US retail-milk protein 3.27% as feed.yaml
+    does; EU delivered milk is likely richer in protein (EU average not gathered), which would lower the EUR/kg protein a
+    few %. Allocating 13.5% of the bill to beef would lower it further (not done, as for the US).
+
+
+# ---------------- Feed shares and milk's share of dairy revenue (derived, 2026-10-05) ----------------
+# Feed share s = feed / total farm cost, on the same scope as the feed bill: the Wageningen model farms put parent-stock
+# feed inside the day-old-chick price and pullet feed inside the hen price, so that feed is added back here, priced at the
+# farm's own feed price. Used by benchmarks.feed_bills (data/pf/benchmarks.yaml) to turn a feed bill into a farm cost.
+
+- key: derived_broiler_feed_share_wur_eu2021
+  value: 0.687
+  low: 0.640
+  high: 0.713
+  unit: "fraction: (grow-out feed + parent-stock feed) / total cost of primary production, EU conventional broilers, 2021 (mean of NL, DE, FR, IT, ES, PL; low FR, high PL)"
+  year: 2021
+  values: {by_country: {NL: 0.676, DE: 0.672, FR: 0.640, IT: 0.713, ES: 0.708, PL: 0.713}, growout_only_mean: 0.620}
+  grade: D
+  source: "Derived (mine) from eu_broiler_cost_wur_2021 (feed, FCR, live weight, mortality, total cost by country) and broiler_parent_feed_ross308 + derived_broiler_parent_male_feed_per_chick"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: fulltext
+  note: >-
+    Parent feed per kg live = (0.367 + 0.030 kg per chick) / (1 - mortality) / live weight (NL 0.397/0.965/2.5 = 0.165); priced at the
+    implied farm feed price (feed / FCR; NL 56.5/1.57 = 36.0 c/kg) -> NL (56.5 + 0.165 x 36.0)/92.4 = 0.676. Mean: grow-out 57.9 + 0.170 x
+    36.5 = 64.1 c/kg over 93.4 = 0.687. Applied to 2024 feed prices in the model: the share rises with the feed price (2022) and falls with
+    it, so the farm cost at other years' prices is approximate. EU 2017 (Report 2018-116 Table 3.5): (50.7 + 0.180 x 31.1)/82.5 = 0.683.
+
+- key: derived_broiler_feed_share_wur_us2017
+  value: 0.742
+  unit: "fraction: (grow-out feed + parent-stock feed) / total cost of primary production, US broilers, 2017"
+  year: 2017
+  values: {feed_c_per_kg_live: 44.1, total_c_per_kg_live: 64.5, feed_price_eur_100kg: 24.1, live_weight_kg: 2.7, growout_only: 0.684}
+  grade: D
+  source: "Derived (mine) from van Horne, Wageningen Economic Research Report 2018-116 Tables 3.4-3.5 (USA column) and broiler_parent_feed_ross308 + derived_broiler_parent_male_feed_per_chick"
+  doi_or_url: "https://doi.org/10.18174/465696"
+  locator: "Table 3.4 (feed price, live weight, FCR) and Table 3.5 (costs of primary production, eurocents per kg live weight), column USA"
+  quote: "Total cost (incl. labour) 82.5 64.5 ... Feed 50.7 44.1"
+  read: fulltext
+  note: >-
+    (44.1 + 0.397/0.95/2.7 x 24.1)/64.5 = (44.1 + 3.73)/64.5 = 0.742 (mortality 5%, assumed as NCC's ~5-6%). The only public US model-farm
+    cost split found (no later edition has a US column); consistent with ERS ERR-350's 'more than 70 percent' (broiler_feed_share_of_cost_ers).
+    File references/reports/wur_poultrymeat_competitiveness_base2017_report2018-116.pdf.
+
+- key: derived_layer_feed_share_wur_eu2021
+  value: 0.680
+  unit: "fraction: (laying feed + pullet feed) / total cost of eggs, EU average (eight member states), enriched cages, 2021"
+  year: 2021
+  values: {laying_feed_c_kg: 60.1, pullet_feed_c_kg: 6.84, total_c_kg: 98.5, laying_only: 0.610}
+  grade: D
+  source: "Derived (mine) from eu_layer_cost_wur_2021 and layer_pullet_feed_hyline_w36"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: fulltext
+  note: >-
+    Pullet feed per kg egg = 5.65 kg / (400 eggs x 0.0619 kg) = 0.228 kg, priced at the laying-feed price 30.0 EUR/100 kg = 6.84 c/kg (pullet
+    feed is in the 'hen cost at 20 weeks', a purchase price). (60.1 + 6.84)/98.5 = 0.680. White-hen pullet feed (brown hens eat more): flag.
+
+- key: derived_layer_feed_share_wur_us2021
+  value: 0.695
+  unit: "fraction: (laying feed + pullet feed) / total cost of eggs, USA, 2021"
+  year: 2021
+  values: {laying_feed_c_kg: 48.5, pullet_feed_c_kg: 5.43, total_c_kg: 77.6, laying_only: 0.625, eic_2023_incl_pullet: 0.614}
+  grade: D
+  source: "Derived (mine) from eu_layer_cost_wur_2021 (USA column) and layer_pullet_feed_hyline_w36"
+  doi_or_url: "see component entries"
+  locator: "component entries"
+  quote: null
+  read: fulltext
+  note: >-
+    Pullet feed per kg egg = 5.65 / (430 x 0.060) = 0.219 kg x 24.8 EUR/100 kg = 5.43 c/kg; (48.5 + 5.43)/77.6 = 0.695. The Egg Industry
+    Center's own 2023 cost survey gives 0.614 (layer_feed_share_of_cost_eic, high), lower because its 2023 costs carry high pullet and other
+    costs; the Wageningen basis is used for the US and EU alike.
+
+- key: derived_us_dairy_milk_share_of_value_ers
+  value: 0.903
+  low: 0.903
+  high: 0.952
+  unit: "fraction: milk sold / (milk sold + cattle), US dairy farms, 2025 (2020-2025 range 0.903-0.952)"
+  year: 2025
+  values: {2020: 0.937, 2021: 0.946, 2022: 0.952, 2023: 0.929, 2024: 0.920, 2025: 0.903, other_income_usd_cwt_2025: 0.72}
+  grade: D
+  source: "Derived (mine) from USDA ERS Milk Cost of Production Estimates, items 'Milk sold' and 'Cattle' (Gross value of production), U.S. total"
+  doi_or_url: "https://www.ers.usda.gov/media/4980/milk.csv"
+  locator: "Gross value of production: 'Milk sold', 'Cattle', U.S. total, 2020-2025"
+  quote: "Gross value of production, Milk sold ... 2025, 21.02 ... Cattle ... 2025, 2.25"
+  read: html
+  note: >-
+    21.02 / (21.02 + 2.25) = 0.903: the share of the farm's feed and costs charged to milk when cull cows and calves are
+    credited by value. 'Other income' (0.72 USD/cwt in 2025: not cattle) is left out of the allocation (audit R16-L2; the first
+    version used milk / gross value, 0.876). File references/text/feed/ers_milk_cop.csv.
+
+- key: derived_us_dairy_farm_cost_per_edible_protein_ers
+  value: 14.23
+  low: 14.05
+  high: 17.55
+  unit: "USD of total costs listed per kg milk crude protein, after the cattle credit, US, 2025 (2020-2025 range)"
+  year: 2025
+  values: {2020: 14.05, 2021: 14.63, 2022: 17.55, 2023: 16.75, 2024: 14.67, 2025: 14.23}
+  grade: D
+  source: "Derived (mine) from USDA ERS Milk Cost of Production Estimates ('Total, costs listed') and derived_us_dairy_milk_share_of_value_ers"
+  doi_or_url: "https://www.ers.usda.gov/media/4980/milk.csv"
+  locator: "'Total, costs listed', U.S. total, 2020-2025"
+  quote: null
+  read: html
+  note: >-
+    Each year's total costs listed (USD/cwt) / 45.359 kg / 0.0327 kg protein per kg milk x that year's milk share: 2025
+    23.36/45.359/0.0327 x 0.903 = 14.23; 2022 27.33 -> 17.55. Year-paired, so the range is what was observed (audit R16-M2:
+    pairing the lowest feed bill with the highest feed share gave 9.7-20.9). Used as the farm-cost range for US milk.
+
+- key: derived_us_layer_nonfeed_cost_eic2023
+  value: 4.23
+  unit: "USD of non-feed cost per kg egg crude protein, US conventional eggs, 2023 (feed incl. pullet feed excluded)"
+  year: 2023
+  grade: D
+  source: "Derived (mine) from layer_feed_share_of_cost_eic (total 85.98 c/dozen; feed incl. pullet feed 52.77 c/dozen, its note)"
+  doi_or_url: "see component entry"
+  locator: "component entry"
+  quote: null
+  read: fulltext
+  note: >-
+    (85.98 - 52.77) / 100 / 0.0785 kg protein per dozen = 4.23 USD. An absolute check on the farm 'other' cost, which the model
+    gets as feed x (1/s - 1) and so scales with the feed price (audit R16-L1): the model gives ~2.1 for 2025 eggs.
+
+- key: derived_eu_dairy_milk_share_of_value_emb
+  value: 0.865
+  low: 0.865
+  high: 0.867
+  unit: "fraction: milk / (milk + beef) revenue, EU-27 dairy farms, 2024 (2023: 0.867)"
+  year: 2024
+  grade: D
+  source: "Derived (mine) from eu_dairy_beef_coproduct_emb (1 - 0.135; 2023 1 - 0.133)"
+  doi_or_url: "see component entry"
+  locator: "component entry"
+  quote: null
+  read: fulltext
+  note: "1 - 0.135 = 0.865. Excludes coupled and CAP payments, as the source does."

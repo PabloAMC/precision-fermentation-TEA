@@ -1,0 +1,18 @@
+# Human serum albumin (recombinant, cell-culture or media grade), the albumin sold for serum-free media
+# (InVitria Cellastim S, Sartorius/Albumedix Recombumin, Healthgen OsrHSA) and used in Beefy-9.
+# Sequence: UniProt P02768 (ALBU_HUMAN), entry version 298, sequence version 2: signal 1-18, propeptide 19-24,
+# mature chain 25-609, 585 residues (data/evidence/albumin.yaml hsa_uniprot_mature_chain). 17 disulfides, one
+# free Cys34; no N-X-S/T sequon, so no N-glycan in yeast (UniProt's 'glycosylation' features are plasma glycation
+# of lysines). Formula C2936 H4590 N786 O889 S41, 66,437 Da (hsa_mature_formula_and_mw, cross-checked).
+# Bovine albumin (P02769, 583 aa) is within 0.5% of this composition; the choice changes no number in the model.
+name: serum albumin
+key: alb
+uniprot: P02768
+mature_sequence: >-
+  DAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCPFEDHVKLVNEVTEFAKTCVADESAENCDKSLHTLFGDKLCTVATLRETYGEMADCCAKQEPERNECFLQHKDDNPNLPRLVRPEVDVMCTAFHDNEETFLKKYLYEIARRHPYFYAPELLFFAKRYKAAFTECCQAADKAACLLPKLDELRDEGKASSAKQRLKCASLQKFGERAFKAWAVARLSQRFPKAEFAEVSKLVTDLTKVHTECCHGDLLECADDRADLAKYICENQDSISSKLKECCEKPLLEKSHCIAEVENDEMPADLPSLAADFVESKDVCKNYAEAKDVFLGMFLYEYARRHPDYSVVLLLRLAKTYETTLEKCCAAADPHECYAKVFDEFKPLVEEPQNLIKQNCELFEQLGEYKFQNALLVRYTKKVPQVSTPTLVEVSRNLGKVGSKCCKHPEAKRMPCAEDYLSVVLNQLCVLHEKTPVSDRVTKCCTESLVNRRPCFSALEVDETYVPKEFNAETFTFHADICTLSEKERQIKKQTALVELVKHKPKATKEQLKAVMDDFAAFVEKCCKADDKETCFAEEGKKLVAASQAALGL
+disulfides: 17
+post_translational: "none: secreted unglycosylated, propeptide removed by Kex2 in yeast (Sleep et al.; Recombumin)"
+spec:                       # base = cell-culture-grade rHSA (no food-grade or media-grade spec exists)
+  target_min_frac_protein: {value: 0.96, grade: C, source: "InVitria Cellastim S datasheet: 'Purity >=96.0%' (albumin.yaml spec_invitria_cellastim_s); pharma rHSA is >=99.9% (Recombumin)"}
+  endotoxin_eu_per_mg_max: {value: 1.0, grade: C, source: "Cellastim S: 'Endotoxin Level <= 1.000 EU/mg'. Not modelled: the yeast host makes no LPS, so endotoxin is a plant-hygiene matter (albumin.yaml endotoxin_yeast_host)"}
+solubility_practical_g_L: {value: null, note: "not limiting: albumin is sold as 20% w/v (200 g/L) solutions (Recombumin datasheet)"}

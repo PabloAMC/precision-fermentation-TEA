@@ -44,12 +44,18 @@ GROUPS = {"capital": ["capital charge"], "maintenance + insurance": ["maintenanc
           "utilities": ["electricity", "natural gas & steam", "water & wastewater"]}
 
 
+_VESSEL: dict = {}
+
+
 def run(point):
     from pftea import params, plant
     from pftea import scenarios as sc
     prod, conv, site, T, tp, X, Y = point
+    if prod not in _VESSEL:            # the product's base-case plant (scenarios.size_fermenter), kept over the grid
+        _VESSEL[prod] = params.v(sc.base_params(prod), "fermenter.volume_m3")
     ch = {"plant.product": prod, "plant.location": site, "strain.titer_g_L": float(T), "strain.t_prod_h": float(tp),
-          "strain.X_prod_g_L": float(X), "strain.Y_ps_g_g": float(Y)}
+          "strain.X_prod_g_L": float(X), "strain.Y_ps_g_g": float(Y),
+          "fermenter.sizing": "fixed", "fermenter.volume_m3": _VESSEL[prod]}
     if conv == "light":
         ch.update(sc.LIGHT)
     elif conv == "aseptic":

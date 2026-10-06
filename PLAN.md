@@ -78,6 +78,65 @@ Phase F (external review) has not started. Open items:
 
 ## Decisions log
 
+- **2026-10-05, metabolic floor and the animals' feed bill (Pablo, 2026-10-02: evaluate the price better, no
+  forecasting; 2026-10-05: "do all of that"; Claude built it, for Pablo's review):**
+  - src/pftea/floor.py: substrate, NH3, O2 and heat per kg of protein at the energetic yield ceiling, their cost,
+    and the productivity bound from O2 transfer and heat removal. BLG: 1.77 kg glucose, $0.88/kg of inputs
+    ($0.71 of it glucose at $0.40/kg; EU $1.28), at most ~13 kg/m3/h (cooling-limited; the base case makes 0.27).
+  - data/evidence/feed.yaml (US and EU, 58 entries): feed per kg of edible protein and its cost, parent and pullet
+    feed included, US broiler feed plus a sourced delivered-feed adder (~$53/t), milk credited for its cattle sales by
+    value. Feed shares from Wageningen's model farms (EU and US poultry) and USDA ERS (US milk) turn a feed bill into
+    a farm-gate cost. EU milk is a lower bound (forage at specific costs) and gets no farm cost.
+  - Result (run_analyses.s_floor, docs/figures/fig12_feed_vs_floor.png = report Figure 13, report section "Feedstock
+    against feed", memo bullet, SI sheet Floor_vs_feed): with ALL the animal's feed charged to its protein, the base case's
+    glucose ($4.1/kg BLG US, 19% of its cost) costs no more than the animals' feed ($4.7-6.6 US, $7.9-8.9 EU poultry); for
+    milk and eggs an energy split would put their protein's feed below PF's glucose (audit R16-M1). PF's gap is everything
+    else ($17 vs $2-8 on the farm, which may understate the farm's). The glucose floor is 7-9x below the feed bills.
+  - Secretion ceiling: data/evidence/kinetic.yaml (39 entries) brackets strain.q_p_max_mg_g_h = 40 between the highest
+    secretion rate ever measured (15-16 mg/g/h, A. niger glucoamylase) and the translational capacity of K. phaffii.
+    Value unchanged (no result changes); base.yaml's source text now cites it. A flaw in its growth-law arithmetic
+    (the inactive ribosome reserve counted as translating) was corrected; the bracket is 18-41 mg/g/h at mu 0.2/h.
+  - Audit R16 (AI, docs/AUDIT.md): no HIGH findings; six MEDIUM and the LOW fixed. Titer check: 43 of 134 titers.csv rows
+    unverified, none in a base case or headline scenario; four uses (one albumin variant, three chart markers) rest on
+    three paywalled papers, now labelled 'abstract only' and first on references/DOWNLOADS.md.
+
+- **2026-10-02, v4: model review and serum albumin (Pablo: take the candidates "one by one, in priority
+  order"; "consider if this is the best possible model ... no artificial complexity, but SOTA or close";
+  Claude built it, for Pablo's review):**
+  - An independent AI review compared the method with published PF and cultivated-meat TEAs (gaps G1-G6;
+    docs/AUDIT.md, v4). Verdict: at or above the published state of the art for a multi-protein screening
+    TEA (its estimate P ~0.85); its uncertainty is strain data and accounting conventions, not missing
+    physics. Done: G1 methanol production phase (pf_ferm, thermo.anabolic, plant.methanol_yield); G2
+    vessel sizing (scenarios.size_fermenter, 50-200 m3 up to the 200 m3 cap); G4 Spearman rank
+    correlations in the Monte Carlo. G5 first-of-a-kind: no sourced premium on file, so SCOPE now excludes
+    it explicitly (RAND R-2569 requested). Not done, by decision: G3 growth-coupled secretion (an unused
+    knob that changes no result; stated as a limitation), G6 multi-column chromatography (albumin's
+    capture-only route is a stated judgment), and everything the review called artificial complexity
+    (mechanistic chromatography, CFD, genome-scale models, rebuilding in SuperPro/BioSTEAM).
+  - Serum albumin (`alb`, HSA P02768) on the cation-exchange route with Delta/Recombumin column data,
+    cell-culture purity (96%), 1 kt/yr. Evidence: data/evidence/albumin.yaml (52 entries). Academic: Zhu
+    2021, 17.47 g/L in 192 h of methanol induction (abstract; full text requested), costed on methanol.
+    Incumbent: bulk bovine serum albumin ($40-70/kg, grade C); GFI's $10/kg target and catalogue prices as
+    context; cost per kg of cultivated meat in report Q7.
+  - Methanol-induced academic cases (lactoferrin Lv 2023, beta-casein Choi 1996) now costed on methanol.
+  - After audit R12 and Pablo's downloads (Zhu 2021, RAND R-2569): albumin's base is the patent's minimal
+    two-column train (CEX + AEX polish), ~$216/kg (capture-only $143 as the optimistic case); its academic
+    titer is per whole broth (8.74 g/L; 17.47 is per litre of supernatant); membranes alone reach only 77%
+    albumin; a pioneer-plant case (capital x 1.28, RAND) is shown separately. docs/AUDIT.md, R12.
+
+- **2026-10-02, v4 continued: α-lactalbumin, rennet-cheese casein and heme (Pablo: "let's do the missing
+  proteins you have in the queue"):**
+  - Evidence by research subagents, checked here: data/evidence/alac.yaml, heme.yaml, and an α<sub>s1</sub>/κ
+    section of casein.yaml; 23 rows added to data/titers.csv (3 abstract rows replaced by full-text ones).
+  - α-Lactalbumin (`alac`, bovine P00711) is a main product: BLG's membrane route at the GRN 763 isolate purity
+    (0.90 of dry matter), 1 kt/yr, base design point; academic Wang 2025 (0.60 g/L human α-lac, ethanol,
+    priced as glucose); incumbent band $15–123/kg (C). Physical limit capped at the food-grade market (31.8 kt).
+  - α<sub>s1</sub>- and κ-casein are NOT main products (α<sub>s1</sub> on the acid route repeats β-casein within ~1%;
+    κ has no market of its own): run_analyses.s_cheese costs a two-strain blend (data/pf/scenarios/cheese.yaml).
+  - Heme is a note, not a product (as planned): run_analyses.s_heme bounds secreted LegH on the membrane route.
+  - Code: scenarios.unused_paths skips every other product's dryer leaf (off-list products have leaves too);
+    make_figures marks titer markers below the axis at its left edge.
+
 - **2026-10-02, full texts from Pablo (Chezan 2026, Kim 2025):** casein precipitated at pH 4.5 (its
   solubility minimum); precipitation recovery low end 0.78 (assay), central 0.95 kept; ovomucoid academic
   titer verified (0.929 g/L, 60 h, methanol-free). docs/AUDIT.md, v3 follow-up.
@@ -214,7 +273,8 @@ Phase F (external review) has not started. Open items:
 - No BioSTEAM or SuperPro as the core model. BioSTEAM may cross-check capital costs; the
   SuperPro trial may only be used to read Intelligen's example file.
 - No claim that cannot be traced to a row in data/pf/base.yaml or data/evidence/.
-- No first-of-a-kind penalty mixed into the base case; it is shown separately.
+- No first-of-a-kind penalty mixed into the base case; it is shown separately (v4: RAND's pioneer-plant
+  capital growth, x 1.28).
 - No teaching numbers (docs/PRIMER.md, exercises) copied into the model; they are
   illustrative.
 

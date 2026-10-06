@@ -1,0 +1,16 @@
+# Bovine αs1-casein, the casein of Formo's pending FDA GRN 1312 (E. coli, precipitated at pH 4) and of New Culture's
+# recombinant mozzarella. Sequence: UniProt P02662 (CASA1_BOVIN), entry version 178: signal 1-15, mature chain 16-214,
+# 199 residues, no cysteine (data/evidence/casein.yaml, alpha-s1/kappa section). Milk αs1 carries 8-9 phosphoserines; yeasts and bacteria add
+# none without a co-expressed kinase, so the formula is unphosphorylated, as for β-casein: C1035 H1587 N265 O317 S5,
+# 22,975 Da. Its isoelectric point measured on recombinant αs1 is 5.2 (Formo patent).
+name: alpha-s1-casein
+key: cas1
+uniprot: P02662
+mature_sequence: >-
+  RPKHPIKHQGLPQEVLNENLLRFFVAPFPEVFGKEKVNELSKDIGSESTEDQAMEDIKQMEAESISSSEEIVPNSVEQKHIQKEDVPSERYLGYLEQLLRLKKYKVPQLEIVPNSAEERLHSMKEGIHAQQKEPMIGVNQELAYFYPELFRQFYQLDAYPSGAWYYVPLGTQYTDAPSFSDIPNPIGSENSEKTTMPLW
+disulfides: 0
+post_translational: "phosphorylation absent (recombinant); the formula is the unphosphorylated chain"
+spec:                       # base = Formo's GRN 1312 product (alpha-s1 casein, precipitated)
+  protein_min_frac_powder: {value: 0.90, grade: B, source: "FDA GRN 1312 (pending): protein >=90% (casein.yaml)"}
+  target_min_frac_protein: {value: 0.97, grade: B, source: "FDA GRN 1312: alpha-s1 casein >97% of protein"}
+solubility_practical_g_L: {value: null, note: "insoluble near pH 4.5-5.2 (the precipitation route); soluble as caseinate"}
