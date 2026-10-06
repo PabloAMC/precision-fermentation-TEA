@@ -144,7 +144,7 @@ ax.set_yticks(range(n))
 ax.set_yticklabels([r[0] for r in rows][::-1], fontsize=7.8)
 money(ax.xaxis)
 ax.set_xlabel("minimum selling price ($/kg target protein, 2025)")
-ax.set_title(f"From a ${steps[0]['msp']:.0f}/kg crude enzyme to a ${base_total:.0f}/kg food protein: what each change adds")
+ax.set_title(f"From a ${steps[0]['msp']:.1f}/kg crude enzyme to a ${base_total:.0f}/kg food protein: what each change adds")
 ax.grid(axis="y", visible=False)
 ax.set_xlim(0, max(r[2] for r in rows) * 1.18)
 ax.legend(handles=[Patch(color=CAT[1], label="adds cost"), Patch(color=CAT[2], label="removes cost"),

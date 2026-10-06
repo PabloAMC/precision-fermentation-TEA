@@ -52,7 +52,7 @@
 
 #text(size: 13pt, weight: "bold")[Precision-fermented dairy, egg and serum proteins: what they cost, and where evidence would help]
 #v(-0.3em)
-#text(size: 8.5pt, fill: rgb("#52514e"))[Memo · v4, seven proteins (#R.generated) · Pablo Antonio Moreno Casares · techno-economic model `pf-tea`,
+#text(size: 8.5pt, fill: rgb("#52514e"))[Memo · v4.1, seven proteins (#R.generated) · Pablo Antonio Moreno Casares · techno-economic model `pf-tea`,
 Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs · prepared with an AI assistant; not yet reviewed by human experts]
 
 *Bottom line.*
@@ -79,11 +79,10 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
   OVA, ovomucoid and β-casein cost #money(PL("blg/humbird").msp_ccf), #money(PL("ova/humbird").msp_ccf),
   #money(PL("ovd/humbird").msp_ccf) and #money(PL("cas/humbird").msp_ccf) per kg if cells secrete 40 mg/g/h; at 10 mg/g/h BLG costs
   #money(QP(10).msp_ccf), and at the best rate demonstrated (2.1 mg/g/h) #money(QP(2.1).msp_ccf).
-- *Scarce proteins are the easy case.* At its design titer (10 g/L) and a market-sized plant
-  (250 t/yr), PF lactoferrin costs #money(R.base_light.lf.msp_ccf)–#money(lfb.msp_ccf)/kg,
+- *Scarce proteins are the easier case.* At the 10 g/L of Intelligen's methanol-induced design and a 250 t/yr plant,
+  PF lactoferrin costs #money(R.base_light.lf.msp_ccf)–#money(lfb.msp_ccf)/kg (#money(LF.cases.at("lf_methanol/humbird").msp_ccf) costed on methanol),
   #where(lfb.msp_ccf, MKT("lf")) the #money(MKT("lf").at(0))–#money(MKT("lf").at(1))/kg reported for the dairy
-  product; Intelligen's own model of the same route costs #fx(IB.value_money_year / LF.reconciliation.lf.cop, d: 1)×
-  ours to produce.
+  product; at the best public methanol-free titer (2.8 g/L) #money(S("academic/lf").msp_ccf), #where(S("academic/lf").msp_ccf, MKT("lf")) it.
 - *The route can change the product.* Precipitated, as dairy casein is, β-casein reaches dairy purity
   at #money(cas.msp_ccf)/kg; the only public yeast casein process (membranes only) makes a powder that
   is about 6% β-casein, mostly yeast carbohydrate.
@@ -142,5 +141,5 @@ Cost effects on one plant, not policy recommendations.
 market price. Excludes R&D, licensing, regulatory, sales, start-up, failed batches and first-of-a-kind
 premiums. Strain parameters rest on design values and company-reported averages (evidence grades B–C);
 casein and lactoferrin titers are borrowed from other proteins or species. Ovomucoid and β-casein were
-added in version 3, albumin, α-lactalbumin and the casein and heme notes in version 4; they have been audited by AI reviewers only (docs/AUDIT.md). Full report, audit log, simulated expert reviews and
+added in version 3, albumin, α-lactalbumin and the casein and heme notes in version 4, the feed, transferrin and binder notes in 4.1; they have been audited by AI reviewers only (docs/AUDIT.md). Full report, audit log, simulated expert reviews and
 data: `pf-tea` repository.]

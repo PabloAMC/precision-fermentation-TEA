@@ -573,6 +573,7 @@ def s_lactoferrin(res):
     out = {"reported_prices": bm.reported_prices()["lactoferrin"], "cases": {}}
     for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
         out["cases"][f"lf_ufdf_only/{label}"] = summary(sc.run("lactoferrin", "lf", extra, variant="lf_ufdf_only"))
+        out["cases"][f"lf_methanol/{label}"] = summary(sc.run("lactoferrin", "lf", extra, variant="lf_methanol"))
     p = sc.base_params("lf")
     # cost vs titer at the design production time (Fig. 9); cost_vs_titer['lf'] is at 48/72/120 h like BLG and OVA
     titers = [1, 2.8, 5, 10, 20, 30]
