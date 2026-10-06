@@ -166,7 +166,7 @@
   #v(0.2em)
   #text(size: 12pt)[A Humbird-style techno-economic analysis of β-lactoglobulin, ovalbumin, ovomucoid, \
   β-casein, lactoferrin, serum albumin and α-lactalbumin, from stoichiometry to the physical limit, \
-  with notes on casein for rennet cheese and on heme]
+  with notes on rennet-cheese casein, heme, transferrin and binders, and the animals' feed bill]
   #v(0.6em)
   Pablo Antonio Moreno Casares
   #v(0.1em)
@@ -186,7 +186,9 @@
   v3 audit) but not by the simulated expert pre-review. Version 4 follows an independent AI review of the method against the
   published state of the art: methanol-induced production phases are now modelled, vessels are sized to the plant, and the
   Monte Carlo reports rank correlations; it adds serum albumin for cultivated-meat media and α-lactalbumin, and notes on
-  casein for rennet cheese (α#sub[s1]- plus κ-casein) and on heme, audited by AI reviewers only (`docs/AUDIT.md`, v4). No human expert has reviewed the analysis yet.
+  casein for rennet cheese (α#sub[s1]- plus κ-casein) and on heme, audited by AI reviewers only (`docs/AUDIT.md`, v4). Version 4.1 sets
+  the metabolic floor beside the animals' feed bill and adds notes on transferrin and on ovalbumin as a binder, also
+  AI-audited only. No human expert has reviewed the analysis yet.
   Every number is computed by the model and read from `results/analyses.json` at compile time;
   every input traces to a source and an evidence grade in `data/` (Appendix A). Inputs graded E are
   guesses; they are listed in @sec-limits.
@@ -284,7 +286,7 @@ Eight results stand out:
    the top of that band. The best public titer is
    0.6 g/L of human α-lac in the supernatant, #fx(S("academic/alac").design.titer, d: 2) g/L of broth (Wang et al. 2025; bovine
    α-lac in yeast: 2 mg/L), which costs #money(S("academic/alac").msp_ccf)/kg (@sec-q1).
-8. *Two notes: casein for cheese and heme.* A rennet cheese needs κ-casein at about
+8. *Notes: casein for cheese, heme, transferrin, binders.* A rennet cheese needs κ-casein at about
    #pct(CH.kappa_share.at(1)) of its casein. Made by its own strain and co-precipitated with α#sub[s1], κ must reach
    roughly α#sub[s1]'s own design titer for the blend to cost within 10% of α#sub[s1]-casein alone (#money(CH.as1.base.msp_ccf)/kg);
    on its own column no titer up to 42 g/L is enough. At the best published
@@ -293,7 +295,17 @@ Eight results stand out:
    #money(HM.cases.at("legh_chen2025/150/humbird").msp_ccf)/kg on a 150 t/yr plant: at Impossible's 0.45% use
    level that is #usd(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value, d: 2)
    per kg of beef analogue ex works (the factory-gate cost, before transport and margins), equal to #pct(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value / HM.use.beef_usd_kg.value)
-   of US ground beef's retail price (@sec-heme).
+   of US ground beef's retail price (@sec-heme). Recombinant transferrin for cultivated-meat media, made at food scale,
+   adds #usd(R.transferrin.cases.at("tf_finnis2010/100/humbird").msp_ccf * R.transferrin.use.g_per_kg_cm.value / 1000, d: 2) per kg of
+   cultivated meat at today's best titer, against #usd(R.transferrin.price.catalogue_usd_kg.value * R.transferrin.use.g_per_kg_cm.value / 1000, d: 0)
+   at catalogue prices (@sec-transferrin). As a binder in plant-based meat, PF ovalbumin costs about what dried egg white
+   does but #fx(R.binder.ova.base.per_kg.at(1) / R.binder.mc.per_kg.at(1), d: 0) times methylcellulose per kg of analogue (@sec-binder).
+9. *Feedstock is not PF's problem.* With all of an animal's feed charged to its protein, the base case's glucose
+   (#usd(R.floor.products.blg.us_midwest.glucose_usd, d: 1)/kg BLG, #pct(R.floor.products.blg.us_midwest.glucose_usd / R.floor.products.blg.us_midwest.msp)
+   of its cost) is no dearer than chickens', hens' or cows' feed per kg of protein
+   (#usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1), US);
+   its glucose floor, #fx(R.floor.products.blg.us_midwest.floor.substrate_kg, d: 1) kg per kg of protein, is several times below them. The gap is the
+   plant (@sec-floor).
 
 The least-tested assumption is secretion without growth. The production phase follows Intelligen's
 design, whose cells secrete #fx(blg.design.q_p_mg_g_h, d: 1) mg/g/h while barely growing. In the one
@@ -2188,6 +2200,113 @@ analogue at the factory gate (#pct(hcase("legh_chen2025", HM.scales.at(0)).msp_c
 retail ground beef), and up to twice that at the legal maximum; at a commercial design point, cents. Whether it is worth that cost is a question about taste that we found no consumer study isolating, and
 Impossible launched in the UK in September 2026 without it (Green Queen 2026).
 
+== Transferrin: a cost-in-use note <sec-transferrin>
+
+#let TF = R.transferrin
+#let tcase(v, t) = TF.cases.at(v + "/" + str(t) + "/humbird")
+#let tuse = TF.use.g_per_kg_cm
+#let TFY = yaml("../data/pf/scenarios/transferrin.yaml")
+Transferrin carries iron into cells; serum-free media add it at 10–20 mg/L (Essential 8, B8, Beefy-9). It is the
+second-largest recombinant protein in GFI's (2023) projections of cultivated-meat media after albumin, but far
+behind it (about 2.4% of the volume), and Wildtype's FDA file shows it dropped from that company's process. This
+note costs recombinant human transferrin on albumin's plant and two-column route (@sec-routes), the route
+Novozymes uses for both on the same yeast platform, with transferrin's own column data from its patents: capture
+recovery #pct(TFY.common.at("dsp.cex_recovery").value), polish #pct(TFY.common.at("dsp.polish_recovery").value) (`data/pf/scenarios/transferrin.yaml`). The polish needs a borate salt that is
+not costed and is not a permitted food additive in the EU, so it would have to be washed out. Transferrin has 19
+disulfide bonds and secretes poorly from *K. phaffii* (20–30 mg/L); the best published titer is 2.29 g/L of supernatant
+from *S. cerevisiae* on sucrose in a 10 L vessel (Finnis et al. 2010), costed here as *K. phaffii* on glucose
+(#fx(tcase("tf_finnis2010", TF.scales.at(0)).design.titer, d: 2) g/L of whole broth).
+
+#figure(
+  table(
+    columns: (2.6fr,) + TF.scales.map(_ => 1fr) + (1.5fr,),
+    align: (left,) + TF.scales.map(_ => right) + (right,),
+    table.header([*Process*], ..TF.scales.map(t => [*#thou(t) t/yr, \$/kg rTf*]),
+      [*\$/kg cultivated meat at #fx(tuse.value, d: 2) g/kg (#fx(tuse.low, d: 3)–#fx(tuse.high, d: 2)), #thou(TF.scales.at(1)) t/yr*]),
+    hline,
+    ..for (v, label) in (("tf_finnis2010", [Finnis et al. 2010: 2.29 g/L of supernatant, *S. cerevisiae*]),
+                         ("tf", [the base design point (30 g/L, 72 h, glucose)])) {
+      let c = tcase(v, TF.scales.at(1)).msp_ccf
+      ([#label], ..TF.scales.map(t => [#money(tcase(v, t).msp_ccf)]),
+       [#usd(c * tuse.value / 1000, d: 2) (#usd(c * tuse.low / 1000, d: 2)–#usd(c * tuse.high / 1000, d: 2))])
+    },
+    ..for (k, label) in (("catalogue_usd_kg", [catalogue price today (InVitria Optiferrin, 10 g)]),
+                         ("humbird_at_scale_usd_kg", [Humbird's at-scale estimate (\$12/g)]),
+                         ("gfi_target_usd_kg", [GFI's assumed cost])) {
+      let x = TF.price.at(k).value
+      ([#label], ..TF.scales.map(_ => [#money(x)]),
+       [#usd(x * tuse.value / 1000, d: 2) (#usd(x * tuse.low / 1000, d: 2)–#usd(x * tuse.high / 1000, d: 2))])
+    },
+  ),
+  caption: [Recombinant transferrin on albumin's route (price-anchored capital, US) and its cost per kg of cultivated
+  meat at GFI's implied 28 mg/L × 13 L of medium per kg (range: Humbird's 10.7 mg/L medium to GFI's 42 L/kg). Prices
+  in the last three rows are not model results.],
+) <tab-transferrin>
+
+- *Per kg of transferrin.* At the best published titer it costs #money(tcase("tf_finnis2010", TF.scales.at(1)).msp_ccf)/kg on a
+  #thou(TF.scales.at(1)) t/yr plant and #money(tcase("tf_finnis2010", TF.scales.at(0)).msp_ccf) at #thou(TF.scales.at(0)) t/yr; at the
+  design point, #money(tcase("tf", TF.scales.at(1)).msp_ccf) and #money(tcase("tf", TF.scales.at(0)).msp_ccf). Tens of tonnes a
+  year would really be made in campaigns on a shared plant, so the dedicated #thou(TF.scales.at(0)) t/yr plant here overstates
+  its cost.
+- *Per kg of meat.* Made at that scale, transferrin adds
+  #usd(tcase("tf_finnis2010", TF.scales.at(1)).msp_ccf * tuse.value / 1000, d: 2) per kg of cultivated meat at today's best titer and
+  #usd(tcase("tf", TF.scales.at(1)).msp_ccf * tuse.value / 1000, d: 2) at the design point, against
+  #usd(TF.price.catalogue_usd_kg.value * tuse.value / 1000, d: 0) at today's catalogue price. Unlike albumin's (@tab-cm), its
+  cost is set almost entirely by whether it is made at food scale at all, not by how well: its dose is about
+  #fx(ALB.cm.g_per_kg_cm.at(1) / tuse.value, d: 0) times smaller.
+
+== Ovalbumin as a binder: a cost-in-use note <sec-binder>
+
+#let BD_ = R.binder
+#let BU = yaml("../data/pf/scenarios/binder.yaml")
+Plant-based burgers and nuggets need a binder to hold the mince together and keep it juicy when cooked. Most use
+methylcellulose (MC), a cellulose ether; some vegetarian products use egg white. PF egg-white protein is cleared for
+this use in the US: ovalbumin up to 10% of a meat analogue (FDA GRN 1249), and egg-white protein at 3–8%, "based upon
+current usage rates of egg white protein" (GRN 1104). EVERY has promoted its ovalbumin as a replacement for MC
+(AgFunderNews 2024). This note asks what each binder costs per kg of finished analogue: the use level times the price
+(`data/pf/scenarios/binder.yaml`, evidence in `data/evidence/binder.yaml`). The protein binders are dosed at
+#pct(BD_.product_dose.at(1)) of an ~#pct(BU.use.protein_frac_of_product.value)-protein product
+(#pct(BD_.product_dose.at(0))–#pct(BD_.product_dose.at(2))), i.e. #pct(BD_.protein_dose.at(1), d: 1) protein.
+
+#figure(
+  table(
+    columns: (2.4fr, 1.3fr, 1.4fr, 1.6fr),
+    align: (left, right, right, right),
+    table.header([*Binder*], [*Use level*], [*Price*], [*\$ per kg of analogue*]),
+    hline,
+    [methylcellulose], [#pct(BD_.mc.frac.at(1), d: 1) (#pct(BD_.mc.frac.at(0), d: 1)–#pct(BD_.mc.frac.at(2)))],
+      [#usd(BD_.mc.usd_kg.at(1), d: 2)/kg (#usd(BD_.mc.usd_kg.at(0), d: 1)–#usd(BD_.mc.usd_kg.at(2), d: 0))],
+      [#usd(BD_.mc.per_kg.at(1), d: 2) (#usd(BD_.mc.per_kg.at(0), d: 2)–#usd(BD_.mc.per_kg.at(2), d: 2))],
+    [dried egg white (2015–2025)], [#pct(BD_.protein_dose.at(1), d: 1) protein],
+      [#usd(BD_.egg_white.usd_kg_protein.at(0), d: 1)–#usd(BD_.egg_white.usd_kg_protein.at(1), d: 1)/kg protein],
+      [#usd(BD_.egg_white.per_kg.at(1), d: 2)–#usd(BD_.egg_white.per_kg.at(2), d: 2)],
+    ..for (k, label) in (("base", [PF ovalbumin, base case (30 g/L)]), ("industry", [PF ovalbumin, industry benchmark (42 g/L)]),
+                         ("physical limit", [PF ovalbumin, physical-limit best case])) {
+      let o = BD_.ova.at(k)
+      ([#label], [#pct(BD_.protein_dose.at(1), d: 1) protein], [#usd(o.usd_kg_protein, d: 1)/kg protein],
+       [#usd(o.per_kg.at(1), d: 2) (#usd(o.per_kg.at(0), d: 2)–#usd(o.per_kg.at(2), d: 2))])
+    },
+  ),
+  caption: [Binder cost per kg of plant-based meat analogue. Methylcellulose price: India's import unit values for its
+  methylcellulose tariff line, 2025 (all origins; China-origin low, US-origin high), the only official line that isolates
+  it. Dried egg white: EU export unit values per kg protein, 2025 dollars. PF ovalbumin: this model, price-anchored
+  capital, US. Ranges are the use-level ranges, except dried egg white's, which is its price range at the central dose.],
+) <tab-binder>
+
+- *Against methylcellulose.* At the base case, ovalbumin costs
+  #fx(BD_.ova.base.per_kg.at(1) / BD_.mc.per_kg.at(1), d: 0) times as much per kg of analogue as methylcellulose
+  at central values, and even at the physical-limit best case about #fx(BD_.ova.at("physical limit").per_kg.at(1) / BD_.mc.per_kg.at(1), d: 1) times
+  as much (within methylcellulose's own range if food-grade methylcellulose is the dear, US-origin grade). A protein binder cannot
+  match a cellulose ether on cost; it has to win on function or label. The one like-for-like test found used 5% ovalbumin
+  against 0.7% methylcellulose and found the ovalbumin burger harder when cooked (EVERY's patent US 12,096,784, Example
+  45, grade B), so the dose at which ovalbumin merely matches methylcellulose is lower than 5% but not measured. EVERY's
+  public claim that its cost in use equals methylcellulose's (AgFunderNews 2024) is not supported by these numbers.
+- *Against egg white.* At the base case, PF ovalbumin costs about what dried egg white does at the same protein dose
+  (#usd(BD_.egg_white.per_kg.at(1), d: 2)–#usd(BD_.egg_white.per_kg.at(2), d: 2) per kg of analogue over 2015–2025).
+  This is the substitution that matters for animals: replacing methylcellulose spares none, replacing egg white in
+  vegetarian products does. How much egg white those products use is not public; Quorn's mince lists at most 9%
+  rehydrated egg white (under about 1% egg-white protein; label, grade C).
+
 // ================================================================ 5
 = Discussion
 
@@ -2243,7 +2362,11 @@ Impossible launched in the UK in September 2026 without it (Green Queen 2026).
   (0.25 g/L, a patent example) the blend costs #money(CH.blend.kap.at(str(CH.kappa_share.at(1))).at(0))–#money(CH.blend.kap_cex.at(str(CH.kappa_share.at(1))).at(0))/kg,
   and co-precipitated κ must reach roughly α#sub[s1]'s own design titer for the blend to cost within 10% of α#sub[s1]-casein alone
   (on its own column, no titer up to 42 g/L is enough; @sec-cheese). Secreted leghemoglobin at the best published titer costs #money(HM.cases.at("legh_chen2025/150/humbird").msp_ccf)/kg on a
-  150 t/yr plant, #usd(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value, d: 2) per kg of beef analogue (@sec-heme).
+  150 t/yr plant, #usd(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value, d: 2) per kg of beef analogue (@sec-heme). Recombinant transferrin made at food scale would add
+  #usd(R.transferrin.cases.at("tf_finnis2010/100/humbird").msp_ccf * R.transferrin.use.g_per_kg_cm.value / 1000, d: 2) per kg of cultivated meat
+  at today's best titer, against #usd(R.transferrin.price.catalogue_usd_kg.value * R.transferrin.use.g_per_kg_cm.value / 1000, d: 0) at
+  catalogue prices (@sec-transferrin). As a binder in plant-based meat, PF ovalbumin costs about what dried egg white does but
+  #fx(R.binder.ova.base.per_kg.at(1) / R.binder.mc.per_kg.at(1), d: 0) times methylcellulose per kg of analogue (@sec-binder).
 
 == Why published PF costs are lower
 
@@ -2403,12 +2526,15 @@ model says nothing about which instruments would deliver them.
   and market-research pages (C), converted to a per-kg-α-lac basis by us; its dryer feed is
   borrowed from BLG (D), and the tighter ultrafiltration membrane its 14 kDa size needs is not costed; the
   plant size is a design choice. No priors were registered for it.
-- *The rennet-cheese and heme notes* use products outside the main list, each run on an existing route
+- *The rennet-cheese, heme, transferrin and binder notes* use products outside the main list, each run on an existing route
   by analogy: κ-casein on two routes that bracket its unknown recovery (co-precipitation at an assumed 78%, E;
   its own column on lactoferrin's data, D), and leghemoglobin on the membrane route although the commercial
   product is an intracellular lysate (no lysis or bead mill is modelled, and the drying is extra). The κ share
   for unphosphorylated recombinant caseins rests on one patent example. The supernatant titers of α-lac and LegH
-  are converted to whole broth with the model's cell volume (D). Hemin fed to the best LegH strain is not costed.
+  are converted to whole broth with the model's cell volume (D). Hemin fed to the best LegH strain is not costed. Transferrin runs on albumin's route with a
+  borate polish whose borate is not costed, from an *S. cerevisiae* titer at 10 L costed as *K. phaffii*; its use level is derived
+  from GFI's tonnages (D). The binder note's methylcellulose price is a trade unit value that mixes grades, and the dose at which
+  ovalbumin binds as well as methylcellulose is not measured.
 - *The feed comparison* (@sec-floor) sets PF ex works against the animal at the farm gate. Its feed bills are
   our arithmetic (grade D) on breeder targets, industry averages, USDA and Eurostat statistics and Wageningen costings: US
   broiler feed as corn and soybeans plus a delivered-feed adder, US layer feed by the Egg Industry Center's delivered-feed
@@ -2485,13 +2611,17 @@ and locators. Calibration cases are in `data/calibration/`. The audit is `docs/A
 #set par(justify: false)
 #text(size: 9pt)[
 - 21st.BIO. 21st.BIO launches precision fermentation program for bovine alpha-lactalbumin, press release (10 July 2025).
+- AgFunderNews (Watson E). Unilever brand The Vegetarian Butcher partners with animal-free egg protein pioneer The EVERY Co (15 May 2024).
 - Almeida Benalcázar E, et al. Single cell protein production from ethanol: model-based bioreactor operation at industrial scale. Biotechnol Bioeng 122:1441 (2025). doi:10.1002/bit.28969 (reports Roels 1983: 460 kJ per mol O#sub[2]).
 - Antuma LJ, Boom RM, Keppler JK. Tuning the structure and coagulation behaviour of artificial casein micelles by varying the casein composition. Food Hydrocoll 163:111136 (2025). doi:10.1016/j.foodhyd.2025.111136
 - Antuma LJ, Steiner I, Garamus VM, Boom RM, Keppler JK. Engineering artificial casein micelles for future food: is casein phosphorylation necessary? Food Res Int 173:113315 (2023). doi:10.1016/j.foodres.2023.113315
 - Aro N, et al. Production of bovine β-lactoglobulin and hen egg ovalbumin by _Trichoderma reesei_ using precision fermentation technology and testing of their techno-functional properties. Food Res Int 163:112131 (2023). doi:10.1016/j.foodres.2022.112131
+- Aviagen. Ross 308/308 FF broiler: performance objectives (2022); Ross 308 parent stock: performance objectives (2021); Ross broiler: nutrition specifications (2022).
+- BAL for the European Milk Board. Calculating the cost of milk production in the EU countries and the EU average, 2023 and 2024 editions.
 - Behm K, et al. Comparison of carbon footprint and water scarcity footprint of milk protein produced by cellular agriculture and the dairy industry. Int J LCA 27:1017 (2022). doi:10.1007/s11367-022-02087-0
 - Carnicer M, et al. Macromolecular and elemental composition analysis and extracellular metabolite balances of _Pichia pastoris_ growing at different oxygen levels. Microb Cell Fact 8:65 (2009). doi:10.1186/1475-2859-8-65
 - CE Delft (Sinke P, Vergeer R, Odegard I). TEA of cultivated meat: future projections of different scenarios, corrigendum (2021).
+- Chen G, Gulbranson DR, Hou Z, et al. Chemically defined conditions for human iPSC derivation and culture. Nat Methods 8:424 (2011). doi:10.1038/nmeth.1593
 - Chen H, Niu Y, Wang Y, Zhang L, Dai Z, Luo A, Du G, Zhao X. The optimized signal peptide and feeding strategy to enhance secretory expression of LegH in _Komagataella phaffii_. Process Biochem 156:255 (2025). doi:10.1016/j.procbio.2025.06.005
 - Chezan D, Fuhrmann PL, Bender D, et al. Physicochemical properties of native and precision fermentation-derived bovine β-casein: structural and functional insights. Food Hydrocolloids 171:111797 (2026). doi:10.1016/j.foodhyd.2025.111797
 - Choi BK, Jiménez-Flores R. Expression and purification of glycosylated bovine β-casein (L70S/P71S) in _Pichia pastoris_. J Agric Food Chem 49:1761 (2001). doi:10.1021/jf001298f
@@ -2503,10 +2633,13 @@ and locators. Calibration cases are in `data/calibration/`. The audit is `docs/A
 - Delta Biotechnology Ltd (Goodey AR, Sleep D, et al.). High purity albumin and method of producing, US 5,728,553 A (1998); Process of high purity albumin production, US 6,638,740 B1 (2003).
 - Deng M, Wu Y, Lv X, Liu L, Li J, Du G, Chen J, Liu Y. Heterologous single-strand DNA-annealing and binding protein enhance CRISPR-based genome editing efficiency in _Komagataella phaffii_. ACS Synth Biol 12:3443 (2023). doi:10.1021/acssynbio.3c00494 (abstract read)
 - Dietzsch C, Spadiut O, Herwig C. A dynamic method based on the specific substrate uptake rate to set up a feeding strategy for _Pichia pastoris_. Microb Cell Fact 10:14 (2011). doi:10.1186/1475-2859-10-14
+- Egg Industry Center (Iowa State University; Ibarburu M). U.S. egg cost of production and prices (9 January 2024).
 - Ellilä S, Fonseca L, Uchima C, et al. Development of a low-cost cellulase production process using _Trichoderma reesei_ for Brazilian biorefineries. Biotechnol Biofuels 10:30 (2017). doi:10.1186/s13068-017-0717-0
-- FDA GRAS Notices 737 (soy leghemoglobin, Impossible Foods), 763 (α-lactalbumin, Agropur), 967 (ovomucoid, EVERY), 1056 (β-lactoglobulin, Remilk), 1104 (ovalbumin, EVERY), 1219 (bovine lactoferrin, TurtleTree), 1284 (bovine lactoferrin, All G) and 1312 (α#sub[s1]-casein, Formo and NewMilkBuzz; pending).
+- Eurostat. Purchase prices of the means of agricultural production, annual (dataset apri_ap_ina, accessed 2026-10-05).
+- FDA GRAS Notices 737 (soy leghemoglobin, Impossible Foods), 763 (α-lactalbumin, Agropur), 967 (ovomucoid, EVERY), 1056 (β-lactoglobulin, Remilk), 1104 (ovalbumin, EVERY), 1219 (bovine lactoferrin, TurtleTree), 1249 (ovalbumin, Onego Bio), 1284 (bovine lactoferrin, All G) and 1312 (α#sub[s1]-casein, Formo and NewMilkBuzz; pending).
 - FDA. Scientific memorandum, cultured cell consultation CCC 000005 (Wildtype, coho salmon cells), 28 May 2025.
 - Fermify GmbH. Non-micellar casein emulsion gel and production thereof, WO 2024/200234 A1 (2024).
+- Finnis CJA, Payne T, Hay J, et al. High-level production of animal-free recombinant transferrin from _Saccharomyces cerevisiae_. Microb Cell Fact 9:87 (2010). doi:10.1186/1475-2859-9-87
 - Formo Foods GmbH, NewMilkBuzz BV. Edible products comprising alpha-S1-casein variants A and B and methods for producing the same, WO 2026/068856 A1 (2026).
 - FSANZ. Application A1186: soy leghemoglobin in meat analogue products (Impossible Foods, 2019).
 - FSANZ. Application A1342: β-casein protein preparation from GM _Komagataella phaffii_ (Eden Brew), application and supporting documents (2026).
@@ -2516,19 +2649,25 @@ and locators. Calibration cases are in `data/calibration/`. The audit is `docs/A
 - GFI (Swartz E, et al.). Anticipated growth factor and recombinant protein costs and volumes for cost-competitive cultivated meat (2023).
 - GFI Europe & Arthur D. Little. Pathfinding towards precision fermentation viability (2025).
 - GFI. 2025 State of the industry report: cultivated meat, seafood and ingredients (2026).
+- Government of India, Ministry of Commerce (DGCI&S). TRADESTAT export-import data bank, imports of ITC-HS 39123912 (methyl cellulose), 2024-2025 (accessed 2026-10-06).
 - Green Queen. At long last, the Impossible Burger lands in the UK (23 September 2026).
 - Heijnen JJ, van Dijken JP. In search of a thermodynamic description of biomass yields for the chemotrophic growth of microorganisms. Biotechnol Bioeng 39:833 (1992).
 - Heyland J, Fu J, Blank LM, Schmid A. Quantitative physiology of _Pichia pastoris_ during glucose-limited high-cell density fed-batch cultivation for recombinant protein production. Biotechnol Bioeng 107:357 (2010). doi:10.1002/bit.22836
+- Hu C, Shen W, Xia Y, Zhou L, Yang H, Chen X. Efficient production of the recombinant human lactoferrin in an engineered _Trichoderma reesei_. J Agric Food Chem 73:32795 (2025). doi:10.1021/acs.jafc.5c11534
 - Humbird D, Davis R, McMillan JD. Aeration costs in stirred-tank and bubble column bioreactors. Biochem Eng J 127:161 (2017). doi:10.1016/j.bej.2017.08.006
 - Humbird D, Davis R, Tao L, et al. Process design and economics for biochemical conversion of lignocellulosic biomass to ethanol. NREL/TP-5100-47764 (2011).
 - Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239 (2021). doi:10.1002/bit.27848 (and SI workbook)
+- Hy-Line International. W-36 commercial layers performance standards guide (2020).
 - Iaria L, Bijl E, Hettinga K, Werten MWT. Animal-free caseins by precision fermentation: technical challenges and perspectives. Trends Food Sci Technol 175:105878 (2026). doi:10.1016/j.tifs.2026.105878
 - IEAGHG (Amec Foster Wheeler). Effects of plant location on the costs of CO#sub[2] capture. Technical Report 2018/04 (2018).
 - InVitria. Cellastim S recombinant human albumin, product page (accessed 2026-10-02).
+- InVitria. Optiferrin recombinant human transferrin, product page (accessed 2026-10-06).
 - Kim H, Jin KC, Kim SK. Systematic engineering of _Komagataella phaffii_ for the production of hen egg ovomucoid. Int J Biol Macromol 320:145813 (2025). doi:10.1016/j.ijbiomac.2025.145813
 - Kleerebezem R, van Loosdrecht MCM. A generalized method for thermodynamic state analysis of environmental systems. Crit Rev Environ Sci Technol 40:1 (2010). doi:10.1080/10643380802000974
+- Kuo H-H, Gao X, DeKeyser J-M, et al. Negligible-cost and weekend-free chemically defined human iPSC culture. Stem Cell Reports 14:256 (2020). doi:10.1016/j.stemcr.2019.12.007
 - Layman DK, Lönnerdal B, Fernstrom JD. Applications for α-lactalbumin in human nutrition. Nutr Rev 76:444 (2018). doi:10.1093/nutrit/nuy004
 - Li Y, et al. Transcriptional reprogramming with endogenous cis- and trans-elements for efficient food protein expression from safe substrates in _Komagataella phaffii_. Metab Eng (2026). doi:10.1016/j.ymben.2026.102555
+- Liu K, Fan X, Tong Z, et al. Reprogrammed _Komagataella phaffii_ for enhanced secretory expression of human lactoferrin. J Biotechnol 419:1 (2026). doi:10.1016/j.jbiotec.2026.07.011
 - Liu WC, et al. Scaling-up fermentation of _Pichia pastoris_ to demonstration-scale using new methanol-feeding strategy and increased air pressure instead of pure oxygen supplement. Sci Rep 6:18439 (2016).
 - Looser V, Bruhlmann B, Bumbak F, et al. Cultivation strategies to enhance productivity of _Pichia pastoris_: a review. Biotechnol Adv 33:1177 (2015). doi:10.1016/j.biotechadv.2015.05.008
 - Lv X, et al. Cascaded de novo biosynthesis of lacto-proteins from CO#sub[2] by engineered _Pichia pastoris_. Green Chem 25:5460 (2023). doi:10.1039/d3gc00867c
@@ -2537,10 +2676,12 @@ and locators. Calibration cases are in `data/calibration/`. The audit is `docs/A
 - Maurer M, et al. Versatile modeling and optimization of fed batch processes for the production of secreted heterologous proteins with _Pichia pastoris_. Microb Cell Fact 5:37 (2006).
 - Mercier-Bouchard D, et al. Process efficiency of casein separation from milk using polymeric spiral-wound microfiltration membranes. J Dairy Sci 100:8838 (2017). doi:10.3168/jds.2017-13015
 - Merrow EW, Phillips KE, Myers CW. Understanding cost growth and performance shortfalls in pioneer process plants. RAND R-2569-DOE (1981).
+- National Chicken Council. U.S. broiler performance, 1925-2025 (statistics page, accessed 2026-10-03).
 - Nestec SA. Production of casein and caseinates, US 4,075,196 (1978).
 - New Culture Inc. Dairy-like compositions and related methods, US 2023/0404098 A1 (2023).
 - NewMilkBuzz BV. Improved casein secretion by non-mammalian host cells, EP 4 623 075 A1 (2025); Enrichment of a casein in a composition, EP 4 676 233 A1 (2026); and WO 2023/242273, WO 2024/256611, WO 2025/109136.
 - Nieto-Taype MA, Garcia-Ortega X, Garrigós-Martínez J, et al. Rationale-based selection of optimal operating strategies and gene dosage impact on recombinant protein production in _Komagataella phaffii_ (_Pichia pastoris_). Microb Biotechnol 13:315 (2020). doi:10.1111/1751-7915.13498
+- Novozymes Biopharma DK A/S (Blackwell L, Cameron J, Morton PH). Purification process, EP 2 393 834 B1 (2013).
 - Panchanawaporn S, et al. Two-step engineering of food-grade _Aspergillus oryzae_ via endogenous signal peptides and vesicle trafficking proteins to enhance carrier-free protein secretion. J Fungi 12:289 (2026). doi:10.3390/jof12040289
 - Perfect Day Inc. Compositions comprising a casein and methods of producing the same, US 11,457,649 B2 (2022).
 - Petrides D. Bioprocess design and economics. In Harrison RG, et al., Bioseparations Science and Engineering, 2nd ed. Oxford University Press (2015), ch. 11 (Intelligen web version).
@@ -2557,23 +2698,29 @@ and locators. Calibration cases are in `data/calibration/`. The audit is `docs/A
 - Shemesh P, Fishman A. Optimal fermentation conditions for growth and recombinant protein production in _Pichia pastoris_: strain selection, ploidy level and carbon source. Curr Res Food Sci 9:100840 (2024). doi:10.1016/j.crfs.2024.100840
 - Southward CR. Casein products. New Zealand Institute of Chemistry, Chemical Processes in New Zealand, III-Dairy-E.
 - Standing Ovation. Method for producing casein and uses thereof, US 2024/0251812 A1 (2024); EP 4 533 954 A1 (priority 2023).
+- Stout AJ, Mirliani AB, Rittenberg ML, et al. Simple and effective serum-free medium for sustained expansion of bovine satellite cells for cell cultured meat. Commun Biol 5:466 (2022). doi:10.1038/s42003-022-03423-8
+- Swift RJ, Wiebe MG, Robson GD, Trinci AP. Recombinant glucoamylase production by _Aspergillus niger_ B1 in chemostat and pH auxostat cultures. Fungal Genet Biol 25:100 (1998). doi:10.1006/fgbi.1998.1089
 - Tetra Pak. Dairy Processing Handbook (online), chapters 7.6, 18 and 19.
 - The EVERY Company (Kale A, Patnaik R). Purified protein compositions and methods of production, US 2024/0083940 A1; Recombinant protein recovery methods, US 2025/0134130 A1; Ovalbumin protein compositions, US 12,096,784 B2.
 - Tijhuis L, van Loosdrecht MCM, Heijnen JJ. A thermodynamically based correlation for maintenance Gibbs energy requirements in aerobic and anaerobic chemotrophic growth. Biotechnol Bioeng 42:509 (1993).
 - Tomàs-Gamisans M, Ferrer P, Albiol J. Fine-tuning the _P. pastoris_ iMT1026 genome-scale metabolic model for improved prediction of growth on methanol or glycerol as sole carbon sources. Microb Biotechnol 11:224 (2018). doi:10.1111/1751-7915.12871
 - Tsai LS, Ijichi K, Harris MW. Concentration of egg white by ultrafiltration. J Food Prot 40:449 (1977).
 - US Code of Federal Regulations. 21 CFR 73.520, Soy leghemoglobin (84 FR 37576, 2019).
+- USDA ERS. Milk cost of production estimates (milk.csv, accessed 2026-10-03).
 - van 't Riet K. Review of measuring methods and results in nonviscous gas-liquid mass transfer in stirred vessels. Ind Eng Chem Process Des Dev 18:357 (1979).
+- van Horne PLM, Bondt N. Competitiveness of the EU egg sector, base year 2021. Wageningen Economic Research report 2023-006 (2023). doi:10.18174/583668
+- van Horne PLM. Competitiveness of the EU poultry meat sector, base year 2017. Wageningen Economic Research report 2018-116 (2018). doi:10.18174/465696
 - Viaene A, Volckaert G, Joniau M, De Baetselier A, Van Cauwelaert F. Efficient expression of bovine α-lactalbumin in _Saccharomyces cerevisiae_. Eur J Biochem 202:471 (1991). doi:10.1111/j.1432-1033.1991.tb16396.x
 - Voutilainen E, Pihlajaniemi V, Parviainen T. Economic comparison of food protein production with single-cell organisms from lignocellulose side-streams. Bioresour Technol Rep 14:100683 (2021).
 - Wang B, Wu Y, Lv X, Liu L, Li J, Du G, Chen J, Liu Y. Synergistic regulation of chassis cell growth and screening of promoters, signal peptides and fusion protein linkers for enhanced recombinant protein expression in _Bacillus subtilis_. Int J Biol Macromol 280:136037 (2024). doi:10.1016/j.ijbiomac.2024.136037 (abstract read)
 - Wang L, et al. The thermodynamic and gelation properties of ovalbumin and lysozyme. Gels 11:470 (2025).
 - Wang X, Zhang X, Mao Y, Wu Y, Lv X, Liu L, Han W, Yin S, Wu R, Chen J, Liu Y. Ethanol-inducible bioproduction of human α-lactalbumin in _Komagataella phaffii_. J Agric Food Chem 73:9246 (2025). doi:10.1021/acs.jafc.5c01338
 - Wang Y, Kubiczek D, Horlamus F, Raber HF, Hennecke T, Einfalt D, Henkel M, et al. Bioconversion of lignocellulosic 'waste' to high-value food proteins: recombinant production of bovine and human α#sub[s1]-casein based on wheat straw lignocellulose. GCB Bioenergy 13:640 (2021). doi:10.1111/gcbb.12791
+- Withers JM, Swift RJ, Wiebe MG, et al. Optimization and stability of glucoamylase production by recombinant strains of _Aspergillus niger_ in chemostat culture. Biotechnol Bioeng 59:407 (1998).
 - Yao C, Zhu H, An Q, Zhang M, Zheng Y, Cai M. Omics-guided global rewiring of yeast metabolism enables high-level production of β-lactoglobulin. Food Biosci 82:109383 (2026).
 - Yen CC, Wu PY, Ou-Yang H, et al. Production of bioactive porcine lactoferrin through a novel glucose-inducible expression system in _Pichia pastoris_. Int J Mol Sci 25:1818 (2024).
 - Yver AL, et al. Fractionation of whey protein isolate with supercritical carbon dioxide: process modeling and cost estimation. Int J Mol Sci 13:240 (2012).
-- Zhu W, Gong G, Pan J, et al. High level expression and purification of recombinant human serum albumin in _Pichia pastoris_. Protein Expr Purif 147:61 (2018). doi:10.1016/j.pep.2018.02.003 (abstract read)
+- Zhu W, Gong G, Pan J, et al. High level expression and purification of recombinant human serum albumin in _Pichia pastoris_. Protein Expr Purif 147:61 (2018). doi:10.1016/j.pep.2018.02.003
 - Zhu W, Xu R, Gong G, Xu L, Hu Y, Xie L. Medium optimization for high yield production of human serum albumin in _Pichia pastoris_ and its efficient purification. Protein Expr Purif 181:105831 (2021). doi:10.1016/j.pep.2021.105831
 - Zhu Y, Sun P, Li C, Zhang Y, Wang Y, Li J, Liu Y, Chen J, Deng Y. Enhanced extracellular production of α-lactalbumin from _Bacillus subtilis_ through signal peptide and promoter screening. Food Sci Hum Wellness 13:2310 (2024). doi:10.26599/FSHW.2022.9250192
 ]
@@ -2620,7 +2767,7 @@ and locators. Calibration cases are in `data/calibration/`. The audit is `docs/A
     align: (left,) + (right,) * 6,
     table.header([*Evidence file*], [*A*], [*B*], [*C*], [*D*], [*E*], [*Total*]),
     hline,
-    ..for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein", "ovomucoid", "albumin", "alac", "heme") {
+    ..for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein", "ovomucoid", "albumin", "alac", "heme", "feed", "kinetic", "transferrin", "binder") {
       let c = gcount("../data/evidence/" + f + ".yaml")
       ([`data/evidence/`#f`.yaml`], ..("A", "B", "C", "D", "E").map(g => str(c.at(g))),
        str(c.values().sum()))

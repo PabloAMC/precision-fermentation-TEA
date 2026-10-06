@@ -78,6 +78,17 @@ Phase F (external review) has not started. Open items:
 
 ## Decisions log
 
+- **2026-10-06, v4.1: three full texts, transferrin and binder notes (Pablo: downloaded the three papers; "I'd do both
+  proteins"; Claude built it, for Pablo's review):**
+  - Liu 2026, Hu 2025 and Zhu 2018 read in full: titers.csv rows verified (40 of 134 rows remain unverified, none in a
+    scenario); chart labels no longer say "abstract only". Hu's lactoferrin was grown on cellulose and bran.
+  - Transferrin (`tf`, P02787) as a NOTE, not a product (demand is tens of t/yr; Wildtype dropped it): albumin's route with
+    Novozymes' transferrin column data (capture 70%, borate polish 93%); best titer 2.29 g/L of supernatant in S. cerevisiae
+    (Finnis 2010). Result: $314-1,939/kg rTf; $0.12-0.35 per kg cultivated meat at 0.37 g/kg, against ~$81 at catalogue price.
+  - Ovalbumin as a binder: cost-in-use only. At 4% protein PF OVA costs ~$0.85/kg analogue (base), about dried egg white,
+    ~13x methylcellulose ($0.07; India's MC tariff line, the only one that isolates MC). Evidence: data/evidence/binder.yaml.
+  - Report: two notes, summary items 8-9, answers, limitations, references (also for the floor section), evidence table.
+
 - **2026-10-05, metabolic floor and the animals' feed bill (Pablo, 2026-10-02: evaluate the price better, no
   forecasting; 2026-10-05: "do all of that"; Claude built it, for Pablo's review):**
   - src/pftea/floor.py: substrate, NH3, O2 and heat per kg of protein at the energetic yield ceiling, their cost,

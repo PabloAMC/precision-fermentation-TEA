@@ -1,0 +1,278 @@
+# data/evidence/binder.yaml: binders for plant-based meat analogues, for the cost-in-use note (report sec. 'Ovalbumin as a binder')
+# (PF ovalbumin / egg-white protein against methylcellulose (MC) and dried egg white), gathered 2026-10-06 by a research pass; spot-checked and moved here the same day.
+# Format: data/evidence/README.md (plus `year` and `values` as in prices.yaml). Read by data/pf/scenarios/binder.yaml (by key).
+# Local copies: references/text/binder/ (git-ignored) unless a path under references/inbox/ or references/reports/ is named.
+# All web sources accessed 2026-10-06. `read: html` = HTML page or JSON API record read via curl (raw text, not a summary).
+# Conversions (mine, in notes only): EUR->USD at ECB annual averages (prices.yaml eurusd_annual_average: 2024 1.0824, 2025 1.13).
+#
+# Already elsewhere, not duplicated here: dried egg white prices (prices.yaml egg_albumin_dried_eu_export_unit_value,
+# egg_albumin_dried_us_export_unit_value, egg_white_price_range_gfi2025, egg_white_powder_price_intelligen2025);
+# pea/soy protein prices (prices.yaml pea_protein_price_range_gfi2025, soy_protein_price_range_gfi2025);
+# egg-white protein content (milk_egg.yaml egg_white_protein_fdc_*).
+#
+# NOT FOUND: (1) a bulk food-grade MC price quote or index (ChemAnalyst's methyl cellulose page is behind Cloudflare, HTTP 403;
+# IMARC prices only 'cellulose ether', mixed); the best proxy is India's tariff line 39123912, the only official line found
+# that isolates methylcellulose (US HTS 3912.39.00, EU CN 3912 39 85 and HS 391239 mix MC with HPMC, MHEC, HEC, EC).
+# (2) a peer-reviewed head-to-head of egg white (or OVA) vs MC at equal dose in a meat analogue; the only like-for-like
+# test found is a patent example (EVERY US12096784 B2, Example 45). (3) any tonnage of egg white used by the
+# meat-analogue/vegetarian sector, or by Quorn (only a 2011 'three million fewer eggs a year' reduction). (4) a credible
+# bulk potato protein (patatin) price; only a relative claim (2-3x pea protein). (5) Impossible/Beyond MC levels beyond
+# '<2% of weight' (the Impossible ground-meat patent US10172380B2 lists MC only qualitatively).
+
+
+# ---------------- 1. Methylcellulose use level in meat analogues ----------------
+
+- key: binder_mc_use_level_bakhsh2021
+  value: 3.0
+  low: 1.5
+  high: 4.0
+  unit: "% w/w of patty formulation"
+  grade: A
+  source: "Bakhsh A, Lee S-J, Lee E-Y, Sabikun N, Hwang Y-H, Joo S-T. Foods 10(3):560 (2021)"
+  doi_or_url: 10.3390/foods10030560
+  locator: "Table 1 (formulations); Conclusions"
+  quote: "Using beef as a control, it can be concluded that C-TVP with a 3% MC (binding agent) is recommended to prepare acceptable PBMA patties with good physicochemical, textural, and sensory acceptability."
+  read: fulltext
+  note: "Lab study, soy TVP (C-TVP) and textured isolated soy protein (T-ISP) patties, MC tested at 1.5, 3 and 4% of formulation (Table 1 lists 'Methylcellulose 1.5 3.00 4.00'). Sensory panel preferred 3%; 4% firmer but disliked. Upper end of what industry uses (see binder_mc_commercial_burgers_lt2pct_today2020). Local: references/inbox/protein_survey_2026-10-01/PMC8000783.xml."
+
+- key: binder_mc_use_level_penaranda2025
+  value: 1.34
+  low: 1.28
+  high: 1.34
+  unit: "% w/w MC in burger (derived)"
+  grade: A
+  source: "Penaranda I, et al. Plant-Based Burgers with Reduced Texture Additives: A Comparative Study of Methylcellulose and Sodium Alginate. Foods 14(8):1373 (2025)"
+  doi_or_url: 10.3390/foods14081373
+  locator: "Section 2 (methylcellulose solution); Table 1 (formulation, g); Conclusions"
+  quote: "These results promote using a 3 g/100 g methylcellulose solution as the sole binding agent in soybean burgers to achieve a product with reduced additives."
+  read: fulltext
+  note: "DERIVED (mine): Table 1 uses 50 g of the 3 g/100 g MC solution (1.5 g MC) in 112 g (no starch, 'M') or 117 g (with starch, 'M+S') of burger = 1.34% or 1.28% MC. Soy-protein burger, lab scale. Local: references/inbox/protein_survey_2026-10-01/PMC12026432.xml."
+
+- key: binder_mc_use_level_every_us12096784_burger
+  value: 0.7
+  unit: "% w/w of vegan burger formulation"
+  grade: B
+  source: "Clara Foods Co. (The EVERY Company). US 12,096,784 B2, Protein compositions and consumable products thereof (2024), Example 45 'Burger Binding'"
+  doi_or_url: "https://patents.google.com/patent/US12096784B2/en"
+  locator: "Example 45, Table 70 (List of Ingredients), 'Binding agent' row, control column"
+  quote: "Control- Natural Methylcellulose Egg White nOVA rOVA ... Binding agent 0.7 25 5 5"
+  read: fulltext
+  note: "Patent example: the 'commercially used non-protein binder' control (MC) at 0.7% in an extruded-soy burger (soy 26%, canola 12%, coconut 6.5%, water 54.8%). Quote is the flattened table text. The lowest MC dose found; consistent with '<2%' commercial statements. Local: references/text/Every_US12096784_ovalbumin-protein-compositions.txt (lines ~8035-8075)."
+
+- key: binder_mc_commercial_burgers_lt2pct_today2020
+  value: null
+  high: 2.0
+  unit: "% w/w of patty (upper bound)"
+  grade: C
+  source: "Today.com, 'Do Impossible and Beyond Meat burgers really contain laxatives?' (4 Feb 2020)"
+  doi_or_url: "https://www.today.com/food/do-impossible-beyond-meat-burgers-really-contain-laxatives-t173061"
+  locator: "paragraph after Citrucel dosage"
+  quote: "Both Impossible Foods and Beyond Meat spokespeople confirmed to TODAY that methyllcelulose makes up less than 2% of the total weight (that's less than 2 grams per serving) of their burger patties"
+  read: html
+  note: "Company statements via press (spelling 'methyllcelulose' as in source). Matches the US label convention 'contains 2% or less of'. Local: today_mc_impossible_beyond.txt."
+
+- key: binder_mc_and_egg_main_commercial_kyriakopoulou2021
+  value: null
+  unit: "qualitative"
+  grade: A
+  source: "Kyriakopoulou K, Keppler JK, van der Goot AJ. Functionality of Ingredients and Additives in Plant-Based Meat Analogues. Foods 10(3):600 (2021)"
+  doi_or_url: 10.3390/foods10030600
+  locator: "Table on ingredient functions ('Binders'); Section on binders"
+  quote: "Binders : Egg protein and methylcellulose are the main candidates in commercial products, while wheat gluten can also play this role"
+  read: fulltext
+  note: "Review. Also: 'methylcellulose is the most commonly used ingredient' and 'no clear alternative exists for methylcellulose at this moment'; egg white named in The Vegetarian Butcher's Little Willies. No use levels given. Local: PMC7999387.txt."
+
+
+# ---------------- 2. Methylcellulose price (trade unit values; grades and ethers mixed except India 39123912) ----------------
+
+- key: mc_price_india_import_unit_value_39123912
+  value: 4.452
+  unit: "USD/kg (import unit value, CIF)"
+  year: 2025
+  values: {2024: 4.583, 2025: 4.452, by_origin_2025: {china: 2.624, germany: 10.563, usa: 26.317, belgium: 5.40}, by_origin_2024: {china: 2.619, germany: 10.466, usa: 27.83}}
+  grade: A
+  source: "Government of India, Ministry of Commerce (DGCI&S), TRADESTAT Monthly EIDB, Import: Commodity-wise all Countries, ITC-HS 39123912 'Methyl cellulose non-plasticized', calendar year"
+  doi_or_url: "https://tradestat.commerce.gov.in/meidb/commodity_wise_all_countries_import (POST cwacimHSCODE=39123912, Dec 2025, Calendar Year; values in US$ Million and Quantity)"
+  locator: "rows 'Total', 'CHINA P RP', 'GERMANY', 'U S A', columns Jan-Dec2024 (R) and Jan-Dec2025 (R)"
+  quote: "Commodity: 39123912 METHYL CELLULOSE NON-PLASTICIZED Unit: KGS ... Total ... 5.62 7.30 [US$ M] ... Total ... 1,226,319.00 1,639,687.00 [kg]"
+  read: html
+  note: "The only official trade line found that isolates methylcellulose (US HTS, EU CN and HS6 do not). Unit values computed (mine) from values rounded to 0.01 US$ M (so small origins are imprecise). Mixes grades: the China volume (79% of kg, ~2.6 USD/kg) is presumably construction/industrial MC; Germany (~10.6) and USA (~26) presumably specialty food/pharma grades, an inference, not stated by the source. Small market (1.6 kt/yr). Exports of the same line 2025: US$0.15 M / 22,891 kg = 6.55 USD/kg. Local: india_tradestat_39123912_imp_usd_2025.txt, _imp_qty_2025.txt, _exp_usd_2025.txt, _exp_qty_2025.txt."
+
+- key: cellulose_ethers_other_eu_unit_value_39123985
+  value: 6.644
+  unit: "EUR/kg (extra-EU import unit value)"
+  year: 2025
+  values: {imports: {2024: 6.958, 2025: 6.644}, exports: {2024: 5.928, 2025: 5.876}, de_exports: {2024: 5.505, 2025: 5.398}}
+  grade: A
+  source: "Eurostat Comext DS-045409, EU27_2020 trade with extra-EU, CN 3912 39 85 'Cellulose ethers in primary forms (excl. carboxymethylcellulose and its salts and hydroxypropylcellulose)'"
+  doi_or_url: "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?format=JSON&lang=EN&freq=A&reporter=EU27_2020&partner=EXT_EU27_2020&product=39123985&flow=1&flow=2&indicators=VALUE_IN_EUROS&indicators=QUANTITY_IN_100KG&time=2024&time=2025"
+  locator: "flow 1 (imports) and 2 (exports); VALUE_IN_EUROS, QUANTITY_IN_100KG"
+  quote: "imports 2024: 253686573 EUR, 364598.01 x100kg; 2025: 248621133 EUR, 374199.09 x100kg; exports 2024: 715773498 EUR, 1207465.7 x100kg; 2025: 656620897 EUR, 1117382.37 x100kg"
+  read: html
+  note: "Mixes MC with HPMC, MHEC, HEC, EC and all grades; construction-grade ethers dominate tonnage (EU exports 112 kt in 2025). In USD (ECB): imports 2025 7.51, exports 2025 6.64 USD/kg. Germany (Dow/IFF Bomlitz, SE Tylose) exports 2025 5.40 EUR/kg. Local: comext_39123985_EU27_2020.json, comext_39123985_DE.json."
+
+- key: cellulose_ethers_other_comtrade_391239_unit_values
+  value: 7.69
+  unit: "USD/kg (US import unit value, HS 391239)"
+  year: 2025
+  values: {2024: {usa_m: 7.58, usa_x: 14.16, china_x: 2.83, china_m: 10.27, germany_x: 6.52, japan_x: 15.67, korea_x: 5.47, india_m: 6.68, france_m: 8.41}, 2025: {usa_m: 7.69, usa_x: 12.69, china_x: 2.63, germany_x: 6.70}}
+  grade: A
+  source: "UN Comtrade, HS 391239 'Cellulose ethers n.e.c., in primary forms', reporters USA, China, Germany, Japan, Korea, India, France; partner World"
+  doi_or_url: "https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=842,251,276,392,156,699,410&period=2024&cmdCode=391239&flowCode=X,M&partnerCode=0 (and period=2025 for 842,156,276)"
+  locator: "annual records, primaryValue and netWgt"
+  quote: "USA M 2025: primaryValue 256029692, netWgt 33291037; USA X 2025: 504435788, 39758787; China X 2025: 552562210, 210297525"
+  read: html
+  note: "Unit values computed (mine). Mixed ethers and grades: China's exports (210 kt at 2.6 USD/kg) are mostly construction-grade HPMC/MHEC (inference). Japan exports (Shin-Etsu, 15.7) and US exports (Dow/IFF, 12.7-14.2) lean to specialty grades. Netweights estimated by Comtrade for Germany, France, Korea and India imports 2024 (isNetWgtEstimated). Local: comtrade_391239_2024.json, comtrade_391239_2025.json."
+
+- key: cellulose_ether_price_imarc_2026q2
+  value: 3928
+  low: 1969
+  high: 4339
+  unit: "USD/t (cellulose ether, regional price, Q2 2026)"
+  year: 2026
+  grade: C
+  source: "IMARC Group, Cellulose Ether Prices, Chart, Index, Trend and Forecast (web page)"
+  doi_or_url: "https://www.imarcgroup.com/cellulose-ether-pricing-report"
+  locator: "'Cellulose Ether Prices Outlook Q2 2026' box"
+  quote: "Cellulose Ether Prices Outlook Q2 2026 USA: USD 3928/Ton China: USD 4339/Ton Germany: USD 3270/Ton India: USD 1969/Ton Brazil: USD 4260/Ton"
+  read: html
+  note: "Market-research index for cellulose ethers as a class (MC, HPMC, HEC, CMC), grade unspecified; the page says HPMC demand from tile adhesives and coatings drives it. = 3.9 USD/kg (USA). A floor for food-grade MC, not its price. Q3 2025 USA 3808.55 USD/t. Local: imarc_cellulose_ether.txt."
+
+
+# ---------------- 3. Ovalbumin / egg-white protein as a binder ----------------
+
+- key: binder_ova_meat_analog_max_grn1249
+  value: 10
+  unit: "% (maximum use level, OVA preparation in meat analogs)"
+  grade: B
+  source: "US FDA, response letter to GRAS Notice GRN 001249 (Onego Bio, ovalbumin preparation from Trichoderma reesei TR112), 2025"
+  doi_or_url: "https://www.fda.gov/food/generally-recognized-safe-gras/gras-notice-inventory (GRN 1249)"
+  locator: "Table 1, p.2, row 'Meat analogs'; p.1 (functions); p.2 (specification)"
+  quote: "for use as a source of protein and as a foaming, gelling, and binding agent ... Meat analogs 10"
+  read: fulltext
+  note: "Maximum, not typical, level. Preparation spec: >=75% protein of which >=80% ovalbumin, so 10% preparation = >=6% ovalbumin. Onego says it replaces whole egg and egg white protein powder. Local: references/inbox/protein_survey_2026-10-01/grn1249.txt (l.24-70) and grn1249.pdf."
+
+- key: binder_newp_meat_analogue_use_grn1104
+  value: null
+  low: 3
+  high: 8
+  unit: "% inclusion as solids (EVERY non-animal egg white protein, NEWP) in plant-based meat analogues"
+  values: {burgers: [4, 8], veggie_dogs: [4, 8], sausage_links: [4, 6], sausage_patties: [6, 8], nuggets: [4, 8], crumbles: [3, 5], bacon: [4, 8], whole_muscle_cut: [3, 6], appetizers: [2, 6]}
+  grade: B
+  source: "Clara Foods Co. dba The EVERY Company, GRAS Notice GRN 1104, Non-animal egg white protein produced by Komagataella phaffii (2022, with amendments; FDA no-questions letter 2023)"
+  doi_or_url: "local: references/reports/FDA-GRN1104_egg-white.pdf"
+  locator: "Part 3, Table 5 'Typical product categories and use levels of NEWP', notice pp.29-30, footnote b; amendment memo of 19 June 2023, Table 1"
+  quote: "Meat Alternative 120 g 4 – 8% 6 – 12 g Burgers (Ready To Eat & Ready To Cook) ... b Based upon current usage rates of egg white protein"
+  read: fulltext
+  note: "Footnote b makes these the CURRENT usage rates of conventional egg white protein in meat analogues, i.e. the dried-egg-white binder dose and the like-for-like PF dose. NEWP is ~80% protein (footnote c: 'Adjusted for 80g protein in 100g NEWP'). Use 3-8%, central ~5-6% for burgers/nuggets. Local text: references/text/FDA-GRN1104_egg-white.txt (l.1567-1660, 3722-3760)."
+
+- key: binder_rova_vs_mc_burger_every_us12096784
+  value: 5
+  unit: "% w/w rOVA powder (92% protein) vs MC 0.7% and natural egg white 25%"
+  values: {dose_pct: {mc: 0.7, natural_egg_white: 25, nOVA: 5, rOVA: 5}, cooked_hardness1_g: {mc: 281.73, natural_egg_white: 390.33, nOVA: 617.07, rOVA: 922.0}, cooked_chewiness: {mc: 76.03, natural_egg_white: 178.07, nOVA: 285.5, rOVA: 398.13}}
+  grade: B
+  source: "Clara Foods Co. (The EVERY Company). US 12,096,784 B2 (2024), Example 45 'Burger Binding'"
+  doi_or_url: "https://patents.google.com/patent/US12096784B2/en"
+  locator: "Example 45, Tables 70 and 73 (cooked TPA)"
+  quote: "Findings for cooked binding: rOVA exhibited significantly higher hardness values than methylcellulose and natural egg white. All the samples were similar to each other in terms of cohesiveness."
+  read: fulltext
+  note: "The only like-for-like binder test found (n=3, 5 g mini-burgers, extruded soy). Doses are NOT equal: rOVA 5% vs MC 0.7%. rOVA at 5% gave ~3.3x the cooked hardness of MC at 0.7% and more chewiness; MC and natural egg white did not differ significantly (letters 'a'). So 5% rOVA is >= MC 0.7% in binding; the dose of rOVA that just matches MC is not measured (below 5%). 'Natural egg white' at 25% replaces 24.3 points of water (54.8 -> 30.5), so it is LIQUID egg white (my inference; ~10.9% protein, milk_egg.yaml egg_white_protein_fdc_sr_legacy), i.e. ~2.7% egg-white protein vs ~4.6% rOVA protein. Patent claims rOVA 2-15% w/w in meat analogs (binder_rova_meat_analog_claim_every_us12096784). Local: references/text/Every_US12096784_ovalbumin-protein-compositions.txt (l.8035-8200)."
+
+- key: binder_rova_meat_analog_claim_every_us12096784
+  value: null
+  low: 2
+  high: 15
+  unit: "% w/w rOVA in meat-analog food product (claimed range)"
+  grade: B
+  source: "Clara Foods Co. (The EVERY Company). US 12,096,784 B2 (2024), summary of embodiments"
+  doi_or_url: "https://patents.google.com/patent/US12096784B2/en"
+  locator: "Summary, meat-analog embodiment (text line ~3345)"
+  quote: "wherein the rOVA may be present in the food product between about 2% and about 15% (w/w); and wherein the rOVA acts as a binding agent or a gelling agent, or a combination thereof."
+  read: fulltext
+  note: "Claim language, wide range; also 'about 4%, at about 5%, or at about 6% (w/w)' for gelation. Local: references/text/Every_US12096784_ovalbumin-protein-compositions.txt."
+
+- key: binder_every_twice_gelling_power_claim_2024
+  value: 2
+  unit: "x gelling power of conventional egg white (claim)"
+  grade: C
+  source: "AgFunderNews (E. Watson), 'Unilever brand The Vegetarian Butcher partners with animal-free egg protein pioneer The EVERY Co', 15 May 2024; quoting Lance Lively, EVERY VP and general manager"
+  doi_or_url: "https://agfundernews.com/unilever-brand-the-vegetarian-butcher-partners-with-animal-free-egg-protein-pioneer-the-every-co"
+  locator: "section 'What matters is cost-in-use'"
+  quote: "If you isolate the most functional ones, and you have twice the gelling power of normal egg white, you can include half as much ingredient, but the cost to our customers is the same"
+  read: html
+  note: "Conditional company claim in an interview, not a measurement; no basis (dry or liquid egg white) given. The same article is reposted at every.com/press-releases/unilever-brand-partners-with-every/ (local every_vegetarian_butcher_pr_2024.txt). CCO Nick Toriello, same article: 'on price, we are competitive with cage free egg white pricing today', and The Vegetarian Butcher had been 'trying to get methylcellulose out of their formulations'. Target market UK. Local: agfunder_vegbutcher_every_2024.txt."
+
+- key: binder_every_cost_in_use_parity_with_mc_claim_2024
+  value: null
+  unit: "qualitative (claim of equal cost-in-use vs MC)"
+  grade: C
+  source: "AgFunderNews, 15 May 2024 (as above); Lance Lively, EVERY"
+  doi_or_url: "https://agfundernews.com/unilever-brand-the-vegetarian-butcher-partners-with-animal-free-egg-protein-pioneer-the-every-co"
+  locator: "section 'What matters is cost-in-use'"
+  quote: "In the case of methylcellulose, we're able to add less of our protein relative to the amount of methylcellulose and so the cost in use is effectively the same."
+  read: html
+  note: "UNVERIFIED and in tension with EVERY's own patent (rOVA 5% vs MC 0.7%, binder_rova_vs_mc_burger_every_us12096784) and with any plausible price ratio (PF OVA >> MC per kg). Possibly means less protein than the MC-plus-other-ingredients system it replaces; unclear. Do not use as a number."
+
+- key: binder_egg_white_quorn_mince_label
+  value: null
+  high: 9
+  unit: "% rehydrated egg white in Quorn Mince (upper bound by difference)"
+  grade: C
+  source: "Quorn UK, product page 'Meat Free Mince' (ingredient list); same list on Brakes wholesale page for QuornPro Mince"
+  doi_or_url: "https://www.quorn.co.uk/products/meat-free-mince"
+  locator: "Ingredients"
+  quote: "Ingredients Mycoprotein (91%), Rehydrated Free Range Egg White, Pea Fibre, Gluten Free Barley Malt Extract"
+  read: html
+  note: "DERIVED (mine): egg white + pea fibre + malt extract = 9%, so rehydrated (liquid-equivalent) egg white <= 9% and >= 3% by label order (largest of the three). As egg-white protein that is ~0.3-1.0% of product (10.9 g protein/100 g egg white, milk_egg.yaml egg_white_protein_fdc_sr_legacy); as dried egg white (~78% protein, prices.yaml note) ~0.4-1.3%. Binder of mycoprotein paste, not of TVP. Vegan Quorn Pieces swap it for potato protein: 'Mycoprotein (89%), Potato Protein, Pea Protein, ...' (quorn.co.uk/products/vegan-pieces). Local: quorn_uk_mince.txt, brakes_quornpro_mince.txt, quorn_uk_vegan_pieces.txt."
+
+- key: binder_quorn_egg_white_function_vegnews2025
+  value: null
+  unit: "qualitative"
+  grade: C
+  source: "VegNews, 'Quorn Refines Ingredients, Yet Egg Whites Stay. Why?' (18 Aug 2025)"
+  doi_or_url: "https://vegnews.com/quorn-ingredients-egg-whites"
+  locator: "section 'Why is Quorn still using egg whites in its products?'"
+  quote: "According to Quorn, free-range egg whites are added to its mycoprotein as a binder, and help its mince, nuggets, sausages, and pieces keep their shape and texture"
+  read: html
+  note: "Company position via press. The article says the vegan range keeps shape 'with the help of potato starch', while the Quorn vegan pieces label lists potato protein (binder_egg_white_quorn_mince_label note). Local: vegnews_quorn_egg_whites_2025.txt."
+
+- key: binder_quorn_egg_reduction_2011
+  value: 3000000
+  unit: "eggs per year fewer (Quorn, 2011; a reduction, not total use)"
+  year: 2011
+  grade: C
+  source: "Animal Outlook (then Compassion Over Killing), press release 'Quorn Launches First Vegan Product', 6 Dec 2011, quoting David Wilson, Quorn General Manager"
+  doi_or_url: "https://animaloutlook.org/press/press-releases/quorn-products-vegan/"
+  locator: "paragraph 2"
+  quote: "In addition to using three million fewer eggs a year, the new launch of the Quorn 'egg-free' vegan burger has been a huge success with our customers."
+  read: html
+  note: "The only public egg-volume figure found for the vegetarian sector. Old (2011) and a delta, not a total. ~3e6 eggs x 34 g white (milk_egg.yaml egg_large_white_mass_fdc_foundation) = ~100 t liquid egg white/yr, ~11 t egg-white protein (my arithmetic, egg masses in milk_egg.yaml). No sector tonnage of egg white in meat analogues found. Local: animaloutlook_quorn_eggs.txt."
+
+
+# ---------------- 4. Potato protein (patatin) ----------------
+
+- key: binder_patatin_use_level_avebe_ep3944769
+  value: null
+  low: 1
+  high: 15
+  unit: "wt% native patatin in meat-substitute mixture (preferred 2-10, more preferred 2.5-7.5)"
+  grade: B
+  source: "Cooperatie Koninklijke Avebe U.A., EP 3944769 A1, meat substitute with native patatin and lipid (application)"
+  doi_or_url: "https://patents.google.com/patent/EP3944769A1/en"
+  locator: "Description, paragraph on native patatin quantity"
+  quote: "Native patatin is preferably present in a quantity of 1 - 15 wt.%, preferably 2 - 10 wt.%, more preferably 2.5 - 7.5 wt.%, relative to the total weight of the mixture."
+  read: fulltext
+  note: "Patent range, MC-free: an embodiment 'does not comprise a gelling non-starch carbohydrate, such as ... methylcellulose'. No head-to-head dose vs MC in the examples (they concern free fatty acids/off-flavour from patatin's lipase activity). Local: Avebe_EP3944769A1_gp.txt."
+
+- key: potato_protein_price_relative_to_pea_potatopro
+  value: null
+  low: 2
+  high: 3
+  unit: "x pea protein price (claim)"
+  grade: C
+  source: "PotatoPro, 'Potato Protein' topic page (industry news site)"
+  doi_or_url: "https://www.potatopro.com/about/potato-protein"
+  locator: "section on challenges/price"
+  quote: "Potato protein often prices at two to three times the cost of pea protein due to higher processing demands, specialized equipment and dependence on seasonal starch production streams"
+  read: html
+  note: "Weak, no data behind it. With pea protein 2.7-8.0 USD/kg (prices.yaml pea_protein_price_range_gfi2025) this implies ~5-24 USD/kg (my arithmetic). No bulk patatin/Solanic price found; marketplace listings (Alibaba etc.) give 5-12 USD/kg but were not used. Local: potatopro_potato_protein.txt."

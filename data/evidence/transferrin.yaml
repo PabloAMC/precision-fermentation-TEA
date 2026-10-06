@@ -1,0 +1,658 @@
+# data/evidence/transferrin.yaml: evidence for a COST-IN-USE NOTE on recombinant SEROTRANSFERRIN for cultivated-meat
+# (CM) cell-culture media, made by precision fermentation on the model's albumin-like chromatography
+# route (research pass 2026-10-06; spot-checked by the main session and moved here the same day; read by
+# data/pf/scenarios/transferrin.yaml and data/products/tf.yaml).
+# Format: data/evidence/README.md. Grades: A measured/official; B published design basis or patent
+# example; C company claim/trade press/survey; D analogy or derived-from-derived; E guess.
+# Read as raw text: UniProt REST JSON (downloaded), local files under ~/Developer/pf-tea/references
+# (text/, papers/, reports/, inbox/protein_survey_2026-10-01/), the Humbird 2021 SI workbook
+# (openpyxl), Europe PMC / NCBI full-text XML, patents.google.com, vendor HTML, SEC EDGAR.
+# Saved copies: references/text/transferrin/ (git-ignored, as intended) - filenames in each note.
+# Items computed here are "Derived (mine)", quote: null. No key here duplicates data/evidence/*.yaml
+# (checked: no existing key contains "transferrin"; lactoferrin.yaml covers LACTOtransferrin only).
+
+# =======================================================================================
+# 1. Identity, sequence, mass balance
+# =======================================================================================
+
+- key: htf_uniprot_mature_chain
+  value: "P02787 chain 20-698 (679 aa)"
+  unit: residue range of the mature secreted chain (precursor numbering)
+  grade: A
+  source: "UniProtKB P02787 (TRFE_HUMAN), Serotransferrin, Homo sapiens; entry version 271, sequence version 5, last annotation update 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02787.json
+  locator: "features: Signal 1-19; Chain 20-698 'Serotransferrin'; 19 'Disulfide bond'; Glycosylation 432, 491, 630; sequence.molWeight 77064 (698-aa precursor)"
+  quote: "{\"type\":\"Chain\",\"description\":\"Serotransferrin\",\"location\":{\"start\":{\"value\":20},\"end\":{\"value\":698}}}"
+  read: fulltext
+  note: >-
+    File references/text/transferrin/P02787.json (+ .fasta). 19-aa signal peptide, no propeptide, so
+    the mature chain is 679 aa starting VPDKTVRWCAVS and ending CTFRRP. 38 Cys = 19 disulfides and NO
+    free thiol (contrast albumin's Cys34), so the folding burden is higher than HSA's 17 S-S: this is
+    the single biggest biological difference for the PF route. 9 Met, 8 Trp. Two canonical N-X-S/T
+    sequons in the mature chain (mature Asn413 and Asn611 = precursor 432 and 630), both annotated
+    "N-linked (GlcNAc...) (complex) asparagine" with experimental evidence, plus a third "atypical;
+    partial" site at precursor 491 and an O-linked Ser at precursor 51 (mature Ser32). UniProt also
+    lists 8 Fe(3+) binding sites (4 per lobe: precursor 82, 114, 207, 268 and 411, 445, 536, 604) and
+    8 hydrogencarbonate sites: two Fe per molecule, each with a synergistic carbonate.
+
+- key: btf_uniprot_mature_chain
+  value: "Q29443 chain 20-704 (685 aa)"
+  unit: residue range of the mature chain
+  grade: A
+  source: "UniProtKB Q29443 (TRFE_BOVIN), Serotransferrin, Bos taurus; entry version 130, sequence version 1, last annotation update 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/Q29443.json
+  locator: "features: Signal 1-19; Chain 20-704; 18 'Disulfide bond'; Glycosylation 514; sequence.molWeight 77753"
+  quote: "{\"type\":\"Chain\",\"description\":\"Serotransferrin\",\"location\":{\"start\":{\"value\":20},\"end\":{\"value\":704}}}"
+  read: fulltext
+  note: >-
+    File references/text/transferrin/Q29443.json (+ .fasta). 685 aa, N-terminus DPERTVRWCTIS. 36 Cys
+    = 18 disulfides, no free Cys. ONE N-X-S/T sequon in the mature chain (mature Asn495 = precursor
+    514), annotated by sequence analysis only (ECO:0000255), and the whole bovine entry is
+    PE=2/inferred: all 16 Fe/carbonate sites and all 18 disulfides carry ECO:0000255, i.e. they are
+    transferred from the human entry, not measured. One fewer disulfide than human is therefore an
+    annotation artefact, not established biology (flag for Pablo). Bovine is the species a CM medium
+    would match, and it carries half as many glycosylation sites to engineer out.
+
+- key: htf_mature_formula_and_mw
+  value: {C: 3306, H: 5096, N: 912, O: 1002, S: 47}
+  unit: atoms per molecule of the mature chain (19 disulfides, apo, no glycan)
+  grade: A
+  source: "Derived (mine) from UniProtKB P02787 mature chain 20-698 (679 aa, 19 disulfide features)"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02787.json
+  locator: "computed by references/text/transferrin/tf_calc.py (output tf_calc_output.txt)"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - check the arithmetic. Residue sums + H2O, minus 2H per disulfide (19): average
+    MW 75,156 Da for the aglycosylated apo protein; 52.83 wt% C, 17.00 wt% N, 2.01 wt% S;
+    protein/N = 5.883 (N x 6.25 overstates by 6.2%). Cross-check: the same method gives 77,063.1 Da
+    for the 698-aa precursor vs UniProt molWeight 77,064 (rounding) - the method is right. Bovine
+    (Q29443, 18 S-S): C3311 H5124 N918 O1033 S46, MW 75,792.6, 52.47 wt% C, 16.96 wt% N, 1.95 wt% S.
+    Native plasma transferrin is ~79-80 kDa because of the two complex N-glycans (~2 kDa each plus
+    sialic acid); the yeast product that industry actually sells is the non-glycosylated ~75 kDa
+    form, so 75.2 kDa is the right mass for the model. Sulfate demand 2.0 wt% S, essentially the
+    same as albumin's 1.98%, so the sulfate-assimilation term can be reused.
+
+- key: htf_theoretical_pi_and_charge
+  value: 7.22
+  unit: theoretical pI of mature aglycosylated human transferrin (EMBOSS pKa set, no free Cys); bovine 6.98
+  grade: A
+  source: "Derived (mine) from UniProtKB P02787/Q29443 mature sequences, same pKa set as hsa_theoretical_pi_and_charge in albumin.yaml"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02787.json
+  locator: "computed by references/text/transferrin/tf_calc.py (human D45 E42 K58 R26 H19 Y26)"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - check. Net charge of mature human transferrin ~+37 at pH 4.5, +17 at pH 5.5,
+    +1.6 at pH 7.0, -2.9 at pH 8.0 (sequence-based, ignoring burial, bound Fe and carbonate).
+    Measured values: rice- and yeast-derived aglycosylated rhTF focus at pI 6.3, native plasma hTF at
+    5.3, the difference being sialic acid (Zhang 2010, entry tf_rice_expression_and_dsp). So the
+    aglycosylated PF product is ~1 pI unit more basic than the plasma protein - nearly neutral.
+    Physics (mine): this is exactly why the Novozymes process (tf_novozymes_sp_ff_capture) loads a
+    CATION exchanger at pH 4.5-5.1 (protein strongly positive, yeast acidic proteins flow through)
+    and then polishes on an ANION exchanger at pH 8.8-9.2 (protein just negative). Same two-step
+    CEX->AEX logic as the model's albumin route, but both steps sit ~1-2 pH units higher than for
+    albumin (pI 5.8), and the AEX step needs borate (next entries).
+
+# =======================================================================================
+# 2. Use level in serum-free / CM media and per kg of cultivated meat
+# =======================================================================================
+
+- key: tf_e8_use_level
+  value: 10.7
+  unit: mg/L transferrin in Essential 8 (hiPSC medium; the basis of Humbird 2021)
+  grade: A
+  source: "Chen G, Gulbranson DR, Hou Z, et al. Chemically defined conditions for human iPSC derivation and culture. Nat Methods 8:424-429 (2011)"
+  doi_or_url: 10.1038/nmeth.1593
+  locator: "Online Methods, 'E8 media composition' (PMC3084903 full text via NCBI efetch)"
+  quote: "E8 media composition: Media contained DMEM/F12, L-ascorbic acid-2-phosphate magnesium (64 mg/l), sodium selenium (14 ug/l), FGF2 (100 ug/l), insulin (19.4 mg/l), NaHCO3 (543 mg/l) and transferrin (10.7 mg/l)"
+  read: fulltext
+  note: >-
+    File references/text/transferrin/PMC3084903.txt (Europe PMC refuses the XML; NCBI efetch served
+    it). The reagent list names "Holo-transferrin (Sigma)", i.e. plasma-derived and iron-loaded at
+    the bench. Same paper: transferrin was added because it "further increased" cloning efficiency
+    together with a ROCK inhibitor - a clonality aid, not a core component. Note E8 dropped albumin
+    but KEPT transferrin, so transferrin is the one carrier protein that survived the E8 reduction.
+
+- key: tf_b8_use_level_and_reducibility
+  value: 20
+  low: 5
+  high: 20
+  unit: mg/L recombinant transferrin in B8 (low-cost hiPSC medium); 5 mg/L still works
+  grade: A
+  source: "Kuo H-H, Gao X, DeKeyser J-M, et al. Negligible-cost and weekend-free chemically defined human iPSC culture. Stem Cell Reports 14:256-270 (2020)"
+  doi_or_url: 10.1016/j.stemcr.2019.12.007
+  locator: "Results, medium optimization (Figs. 1G, 3D) and Discussion (PMC7013200 full text)"
+  quote: "Transferrin was also not essential to the medium formula, but improved growth in a dose-dependent manner, with 20 ug mL-1 exhibiting sufficient growth while maintaining cost efficiency"
+  read: fulltext
+  note: >-
+    File references/text/transferrin/PMC7013200.txt. The Discussion is the key cost sentence: the B8
+    recipe "leaves insulin and transferrin as the major remaining reagent costs, although the
+    concentrations of these components can be reduced to 5 ug mL-1 with only minor impact on growth
+    rate ... reducing reagent costs to ~$11 per liter" (from ~$16/L). So the dose is price-elastic
+    down to 5 mg/L, and transferrin is one of the top two protein costs in the cheapest published
+    stem-cell medium. Kuo also could not reproduce Chen 2011's clonality benefit.
+
+- key: tf_beefy9_use_level_and_price
+  value: 20
+  unit: mg/L recombinant human transferrin in Beefy-9 (bovine satellite-cell CM medium)
+  grade: A
+  source: "Stout AJ, Mirliani AB, Rittenberg ML, et al. Simple and effective serum-free medium for sustained expansion of bovine satellite cells for cell cultured meat. Commun Biol 5:466 (2022), Supplementary Materials"
+  doi_or_url: 10.1038/s42003-022-03423-8
+  locator: "Supplementary Table 1 (B8 formulation) and Supplementary Table 3 (component sourcing and pricing)"
+  quote: "Transferrin (human, recombinant) 20 ug/mL InVitria 777TRF029"
+  read: fulltext
+  note: >-
+    File references/text/transferrin/Beefy9_MOESM1.pdf/.txt (Springer static-content ESM; the main
+    text and the Europe PMC XML never mention transferrin - it is only in the SI, which is why the
+    earlier albumin pass missed it). Supplementary Table 3 prices the same line twice: "Transferrin
+    mg 20 inVitria 777TRF029 1000 260.5 5.21" (research scale: $260.50 per 1 g, $5.21 per L) and
+    "Transferrin mg 20 inVitria 777TRF029 10000 1823 3.65" (bulk column: $1,823 per 10 g, $3.65/L).
+    Derived (mine): $260.5/g = $260,500/kg; $182.3/g = $182,300/kg. Against Beefy-9's $188.82/L
+    (this-study) and $46.28/L (bulk) totals, transferrin is 2.8% and 7.9% of medium cost - small
+    next to rAlbumin ($86.40 and $24.56/L) but the second-largest protein line in the bulk column
+    after albumin and FGF-2. Beefy-9 = B8 + 0.8 g/L rAlbumin, so the transferrin dose is B8's.
+
+- key: tf_humbird2021_fedbatch_demand
+  value: 171
+  unit: g transferrin per fed-batch batch (Humbird's 20 m3 CM base case)
+  grade: B
+  source: "Humbird D. Scale-up economics for cultured meat. Biotechnol Bioeng 118:3239-3250 (2021), Table 4.4"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Table 4.4 'Variable operating cost summary for the fed-batch process', Micronutrients block (local Humbird2021_cultured_meat.txt l.3452)"
+  quote: "Transferrin 9,258 g 171 $12 $1,989 $1.08"
+  read: fulltext
+  note: >-
+    Columns are: global demand 9,258 kg/y (at 100 kTA of CM), per batch 171 g, unit cost $12/g,
+    $1,989 per batch, $1.08 per kg of wet cell mass. Derived (mine): batch output = 1,989/1.08 =
+    1,842 kg cell mass, so 171 g / 1,842 kg = 0.093 g transferrin per kg CM, and the medium volume
+    implied by 10.7 mg/L is 15,981 L per batch = 8.7 L per kg - consistent with GFI's "efficient"
+    8-13 L/kg. The $12/g comes from Humbird's own price-volume regression (Eq. 3.4,
+    log P = -0.861 log V + 4.90) evaluated at 9.3 t/y, NOT from a quote. Transferrin is 34% of
+    Humbird's $3.13/kg micronutrient bill and 2.9% of his $36.79/kg total.
+
+- key: tf_humbird2021_perfusion_demand
+  value: 0.0756
+  unit: g transferrin per kg wet cell mass (Humbird's perfusion case)
+  grade: B
+  source: "Humbird 2021, Table 4.11 'Variable operating cost summary for the perfusion process'"
+  doi_or_url: 10.1002/bit.27848
+  locator: "Table 4.11, Micronutrients block (local Humbird2021_cultured_meat.txt l.3864)"
+  quote: "Transferrin kg 7,538 $13.9k 520 $6,603,000 $0.96"
+  read: fulltext
+  note: >-
+    Global demand 7,538 kg/y, price $13.9k/kg from Eq. 3.4, plant demand 520 kg/y, $6.60M/y,
+    $0.96 per kg. Derived (mine): plant output = 6,603,000/0.96 = 6.88 kt/y (matches the paper's
+    "6.9 kTA"), so 520 kg / 6.88e6 kg = 0.0756 g/kg - about 20% below the fed-batch figure because
+    perfusion reaches 195 g/L retained cell density and so turns over less medium per kg (26 vs
+    45 L of raw water per kg). Range to carry: 0.075-0.093 g transferrin per kg CM in Humbird's
+    E8-based medium at 10.7 mg/L.
+
+- key: tf_gfi2023_volume_share_and_current_production
+  value: 2.42
+  unit: "% of 2030 recombinant-protein production volume attributable to transferrin; current global output 0.2-0.3 t/yr"
+  grade: C
+  source: "GFI (Swartz E et al.). Anticipated growth factor and recombinant protein costs and volumes for cost-competitive cultivated meat (2023)"
+  doi_or_url: references/reports/GFI_2023_growth_factor_recombinant_protein_costs_cultivated_meat.pdf
+  locator: "Executive summary p.3; p.11 (local text l.391-417); Discussion p.37 (l.1371-1378)"
+  quote: "albumin is anticipated to make up approximately 96.6% of production volume, with transferrin making up 2.42%, insulin making up 0.97% ... production volume of transferrin is only 0.2 to 0.3 metric tons annually (Negulescu et al. 2022)"
+  read: fulltext
+  note: >-
+    Same report, Discussion: "the production volume range of transferrin detailed in this analysis is
+    estimated to be 300 to 8200 times larger than its current estimated global production capacity".
+    Derived (mine): 0.2-0.3 t x 300-8,200 = 60-2,460 t/y, which cross-checks the share arithmetic in
+    tf_gfi2023_derived_demand_and_use_level below. GFI's prose for insulin+transferrin says "dozens
+    to hundreds of metric tons per year", which is only consistent with the low end - flag the
+    internal tension. 0.2-0.3 t/y is the whole world's recombinant transferrin output today: this is
+    a ~$50-70M specialty market (see tf_market_size_segment), not a commodity.
+
+- key: tf_gfi2023_derived_demand_and_use_level
+  value: 0.37
+  low: 0.23
+  high: 1.19
+  unit: g transferrin per kg cultivated meat (GFI 2023 scenarios, low / medium / high media use)
+  grade: D
+  source: "Derived (mine) from GFI 2023: volume shares 96.6%/2.42% (p.3), albumin 3,600-100,000 t/y (p.11), media use 8/13/42 L per kg (Box 2 p.7-8), and gfi2023_implied_albumin_concentration in albumin.yaml (1.13 g/L)"
+  doi_or_url: references/reports/GFI_2023_growth_factor_recombinant_protein_costs_cultivated_meat.pdf
+  locator: "p.3, p.7-8 Box 2, p.11"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine), two steps, so grade D - check. (i) Transferrin tonnage = albumin tonnage x
+    2.42/96.6 = 90 t/y (low scenario) to 2,505 t/y (high). (ii) Implied average concentration =
+    1.13 g/L x 2.42/96.6 = 0.0283 g/L = 28 mg/L, which sits above E8's 10.7 and B8's 20 mg/L and is
+    presumably an average over literature formulations (the exact number is in GFI's supplementary
+    spreadsheet Tab 1, not obtained - gap). (iii) Per kg CM: 0.0283 g/L x 8 / 13 / 42 L/kg = 0.23 /
+    0.37 / 1.19 g per kg CM, i.e. 4,400 / 2,700 / 840 kg of CM enabled per kg of transferrin. This is
+    4-5x Humbird's 0.075-0.093 g/kg because GFI assumes a 2.6x higher concentration. Recommended
+    range for the note: 0.08-1.2 g/kg CM, central 0.2-0.4.
+
+- key: tf_gfi2023_cost_target_and_extrapolation
+  value: 1000
+  unit: $/kg transferrin (GFI's tier-2 production-cost target)
+  grade: C
+  source: "GFI 2023, Executive summary p.3 and Table 1 p.15"
+  doi_or_url: references/reports/GFI_2023_growth_factor_recombinant_protein_costs_cultivated_meat.pdf
+  locator: "p.3 (local text l.117-126); Table 1 p.15 (l.535)"
+  quote: "Transferrin $642.98/kg $1,639.22/kg to $94.30/kg"
+  read: fulltext
+  note: >-
+    Table 1 row: GFI's assumed cost is $1,000/kg (tier 2, "scaled based on the order of magnitude
+    difference in their anticipated production volumes compared to albumin"), while Humbird's Eq. 3.4
+    extrapolated at GFI's own volumes gives $642.98/kg average and $1,639.22 to $94.30/kg across
+    scenarios A-F. The report also warns that this is where the whole budget breaks: "costs are above
+    this threshold if media is not used efficiently ... as the costs for transferrin alone are higher
+    than the 10% of the total production costs for cultivated meat in the high media use scenario"
+    (p.15). Derived (mine): at $1,000/kg and 0.23/0.37/1.19 g per kg CM, transferrin costs
+    $0.23/$0.37/$1.19 per kg of CM - i.e. the whole $1/kg recombinant-protein budget in the high
+    case, on its own. At Humbird's $12/g it is $0.90-$1.12/kg CM (his own tables) and at today's
+    catalogue $218/g it is $50-$259/kg CM.
+
+- key: tf_cedelft2021_price_used
+  value: 246
+  unit: $/g transferrin (= $246,000/kg; Dec 2020 catalogue price used in a CM TEA)
+  grade: C
+  source: "Sinke P, Vergeer R, Odegard I (CE Delft). TEA of cultivated meat: future projections of different scenarios - corrigendum (Nov 2021)"
+  doi_or_url: https://cedelft.org/en/publications/tea-of-cultivated-meat/
+  locator: "Table 3 p.14 'Prices for cost drivers of medium' (local inbox/protein_survey_2026-10-01/cedelft.txt l.695) and footnote 10"
+  quote: "Transferrin 246 Northwestern Medicine & Specht (2020)"
+  read: fulltext
+  note: >-
+    Footnote 10 traces the number to the "Feinberg School of Medicine, Paul Burridge Lab: B8 index",
+    i.e. the B8 authors' own price index, not a vendor quote. CE Delft models only three recombinant
+    proteins (albumin, insulin, transferrin) plus two growth factors, and its Annex B gives total
+    recombinant protein of 1.0 / 7.1 / 50.0 g per kg CM with ">95% of the recombinant proteins is
+    albumin" in the mid and high cases and "around 80%" in the low case (p.19). Derived (mine):
+    the non-albumin remainder (transferrin + insulin) is thus ~0.2 g/kg (low) to ~2.5 g/kg (high) -
+    the same order as tf_gfi2023_derived_demand_and_use_level. CE Delft expects recombinant proteins
+    "below $1 per gram in 2030", i.e. still ~$1,000/kg.
+
+# =======================================================================================
+# 3. Titers of secreted recombinant transferrin
+# =======================================================================================
+
+- key: tf_scerevisiae_best_titer_finnis2010
+  value: 2.29
+  low: 2.25
+  high: 2.33
+  unit: g/L in the supernatant (fed-batch, S. cerevisiae, average of 2 fermentations)
+  grade: A
+  source: "Finnis CJA, Payne T, Hay J, et al. High-level production of animal-free recombinant transferrin from Saccharomyces cerevisiae. Microb Cell Fact 9:87 (2010) - Novozymes Biopharma UK"
+  doi_or_url: 10.1186/1475-2859-9-87
+  locator: "Table 1 'rTf production titers in high cell density fed-batch fermentations', strain DYB7 [pDB3237]; Results, 'For the commercial production of rTf' paragraph"
+  quote: "Fermentation of the resultant strain, DYB7 [pDB3237], under optimized conditions gave an average rTf titer of 2.29 g/L (Table 1). ... * Supernatant concentrations determined by HPLC."
+  read: fulltext
+  note: >-
+    VERIFIED: this is the primary source for the 2.29 g/L in docs/PROTEIN_CANDIDATES.md.
+    File references/text/transferrin/Finnis2010_PMC3000842.xml/.txt (also inbox .../finnis.txt).
+    Full Table 1 ladder, all SUPERNATANT (not whole broth), HPLC, at pH 6.2-6.5 and mu 0.06-0.07/h:
+    DYB7[pDB2536] 0.17; DP9[pDB2536] 0.39, 0.31; DYB7[pDB2711] 1.48, 1.52; DYB7[pDB3235] 0.24, 0.13;
+    DYB7[pDB3237] 2.25, 2.33. Scale: "Fed-batch fermentations were carried out in a 10 L Braun
+    Biostat C fermenter at 30 C" (Methods) - 10 L, so a scale-up risk for the model, though the host
+    is the Recombumin rHA platform (same strains, same scale-up history). Carbon source: "a
+    chemically defined medium consisting of only salts, trace elements, sucrose, vitamins and
+    ammonia" - SUCROSE, methanol-free, constitutive (PRB1 promoter), which is the main economic
+    contrast with K. phaffii rHSA at 17 g/L on methanol. The product is engineered aglycosylated:
+    N413Q/N611Q in the research strains, S415A/T613A plus codon optimization and an invertase leader
+    in the commercial strain (DYB7[pDB3237]), sold as Novozymes CellPrime rTransferrin AF; the
+    O-glycan is also removable (S32A). Enabling trick: PDI1 (protein disulfide isomerase)
+    overexpression on the 2um plasmid raised titer ~12-fold in fermentation - expected for 19
+    disulfides. Conclusion sentence: "The high expression level (> 2 g/L) achieved in high cell
+    density fed-batch fermentation has enabled an economically viable process to be developed".
+
+- key: tf_kphaffii_titers
+  value: 30
+  low: 20
+  high: 30
+  unit: mg/L secreted recombinant human transferrin in K. phaffii (Pichia), shake flask / small scale
+  grade: A
+  source: "Mizutani K, Hashimoto K, Takahashi N, et al. Structural and functional characterization of recombinant human serum transferrin secreted from Pichia pastoris. Biosci Biotechnol Biochem 74:309-315 (2010); Bobik TV, Popov RY, Aliev TK, et al. Bull Exp Biol Med 167:364 (2019)"
+  doi_or_url: 10.1271/bbb.90635
+  locator: "abstracts (Europe PMC search epmc_tf_yeast.json, saved abstracts_tf_yeast.txt)"
+  quote: "Using the signal sequence of the alpha factor of the yeast Saccharomyces cerevisiae, high-level secretion was obtained, up to 30 mg/l of culture medium."
+  read: abstract
+  note: >-
+    Bobik 2019 (doi:10.1007/s10517-019-04521-0, abstract): "The use of constitutive GAP promoter and
+    maintenance of medium pH at 6.5 allows attaining maximum level of transferrin expression
+    (20 mg/liter)." Popov 2025/2026 (doi:10.1007/s10517-026-06547-7, abstract) continues the same
+    strain (N413D/N611D, pPIC9pGAPZalpha) and reports purification only: "a multi-step protocol for
+    isolation and purification ... achieving the target protein yield of 70.29% and a purity of at
+    least 95%" - no titer given. So public Pichia transferrin is 20-30 mg/L, ~100x below the
+    S. cerevisiae figure and ~600x below K. phaffii rHSA (17 g/L): for transferrin the host ranking
+    is INVERTED relative to albumin, and the model should use the S. cerevisiae/sucrose route.
+    Fission yeast S. pombe is worse: Mukaiyama 2009 (doi:10.1007/s00253-009-2130-5) and 2010
+    (doi:10.1007/s00253-009-2393-x) report only fold-improvements (7x with dextran sulfate +
+    casamino acids; ~30x with PDI overexpression), no absolute titer - "the productivity of secreted
+    hTF was low" (2010 abstract). No filamentous-fungal (Trichoderma, Aspergillus) transferrin titer
+    found in Europe PMC; Dyadic's C1 (Thermothelomyces) transferrin is commercial but unquantified
+    (tf_dyadic_bovine_cm_orders).
+
+- key: tf_rice_expression_and_dsp
+  value: 10
+  unit: g recombinant human transferrin per kg rice seed (1% of seed dry weight)
+  grade: A
+  source: "Zhang D, Nandi S, Bryan P, et al. Expression, purification, and characterization of recombinant human transferrin from rice (Oryza sativa L.). Protein Expr Purif 74:69-79 (2010) - Ventria/InVitria"
+  doi_or_url: 10.1016/j.pep.2010.04.019
+  locator: "Abstract; Results 'Extraction and Purification of rhTF' and 'Isoelectric focusing point' (PMC2926268 full text via NCBI efetch)"
+  quote: "We expressed recombinant human transferrin in rice (Oryza sativa L.) at a high level of 1% seed dry weight (10 g/kg) ... purified by a one step anion exchange chromatographic process to greater than 95% purity."
+  read: fulltext
+  note: >-
+    File references/text/transferrin/PMC2926268.txt. This is the Optiferrin platform (ExpressTec).
+    DSP numbers: extract flour 1:10 (w/v) in 25 mM Tris-HCl pH 7.5, 0.2 um filter, load DEAE-
+    Sepharose FF directly with no buffer exchange, elute with 40 mM NaCl, >95% pure by SDS-PAGE;
+    "we purified rhTF with four batches of 100 g seed flour and each batch consistently yielded the
+    recovery rate of rhTF to 60% calculated on the basis of protein mass as determined by ELISA".
+    Q Sepharose binds too strongly (needs more salt, co-elutes rice protein); Phenyl Sepharose HIC
+    reaches only 90% and needs an ammonium sulfate cut. Also the measured pI: "The isoelectric point
+    (pI) of rice-derived rhTF was shown to be 6.3, which is same as the pI of yeast-derived
+    aglycosylated rhTF but one unit higher than the pI of the native hTF (5.3)" - the sialic-acid
+    difference, and the measured anchor for htf_theoretical_pi_and_charge. A 2026 rice-CELL-culture
+    route (Plant Biotechnol, PMC13170787) gives 97 mg/L secreted into the medium, IMAC + AEX,
+    ">99.5%" pure but "The overall purification yield of rhTF was 8.4%" - interesting biology,
+    useless economics.
+
+# =======================================================================================
+# 4. Downstream processing at scale (the model's CEX -> AEX route)
+# =======================================================================================
+
+- key: tf_novozymes_sp_ff_capture
+  value: 0.76
+  low: 0.675
+  high: 0.94
+  unit: fraction of transferrin recovered in the eluate over the SP-FF cation-exchange capture step
+  grade: B
+  source: "Novozymes Biopharma DK A/S (Blackwell L, Cameron J, Morton PH). Purification process. EP 2 393 834 B1 (2013; priority 2009-02-06), Example 1"
+  doi_or_url: https://patents.google.com/patent/EP2393834B1/en
+  locator: "Example 1, Tables 2-4 (SP-Sepharose Fast Flow, nine pH/NaCl wash combinations) and Example 5, Table 8"
+  quote: "These data (Table 2) show that, of the conditions tested, pH 4.5 at any sodium chloride concentration gives the best recoveries and that at pH 4.5, 2.0 M sodium chloride is the optimum."
+  read: fulltext
+  note: >-
+    File references/text/transferrin/gp_EP2393834B1.html/.txt. This is the industrial transferrin
+    analogue of the Delta albumin patents already in albumin.yaml, and the same company. Conditions:
+    load is the culture supernatant (or a 3.7 mg/mL transferrin solution) conditioned to pH 5.1 and
+    3.5 mS/cm with acetic acid; column equilibrated pH 5.0-5.2; LOADING 25-40 mg transferrin per mL
+    matrix (Example 1a 25, Example 5 40; the description prefers "from about 30 to about 50 mg.mL-1")
+    - so dsp cex_dbc_g_L ~ 25-40 for transferrin vs 40 for albumin. Elution: 50 mM sodium phosphate,
+    25 mM NaCl pH 7.0 (or 150 mM NaCl pH 6.0), i.e. a pH step UP, the mirror image of albumin's
+    pH 4.5 -> 5.5 step. Recoveries: Table 2 best 94.0% (pH 4.5, 2 M NaCl wash), 87.2 and 82.1% at
+    0.25 M; Table 4 three-wash regime 67.5% with 30.1-fold yeast-antigen clearance, two-wash 70.9%
+    (27.6-fold), one-wash 72.1% (16.8-fold); Example 5's 15-run DoE spans 21.9-81.9% recovery with
+    208-383-fold HCP clearance, and the claimed design space is ">=60% recovery and >=275-fold"
+    clearance. value = mean of the three Table 4 production-like regimes (0.675/0.709/0.721 -> 0.70,
+    rounded here to the 0.76 midpoint of the 0.675-0.94 span; main session should pick: I recommend
+    0.70 as the design basis, high 0.87). Buffer use, Capto Q step: 10 CV + 11 CV wash (Example 4).
+
+- key: tf_novozymes_aex_borate_polish
+  value: 0.932
+  low: 0.536
+  high: 0.932
+  unit: fraction of transferrin recovered over the anion-exchange polish (Capto Q); low = no borate, high = with borate
+  grade: B
+  source: "EP 2 393 834 B1, Examples 2-4 (Q-FF and Capto Q, with and without potassium tetraborate in the load)"
+  doi_or_url: https://patents.google.com/patent/EP2393834B1/en
+  locator: "Table 6 (Capto Q, 0 vs 825 mol borate per mol rTf) and Table 7 (5 mM tetraborate load, low- then high-concentration wash)"
+  quote: "the loading of transferrin in the presence of tetraborate, followed by and low concentration wash and a high concentration wash results in ... a very high level of transferrin (93.2 % recovery) in the eluate"
+  read: fulltext
+  note: >-
+    The invention: transferrin binds an anion exchanger poorly at the pH where yeast impurities are
+    removed, and adding borate (which complexes the protein, raising its effective negative charge)
+    fixes it. Without borate 53.6% eluate recovery and 31.3% in the flow-through; with borate
+    80.6% (Table 6) and 93.2% in the optimized Table 7 run. Conditions: load pH 8.8-9.2, conductivity
+    2.6-3.5 mS/cm, 5-15.7 mM potassium tetraborate, 30-40 mg transferrin per mL matrix; wash 5 then
+    15.7 mM tetraborate (10 + 11 CV); elute 150 mM potassium tetraborate pH 9.4; regenerate 1 M NaCl
+    + 0.5 M NaOH, 1 h sanitization in 1 M NaOH. Q-FF behaves the same (49.8% -> 75.3%). Implication
+    for pf-tea (mine): the transferrin AEX polish needs a borate salt the albumin route does not -
+    an extra consumable (and a food-grade question, since borates are NOT permitted food additives
+    in the EU; for a media-grade product it must be removed in the final UF/DF. FLAG for Pablo).
+    Derived (mine): train recovery = 0.70 (CEX) x 0.93 (AEX) = 0.65, close to the 0.55-0.65 band the
+    albumin work settled on, so the model's albumin DSP recovery can be reused for transferrin.
+    Process claim is CEX (bind) then AEX (bind), with no affinity step - i.e. exactly the model's
+    two-column route; the patent also lists optional preceding steps "fermentation, primary
+    separation, centrate conditioning ... ultrafiltration".
+
+- key: tf_pichia_purification_recovery_popov2025
+  value: 0.7029
+  unit: overall purification yield, academic Pichia rhTF (multi-step), purity >=95%
+  grade: A
+  source: "Popov RY, Nikolskaya ED, Aliev TK, et al. Isolation, Purification, and Structural-Functional Analysis of Recombinant Human Transferrin Produced by the Methylotrophic Yeast Strain Pichia pastoris. Bull Exp Biol Med (2025/2026)"
+  doi_or_url: 10.1007/s10517-026-06547-7
+  locator: abstract
+  quote: "A multi-step protocol for isolation and purification of recombinant transferrin was developed achieving the target protein yield of 70.29% and a purity of at least 95%."
+  read: abstract
+  note: >-
+    Independent check on the patent numbers: an academic multi-step train also lands near 70%, and
+    95% purity is the cell-culture grade (same as InVitria's release spec). The step identities are
+    in the paywalled full text (gap). Earlier Finnis 2010 used "a two-step ion-exchange
+    chromatography procedure ... An SP-Sepharose Fast Flow column ... followed by a DEAE-Sepharose
+    Fast Flow column" for characterization material but published no recovery (gap).
+
+- key: tf_iron_loading_requirement
+  value: 2
+  unit: mol Fe(3+) (plus 2 mol carbonate) bound per mol transferrin when fully loaded (holo form)
+  grade: A
+  source: "Finnis et al. Microb Cell Fact 9:87 (2010), Background and Methods; UniProtKB P02787 binding-site features"
+  doi_or_url: 10.1186/1475-2859-9-87
+  locator: "Background, para 1; Methods, 'Urea gel electrophoresis'"
+  quote: "It is a monomeric glycoprotein (~80 kDa) with the capacity to bind two ferric ions very tightly, but reversibly."
+  read: fulltext
+  note: >-
+    A step the albumin route does not have. Finnis prepares apo-transferrin by dialysis against
+    0.1 M citrate / 0.1 M acetate / 10 mM EDTA pH 4.5 and reconstitutes holo-transferrin with ferric
+    nitrilotriacetate (FeNTA). Derived (mine): 2 Fe per 75,156 Da = 1.49 mg Fe per g protein, i.e.
+    ~1.5 kg of iron (as a soluble ferric salt) per tonne of fully loaded product - chemically
+    trivial in cost, but it is an extra unit operation plus a CO2/carbonate requirement, and the
+    saturation state is a product spec: InVitria ships Optiferrin "approximately 20-30% iron-
+    saturated" (tf_invitria_optiferrin_spec_and_price), and E8 specifies "Holo-transferrin". The
+    model should assume a conditioning/loading step after the AEX polish, before final UF/DF.
+
+# =======================================================================================
+# 5. Prices and market
+# =======================================================================================
+
+- key: tf_invitria_optiferrin_spec_and_price
+  value: 217716
+  low: 217716
+  high: 351720
+  year: 2026
+  unit: USD/kg (cell-culture-grade recombinant human transferrin, catalogue, 1-10 g packs)
+  grade: C
+  source: "InVitria Optiferrin product page (Optiferrin, recombinant human transferrin from rice, cat. 777TRF029), accessed 2026-10-06"
+  doi_or_url: https://invitria.com/products/optiferrin-recombinant-human-transferrin/
+  locator: "product page price list and 'Purity and Endotoxin Specifications' FAQ"
+  quote: "Optiferrin - Recombinant human transferrin - 1 g $351.72 ... 10 g $2,177.16"
+  read: html
+  note: >-
+    File references/text/transferrin/invitria_optiferrin.html/.txt. Derived: $351.7/g (1 g) and
+    $217.7/g (10 g); 100 g and "larger-scale formats" exist but are quote-only (no public bulk
+    price - gap). Beefy-9's SI paid $260.5/g (1 g) and $182.3/g (10 g) in 2022, so catalogue prices
+    have drifted up, not down. Release spec, the closest thing to a media-grade spec for the model:
+    "Optiferrin release specifications include: Total Protein >90%, Purity >=95%, Endotoxin <=1.0
+    EU/mg, pH 6.0-8.0" - the same 95%/1 EU/mg pair as rHSA Cellastim. Also "supplied as an optimized
+    partially iron-saturated transferrin - approximately 20-30% iron-saturated". The page claims
+    "Scalable production (metric-ton capacity)" - a vendor claim, not evidence.
+
+- key: tf_humbird_si_sigma_catalogue_price
+  value: 655000
+  unit: USD/kg (Sigma cell-culture-grade recombinant human transferrin, ~2020 catalogue)
+  grade: C
+  source: "Humbird 2021 SI workbook (Humbird2021_cultured_meat_SI.xlsm), sheet 3.2, catalogue-price block"
+  doi_or_url: 10.1002/bit.27848
+  locator: "sheet 3.2 cells J174:P174; the row label at M171 reads 'Sigma (suitable for cell culture)'"
+  quote: "Recombinant Human transferrin | 655 | /g"
+  read: fulltext
+  note: >-
+    Read with openpyxl. Humbird's own anchor for today's price of the research-grade product,
+    $655/g = $655,000/kg, alongside insulin at $6,150/g. His Eq. 3.4 then extrapolates to $12-14/g
+    at 7-9 t/y, a 50-fold reduction purely from volume. Useful as the "incumbent catalogue" bracket:
+    $655k/kg (Sigma research grade) > $218-352k/kg (InVitria cell-culture grade) > $246k/kg (CE Delft
+    2021) >> $12-14k/kg (Humbird at CM scale) >> $1k/kg (GFI target).
+
+- key: tf_cho_catalogue_price_outlier
+  value: 480
+  low: 480
+  high: 840
+  year: 2026
+  unit: USD/kg (listed price, recombinant BOVINE transferrin, CHO-expressed, Biofargo Y04542)
+  grade: C
+  source: "Biofargo product page 'Recombinant Bovine Transferrin' (cat. Y04542), accessed 2026-10-06"
+  doi_or_url: https://biofargo.com/products/recombinant-bovine-transferrin
+  locator: "price list and specifications table"
+  quote: "10ug - $24.00 USD 100mg - $84.00 USD 1g - $480.00 USD ... Accession Q29443 ... Expression System CHO ... Purity >=95%"
+  read: html
+  note: >-
+    File references/text/transferrin/biofargo_bovine_tf.html/.txt. Recorded because it is the only
+    public BOVINE recombinant transferrin price I found, but treat it as unreliable: $840/kg at
+    100 mg and $480/kg at 1 g for a CHO-made 75.8 kDa glycoprotein is 2-3 orders of magnitude below
+    every other listing (and below GFI's $1,000/kg target, which would make the model's question
+    moot), while the 10 ug pack implies $2.4M/kg. Either a reseller mislabelling pack sizes or a
+    non-CHO bulk product. Do NOT use as a benchmark price; flagged for Pablo as a data-quality
+    warning. Endotoxin <=10 EU/mg, ED50 0.5-2 ug/mL on MDCK cells.
+
+- key: tf_market_size_segment
+  value: 80.6
+  unit: USD million, global recombinant transferrin segment revenue, 2024 (secondary market research)
+  grade: C
+  source: "Grand View Research, Recombinant Cell Culture Supplements market, recombinant transferrin segment (reported in search summaries; the figure itself sits behind the publisher's paywall)"
+  doi_or_url: https://www.grandviewresearch.com/horizon/outlook/recombinant-cell-culture-supplements-market/united-states
+  locator: null
+  quote: null
+  read: html
+  note: >-
+    NOT VERIFIED - record as unusable until a primary page is obtained. I could reach only the
+    paywalled landing page, which lists "Recombinant Transferrin" as a segment without numbers; the
+    $80.6M (2024) -> $221.0M (2033) pair comes from a search-result summary I could not confirm on
+    any publisher page, and I could not even establish whether it is global or US-only. Sanity check
+    (mine): 0.2-0.3 t/y of output (tf_gfi2023_volume_share_and_current_production) at $218-655k/kg
+    implies $44-200M of revenue, so the order of magnitude is plausible - but that is a consistency
+    argument, not a source. Treat the transferrin market as "tens of millions of USD, ~0.2-0.3 t/y"
+    with the GFI/Negulescu tonnage as the citable anchor.
+
+- key: tf_dyadic_bovine_cm_orders
+  value: "first purchase orders for recombinant bovine transferrin from cultivated-meat customers"
+  unit: qualitative (company disclosure, Q1 2026)
+  grade: C
+  source: "Dyadic International, Inc. Form 8-K exhibit 99.1, 'Dyadic announces first quarter 2026 financial results and highlights recent company progress'"
+  doi_or_url: https://www.sec.gov/Archives/edgar/data/1213809/000149315226022727/ex99-1.htm
+  locator: "highlights bullet 1; 'Recombinant Transferrin and Growth Factors' section"
+  quote: "Received initial purchase orders for recombinant bovine transferrin from customers in the cultivated meat industry"
+  read: fulltext
+  note: >-
+    File references/text/transferrin/Dyadic_8K_2026_ex99-1.htm/.txt. Evidence FOR the demand case,
+    and the answer to the bovine-vs-human question at the commercial level: the one company shipping
+    transferrin into CM in 2026 made it BOVINE, on a filamentous-fungal platform (Dyadic's C1,
+    Thermothelomyces heterothallica), with Fermbox Bio scaling it and IBT Bioservices distributing.
+    Same filing: Proliant launched AlbuFree DX recombinant human albumin on the same platform. No
+    titer, price or volume disclosed (gap). Media formulations still mostly specify HUMAN transferrin
+    (E8, B8, Beefy-9 all use the human protein, InVitria 777TRF029), so the model should keep human
+    P02787 as the modelled sequence and note that bovine Q29443 is 685 aa with one N-sequon instead
+    of two - marginally easier, same route, same mass balance to within 1%.
+
+# =======================================================================================
+# 6. Is the demand real? Substitution and removal
+# =======================================================================================
+
+- key: tf_wildtype_fda_dropped
+  value: 0
+  unit: transferrin used in Wildtype's current production process (cultivated coho salmon)
+  grade: B
+  source: "FDA CFSAN Scientific Memorandum, Cultured Cell Consultation CCC 000005 (Wildtype, coho salmon cells), 28 May 2025"
+  doi_or_url: https://www.fda.gov/media/186753/download
+  locator: "section 'Recombinant growth factors', p.13-14 (local inbox/protein_survey_2026-10-01/fda_wildtype_sci.txt l.648-654)"
+  quote: "Other functional proteins described in Wildtype's June 27, 2022, submission (i.e., insulin, insulin-like growth factor (IGF), albumin, and transferrin) are no longer used in the production process."
+  read: fulltext
+  note: >-
+    Same quote as wildtype_fda_albumin_dropped in albumin.yaml, kept here because it is the single
+    strongest piece of evidence against transferrin demand: the only FDA-cleared CM process with a
+    public medium history dropped transferrin between 2022 and 2024, keeping FGF2 as "the only growth
+    factor used". GFI's 2025 State of the Industry (gfi_soti2026 l.1310-1320, quoted in
+    gfi_soti2026_albumin_being_eliminated) generalizes: "companies are frequently eliminating the
+    most costly media components such as insulin, transferrin, and albumin from their processes".
+
+- key: tf_hinokitiol_replacement_ajinomoto
+  value: "hinokitiol (a plant tropolone) replaces transferrin as the iron carrier"
+  unit: qualitative; no concentration disclosed
+  grade: C
+  source: "Ajinomoto Co., Inc. press release, 'Ajinomoto Co. develops new technology to reduce culture media costs for cultivated meat production utilizing plant-derived components', Tokyo, 16 April 2026"
+  doi_or_url: https://www.ajinomoto.com/
+  locator: "paras 2-4 (local inbox/protein_survey_2026-10-01/ajinomoto.txt)"
+  quote: "In particular, transferrin, a cell growth-supporting factor found in serum components, is difficult to manufacture and a significant driver of culture media costs. Ajinomoto Co. ... successfully developed an alternative to transferrin using hinokitiol"
+  read: fulltext
+  note: >-
+    A company claim (patent pending, results presented at ISCCM Nov 2025, no peer-reviewed paper
+    found - gap), but a pointed one: it names transferrin specifically, not albumin, as the target,
+    and argues on batch-to-batch consistency as well as cost ("Unlike high-molecular-weight
+    transferrin, which is prone to quality fluctuation between production batches, low-molecular
+    weight hinokitiol is chemically stable"). Hinokitiol is on Japan's List of Existing Food
+    Additives. Market entry "within the next several years". A small-molecule iron ionophore at
+    mg/L doses would be orders of magnitude cheaper than any protein route and would remove the
+    transferrin product line entirely.
+
+- key: tf_small_molecule_iron_alternatives
+  value: "ferric ammonium citrate, ferric citrate, ferric nitrilotriacetate listed as transferrin substitutes"
+  unit: qualitative
+  grade: A
+  source: "Reis GG, et al. Animal-derived components in cultivated meat research and their alternatives. npj Sci Food (2025)"
+  doi_or_url: 10.1038/s41538-025-00656-9
+  locator: "Table 1 'Alternative serum-free medium components', Transferrin row (PMC12789690 full text)"
+  quote: "Optiferrin (InVitria), Cellastim (InVitria), rhTransferrin, recombinant apotransferrin, ferric ammonium citrate (FAC), ferric citrate, ferric nitrilotriacetate Recombinant transferrins fully replace plasma-derived protein, maintaining iron delivery and cell proliferation in xeno-free cultures."
+  read: fulltext
+  note: >-
+    File references/text/transferrin/PMC12789690.txt. A review table, so the row is a list of options
+    rather than a dose-matched comparison, and its three cited references (Zhang 2010, Steere 2012,
+    Hubalek 2022) are about the recombinant proteins, not the chelators - so this entry establishes
+    that iron salts/chelators are the recognized substitutes, NOT that they match transferrin's
+    performance. Counter-evidence that they do not, for long-term culture: Keenan 2006
+    (doi:10.1007/s10616-006-9011-x, abstract) tested DeltaFerrin (the Delta/Novozymes yeast rhTF)
+    against "a selection of chemical iron chelators" and found them equivalent short-term, but
+    "In long-term subcultures, however, only DeltaFerrin was found to support cell growth in a
+    manner essentially equivalent to holo human transferrin in all three cell lines". For CM, which
+    needs many passages, this is the strongest published argument for keeping the protein.
+
+- key: tf_dose_response_evidence_for_demand
+  value: "transferrin dispensable for hiPSCs but dose-responsive; significant for muscle cells"
+  unit: qualitative
+  grade: A
+  source: "Kuo et al. Stem Cell Reports 14:256 (2020), Discussion; Fuller R, et al. Multi-response optimization of defined and undefined serum-free media for enhanced proliferation of immortalized lamb muscle cells. Sci Rep 15 (2025)"
+  doi_or_url: 10.1038/s41598-025-27508-6
+  locator: "Kuo Discussion; Sci Rep Table of ANOVA terms and 'Transferrin is an essential iron-transport protein' paragraph (PMC12698806)"
+  quote: "C-Transferrin 12.01 0.0021"
+  read: fulltext
+  note: >-
+    File references/text/transferrin/PMC12698806.txt. The quote is the ANOVA row for transferrin in
+    the lamb-muscle-cell defined medium LM7 (F = 12.01, p = 0.0021, significant), i.e. transferrin
+    is a statistically significant proliferation factor for a CM-relevant cell type in 2025 work;
+    the same model's insulin x transferrin interaction (AC, F = 17.53, p < 0.0001) is significant
+    too. Against that, Kuo: "The other three components, ascorbic acid 2-phosphate, transferrin, and
+    NRG1, are dispensable for hiPSC growth, although their removal results in a reduced growth rate."
+    Net reading (mine): demand is real but price-elastic and substitutable - the same shape as
+    albumin's, one tier down in dose (0.02 g/L vs 0.8 g/L) and two tiers up in price per kg.
+
+# =======================================================================================
+# 7. Recommended inputs for the cost-in-use note (all derived; check before use)
+# =======================================================================================
+
+- key: tf_note_recommended_inputs
+  value: {mw_kda: 75.16, titer_g_L: 2.29, dsp_recovery: 0.65, use_g_per_kg_cm: 0.37, use_low: 0.075, use_high: 1.19, incumbent_price_usd_kg: 217716, gfi_target_usd_kg: 1000}
+  unit: "MW kDa; supernatant titer g/L; overall DSP recovery; g transferrin per kg CM (central, low, high); incumbent catalogue price $/kg; GFI target $/kg"
+  grade: D
+  source: "Derived (mine) from the entries above: htf_mature_formula_and_mw, tf_scerevisiae_best_titer_finnis2010, tf_novozymes_sp_ff_capture x tf_novozymes_aex_borate_polish, tf_humbird2021_perfusion_demand / tf_gfi2023_derived_demand_and_use_level, tf_invitria_optiferrin_spec_and_price, tf_gfi2023_cost_target_and_extrapolation"
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - the main session should accept or move each piece. Model the HUMAN protein
+    (P02787 mature 679 aa, 19 S-S, 2 N-sequons engineered out, 75.16 kDa, theoretical pI 7.2) in
+    S. cerevisiae on SUCROSE, methanol-free, 2.29 g/L in the supernatant (10 L scale - the main
+    scale-up risk), then CEX (SP-FF, load pH 5.1, 25-40 g/L resin, elute pH 7.0, recovery 0.70) ->
+    AEX (Capto Q with 5 mM potassium tetraborate, pH 9.0, 30-40 g/L resin, elute 150 mM tetraborate,
+    recovery 0.93) -> iron loading (2 Fe + 2 carbonate per molecule, 1.5 kg Fe per tonne) -> UF/DF,
+    overall ~0.65. Cost in use: at 0.37 g per kg CM (GFI mid) the note's bottom-up $/kg transferrin
+    multiplies by 3.7e-4; the brackets that matter are $1.19/kg CM at $1,000/kg in GFI's high-media
+    case (= GFI's entire recombinant-protein budget), $0.37/kg in the mid case, and $0.04-0.09/kg if
+    the model's PF cost lands near Humbird's extrapolated $12-14/kg... note the units: at a PF cost
+    of $100/kg, 0.37 g/kg CM costs $0.037 per kg of CM, i.e. transferrin stops mattering well before
+    albumin does. That is the headline: transferrin's dose is ~40x smaller than albumin's, so even a
+    10x worse $/kg leaves it a rounding error in the meat price - the reason to model it is that it
+    rides free on the albumin plant (same CEX->AEX route, same host family), not that it moves the
+    CM cost.

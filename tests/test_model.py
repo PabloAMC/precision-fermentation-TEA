@@ -532,7 +532,8 @@ def test_methanol_anabolism_fixes_no_co2():
     ("alac", 123, {"C": 626, "H": 958, "N": 162, "O": 196, "S": 9}, 14178),     # P00711 20-142, 4 disulfides (alac.yaml)
     ("cas1", 199, {"C": 1035, "H": 1587, "N": 265, "O": 317, "S": 5}, 22975),   # P02662 16-214, unphosphorylated (casein.yaml)
     ("kap", 169, {"C": 849, "H": 1321, "N": 223, "O": 262, "S": 4}, 18972),     # P02668 22-190, 1 disulfide
-    ("legh", 144, {"C": 702, "H": 1096, "N": 176, "O": 212, "S": 0}, 15394)])   # P02236 2-145, globin without heme
+    ("legh", 144, {"C": 702, "H": 1096, "N": 176, "O": 212, "S": 0}, 15394),    # P02236 2-145, globin without heme
+    ("tf", 679, {"C": 3306, "H": 5096, "N": 912, "O": 1002, "S": 47}, 75157)])  # P02787 20-698, 19 disulfides; 75,156 in transferrin.yaml (derived, rounded)
 def test_new_protein_formulas_from_uniprot(key, n, formula, mw):
     """Mature-chain formulas cross-checked against UniProt's molWeight in the evidence files."""
     p = pr.protein(key)
@@ -601,3 +602,24 @@ def test_feed_bills_identity():
             assert d["total"] == pytest.approx(d["feed"] / d["share"], rel=1e-12)
             assert d["other"] == pytest.approx(d["total"] - d["feed"], rel=1e-12)
             assert d["total_low"] <= d["total"] <= d["total_high"] and 0 < d["share"] <= 1 and 0 < d["alloc"] <= 1
+
+
+# ---------------------------------------------------------------- transferrin and binder notes
+def test_transferrin_runs_on_albumins_route():
+    """The transferrin note keeps albumin's route and plant and changes only the product and its column data."""
+    cfg = sc.load("transferrin")
+    common = {k: (x["value"] if isinstance(x, dict) else x) for k, x in cfg["common"].items()}
+    p = sc.base_params("alb", common)
+    assert v(p, "plant.product") == "tf" and v(p, "plant.spec") == v(sc.base_params("alb"), "plant.spec")
+    assert v(p, "dsp.cex_recovery") == pytest.approx(0.70) and v(p, "dsp.polish_columns") == 1
+    assert pr.protein("tf").species.mw > 0 and len(pr.load("tf")["mature_sequence"]) == 679
+    r = plant.evaluate(p)
+    assert sc.is_feasible(r) and r.msp_ccf > 0
+
+
+def test_binder_cost_in_use_identity():
+    """Cost per kg of analogue = dose x price; protein binders at the product dose x its protein fraction."""
+    b = sc.load("binder")
+    mc, dose, frac = b["use"]["mc_frac"], b["use"]["egg_protein_product_frac"], b["use"]["protein_frac_of_product"]
+    assert mc["low"] <= mc["value"] <= mc["high"] and dose["low"] <= dose["value"] <= dose["high"]
+    assert 0 < frac["value"] <= 1 and 0 < b["price"]["mc_usd_kg"]["value"]
