@@ -166,6 +166,8 @@ dsp:
     source: "analogy with BLG's whey practice (dsp.dryer_feed_solids_blg, same range): alpha-lactalbumin is 'highly soluble over pH 2-9' and heat stable (Layman 2018; alac.yaml alac_functional_properties_for_dsp), so nothing in the protein limits the feed. No alpha-lac-specific value; at 14.2 kDa it needs a tighter UF membrane (~5-10 kDa) than BLG, a flux penalty not modelled (E)"}
   dryer_feed_solids_legh: {value: 0.156, unit: mass fraction dry matter, grade: B,
     source: "LegH Prep, five 2016 batches: 12.6-18.4% total solids, mean 15.6% (GRN 737; heme.yaml legh_prep_solids_batches). The commercial product is this liquid, frozen; here it is spray-dried from it (the drying cost is then an overstatement)"}
+  dryer_feed_solids_tf: {value: 0.20, unit: mass fraction dry matter, grade: D,
+    source: "analogy with albumin (dsp.dryer_feed_solids_alb, C), the same platform and route: no transferrin-specific value is published. Used only in the transferrin note (scenarios/transferrin.yaml)"}
   # c'. cation-exchange capture (spec 'cex': lactoferrin; the dairy route and every commercial PF route)
   cex_dbc_g_L: {value: 75, low: 50, high: 100, unit: g protein/L resin, grade: B,
     source: "EVERY US 2024/0083940 A1 [0700]: 'The ligand density would accommodate protein binding capacity between 50-100 g protein/L resin' (dsp.yaml iex_binding_capacity_cex_every; a design statement, not a measured dynamic capacity for lactoferrin)"}

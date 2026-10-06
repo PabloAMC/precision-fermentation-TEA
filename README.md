@@ -3,16 +3,20 @@
 A transparent, public-data-only cost model for seven proteins made by precision fermentation, on an
 equal footing: β-lactoglobulin and α-lactalbumin (whey), ovalbumin and ovomucoid (egg white), β-casein (the cheese
 protein), lactoferrin (a scarce, high-value milk protein) and serum albumin (for cultivated-meat growth
-media), with notes on casein for rennet cheese (α<sub>s1</sub>- plus κ-casein) and on heme (soy leghemoglobin). It
+media), with notes on casein for rennet cheese (α<sub>s1</sub>- plus κ-casein), heme (soy leghemoglobin), transferrin
+(for cultivated-meat media) and ovalbumin as a binder in plant-based meat, and a comparison of PF's metabolic floor
+with the animals' feed bill. It
 uses Humbird's (2021) method: element- and electron-balanced stoichiometry, an O₂-limited
 fed-batch fermenter, and Humbird's capital factors and fixed costs, which with his workbook land
 in the market-implied cost of baker's yeast. It is checked against NREL 2011, Intelligen 2025 and
 Voutilainen 2021.
 
-**Status (2026-10-02):** v4 on branch `model-v4`: after an independent AI review of the method against the
+**Status (2026-10-06):** `main` = v4, merged from `model-v4`; v4.1 (branch `v4.1`) adds the metabolic floor and the
+animals' feed bill (US and EU), notes on transferrin and on ovalbumin as a binder, and full texts for three titers.
+All AI-audited only. Earlier, v4: after an independent AI review of the method against the
 published state of the art, methanol-induced production, vessel sizing and Monte Carlo rank correlations
 were added, and serum albumin and α-lactalbumin joined the five v3 proteins, with the rennet-cheese casein and heme
-notes (AI-audited only). `main` holds v3.1. v2.1 (2026-09-27): The v1 draft was audited by eight independent AI reviewers, and v2
+notes (AI-audited only). v2.1 (2026-09-27): The v1 draft was audited by eight independent AI reviewers, and v2
 by four simulated AI expert reviewers (Phase F pre-review), followed by a reading of the sources
 they pointed to (aeration, strain physiology, Intelligen's lactoferrin model); every finding and fix is in
 [docs/AUDIT.md](docs/AUDIT.md) and [docs/REVIEW.md](docs/REVIEW.md). Built with an AI assistant
@@ -52,10 +56,10 @@ New to bioprocessing? Read [docs/PRIMER.md](docs/PRIMER.md).
 
 ```
 data/pf/base.yaml           all parameters: value, range, grade, source (US and EU prices)
-data/pf/scenarios/          academic, industry, physical_limit, lactoferrin, casein, albumin, cheese, heme overrides
+data/pf/scenarios/          academic, industry, physical_limit, lactoferrin, casein, albumin, cheese, heme, transferrin, binder
 data/pf/benchmarks.yaml     incumbent prices and literature titers shown on the figures
 data/evidence/              hosts, dsp, engineering, prices, placeholders, milk_egg, lactoferrin, casein,
-                            ovomucoid, albumin, alac, heme:
+                            ovomucoid, albumin, alac, heme, feed, kinetic, transferrin, binder:
                             graded evidence with quotes
 data/calibration/           the four calibration cases
 data/prices/                one-series CSVs behind prices.yaml

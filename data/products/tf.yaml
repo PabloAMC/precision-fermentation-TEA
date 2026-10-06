@@ -1,0 +1,15 @@
+# Human serotransferrin (rTf), the iron carrier of serum-free cell-culture media. Sequence: UniProt P02787 (TRFE_HUMAN),
+# chain 20-698 (19-aa signal peptide removed), 679 residues, 38 Cys = 19 disulfides, no free thiol (transferrin.yaml
+# htf_uniprot_mature_chain). The yeast product (Novozymes, Finnis et al. 2010) has its two N-glycosylation sequons
+# engineered out (htf_theoretical_pi_and_charge): unglycosylated, as modelled. The two Fe(3+) and carbonate ions it
+# carries when loaded are not in the formula. Used only in the transferrin note (scenarios/transferrin.yaml).
+name: serotransferrin
+key: tf
+uniprot: P02787
+mature_sequence: >-
+  VPDKTVRWCAVSEHEATKCQSFRDHMKSVIPSDGPSVACVKKASYLDCIRAIAANEADAVTLDAGLVYDAYLAPNNLKPVVAEFYGSKEDPQTFYYAVAVVKKDSGFQMNQLRGKKSCHTGLGRSAGWNIPIGLLYCDLPEPRKPLEKAVANFFSGSCAPCADGTDFPQLCQLCPGCGCSTLNQYFGYSGAFKCLKDGAGDVAFVKHSTIFENLANKADRDQYELLCLDNTRKPVDEYKDCHLAQVPSHTVVARSMGGKEDLIWELLNQAQEHFGKDKSKEFQLFSSPHGKDLLFKDSAHGFLKVPPRMDAKMYLGYEYVTAIRNLREGTCPEAPTDECKPVKWCALSHHERLKCDEWSVNSVGKIECVSAETTEDCIAKIMNGEADAMSLDGGFVYIAGKCGLVPVLAENYNKSDNCEDTPEAGYFAIAVVKKSASDLTWDNLKGKKSCHTAVGRTAGWNIPMGLLYNKINHCRFDEFFSEGCAPGSKKDSSLCKLCMGSGLNLCEPNNKEGYYGYTGAFRCLVEKGDVAFVKHQTVPQNTGGKNPDPWAKNLNEKDYELLCLDGTRKPVEEYANCHLARAPNHAVVTRKDKEACVHKILRQQQHLFGSNVTDCSGNFCLFRSETKDLLFRDDTVCLAKLHDRNTYEKYLGEEYVKAVGNLRKCSTSSLLEACTFRRP
+disulfides: 19
+post_translational: "none in the yeast product: N-glycosylation sequons removed (N413Q/N611Q-type engineering, Finnis et al. 2010); iron loading after purification is not in the formula"
+spec:                       # cell-culture-grade recombinant transferrin (no food-grade or media-grade spec exists)
+  target_min_frac_protein: {value: 0.95, grade: C, source: "InVitria Optiferrin release specification: 'Purity >=95%' (transferrin.yaml tf_invitria_optiferrin_spec_and_price)"}
+solubility_practical_g_L: {value: null, note: "not limiting at the titers modelled"}

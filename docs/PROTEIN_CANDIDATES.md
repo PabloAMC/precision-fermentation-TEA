@@ -26,6 +26,12 @@ capture at cell-culture purity, 1 kt/yr; the column, not the titer, sets its cos
 one at a time: α-lactalbumin (a membrane-route whey protein, a data change), then κ-/αs1-casein (mostly a
 required-titer case: the only κ-casein titer is 0.24 mg/L), then a heme cost-in-use note.
 
+**Update 2026-10-06 (v4.1):** transferrin is a cost-in-use note on albumin's route (data/evidence/transferrin.yaml;
+report §"Transferrin"), and ovalbumin as a binder is a cost-in-use note against methylcellulose and dried egg white
+(data/evidence/binder.yaml; report §"Ovalbumin as a binder"). §2 and §4 below predate those full reads: the
+methylcellulose price there is low for food grade, and the best yeast transferrin titer (2.29 g/L) is per litre of
+supernatant from *S. cerevisiae* (Finnis 2010).
+
 **Update 2026-10-02 (v4, later):** done. α-lactalbumin (`alac`) is a product; α<sub>s1</sub>/κ-casein are a
 rennet-cheese blend analysis (report §"Casein for rennet cheese"; best κ titers 4.14 mg/L peer-reviewed,
 ~0.25 g/L in a patent); heme is a cost-in-use note on secreted LegH (report §"Heme"). Evidence:

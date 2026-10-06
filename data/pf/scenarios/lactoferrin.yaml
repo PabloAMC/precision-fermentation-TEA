@@ -12,6 +12,8 @@ lf_ufdf_only:                         # optimistic: Intelligen case a, purity by
   dsp.concentrate_target_frac_dry: 0.90
 # Intelligen's own design inputs in our model (reconciliation, review L; report pp.4-10 and Fig. 12-14).
 # Only what the report states; their unit prices for materials, labour and consumables are not used.
+lf_methanol:                          # the base design point with its production phase on methanol, as Intelligen's 10 g/L process is
+  strain.methanol_frac_prod: 1        # (glycerol growth, methanol induction; audit R17-M5). The base costs it on glucose
 lf_intelligen_a:                      # case a: UF/DF only
   plant.spec: concentrate
   dsp.concentrate_target_frac_dry: 0.90

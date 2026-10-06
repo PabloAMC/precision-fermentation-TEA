@@ -238,15 +238,18 @@
   grade: A
   source: "Liu K, Fan X, Tong Z, Zhang J, Zhao M, Chen Y, Wu C, Wang T, Wei S, Liu Y, Xue Z, Zheng Y. Reprogrammed Komagataella phaffii for enhanced secretory expression of human lactoferrin. J Biotechnol 419:1-10 (2026)"
   doi_or_url: 10.1016/j.jbiotec.2026.07.011
-  locator: abstract
-  quote: "After high-density cultivation of K. phaffii through optimization of cultivation conditions in shake flasks and a 5 L bioreactor, the secretory intact hLF titer reached 2214 mg/L, representing a 76.3-fold increase achieved through these engineering strategies."
-  read: abstract
+  locator: "sect. 3.5, Fig. 5 (5 L bioreactor); intact hLF by ELISA (sect. 2)"
+  quote: "The optimized three-phase fermentation strategy (growth-starvation-induction) achieved maximum intact hLF production at 115 h, yielding 2214 mg/L with concurrent biomass accumulation (OD600 294)"
+  read: fulltext
   note: >-
     AOX1 promoter with alpha-MF signal, dual expression cassette at three loci, ER expansion plus
     vacuolar protease knockouts; "0.1 g/L FeCl3 was added to the medium to reduce the toxicity of
     hLF and improve its stability" - i.e. iron is a process additive, not just a product
     attribute. Highest peer-reviewed SECRETED lactoferrin titer found in any food-grade host.
-    Paywalled (Elsevier); abstract read via Europe PMC.
+    Full text read 2026-10-06 (references/papers/Liu2026_lactoferrin.pdf): 3 L BSM start, 40 g/L glycerol,
+    26 h growth, 7 h starvation, methanol DO-stat (DO > 20%) over 135 h; specific productivity 7.52 mg/L/OD600;
+    "approximately 44% loss at 115 h and exceeding 60% by fermentation termination (168 h)" to degradation;
+    substantial non-target protein in the supernatant (Fig. S5). Supernatant titer.
 
 - key: lf_titer_rblf_kphaffii_iglesias2016
   value: 3.5
@@ -285,12 +288,14 @@
   grade: A
   source: "Hu C, Shen W, Xia Y, Zhou L, Yang H, Chen X. Efficient production of the recombinant human lactoferrin in an engineered Trichoderma reesei. J Agric Food Chem 73:32795-32806 (2025)"
   doi_or_url: 10.1021/acs.jafc.5c11534
-  locator: abstract
-  quote: "Further optimization with 1% bran and 1.5 g/L Tween-80 boosted the titer to 368.47 mg/L. Scaling up to a 5 L fermenter yielded 1349.5 mg/L, a 1.93 x 10^4-fold improvement over initial levels."
-  read: abstract
+  locator: "Results, 'Production of rhLF in a 5 L Fermenter', Fig. 6C"
+  quote: "The titer of rhLF reached its maximum value of 1349.5 mg/L at 144 h (Figure 6C)"
+  read: fulltext
   note: >-
     First lactoferrin in T. reesei, the host of the VTT/Onego BLG-OVA lineage already in this
-    repo. Strain CJ2095 dpea1::pdi1 on microcrystalline cellulose. Paywalled (ACS).
+    repo. Strain CJ2095 dpea1::pdi1. Full text read 2026-10-06 (references/papers/Hu2025_lactoferrin_treesei.pdf):
+    fed-batch on MICROCRYSTALLINE CELLULOSE + bran + peptone (not sugar; cellulose induces the cbh1 promoter),
+    2.5 L start, 30 C, pH 5, 2 vvm, 7 days, feeds every 24 h from 48 h; quantified by an in-house indirect ELISA.
 
 - key: lf_titer_porcine_kphaffii_yen2024
   value: 2.8
