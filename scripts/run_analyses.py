@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from pftea import benchmarks as bm  # noqa: E402
 from pftea import calibration as cal  # noqa: E402
+from pftea import floor  # noqa: E402
 from pftea import humbird_yeast as hy  # noqa: E402
 from pftea import params, plant  # noqa: E402
 from pftea import scenarios as sc  # noqa: E402
@@ -68,6 +69,7 @@ def s_base(res):
     res["base"] = {prod: evp(prod) for prod in PRODUCTS}
     res["base_light"] = {prod: evp(prod, sc.LIGHT) for prod in PRODUCTS}
     res["base_aseptic"] = {prod: evp(prod, sc.ASEPTIC) for prod in PRODUCTS}
+    res["base_pioneer"] = {prod: evp(prod, sc.PIONEER) for prod in PRODUCTS}
     # the gap between the conventions, step by step (review SC-3/BE-3): fixed-cost rates, then factors
     steps = [("price-anchored (base)", {}),
              ("+ NREL fixed-cost rates (maintenance 3% of installed ISBL, insurance 0.7%)", {"finance.fixed_cost_rule": "nrel"}),
@@ -140,7 +142,8 @@ def constants() -> dict:
                        polymerisation_only=pr.energetic_ceiling(pr.protein(k), th.get("Glucose (s)"),
                                                                 v_(BASE, "energetics.atp_per_peptide_bond"),
                                                                 v_(BASE, "energetics.substrate_atp_per_glucose")
-                                                                + 12 * v_(BASE, "hosts.kphaffii.po_ratio")))
+                                                                + 12 * v_(BASE, "hosts.kphaffii.po_ratio")),
+                       ceiling_methanol=plant.energetic_ceiling(q, "Methanol"), y_ps_methanol=plant.methanol_yield(q))
     # the most production-phase maintenance the base expression phase can carry with the product made
     # at the energetic ceiling (review H2): same glucose per hour, m_s + q_p/Y_ps = m_max + q_p/ceiling
     ms_max = {}
@@ -165,6 +168,7 @@ def constants() -> dict:
     ferm = r.capex["ISBL: production fermenters"] + seed
     return dict(
         ms_prod_max_at_ceiling=ms_max, aeration_our150=aer150,
+        Yx_max_methanol=plant._host(BASE).growth_on("Methanol").max_yield,
         aeration_kWh_per_kg_o2=aer(r), aeration_kWh_per_kg_o2_workbook_compressor=aer(r_wb),
         aeration_kWh_per_kg_o2_do50=aer(r_do),
         compressor_share_of_aeration=r.batch.comp_kWh / (r.batch.comp_kWh + r.batch.agit_kWh),
@@ -214,8 +218,12 @@ def s_scenarios(res):
     # methanol-free best (Yen 2024)
     res["scenarios"]["academic/lf_lv2023"] = summary(sc.run("academic", "lf", variant="lf_lv2023"))
     res["scenarios"]["academic/lf_lv2023/light"] = summary(sc.run("academic", "lf", sc.LIGHT, variant="lf_lv2023"))
-    # patent examples (grade B) beside the peer-reviewed academic titers: EVERY's ovomucoid, Standing Ovation's casein
-    for prod in ("ovd", "cas"):
+    # academic albumin: Zhu 2018 (same group and productivity, half the induction time) beside Zhu 2021
+    res["scenarios"]["academic/alb_zhu2018"] = summary(sc.run("academic", "alb", variant="alb_zhu2018"))
+    res["scenarios"]["academic/alb_zhu2018/light"] = summary(sc.run("academic", "alb", sc.LIGHT, variant="alb_zhu2018"))
+    # patent examples (grade B) beside the peer-reviewed academic titers: EVERY's ovomucoid, Standing Ovation's casein,
+    # Delta's methanol-free albumin
+    for prod in ("ovd", "cas", "alb"):
         res["scenarios"][f"academic/{prod}_patent"] = summary(sc.run("academic", prod, variant=f"{prod}_patent"))
         res["scenarios"][f"academic/{prod}_patent/light"] = summary(sc.run("academic", prod, sc.LIGHT, variant=f"{prod}_patent"))
 
@@ -434,7 +442,7 @@ def s_tornado(res):
     for prod in PRODUCTS:
         _, ranges = sc.mc_config("industry", prod)
         p = params.override(sc.scenario_params("industry", prod), {k: dict(val) for k, val in ranges.items()})
-        skip = ("plant.", "hosts.treesei", "energetics.") + sc.unused_paths(p)
+        skip = ("plant.", "hosts.treesei", "energetics.") + sc.unused_paths(p) + sc.design_choices(p)
         paths = [x for x in params.ranged_leaves(p) if not x.startswith(skip)]
         res["tornado_by_product"][prod] = sc.tornado(p, paths)
     res["tornado"] = res["tornado_by_product"]["blg"]
@@ -453,6 +461,7 @@ def s_monte_carlo(res):
             res["monte_carlo"][f"{name}/{prod}"] = dict(p10=mc["p10"], p50=mc["p50"], p90=mc["p90"], n=int(len(mc["msp"])),
                                                        p10_all=mc["p10_all"], p50_all=mc["p50_all"], p90_all=mc["p90_all"],
                                                        infeasible_reasons=mc["infeasible_reasons"], input_means=mc["input_means"],
+                                                       rank_corr=mc["rank_corr"],
                                                        feasible_frac=float(mc["feasible"].mean()), base=base,
                                                        base_percentile=float((ok < base).mean() * 100) if ok.size else None,
                                                        msp=[float(x) for x in mc["msp"]],
@@ -461,9 +470,11 @@ def s_monte_carlo(res):
 
 def s_scale(res):
     """Fig. 6: each product's industry-benchmark case over plant output, US vs EU, both conventions.
-    Lactoferrin's range covers its market (~0.3-1.6 kt/yr) up to the others' 10 kt/yr."""
-    outputs = {k: [100, 250, 500, 1000, 1588, 2500, 5000, 10000] if k == "lf" else [1000, 2500, 5000, 10000, 25000, 50000, 100000]
-               for k in PRODUCTS}
+    Lactoferrin's range covers its market (~0.3-1.6 kt/yr) up to the others' 10 kt/yr; albumin's from
+    0.1 kt/yr to 10 kt/yr (today's human-albumin market is ~0.5-1 kt/yr)."""
+    small = {"lf": [100, 250, 500, 1000, 1588, 2500, 5000, 10000], "alb": [100, 250, 500, 1000, 2500, 5000, 10000],
+             "alac": [100, 250, 500, 1000, 2500, 5000, 10000]}
+    outputs = {k: small.get(k, [1000, 2500, 5000, 10000, 25000, 50000, 100000]) for k in PRODUCTS}
     res["scale_by_product"] = {k: sc.scale_curve(sc.scenario_params("industry", k), outputs[k]) for k in PRODUCTS}
     res["scale"] = res["scale_by_product"]["blg"]
     # lactoferrin on its base case (design titer), from 100 t/yr through the market estimates (0.3-1.6 kt/yr)
@@ -607,13 +618,131 @@ def s_casein(res):
     res["casein"] = out
 
 
+def s_albumin(res):
+    """Albumin-only results: bulk-albumin prices, the methanol induction, recovery and UF/DF-only cases,
+    resin levers, the base case over plant size, and the cost per kg of cultivated meat at GFI 2023's
+    medium use (1.13 g/L albumin x 8 / 13 / 42 L medium per kg; data/evidence/albumin.yaml). Its base,
+    scenario, physical-limit, required-titer, tornado and Monte Carlo results sit with the other products'."""
+    out = {"reported_prices": bm.reported_prices()["albumin"], "cases": {}}
+    for var in ("alb_capture_only", "alb_methanol", "alb_recovery_low", "alb_recovery_high", "alb_ufdf_only"):
+        for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
+            out["cases"][f"{var}/{label}"] = summary(sc.run("albumin", "alb", extra, variant=var))
+    p = sc.base_params("alb")
+    out["resin"] = {f"{k}={x}": plant.evaluate(params.override(p, {k: x})).msp_ccf
+                    for k, xs in (("dsp.cex_resin_life_cycles", (125, 1000)), ("dsp.cex_resin_usd_L", (100, 2000)),
+                                  ("dsp.cex_hardware_usd_per_L_resin", (300, 3000)), ("dsp.cex_dbc_g_L", (30, 50)))
+                    for x in xs}
+    out["scale"] = sc.scale_curve(p, [100, 250, 500, 1000, 2500, 5000, 10000])
+    ev = {e["key"]: e for e in yaml.safe_load((ROOT / "data/evidence/albumin.yaml").read_text())}
+    use = ev["gfi2023_medium_use_l_per_kg"]
+    conc = ev["gfi2023_implied_albumin_concentration"]["value"]
+    out["cm"] = dict(conc_g_L=conc, medium_L_per_kg=[use["low"], use["value"], use["high"]],
+                     g_per_kg_cm=[conc * x for x in (use["low"], use["value"], use["high"])],
+                     gfi_target_usd_kg=ev["gfi2023_albumin_cost_target"]["value"],
+                     catalogue_usd_kg=[ev["rhsa_catalogue_price_invitria_2026"]["low"],
+                                       ev["rhsa_catalogue_price_invitria_2026"]["high"]])
+    res["albumin"] = out
+
+
+def s_alac(res):
+    """Alpha-lactalbumin-only results: the reported market band, the base case at BLG's 10 kt/yr (so the two
+    whey proteins compare on one plant size) and its purity target at the ends of its range."""
+    p = sc.base_params("alac")
+    out = {"reported_prices": bm.reported_prices()["alpha_lactalbumin"],
+           "at_10kt": summary(plant.evaluate(sc.size_fermenter(params.override(p, {"plant.annual_target_protein_t": 10000.0})))),
+           "at_10kt_industry": summary(plant.evaluate(sc.size_fermenter(params.override(
+               sc.scenario_params("industry", "alac"), {"plant.annual_target_protein_t": 10000.0})))),
+           "purity": {f"{x:g}": plant.evaluate(params.override(p, {"dsp.concentrate_target_frac_dry": x})).msp_ccf
+                      for x in params.bounds(p, "dsp.concentrate_target_frac_dry")}}
+    res["alac"] = out
+
+
+def s_cheese(res):
+    """Casein for a rennet cheese: alpha-s1 + kappa-casein, two strains and plants (data/pf/scenarios/cheese.yaml).
+    Per kg of blend at kappa share s,
+        c_blend = (1 - s) c_as1 + s c_kap(T_kap),
+    each plant sized for its share of the blend (casein_t_per_yr x (1 - s) and x s). Kappa on two routes that
+    bracket the unknown one: co-precipitated with alpha-s1 (acid, 'kap') and its own cation-exchange capture
+    ('kap_cex'). The kappa titer at which the blend costs at most 10% more than alpha-s1 alone is
+    scenarios.blend_titer_needed, on the feasible points only."""
+    cfg = sc.load("cheese")
+    s0, s_lo, s_hi = (cfg["blend"]["kappa_share"][k] for k in ("value", "low", "high"))
+    tot = cfg["blend"]["casein_t_per_yr"]["value"]
+    t_ind = sc.load("industry")["cas"]["strain.titer_g_L"]
+
+    def run(var, prod, t_per_yr, extra=None):
+        p = sc.size_fermenter(sc.scenario_params("cheese", prod, {"plant.annual_target_protein_t": float(t_per_yr),
+                                                                  **(extra or {})}, variant=var))
+        return summary(plant.evaluate(p))
+
+    shares = [s_lo, s0, s_hi]
+    out = {"kappa_share": shares, "casein_t_per_yr": tot, "as1": {}, "as1_by_share": {}, "kap": {}, "blend": {},
+           "kappa_titer_for_10pct": {}, "routes": ["kap", "kap_cex"], "grid": cfg["blend"]["kappa_titers_g_L"]}
+    for label, var, extra in (("base", "cas1", {}), ("base/light", "cas1", sc.LIGHT), ("academic", "cas1_wang2021", {}),
+                              ("patent", "cas1_patent", {}), ("industry", "cas1", {"strain.titer_g_L": float(t_ind)})):
+        out["as1"][label] = run(var, "cas1", tot * (1 - s0), extra)
+    out["as1"]["base/10kt"] = run("cas1", "cas1", tot)        # the whole 10 kt/yr as alpha-s1 (vs beta-casein)
+    for s in shares:
+        out["as1_by_share"][f"{s:g}"] = run("cas1", "cas1", tot * (1 - s))["msp_ccf"]
+    for route in out["routes"]:
+        out["kap"][route], out["blend"][route], out["kappa_titer_for_10pct"][route] = {}, {}, {}
+        for s in shares:
+            c_as1 = out["as1_by_share"][f"{s:g}"]
+            pts = {f"{t:g}": run(route, "kap", tot * s, {"strain.titer_g_L": float(t)}) for t in out["grid"]}
+            out["kap"][route][f"{s:g}"] = pts
+            out["blend"][route][f"{s:g}"] = [(1 - s) * c_as1 + s * d["msp_ccf"] for d in pts.values()]
+            ok = [(float(t), d["msp_ccf"]) for t, d in pts.items() if d["feasible"]]
+            out["kappa_titer_for_10pct"][route][f"{s:g}"] = sc.blend_titer_needed(
+                [x for x, _ in ok], [c for _, c in ok], c_as1, s)
+    ev_ = {e["key"]: e for e in yaml.safe_load((ROOT / "data/evidence/casein.yaml").read_text())}
+    out["kappa_lab_price_usd_g"] = ev_["kappa_casein_price_lab_reagent"]["value"]
+    res["cheese"] = out
+
+
+def s_heme(res):
+    """Heme note: soy leghemoglobin on the membrane route at LegH Prep's purity (data/pf/scenarios/heme.yaml),
+    for the base design point and the two best published secreted processes, at ~150 t/yr and 1 kt/yr.
+    Cost in use per kg of beef analogue = c_LegH x use fraction; it is set against the beef and analogue prices."""
+    cfg = sc.load("heme")
+    out = {"cases": {}, "use": {k: {kk: x for kk, x in cfg["use"][k].items() if kk in ("value", "low", "high")}
+                                for k in cfg["use"]}}
+    for var in ("legh", "legh_chen2025", "legh_shao2022"):
+        for t in cfg["scales_t_per_yr"]:
+            for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
+                p = sc.size_fermenter(sc.scenario_params("heme", "legh", {"plant.annual_target_protein_t": float(t), **extra},
+                                                         variant=var))
+                out["cases"][f"{var}/{t}/{label}"] = summary(plant.evaluate(p))
+    out["scales"] = cfg["scales_t_per_yr"]
+    res["heme"] = out
+
+
+def s_floor(res):
+    """Metabolic floor (floor.py) of every product beside its base case's own feedstock bill, and the incumbent
+    animals' feed bill and farm-gate cost per kg of edible protein (benchmarks.feed_bills), US and EU.
+    PF splits the same way as the animal: feedstock (glucose) and everything else (MSP - glucose)."""
+    out = {"products": {}, "animals": bm.feed_bills(),
+           "food_products": yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())["feed_bills"]["food_products"]}
+    for prod in PRODUCTS:
+        out["products"][prod] = {}
+        for loc in params.LOCATIONS:
+            p = sc.base_params(prod, {"plant.location": loc})
+            r = plant.evaluate(p)
+            out["products"][prod][loc] = dict(floor=floor.metabolic_floor(p), msp=r.msp_ccf, glucose_kg=r.physical["glucose_kg"],
+                                              glucose_usd=r.per_kg["glucose"], cells_kg=r.physical["cells_kg"],
+                                              other=r.msp_ccf - r.per_kg["glucose"],
+                                              # what real cells could make at most: the secretion ceiling x the packing limit
+                                              cells_cap_kg_m3_h=params.v(p, "strain.q_p_max_mg_g_h") / 1000 * params.v(p, "strain.X_max_g_L"))
+    res["floor"] = out
+
+
 SECTIONS = {"base": s_base, "scenarios": s_scenarios, "physical_limit": s_physical_limit, "demonstrated": s_demonstrated,
             "cost_vs_titer": s_cost_vs_titer, "bridge": s_bridge, "required": s_required, "ceiling": s_ceiling,
             "claims": s_claims,
             "policy": s_policy,
             "tornado": s_tornado,
             "monte_carlo": s_monte_carlo, "scale": s_scale, "calibration": s_calibration,
-            "equivalents": s_equivalents, "lactoferrin": s_lactoferrin, "casein": s_casein}
+            "equivalents": s_equivalents, "lactoferrin": s_lactoferrin, "casein": s_casein, "alac": s_alac, "cheese": s_cheese, "heme": s_heme,
+            "albumin": s_albumin, "floor": s_floor}
 
 if __name__ == "__main__":
     t0 = time.time()

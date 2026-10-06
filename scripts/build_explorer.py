@@ -93,7 +93,35 @@ ref = {"blg": rows_ok(
     lambda: case("Industry benchmark: titer assumed in private cost models", SC["industry/lf"], SC["industry/lf/light"],
          SC.get("industry/lf/aseptic")),
     lambda: case("Physical-limit best case, 1.6 kt/yr (secretion at 40 mg/g/h)", PLR["lf/humbird"], PLR["lf/light"]),
-    lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["lf/humbird/q_p_max_2.1"]))}
+    lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["lf/humbird/q_p_max_2.1"])),
+    "alac": rows_ok(
+    lambda: case("Best public titer (Wang 2025; human alpha-lac, ethanol-fed, priced as glucose; 0.6 g/L)", SC["academic/alac"],
+         SC["academic/alac/light"], SC.get("academic/alac/aseptic")),
+    lambda: case("Base case (Intelligen's design point), UF/DF concentrate, 1 kt/yr", R["base"]["alac"],
+         R["base_light"]["alac"], R["base_aseptic"]["alac"]),
+    lambda: case("Same, at BLG's 10 kt/yr", R["alac"]["at_10kt"]),
+    lambda: case("Industry benchmark: titer assumed in private cost models", SC["industry/alac"], SC["industry/alac/light"],
+         SC.get("industry/alac/aseptic")),
+    lambda: case("Physical-limit best case, 32 kt/yr (secretion at 40 mg/g/h)", PLR["alac/humbird"], PLR["alac/light"]),
+    lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["alac/humbird/q_p_max_2.1"])),
+    "alb": rows_ok(
+    lambda: case("Best public rHSA titer (Zhu 2021; 8.7 g/L of whole broth, 17.5 of supernatant, after 192 h of methanol induction)", SC["academic/alb"],
+         SC["academic/alb/light"], SC.get("academic/alb/aseptic")),
+    lambda: case("Zhu 2018 (about 4.4 g/L of whole broth after 96 h of methanol induction)", SC["academic/alb_zhu2018"], SC["academic/alb_zhu2018/light"]),
+    lambda: case("Best methanol-free titer (Delta/Recombumin patent, S. cerevisiae, 1.5 g/L)", SC["academic/alb_patent"],
+         SC["academic/alb_patent/light"]),
+    lambda: case("Base case (Intelligen's design point), cation exchange + anion-exchange polish, 1 kt/yr", R["base"]["alb"],
+         R["base_light"]["alb"], R["base_aseptic"]["alb"]),
+    lambda: case("Same, cation-exchange capture only (optimistic)", R["albumin"]["cases"]["alb_capture_only/humbird"],
+         R["albumin"]["cases"]["alb_capture_only/light"]),
+    lambda: case("Same, methanol-induced production phase", R["albumin"]["cases"]["alb_methanol/humbird"],
+         R["albumin"]["cases"]["alb_methanol/light"]),
+    lambda: case("Same, UF/DF only (77% albumin, below the cell-culture spec)", R["albumin"]["cases"]["alb_ufdf_only/humbird"],
+         R["albumin"]["cases"]["alb_ufdf_only/light"]),
+    lambda: case("Industry benchmark: titer assumed in private cost models", SC["industry/alb"], SC["industry/alb/light"],
+         SC.get("industry/alb/aseptic")),
+    lambda: case("Physical-limit best case, 100 kt/yr (secretion at 40 mg/g/h)", PLR["alb/humbird"], PLR["alb/light"]),
+    lambda: case("Same, at the best secretion demonstrated on glucose (2.1 mg/g/h)", PLR["alb/humbird/q_p_max_2.1"]))}
 PRODS = list(R["base"])                       # products in results order (data/pf/products.yaml)
 if list(G["axes"]["product"]) != PRODS:          # a stale grid would mislabel products silently (audit R11-10)
     sys.exit(f"explorer grid products {G['axes']['product']} != results products {PRODS}: rerun scripts/explorer_grid.py")
@@ -103,7 +131,7 @@ _prod = yaml.safe_load((ROOT / "data/pf/products.yaml").read_text())
 BASE_POINT = {p: dict(titer=(_prod.get(p) or {}).get("strain.titer_g_L", {}).get("value", _base["titer_g_L"]["value"]),
                       t_prod=(_prod.get(p) or {}).get("strain.t_prod_h", {}).get("value", _base["t_prod_h"]["value"]))
               for p in PRODS}
-NAMES = {"blg": "&beta;-lactoglobulin", "ova": "Ovalbumin", "ovd": "Ovomucoid", "cas": "&beta;-casein", "lf": "Lactoferrin"}
+NAMES = {"blg": "&beta;-lactoglobulin", "ova": "Ovalbumin", "ovd": "Ovomucoid", "cas": "&beta;-casein", "lf": "Lactoferrin", "alb": "Serum albumin", "alac": "&alpha;-lactalbumin"}
 LFP = R.get("lactoferrin", {}).get("reported_prices", {"band": [0, 0], "points": []})
 SERIES_LABEL = {"whey_protein_gt80_us_export_unit_value": "US exports", "whey_protein_gt80_eu_export_unit_value": "EU exports",
                 "egg_albumin_dried_eu_export_unit_value": "EU exports", "casein_food_eu_export_unit_value": "EU exports",
@@ -116,21 +144,32 @@ for name, d in inc.items():
         market[prod] = dict(label=MKT_LABEL.get(name, d["label"]), frac=d["protein_frac"],
                             series=[dict(label=SERIES_LABEL.get(k, k), pts=v) for k, v in d["series"].items()],
                             spot=spot, band=d["band"], years=d["years"])
-if "lf" in PRODS:
+
+
+def reported_market(key, label, rp, comparators=()):
+    """A market entry from reported price points (benchmarks.reported_prices): per-year low and high."""
     lo_, hi_ = {}, {}
-    for y, lo, hi, _ in LFP["points"]:
+    for y, lo, hi, _ in rp["points"]:
         if y:
             lo_[y], hi_[y] = min(lo, lo_.get(y, lo)), max(hi, hi_.get(y, hi))
     yrs = sorted(lo_)
-    market["lf"] = dict(label="Dairy lactoferrin (reports and trade press, grade C)",
-                        frac=1.0,                 # reported per kg of product, read as per kg lactoferrin (as in the report)
-                        series=[dict(label="reported low", pts={str(y): lo_[y] for y in yrs}),
-                                dict(label="reported high", pts={str(y): hi_[y] for y in yrs})],
-                        spot=[], band=LFP["band"], years=[yrs[0], yrs[-1]] if yrs else [2013, 2025],
-                        comparators=[dict(label="Intelligen's model, " + {"lf": "cation exchange", "lf_ufdf_only": "UF/DF only"}[c["ours"]],
-                                          value=c["value_money_year"],
-                                          ours=R["lactoferrin"].get("reconciliation", {}).get(c["ours"], {}).get("cop"))
-                                     for c in LFP.get("comparators", []) if c.get("ours")])
+    market[key] = dict(label=label, frac=1.0,     # reported per kg of product, read as per kg protein (as in the report)
+                       series=[dict(label="reported low", pts={str(y): lo_[y] for y in yrs}),
+                               dict(label="reported high", pts={str(y): hi_[y] for y in yrs})],
+                       spot=[], band=rp["band"], years=[yrs[0], yrs[-1]] if yrs else [2013, 2025],
+                       comparators=list(comparators))
+
+
+if "lf" in PRODS:
+    reported_market("lf", "Dairy lactoferrin (reports and trade press, grade C)", LFP,
+                    [dict(label="Intelligen's model, " + {"lf": "cation exchange", "lf_ufdf_only": "UF/DF only"}[c["ours"]],
+                          value=c["value_money_year"],
+                          ours=R["lactoferrin"].get("reconciliation", {}).get(c["ours"], {}).get("cop"))
+                     for c in LFP.get("comparators", []) if c.get("ours")])
+if "alac" in PRODS:
+    reported_market("alac", "Dairy alpha-lactalbumin (market reports, grade C)", R["alac"]["reported_prices"])
+if "alb" in PRODS:
+    reported_market("alb", "Bulk serum albumin (technical BSA trade values, grade C)", R["albumin"]["reported_prices"])
 powder_frac = {p: R["base"][p]["per_kg_powder"] / R["base"][p]["msp_ccf"] for p in PRODS}
 EQ = R["equivalents"]["sources"]
 
@@ -294,10 +333,11 @@ tr.mkt td { color: var(--ink-2); background: var(--accent-soft); }
   <header>
     <h1>Precision Fermentation Cost Explorer</h1>
     <p class="lede">Food-grade &beta;-lactoglobulin (the main whey protein), ovalbumin and ovomucoid (egg-white proteins), &beta;-casein
-    (the main cheese protein) and lactoferrin, made by a secreting <i>K.&nbsp;phaffii</i> strain in 200&nbsp;m&sup3; fed-batch fermenters
-    and dried: 10&nbsp;kt of protein a year (lactoferrin 250&nbsp;t, the size of its market). Each protein has its own purification:
-    membranes for BLG, ovalbumin and ovomucoid, isoelectric precipitation for casein, cation exchange for lactoferrin.
-    Move the strain levers and see the minimum selling price, whether a real fermenter can run the design, and how the price compares with whey, egg white, casein, lactoferrin, milk and eggs.</p>
+    (the main cheese protein), lactoferrin, and serum albumin for cultivated-meat growth media, made by a secreting <i>K.&nbsp;phaffii</i>
+    strain in fed-batch fermenters of up to 200&nbsp;m&sup3; and dried: 10&nbsp;kt of protein a year (lactoferrin 250&nbsp;t, the size of its market;
+    albumin 1&nbsp;kt). Each protein has its own purification: membranes for BLG, ovalbumin and ovomucoid, isoelectric precipitation for casein,
+    cation exchange for lactoferrin and albumin.
+    Move the strain levers and see the minimum selling price, whether a real fermenter can run the design, and how the price compares with whey, egg white, casein, lactoferrin, bulk albumin, milk and eggs.</p>
   </header>
 
   <section class="summary" aria-live="polite">

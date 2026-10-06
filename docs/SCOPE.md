@@ -7,14 +7,17 @@ editing this file and recording the change in PLAN.md.
 ## The question
 
 *Changed 2026-10-01 at Pablo's request (PLAN.md decisions log): ovomucoid, β-casein and lactoferrin
-are products on the same footing as BLG and OVA, in every question below. The original BLG/OVA
-wording is kept for the pre-registered priors, which were written against it.*
+are products on the same footing as BLG and OVA, in every question below. Changed 2026-10-02 (v4, Pablo:
+take the candidates "one by one, in priority order"): serum albumin for cultivated-meat media added on
+the same footing; α-lactalbumin added the same day on the same footing, and two notes outside the product
+list (casein for rennet cheese: α<sub>s1</sub>- plus κ-casein; heme: soy leghemoglobin). The original BLG/OVA wording is kept for the pre-registered priors, which were written
+against it; no priors were registered for albumin, α-lactalbumin or the notes before their first outputs.*
 
-> What does it cost to make food-grade β-lactoglobulin, ovalbumin, ovomucoid, β-casein and lactoferrin by
-> precision fermentation, with today's public strain performance and at the physical limits of
-> aerobic fermentation? And what combination of titer, rate, yield, downstream design and plant
-> scale would bring them to price parity with the whey, egg-white, casein and lactoferrin they would
-> replace?
+> What does it cost to make food-grade β-lactoglobulin, ovalbumin, ovomucoid, β-casein and lactoferrin,
+> and serum albumin for cultivated-meat media, by precision fermentation, with today's public strain
+> performance and at the physical limits of aerobic fermentation? And what combination of titer, rate,
+> yield, downstream design and plant scale would bring them to price parity with the whey, egg-white,
+> casein, lactoferrin and bulk albumin they would replace?
 
 Original (v1):
 
@@ -28,7 +31,7 @@ Original (v1):
 |---|---|---|
 | Q1 | What do BLG and OVA cost at public (academic) and claimed (industry) performance? | Cost vs titer × rate map with every public and claimed data point |
 | Q2 | What drives the cost, and how good is the evidence for each driver? | Tornado coloured by evidence grade; cost bridge from $4/kg crude enzyme to purified OVA |
-| Q3 | Which combinations of performance and scale reach $10 and $20 per kg protein (lactoferrin: $100–400, across its market)? | "What must be true" frontier |
+| Q3 | Which combinations of performance and scale reach $10 and $20 per kg protein (lactoferrin: $100–400, across its market; albumin: $10–100)? | "What must be true" frontier |
 | Q4 | What is the cost at the physical limits? | Physical-limit best case (v2.1: shown against the secretion ceiling it assumes) |
 | Q5 | Are published company claims consistent with O₂-transfer and cooling limits? | Claims plotted against the feasible region |
 | Q6 | How much do siting (US vs EU) and scale (1–100 kt/yr) matter? | Scale curve; US vs EU comparison |
@@ -53,9 +56,37 @@ Original (v1):
 | | Ovomucoid (added 2026-10-01) | β-casein (added 2026-10-01) | Lactoferrin (equal footing 2026-10-01) |
 |---|---|---|---|
 | Base spec | EVERY's GRN 967: ≥75% protein, 66–74% ovomucoid in the powder (~0.76 of dry matter), ≤10% moisture | ≥90% protein, >97% casein of protein, ≤5% moisture, by analogy with Formo's αs1-casein (FDA GRN 1312), sold as sodium caseinate | ≥90% protein, ≥95% lactoferrin, ≤4.5% moisture (FDA GRN 1284) |
-| Base downstream train | Remove cells, filter, UF/DF, dry (GRN 967: no chromatography) | Remove cells, filter, isoelectric precipitation (pH 4, 90 °C), decanter washes, NaOH to caseinate, spray dry | Remove cells, filter, cation exchange, UF/DF, spray dry |
+| Base downstream train | Remove cells, filter, UF/DF, dry (GRN 967: no chromatography) | Remove cells, filter, UF to skim-milk casein concentration, isoelectric precipitation (pH 4.5, 90 °C), decanter washes, NaOH to caseinate, spray dry | Remove cells, filter, cation exchange, UF/DF, spray dry |
 | Variant | Ammonium-sulfate isolate (patent route) | UF/DF only (Eden Brew, FSANZ A1342): ~6% β-casein in the powder | UF/DF only (Intelligen case a) |
 | Plant | 10 kt/yr | 10 kt/yr, as BLG and OVA | 250 t/yr (Intelligen's design; world market ~0.3–1.6 kt/yr) |
+
+| | Serum albumin (added 2026-10-02) |
+|---|---|
+| Base spec | Cell-culture grade recombinant HSA: ≥96% albumin, ≤1 EU/mg endotoxin (InVitria Cellastim S; no food- or media-grade spec exists) |
+| Base downstream train | Remove cells, filter, cation-exchange capture at pH 4.5 then anion-exchange polish (Delta/Recombumin minimal train), UF/DF, spray dry |
+| Variants | Capture only (optimistic); methanol-induced production; capture recovery 0.40/0.86; UF/DF only (77% albumin, below spec) |
+| Plant | 1 kt/yr (design choice: ~today's human-albumin market; GFI's 2030 CM scenarios 3.6–100 kt/yr) |
+| Incumbent | Bulk bovine serum albumin, technical grade ($40–70/kg, grade C); GFI target $10/kg; catalogue rHSA $43–55k/kg |
+
+| | α-Lactalbumin (added 2026-10-02) |
+|---|---|
+| Base spec | Dairy α-lac isolate, FDA GRN 763 (Agropur): ≥95% protein, ≥90% of it α-lac, i.e. ~90% of dry matter |
+| Base downstream train | BLG's membrane route (MF, UF/DF, spray dry); GFI Europe/ADL's food-grade route |
+| Academic | Wang 2025, 0.60 g/L human α-lac (supernatant), ethanol-fed >90 h, priced as glucose |
+| Plant | 1 kt/yr (design choice: ~27% of the high-purity market, 3% of the food-grade one; GFI Europe 2025, C) |
+| Incumbent | Dairy α-lac, $15–123/kg (GFI Europe/ADL; FMI $31–86; grade C) |
+
+Notes outside the product list (run on existing routes by analogy; data/pf/scenarios/cheese.yaml, heme.yaml):
+- *Casein for rennet cheese:* α<sub>s1</sub>-casein (base design point, β-casein's acid route) blended with κ-casein
+  from its own strain and plant at 12–19% κ (Antuma 2025); output: the blend's cost against κ titer, and the κ
+  titer at which the blend costs ≤10% more than α<sub>s1</sub> alone.
+- *Heme:* soy leghemoglobin from the best published secreting strains (Chen 2025, Shao 2022) on the membrane
+  route at LegH Prep's purity; cost per kg LegH and per kg of beef analogue at 0.45% use. The commercial
+  route (intracellular, lysed, frozen liquid) is not modelled.
+
+Vessel size (v4): the designer takes the cheapest feasible plant over 50–200 m³ vessels (cap 200 m³),
+so the small plants (lactoferrin, albumin) use smaller vessels. First-of-a-kind: a pioneer-plant case
+(capital x 1.28, RAND R-2569) is shown separately, never in the base.
 
 **Functional unit:** 1 kg of target protein in a spray-dried powder that meets the spec.
 Results are reported per kg of protein and per kg of powder.
@@ -79,7 +110,9 @@ cost-in-use are outside the model and are stated as such.
   broth changes the O₂ physics.
 - **Mode:** aerobic fed-batch on glucose. Continuous operation only if data allow.
 - **Plant:** greenfield, single-product, nth-of-a-kind. Base is 10 kt/yr of protein, swept
-  from 1 to 100 kt/yr. A first-of-a-kind penalty is shown separately, never mixed in.
+  from 1 to 100 kt/yr. A first-of-a-kind case is shown separately, never mixed in: capital x
+  1/0.78 = 1.28, the mean cost growth of pioneer process plants (RAND R-2569, Merrow et al. 1981; no
+  fermentation-specific premium is on file).
 - **Facility class:** food-grade, "commodity aerobic" in the classes of Humbird's
   equipment database. Built to food CGMP (21 CFR 117, as in GRN 1056), not pharmaceutical
   cGMP.

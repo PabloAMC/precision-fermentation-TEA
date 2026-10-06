@@ -70,7 +70,7 @@ def num(x):
 ws = wb.active
 ws.title = "README"
 lines = [
-    ("Supplementary workbook: the cost of precision-fermented BLG, OVA, ovomucoid, beta-casein and lactoferrin (v3; v2.1 audited)", HDR),
+    ("Supplementary workbook: the cost of precision-fermented BLG, OVA, ovomucoid, beta-casein, lactoferrin, serum albumin and alpha-lactalbumin (v4), with notes on rennet-cheese casein and heme", HDR),
     (f"Generated from results/analyses.json ({R['generated']}) and the data files of the pf-tea repository.", BODY),
     ("All sheets hold values exported by scripts/build_si_workbook.py, except 'Accounting', which is live (formulas).", BODY),
     ("Money: 2025 US dollars. Per kg = per kg of target protein unless the column says powder.", BODY),
@@ -110,10 +110,12 @@ sheet("Parameters", ["path", "label", "value (US)", "value (EU)", "low", "high",
 
 # ---------------------------------------------------------------- Scenarios
 rows = []
-for name in ("academic", "industry", "physical_limit", "lactoferrin", "casein"):
+for name in ("academic", "industry", "physical_limit", "lactoferrin", "casein", "albumin", "cheese", "heme"):
     s = yaml.safe_load((ROOT / f"data/pf/scenarios/{name}.yaml").read_text())
     for blk, body in s.items():
         if blk in ("description", "search", "mc_paths"):
+            continue
+        if not isinstance(body or {}, dict):
             continue
         for k, x in (body or {}).items():
             rows.append([name, blk, k, json.dumps(x) if isinstance(x, dict) else num(x)])
@@ -135,6 +137,12 @@ rows += [res_row(k, d) for k, d in R["scenarios"].items()]
 rows += [res_row(f"physical_limit/{k}", d) for k, d in R["physical_limit"].items()]
 rows += [res_row(f"lactoferrin/{k}", d) for k, d in R["lactoferrin"]["cases"].items()]
 rows += [res_row(f"casein/{k}", d) for k, d in R.get("casein", {}).get("cases", {}).items()]
+rows += [res_row(f"albumin/{k}", d) for k, d in R.get("albumin", {}).get("cases", {}).items()]
+rows += [res_row(f"alac/{k}", R["alac"][k]) for k in ("at_10kt", "at_10kt_industry") if k in R.get("alac", {})]
+rows += [res_row(f"cheese/alpha-s1/{k}", d) for k, d in R.get("cheese", {}).get("as1", {}).items()]
+rows += [res_row(f"cheese/{r}/share {s}/{t} g/L", d) for r, rr in R.get("cheese", {}).get("kap", {}).items()
+         for s, dd in rr.items() for t, d in dd.items()]
+rows += [res_row(f"heme/{k}", d) for k, d in R.get("heme", {}).get("cases", {}).items()]
 sheet("Results", ["case", "titer g/L", "MSP_CCF $/kg", "COP $/kg", "MSP_DCF $/kg", "MSP_CCF $/kg powder", "TCI $",
                   "glucose kg/kg", "electricity kWh/kg", "feasible", "flags"], rows,
       [30, 10, 13, 11, 13, 16, 16, 13, 16, 9, 60])
@@ -227,6 +235,13 @@ sheet("MonteCarlo", ["scenario", "draws", "feasible fraction", "p10", "p50", "p9
       [18, 8, 16, 10, 10, 10, 12, 12, 12, 14, 14, 40],
       note="Triangular draws over each scenario's ranges; p10-p90 over feasible draws, and over all draws with a cost; "
            "draws the model cannot build count as infeasible.")
+sheet("MonteCarlo_rank", ["scenario", "parameter", "label", "Spearman rho", "rho squared"],
+      sorted([[k, par, label(par), rho, rho * rho] for k, d in R["monte_carlo"].items()
+              for par, rho in (d.get("rank_corr") or {}).items() if rho is not None], key=lambda r: (r[0], -abs(r[3]))),
+      [18, 40, 36, 14, 12],
+      note="Spearman rank correlation of each sampled input with MSP over the feasible draws (review G4). The inputs are drawn "
+           "independently, so rho squared approximates each input's share of the rank variance of MSP: the global counterpart "
+           "of the one-at-a-time tornado.")
 SCB = R.get("scale_by_product") or {"blg": R["scale"]}
 sheet("Scale", ["product", "kt/yr"] + list(R["scale"]["curves"].keys()),
       [[prod, o / 1000] + [c["curves"][k][i] for k in c["curves"]] for prod, c in SCB.items() for i, o in enumerate(c["outputs"])],
@@ -274,6 +289,22 @@ if C_:
           note="Beta-casein: the UF/DF-only route (Eden Brew, FSANZ A1342) and the precipitation inputs with the weakest evidence "
                "(acid dose, recovery, heat recovery, wash water) at the ends of their ranges, on the base case (data/pf/products.yaml; "
                "data/pf/scenarios/casein.yaml; data/evidence/casein.yaml).")
+A_ = R.get("albumin")
+if A_:
+    rows = [[k, d["design"]["titer"], d["msp_ccf"], d["cop"], d["per_kg_powder"], d["design"]["purity_dry"]] for k, d in A_["cases"].items()]
+    rows += [[f"lever {k}", None, m, None, None, None] for k, m in A_["resin"].items()]
+    rows += [[f"base case at {o:,.0f} t/yr", None, m, None, None, None]
+             for o, m in zip(A_["scale"]["outputs"], A_["scale"]["curves"]["US, price-anchored"])]
+    cm = A_["cm"]
+    rows += [[f"$ per kg cultivated meat at {g:.1f} g albumin/kg ({L} L medium/kg x {cm['conc_g_L']} g/L), base case", None,
+              R["base"]["alb"]["msp_ccf"] * g / 1000, None, None, None] for g, L in zip(cm["g_per_kg_cm"], cm["medium_L_per_kg"])]
+    sheet("Albumin", ["case", "titer g/L", "MSP_CCF $/kg albumin", "cost of production $/kg", "$/kg powder", "albumin share of dry matter"],
+          rows, [62, 10, 18, 18, 14, 18],
+          note=f"Serum albumin for cultivated-meat media: methanol induction, CEX recovery and UF/DF-only variants, resin levers, plant "
+               f"size, and the cost per kg of cultivated meat at GFI 2023's medium use (data/pf/products.yaml; data/pf/scenarios/albumin.yaml; "
+               f"data/evidence/albumin.yaml). Bulk albumin ${A_['reported_prices']['band'][0]:,.0f}-{A_['reported_prices']['band'][1]:,.0f}/kg "
+               f"(technical BSA, grade C); GFI's target ${cm['gfi_target_usd_kg']}/kg; research-catalogue rHSA "
+               f"${cm['catalogue_usd_kg'][0]:,.0f}-{cm['catalogue_usd_kg'][1]:,.0f}/kg.")
 # Intelligen's lactoferrin model against ours, SuperPro categories, $/kg LF (report tab-lf-rec; review L)
 CATS = [("raw materials", "raw_materials"), ("labour", "labour"), ("facility", "facility"), ("lab/QC/QA", "lab_qc_qa"),
         ("consumables", "consumables"), ("waste", "waste"), ("utilities", "utilities")]
@@ -302,11 +333,53 @@ sheet("Market_context", ["ingredient", "low $/kg protein", "high $/kg protein", 
       [42, 16, 16, 24, 8, 36], note="Protein ingredients for context (report Q1, fig 11). GFI 2025 ranges are nominal; export unit "
                                     "values are deflated to 2025 dollars. data/evidence/prices.yaml.")
 
+CH = R.get("cheese")
+if CH:
+    rows = []
+    for route in CH["routes"]:
+        for x in CH["kappa_share"]:
+            k = f"{x:g}"
+            rows += [[f"{route}, kappa share {k}, kappa {t} g/L", float(t), d["msp_ccf"], CH["blend"][route][k][i], d["feasible"]]
+                     for i, (t, d) in enumerate(CH["kap"][route][k].items())]
+            rows.append([f"{route}, kappa share {k}: kappa titer for a blend 10% above alpha-s1 alone",
+                         CH["kappa_titer_for_10pct"][route][k], None, None, None])
+    rows += [[f"alpha-s1, {k}", CH["as1"][k]["design"]["titer"], CH["as1"][k]["msp_ccf"], None, CH["as1"][k]["feasible"]]
+             for k in CH["as1"]]
+    sheet("Cheese", ["case", "titer g/L", "MSP_CCF $/kg (kappa or alpha-s1)", "blend $/kg", "feasible"], rows, [62, 10, 20, 14, 10],
+          note="Rennet-cheese casein: alpha-s1 (base design point, acid route) blended with kappa-casein from its own strain and "
+               "plant at each kappa share of a 10 kt/yr casein blend; kappa co-precipitated (acid route, 'kap') or on its own "
+               "cation-exchange column ('kap_cex'). Blend = (1 - s) x alpha-s1 + s x kappa (data/pf/scenarios/cheese.yaml).")
+
+FLR = R.get("floor")
+if FLR:
+    rows = []
+    for prod, by in FLR["products"].items():
+        for loc, d in by.items():
+            f = d["floor"]
+            rows.append([f"PF {prod} (floor)", loc, f["substrate_kg"], f["cost"]["substrate"], f["total"] - f["cost"]["substrate"],
+                         f["total"], None, f["p_max_kg_m3_h"]])
+            rows.append([f"PF {prod} (base case)", loc, d["glucose_kg"], d["glucose_usd"], d["other"], d["msp"], None, None])
+            rows[-2] += [None] * 9
+            rows[-1] += [None] * 9
+    for name, a in FLR["animals"].items():
+        for loc, d in a["regions"].items():
+            rows.append([f"{a['label']} (farm gate)", loc, None, d["feed"], d["other"], d["total"], d["share"], None,
+                         d["feed_low"], d["feed_high"], d["total_low"], d["total_high"], d["alloc"], d["year"],
+                         f"feed {d['grades']['feed']}, share {d['grades']['share'] or '-'}", ", ".join(d["keys"]), None])
+    sheet("Floor_vs_feed", ["case", "location", "glucose kg/kg protein", "feedstock $/kg protein", "everything else $/kg",
+                            "total $/kg", "feed share of farm cost", "productivity bound kg/m3/h", "feed low", "feed high",
+                            "total low", "total high", "share of farm value charged (co-product credit)", "year", "grades",
+                            "evidence keys (data/evidence/feed.yaml)", ""], rows,
+          [40, 12, 14, 14, 14, 12, 14, 16, 10, 10, 10, 10, 14, 8, 16, 60, 2],
+          note="Metabolic floor (src/pftea/floor.py), each product's base case split into glucose and the rest, and the incumbent "
+               "animals' feed bill and farm-gate cost per kg of edible protein (data/evidence/feed.yaml, grade D). Report section "
+               "'Feedstock against feed'.")
+
 # ---------------------------------------------------------------- data
 with (ROOT / "data/titers.csv").open() as fh:
     t = list(csv.reader(fh))
 sheet("Titers", t[0], t[1:], [14, 14, 10, 10, 8, 10, 12, 20, 6, 50, 20, 12, 8, 8, 50])
-for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein", "ovomucoid"):
+for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein", "ovomucoid", "albumin", "alac", "heme"):
     E = yaml.safe_load((ROOT / f"data/evidence/{f}.yaml").read_text())
     rows = [[e.get("key"), num(e.get("value")) if not isinstance(e.get("value"), (dict, list)) else json.dumps(e.get("value")),
              num(e.get("low")), num(e.get("high")), e.get("unit", ""), e.get("grade", ""), e.get("source", ""),

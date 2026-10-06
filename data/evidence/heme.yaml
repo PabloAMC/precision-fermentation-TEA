@@ -1,0 +1,949 @@
+# heme.yaml: evidence for a HEME-PROTEIN COST-IN-USE NOTE in pf-tea (soy leghemoglobin, LegH; bovine
+# and other myoglobins). Research pass 2026-10-02 (AI research agent; to be checked by the main session).
+# Format: data/evidence/README.md. Grades: A measured/official; B published design basis, regulatory
+# dossier or patent example; C company claim/trade press/survey; D analogy; E guess.
+# Read as raw text: local files under ~/Developer/pf-tea/references (reports/, text/,
+# inbox/protein_survey_2026-10-01/), eCFR XML, Europe PMC abstracts / full text, web pages.
+# Items computed here are "Derived (mine)", quote: null. Model runs: .preview/heme/run_bound.py
+# (read-only use of src/pftea; outputs in .preview/heme/bound_runs.json).
+
+# =======================================================================================
+# 1. US regulatory definition and specifications: soy leghemoglobin (LegH Prep)
+# =======================================================================================
+
+- key: legh_us_color_additive_max_use
+  value: 0.8
+  unit: "% soy leghemoglobin protein by weight of uncooked ground-beef analogue (maximum)"
+  grade: A
+  source: "21 CFR 73.520 Soy leghemoglobin, para (c) Uses and restrictions [84 FR 37576, Aug. 1, 2019]"
+  doi_or_url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-A/part-73/subpart-A/section-73.520
+  locator: "21 CFR 73.520(c) (eCFR XML, saved .preview/heme/cfr73520.xml)"
+  quote: "the amount of soy leghemoglobin protein does not exceed 0.8 percent by weight of the uncooked ground beef analogue product"
+  read: fulltext
+  note: >-
+    Official regulation (grade A for the legal limit). Ground-beef analogues only; the petition to
+    extend to other analogues is not reflected in the current eCFR text.
+
+- key: legh_us_color_additive_purity_spec
+  value: 65
+  unit: "% LegH protein on protein basis (w/w), minimum, by SDS-PAGE"
+  grade: A
+  source: "21 CFR 73.520(b)(1)"
+  doi_or_url: https://www.ecfr.gov/current/title-21/chapter-I/subchapter-A/part-73/subpart-A/section-73.520
+  locator: "21 CFR 73.520(b)(1)"
+  quote: "Soy leghemoglobin protein purity on protein basis (weight/weight), not less than 65 percent, as determined by sodium dodecyl sulfate-polyacrylamide gel electrophoresis."
+  read: fulltext
+  note: >-
+    Identity (a)(1) calls it "a stabilized product of controlled fermentation" of Pichia pastoris;
+    the regulation sets no LegH concentration in the preparation and no heme-loading requirement.
+    Heavy-metal limits: Pb <=0.4, As <=0.05, Hg <=0.05, Cd <=0.2 mg/kg.
+
+- key: legh_prep_legh_content_spec
+  value: 6
+  low: 6
+  high: 9
+  unit: "% LegH protein (w/w) in LegH Prep (frozen liquid concentrate)"
+  grade: B
+  source: "Impossible Foods Inc., GRAS Notice GRN 737 'Soy leghemoglobin protein preparation derived from Pichia pastoris' (notice, 2017; FDA no-questions letter 23 Jul 2018)"
+  doi_or_url: https://www.fda.gov/media/124351/download
+  locator: "§2.5 Specifications for food grade material and Table 1, notice pp.8-9 (inbox grn737_notice.txt l.320-375)"
+  quote: "LegH Prep, the ingredient used in Impossible Foods's ground beef analogue, is standardized to contain at least six percent (6%) soy leghemoglobin protein."
+  read: fulltext
+  note: >-
+    Table 1 spec "6-9%"; footnote 1: LegH may exceed 9% if more water is removed in the
+    concentration step. Five 2016 batches: 6.74, 6.39, 6.28, 6.74, 6.95% LegH (OCR-checked).
+    Stabilised with NaCl and sodium ascorbate; stored at -20 C as a frozen liquid >=12 months.
+
+- key: legh_prep_purity_batches
+  value: 80
+  low: 71
+  high: 86
+  unit: "% LegH of total protein (w/w), five 2016 production batches"
+  grade: B
+  source: "GRN 737 notice, Table 1"
+  doi_or_url: https://www.fda.gov/media/124351/download
+  locator: "Table 1, notice p.9; footnote 2 (inbox grn737_notice.txt l.355-368)"
+  quote: "The balance of the proteins in the preparation is residual Pichia proteins."
+  read: fulltext
+  note: >-
+    Batch purities 82, 71, 85, 77, 86% (spec >=65%); value 80 = Derived (mine) mean of the five
+    (80.2). Measured by SDS-PAGE densitometry. So LegH Prep is a crude lysate concentrate with
+    ~15-30% host protein; not a purified protein.
+
+- key: legh_prep_solids_batches
+  value: 15.6
+  low: 12.55
+  high: 18.44
+  unit: "% total solids (w/w) of LegH Prep; spec <=24%"
+  grade: B
+  source: "GRN 737 notice, Table 1"
+  doi_or_url: https://www.fda.gov/media/124351/download
+  locator: "Table 1, notice p.9, row 'Solids (w/w)'"
+  quote: "Percent solids specification is based on the sum of the maximum concentrations of total protein, fat, carbohydrates and ash."
+  read: fulltext
+  note: >-
+    Batches 14.85, 12.55, 14.92, 17.31, 18.44% solids; value = Derived (mine) mean 15.6.
+    Derived (mine): LegH as a share of dry solids = 6.74/14.85 = 45%, 6.39/12.55 = 51%,
+    6.28/14.92 = 42%, 6.74/17.31 = 39%, 6.95/18.44 = 38%, i.e. ~38-51% of dry matter is LegH; the
+    rest is host protein, carbohydrate (1-2.7%), ash (0.7-2.7%, incl. added NaCl) etc.
+
+- key: legh_prep_process_route
+  value: "intracellular; bead-mill lysis -> centrifugation + microfiltration -> UF concentration -> NaCl + ascorbate -> frozen liquid"
+  unit: process description
+  grade: B
+  source: "GRN 737 notice §2.6.3 Recovery Process and Figure 1"
+  doi_or_url: https://www.fda.gov/media/124351/download
+  locator: "§2.6.3, notice pp.10-11 (inbox grn737_notice.txt l.448-470)"
+  quote: "The P. pastoris cells in the fermentation broth are lysed by bead mill mechanical shearing. Insoluble material within the lysate is removed by centrifugation and microfiltration."
+  read: fulltext
+  note: >-
+    Next sentence: "Ultrafiltration is used to concentrate soy leghemoglobin protein." No
+    chromatography, no drying. Figure 1: fermentation, cell lysis, solid separation, concentration,
+    freezing. Fermentation (§2.6.2) is "submerged fed-batch"; methanol and glycerol concentrations
+    are monitored. No titer, yield or batch size disclosed.
+
+- key: legh_grn737_strain_and_induction
+  value: "P. pastoris MXY0291 (from Bg11/MXY0051); LGB2 + extra native heme-pathway enzymes + modified Mxr1, all under pAOX1; methanol induction after glycerol growth"
+  unit: strain description
+  grade: B
+  source: "GRN 737 notice §2.7.1 Production Strain"
+  doi_or_url: https://www.fda.gov/media/124351/download
+  locator: "§2.7.1, notice p.11 (inbox grn737_notice.txt l.478-490)"
+  quote: "all expressed under the strong native Pichia pastoris alcohol oxidase promoter (pAOXI). This promoter has been demonstrated to produce high levels of recombinant proteins after producing biomass on glycerol, and inducingpAOXI with methanol"
+  read: fulltext
+  note: >-
+    Quote OCR as on disk ("pAOXI" = pAOX1). The survey's "MXY0541" is the later strain in the EFSA
+    dossier (see efsa entries below); GRN 737 (2017-18) is MXY0291. Heme is made natively by the
+    host (overexpressed pathway enzymes), no hemin feed.
+
+- key: legh_grn737_typical_use
+  value: 0.6
+  unit: "% LegH protein in ground-beef analogue, average anticipated use (max 0.8%)"
+  grade: B
+  source: "GRN 737 notice §3.1.1 and Table 2"
+  doi_or_url: https://www.fda.gov/media/124351/download
+  locator: "notice p.17, Table 2 (inbox grn737_notice.txt l.798-830)"
+  quote: "Impossible Foods anticipates the soy leghemoglobin protein to constitute, on average, 0.6% of the ground beef analogue product by mass."
+  read: fulltext
+  note: >-
+    2017 dossier figure. FSANZ A1186 (2019) gives "up to 0.45%" for beef analogue (entry below), so
+    the in-market level fell or the 0.6% was an exposure-assessment assumption. Both bracket the
+    cost-in-use table (0.45 central, 0.6 alternative, 0.8 legal max).
+
+- key: legh_grn737_typical_analogue_composition
+  value: {protein_pct: "10-25", oils_pct: "0-25", misc_pct: 2, water_pct: "50-75"}
+  unit: "% w/w of a typical ground-beef analogue"
+  grade: B
+  source: "GRN 737 notice §2.3"
+  doi_or_url: https://www.fda.gov/media/124351/download
+  locator: "notice p.6 table 'Component / Ground Beef Analogue'"
+  quote: "LegH Prep will function to catalyse flavor chemistry and contribute to the nutritional quality of ground beef analogue products."
+  read: fulltext
+  note: >-
+    Derived (mine): at 0.45% LegH and 10-25% total protein, LegH is 1.8-4.5% of the analogue's
+    protein. §2.3.1: use above 0.8% is "self-limiting based on unacceptable organoleptic properties".
+
+# =======================================================================================
+# 2. Myoglobin: Motif FoodWorks GRN 1001 (bovine myoglobin preparation)
+# =======================================================================================
+
+- key: mb_motif_use_levels
+  value: 1.125
+  low: 1.0
+  high: 2.0
+  unit: "% myoglobin protein in ground meat / poultry analogue (typical 1-1.25%, max 2%)"
+  grade: B
+  source: "FDA response letter to GRN 1001 (Motif FoodWorks, myoglobin preparation from P. pastoris expressing Bos taurus myoglobin), 3 Dec 2021"
+  doi_or_url: https://www.fda.gov/media/155001/download
+  locator: "letter p.3 (saved .preview/heme/grn1001_letter.txt)"
+  quote: "Motif states that the typical use levels of myoglobin preparation are 1 to 1.25%"
+  read: fulltext
+  note: >-
+    Value = Derived (mine) midpoint of 1-1.25. Max: "providing levels up to 2% myoglobin protein to
+    impart flavor and aroma" (p.3). FDA: response "is not an approval for use as a color additive"
+    (p.4). Letter only; full notice not read (not on disk).
+
+- key: mb_motif_prep_spec
+  value: 3
+  unit: "% myoglobin protein (w/w) in the frozen-liquid preparation, minimum; purity >=65% w/w"
+  grade: B
+  source: "FDA response letter to GRN 1001"
+  doi_or_url: https://www.fda.gov/media/155001/download
+  locator: "letter p.2"
+  quote: "Motif provides specifications for myoglobin preparation that include myoglobin protein (≥ 3%) at a purity of ≥ 65% w/w."
+  read: fulltext
+  note: >-
+    Also total organic solids <=7.5%, moisture >=92.5%, ash <=1.5%, pH 6.5-8.5. Derived (mine):
+    >=3% Mb in <=7.5% organic solids -> Mb >=40% of organic dry matter, similar to LegH Prep.
+
+- key: mb_motif_process_and_strain
+  value: "P. pastoris t838417 (from NRRL Y-11430 lineage, same host as GRN 737); 8 native heme-pathway enzymes overexpressed + extra native transcription factor; fed-batch; wash, mechanical lysis, phosphate buffer, centrifugation, MF, UF; frozen liquid at -20 C"
+  unit: process description
+  grade: B
+  source: "FDA response letter to GRN 1001"
+  doi_or_url: https://www.fda.gov/media/155001/download
+  locator: "letter p.2 and footnote 1"
+  quote: "After fermentation, the P. pastoris cells are washed and lysed by mechanical shearing and the insoluble material is removed by treating the cells with sodium phosphate buffer to clear the cell debris, followed by centrifugation and microfiltration."
+  read: fulltext
+  note: >-
+    Intracellular, same downstream as LegH Prep. Induction not stated in the letter (the
+    "transcription factor native to P. pastoris" parallels Impossible's Mxr1, suggesting a
+    methanol/AOX-type promoter system, not confirmed). No titer disclosed. Shelf life 12 months at
+    -20 C, <=7 days thawed. Myoglobin "begins to unfold at 40 C".
+
+# =======================================================================================
+# 3. EU: EFSA FAF (food additive) and GMO Panel opinions on LegH Prep (strain MXY0541)
+# =======================================================================================
+
+- key: legh_eu_max_use_level
+  value: 8000
+  unit: "mg soy leghemoglobin per kg meat imitate (FC 12.9, only meat imitates), proposed maximum"
+  grade: B
+  source: "EFSA FAF Panel (2024). Safety of soy leghemoglobin from genetically modified Komagataella phaffii as a food additive. EFSA Journal 22(6):e8822 (adopted 15 May 2024)"
+  doi_or_url: 10.2903/j.efsa.2024.8822
+  locator: "§3.2, Table 2 (PMC11211803 text, inbox faf.txt)"
+  quote: "Only meat imitates Soy leghemoglobin ■■■■■ 8000 LegH Prep ■■■■■ 118,700–200,000"
+  read: fulltext
+  note: >-
+    The typical use level is redacted (■■■■■). LegH Prep at 118,700-200,000 mg/kg = 11.9-20% of the
+    food, because the preparation is only 4-6.74% LegH (Derived (mine): 8000/0.0674 = 118,700;
+    8000/0.04 = 200,000). So the "ingredient" added is mostly water. Conclusion (Summary): "does not
+    raise a safety concern at the proposed use in food category 12.9 and maximum use level"; no
+    numerical ADI.
+
+- key: legh_eu_typical_use_level_derived
+  value: 0.45
+  unit: "% LegH in meat imitate (EU typical use level, derived)"
+  grade: D
+  source: "Derived (mine) from EFSA FAF 2024 exposure results: typical-use mean 4.1 vs maximum-use mean 7.3 mg/kg bw/d (toddlers and children), maximum use 8000 mg/kg"
+  doi_or_url: 10.2903/j.efsa.2024.8822
+  locator: "Summary; §3.3.2 and Table 4"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - check: exposure is linear in use level for the same food codes, so typical ~
+    8000 x 4.1/7.3 = 4,490 mg/kg = 0.45%. Supporting quote (Summary): "At the proposed typical use
+    levels, the mean exposure to soy leghemoglobin from the use of LegH Prep as a food additive was
+    up to 4.1 mg/kg bw per day in toddlers and children." Rounding of 4.1 and 7.3 gives +-2%.
+    Agrees with FSANZ A1186's 0.45% for beef analogue (below).
+
+- key: legh_eu_spec_assay_and_composition
+  value: 4
+  unit: "% LegH protein in LegH Prep, minimum (EU specification); purity >=65% of total protein; solids <=26%; moisture <=90%"
+  grade: B
+  source: "EFSA FAF Panel 2024, Table 1 (proposed and revised specifications)"
+  doi_or_url: 10.2903/j.efsa.2024.8822
+  locator: "§3.1.2, Table 1; text after Table 1"
+  quote: "Assay ≥ 4% soy leghemoglobin protein ≥ 4% soy leghemoglobin"
+  read: fulltext
+  note: >-
+    Measured (text after Table 1): "The content of soy leghemoglobin ranged from 4.5 to 6.7%,
+    corresponding to 68%–82% of the total protein fraction" (samples from the final and two related
+    strains); moisture 79.7-87.5%. Molecular weight 16 kDa; CAS 2411761-31-2. No upper limit on LegH
+    content (applicant may concentrate further). Rat-study dried batches: 47.6-48.82% LegH in dry
+    LegH Prep.
+
+- key: legh_eu_process_heat_treatment
+  value: "lysis (mechanical shearing / high-pressure homogenisation) -> centrifugation -> concentration (e.g. UF) -> heat treatment -> formulation -> frozen liquid"
+  unit: process description
+  grade: B
+  source: "EFSA FAF Panel 2024, §3.1.3 Manufacturing process"
+  doi_or_url: 10.2903/j.efsa.2024.8822
+  locator: "§3.1.3"
+  quote: "The resulting concentrate undergoes heat treatment to ensure microbial stability and is then formulated with other ingredients."
+  read: fulltext
+  note: >-
+    Also: "no detectable levels of methanol (a component in the fermentation media) are present"
+    in five batches (§3.1.3.1). Confirms methanol is used in fermentation. The heat step (not in
+    GRN 737's 2017 description) is a pasteurisation-type hold on the concentrate, cheap relative to
+    lysis; temperature not stated (LegH denatures above ~62 C per §3.1.5, so it must be mild).
+
+- key: legh_eu_strain_mxy0541
+  value: "K. phaffii MXY0541: Bg11 (aox1 deleted, Mut-s) + Mxr1 overexpression + native heme-pathway upregulation + 3 LGB2 cassettes (one replacing AOX2, PAOX2-LGB2-TAOX2)"
+  unit: strain description
+  grade: B
+  source: "EFSA GMO Panel (2024). Assessment of soy leghemoglobin produced from genetically modified Komagataella phaffii, under Regulation (EC) No 1829/2003 (EFSA-GMO-NL-2019-162). EFSA Journal 22:e9060 (adopted 3 Oct 2024)"
+  doi_or_url: 10.2903/j.efsa.2024.9060
+  locator: "§3.1 (recipient), §3.3.1, §3.4.1 (inbox efsa_gmo.txt)"
+  quote: "Bg11 is a commercial strain that grows more slowly on methanol-­containing induction media, which is a desirable trait for industrial fermentation."
+  read: fulltext
+  note: >-
+    §3.1: Aox1 deleted "resulting in a decreased ability to metabolise methanol" (EFSA calls Aox1
+    "alcohol dehydrogenase"; it is alcohol oxidase). §3.4.1: "three cassettes designed to express
+    the LGB2 gene in three loci". Promoter names partly redacted. Survey's description is correct.
+    Implication for pf-tea: commercial LegH is methanol-induced (Mut-s), so the methanol cost and
+    O2/heat terms apply.
+
+- key: legh_eu_mxy0541_batches
+  value: 4.65
+  low: 4.5
+  high: 4.8
+  unit: "% LegH in LegH Prep, three MXY0541 batches (68-77% of total protein)"
+  grade: B
+  source: "EFSA GMO Panel 2024, §3.7.3"
+  doi_or_url: 10.2903/j.efsa.2024.9060
+  locator: "§3.7.3 (p.~10)"
+  quote: "Based on analytical re- sults from three batches coming from the MXY0541 strain, the content of soy leghemoglobin ranged from 4.5% to 4.8%, corresponding from 68% to 77% of the total protein fraction."
+  read: fulltext
+  note: >-
+    Value = Derived (mine) midpoint. Lower LegH concentration than the 2016 MXY0291 batches
+    (6.3-7.0%). GMO Panel §3.8.3 assumes 4% LegH for the 0.8% max case. Recombinant DNA present
+    in the product (§3.6.2), which is why Reg. 1829/2003 applies.
+
+- key: legh_eu_flavour_mechanism
+  value: "flavour from heme B released on denaturation during cooking"
+  unit: mode of action
+  grade: B
+  source: "EFSA GMO Panel 2024, §3.7.2 Intended use and mode of action"
+  doi_or_url: 10.2903/j.efsa.2024.9060
+  locator: "§3.7.2"
+  quote: "This flavouring effect is achieved through dena- turation of soy leghemoglobin and release of the haem B moiety during the preparation process of the meat analogue products."
+  read: fulltext
+  note: >-
+    Applicant's claim relayed by EFSA (no sensory data assessed). FAF §3.1.5: denatures "above
+    approximately 62°C". Relevant to question 6: the heme effect is aroma chemistry (Maillard /
+    lipid oxidation catalysis), which a heme-free formulation must replace with flavours.
+
+# =======================================================================================
+# 4. FSANZ A1186 (Impossible's application, 2019): actual use levels; heme iron per serving
+# =======================================================================================
+
+- key: legh_actual_use_level_beef
+  value: 0.45
+  unit: "% LegH in beef analogue (actual use level)"
+  grade: B
+  source: "Impossible Foods Inc. (2019). Application A1186 to amend the Australia New Zealand Food Standards Code to allow the use of soy leghemoglobin (FSANZ)"
+  doi_or_url: https://www.foodstandards.gov.au/food-standards-code/applications/a1186-soy-leghemoglobin-meat-analogue-products
+  locator: "§D (exposure), inbox a1186.txt l.1858-1863; also §A.9 l.459-460"
+  quote: "soy leghemoglobin is added at use levels of 0.45% in beef analogue products and 0.25% in pork analogue products."
+  read: fulltext
+  note: >-
+    Preceding sentence: "in practice, the soy leghemoglobin will be added only at levels that would
+    be needed to recreate the flavour and aroma contributed by heme proteins". The most direct
+    public statement of in-market use. Singapore SFA (2019) list, quoted in A1186 l.466-468: "may
+    be used in plant-based meat analogues at levels up to 0.45% w/w". Consistent with EFSA-derived
+    0.45% typical; GRN 737 (2017) assumed 0.6% average.
+
+- key: legh_actual_use_level_pork
+  value: 0.25
+  unit: "% LegH in pork analogue (actual use level)"
+  grade: B
+  source: "FSANZ application A1186 (Impossible Foods, 2019)"
+  doi_or_url: https://www.foodstandards.gov.au/food-standards-code/applications/a1186-soy-leghemoglobin-meat-analogue-products
+  locator: "inbox a1186.txt l.459-460 and l.1862-1863"
+  quote: "soy leghemoglobin would be added to beef analogue products at up to 0.45%, and to pork analogue products at up to 0.25%."
+  read: fulltext
+  note: "Same document; pork analogue = Impossible Pork (ground)."
+
+- key: legh_heme_iron_per_serving
+  value: 2
+  unit: "mg heme iron per 113 g serving of Impossible Burger (approximately)"
+  grade: B
+  source: "FSANZ application A1186, §E.1.1 and Table E.1.1-1"
+  doi_or_url: https://www.foodstandards.gov.au/food-standards-code/applications/a1186-soy-leghemoglobin-meat-analogue-products
+  locator: "inbox a1186.txt l.1937-1941"
+  quote: "the amount of haem iron present is nearly the same at approximately 2 mg per serving"
+  read: fulltext
+  note: >-
+    Derived (mine) - check: Impossible's LegH is Lbc2 (UniProt P02236, below), mature apoprotein
+    ~15.39 kDa; 0.45% x 113 g = 0.509 g -> 33.0 umol -> 1.84 mg Fe at 1 heme per globin. "About 2
+    mg" therefore implies near-stoichiometric heme loading in the commercial product (the rounding
+    does not allow a sharper number). Total iron 4.2 mg/serving (2.4 mg non-heme).
+
+# =======================================================================================
+# 5. Identity and heme mass fraction (UniProt)
+# =======================================================================================
+
+- key: legh_lbc2_uniprot
+  value: "P02236 (LGB4_SOYBN, Leghemoglobin C2, gene LBC2/GLB2-5), 145 aa precursor, chain 2-145"
+  unit: identity
+  grade: A
+  source: "UniProtKB P02236 (LGB4_SOYBN), Glycine max; entry version 141, 2026-09-02"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02236.json
+  locator: "proteinDescription.alternativeNames; features Initiator methionine 1, Chain 2-145; sequence.molWeight 15525"
+  quote: "\"alternativeNames\": [... \"Hemoglobin 2-5\" ... \"Leghemoglobin C2\"], genes synonyms [\"GLB2-5\", \"LBC2\"]"
+  read: fulltext
+  note: >-
+    EFSA FAF Table 1 trivial name: "Leghemoglobin C2 (Lbc2)", 16 kDa; Impossible's gene name
+    "LGB2" is its own label. The academic K. marxianus work expresses LBA (leghemoglobin A =
+    P02238, LGB3_SOYBN, 144 aa, 15,374 Da precursor), a different isoform ~93% identical (my
+    alignment by eye, not computed). Myoglobins: bovine P02192 (154 aa, 17,078 Da, chain 2-154;
+    the GRN 1001 protein) and porcine P02189 (154 aa, 17,085 Da).
+
+- key: heme_mass_fraction_of_holoprotein
+  value: 3.85
+  unit: "% of holo-LegH mass that is heme b (at 1 heme per globin)"
+  grade: A
+  source: "Derived (mine) from UniProt P02236 molWeight and heme b formula C34H32FeN4O4 (616.5 g/mol)"
+  doi_or_url: https://rest.uniprot.org/uniprotkb/P02236.json
+  locator: "computed"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - check: apoprotein without Met1 = 15,525 - 131.2 = 15,394 Da; holo = 16,010
+    Da; heme share = 616.5/16,010 = 3.85%. For bovine Mb: (17,078-131.2) = 16,947; 616.5/17,563 =
+    3.5%. So 1 g/L holo-globin needs ~38 mg/L heme: heme synthesis is a small carbon sink but a
+    real pathway-flux problem (it is the reported bottleneck), and hemin feeding at 150 mg/L (Mb
+    285 mg/L, below) is a ~15x excess over full loading.
+
+# =======================================================================================
+# 6. Public titers (every LegH / Mb / plant-Hb titer found). Abstract-only unless noted.
+# =======================================================================================
+
+- key: titer_legh_kphaffii_shao2022
+  value: 3.5
+  unit: g/L secreted LegH (LBC2), 10 L bioreactor
+  grade: A
+  source: "Shao et al. (2022). High-level secretory production of leghemoglobin in Pichia pastoris through enhanced globin expression and heme biosynthesis. Bioresour Technol 363:127884"
+  doi_or_url: 10.1016/j.biortech.2022.127884
+  locator: abstract
+  quote: "whose maximal leghemoglobin titer and heme binding ratio reached as high as 3.5 g/L and 93 %, respectively. This represents the highest secretory production of heme-containing proteins ever reported."
+  read: abstract
+  note: >-
+    Secreted, heme binding 93%, native heme pathway consolidated (no hemin stated in the abstract).
+    "A combination of inducible expression and constitutive expression" (abstract), so partly
+    methanol-induced; the methanol regime, batch time and yield are in the paywalled full text.
+    Confirmed as 3.5 g/L secretory by the K. marxianus 2023 paper's introduction (secondary).
+
+- key: titer_legh_kphaffii_chen2025
+  value: 6.0
+  unit: g/L secreted LegH, 5 L fermenter (double-copy cassette, mu-STAT methanol feeding + 50 g/L sorbitol)
+  grade: A
+  source: "Chen H, Niu Y, Wang Y, Zhang L, Dai Z, Luo A, Du G, Zhao X (2025). The optimized signal peptide and feeding strategy to enhance secretory expression of LegH in Komagataella phaffii. Process Biochem 156:255-262"
+  doi_or_url: 10.1016/j.procbio.2025.06.005
+  locator: "publisher abstract/highlights page (paywalled; read via search-result summary, not the article)"
+  quote: null
+  read: abstract
+  note: >-
+    NOT verified against the publisher's own page (ScienceDirect blocked; Elsevier API returned no
+    abstract). From a web-search summary of the highlights: alpha-Mat V50A signal peptide +150%
+    secretion; methanol feeding optimisation 1.1 g/L; mu-STAT with 50 g/L sorbitol 4.5 g/L;
+    double-copy 6.0 g/L in a 5 L fermenter. Treat as grade C until the abstract is read directly:
+    quote: null for that reason. This is the highest secreted LegH figure found and the reason the
+    cost bound uses 6.0 g/L as its central secreted case. Also referenced as "K. phaffii (6 g/L)"
+    in the K. marxianus 2026 introduction (ref 12), which corroborates the number [A, FT of the
+    citing paper]: "Komagataella phaffii (6 g/L), and Corynebacterium glutamicum (1.1 g/L)".
+
+- key: titer_legh_kmarxianus_intracellular_2023
+  value: 7.27
+  unit: g/L intracellular LBA (leghemoglobin A), 5 L fed-batch, glucose, methanol-free
+  grade: A
+  source: "Tian T, Wu X, Wu P, et al. (2023/2024). High-level expression of leghemoglobin in Kluyveromyces marxianus by remodeling the heme metabolism pathway. Front Bioeng Biotechnol 11:1329016"
+  doi_or_url: 10.3389/fbioe.2023.1329016
+  locator: "Abstract; Results (5 L fermentor, strain KMLSC4D-LBA)"
+  quote: "a heme content of 66.32 mg/L and an intracellular LBA titer of 7.27 g/L were achieved in the engineered strain in a 5 L fermentor"
+  read: fulltext
+  note: >-
+    Already in data/titers.csv (verified). Intracellular. Titer by SDS-PAGE densitometry against a
+    beta-lactoglobulin standard - a weak method, so treat +-30%. Medium: 0.1 g/L glycine, 6%
+    glucose, 100 uM FeSO4. Derived (mine): 66.32 mg/L heme = 0.108 mM; 7.27 g/L of a 15.4 kDa
+    globin = 0.47 mM, so only ~23% of the globin could be heme-loaded even if all heme were bound.
+    That is the key caveat on the high K. marxianus titers: they measure globin, not holoprotein.
+
+- key: titer_legh_kmarxianus_intracellular_2026
+  value: 10.1
+  unit: g/L LBA, 5 L fed-batch, glucose, methanol-free; 0.026 g/g glucose
+  grade: A
+  source: "Chen H, Jiang X, Chen A, et al. (2026). Integrated fermentation engineering enables high-level leghemoglobin production in Kluyveromyces marxianus. Biotechnol J 21(5):e70239"
+  doi_or_url: 10.1002/biot.70239
+  locator: "§3.3 Results and §4 Conclusions (PMC13383614 full text, .preview/heme/kmarx2026.txt)"
+  quote: "the maximum LBA titer and glucose‐to‐product yield reached 10.1 g/L and 0.026 g/g in 5‐L bioreactor, representing increases of 64.7% and 136%, respectively."
+  read: fulltext
+  note: >-
+    Strain Tra-23 (chromosomal translocation, not pathway-engineered beyond the 2023 work).
+    10.1 g/L at 60 h, ~9 g/L held to 72 h; final DCW 113.6 g/L; biomass yield 0.364-0.380 g/g
+    glucose; unoptimised Tra-23 reached 6.0 g/L at 60 h. Same SDS-PAGE-against-lactoglobulin
+    method, and the paper says the heme-binding ratio was NOT measured: "the peroxidase activity
+    and heme‐binding ratio should be the subject of future functionality LBA researches".
+    Localisation is not stated in the abstract, but the method harvests and alkali-precipitates
+    cells and purification starts with a high-pressure cell disrupter, so the product is
+    intracellular. Methanol-free (glucose), pH 6.0, temperature shift, exponential glucose feed.
+    This is the titer the pf-tea bound should use for the "intracellular, best case" row.
+
+- key: titer_legh_kmarxianus_secreted_2026
+  value: 1.02
+  unit: g/L secreted LBA, 5 L bioreactor
+  grade: A
+  source: "Multistep engineering of the secretory pathway for enhanced leghemoglobin expression in Kluyveromyces marxianus. Bioresour Technol (2026) 134275"
+  doi_or_url: 10.1016/j.biortech.2026.134275
+  locator: abstract
+  quote: "culminated in a secretory titer of 1.02 g/L LBA in a 5-L bioreactor, representing a 2.3-fold increase over the parental strain. The secreted LBA preserved heme-binding capacity (73.1% ratio)"
+  read: abstract
+  note: >-
+    Food-grade, methanol-free host. Heme loading 73.1%, peroxidase 956.77 U/mg. The highest
+    verified secreted LegH titer with a measured heme-binding ratio. Mns1/Prb1 deletions, SEC23
+    and SAR1 overexpression, Hmx1 attenuation.
+
+- key: titer_legh_scerevisiae_2024
+  value: 0.5448
+  unit: g/L intracellular LegH, 5 L two-stage fed-batch (secreted variant 88.5 mg/L)
+  grade: A
+  source: "Huang Y, Zhou J, Li J, et al. (2024). Efficient secretory expression of leghemoglobin in Saccharomyces cerevisiae. Fermentation 10(3):146"
+  doi_or_url: 10.3390/fermentation10030146
+  locator: abstract
+  quote: "the titer of LegH reached 544.8 mg/L (5.2 mg/L/OD600 per unit yield) in the two-stage fed-batch fermentation in a 5-L fermenter ... the final secretory titer of LegH reached 88.5 mg/L at the 5-L fermenter level"
+  read: abstract
+  note: >-
+    Shows the S. cerevisiae penalty: ~1/13 of K. marxianus intracellular and ~1/70 of the best
+    secreted K. phaffii. Note the survey's citation of this paper as "544.8 mg/L" is correct;
+    the DOI is 10.3390/fermentation10030146 (not ...10040208, which is a different paper).
+
+- key: titer_porcine_myoglobin_kphaffii_2021
+  value: 0.28542
+  unit: g/L secreted porcine myoglobin, fed-batch, 150 mg/L hemin fed
+  grade: A
+  source: "Efficient secretory expression and purification of food-grade porcine myoglobin in Komagataella phaffii. J Agric Food Chem (2021)"
+  doi_or_url: 10.1021/acs.jafc.1c04124
+  locator: abstract
+  quote: "feeding 150 mg/L of hemin), resulting in the highest titer of 285.42 mg/L MG in fed-batch fermentations. Furthermore, a purification method for food-grade MG was developed, which can obtain 0.22 mol of heme/mol of MG with 88.0% purity and 66.1% recovery rate."
+  read: abstract
+  note: >-
+    Constitutive G1 promoter, alpha-factor signal peptide, X-33 host, 30% DO. Heme loading only
+    0.22 mol/mol despite hemin feeding. Derived (mine): 150 mg/L hemin (651.9 g/mol as hemin
+    chloride) vs 285 mg/L of a 17 kDa globin (16.8 umol/L) - the hemin fed is ~14x the
+    stoichiometric need, so loading is limited by uptake/assembly, not by heme supply. Hemin is
+    typically bovine-blood-derived: a vegan-supply and cost problem for any hemin-fed route.
+
+- key: titer_hemoproteins_bsubtilis_2025
+  value: 1.11
+  unit: "g/L bovine myoglobin (also 0.81 soybean Hb, 0.82 clover Hb, 1.01 porcine Mb), food-grade B. subtilis"
+  grade: A
+  source: "Metabolic engineering of Bacillus subtilis for the production of active hemoglobins and myoglobins by improving heme supply. PNAS (2025) 122:e2504795122"
+  doi_or_url: 10.1073/pnas.2504795122
+  locator: abstract
+  quote: "we achieved production of 0.81, 0.82, 1.11, and 1.01 g L-1 of soybean Hb, clover Hb (C-Hb), bovine Mb (B-Mb), and porcine Mb, respectively, through fermentation, marking the highest reported titers in prokaryotic systems."
+  read: abstract
+  note: >-
+    221-fold heme-supply improvement via a "push-restrain-pull-block" strategy; native heme, no
+    hemin feed. Abstract also claims the proteins worked as colourants/flavourings in analogues
+    (relevant to question 6, but no human sensory panel). Scale not stated in the abstract.
+    B. subtilis is intracellular and brings an endotoxin-free but protease-rich background.
+
+- key: titer_hemoproteins_cglutamicum_2025
+  value: 1.14
+  unit: "g/L porcine Mb at shake-flask scale (soybean Hb 1.10, clover Hb 1.12, bovine Mb 0.56)"
+  grade: A
+  source: "Wang S, Yin Z, Fan Y, et al. (2025). Engineering Corynebacterium glutamicum with effective heme supply for the synthesis of high-activity hemoglobins and myoglobins. J Agric Food Chem 73(24):15235-15244"
+  doi_or_url: 10.1021/acs.jafc.5c03648
+  locator: "abstract (PubMed record, .preview/heme/cglut2025_abstract.txt)"
+  quote: "the engineered HEME3-ΔhrtBA strain achieved the highest titers at the shake-flask level for soybean Hb (1.10 g/L), clover Hb (1.12 g/L), bovine Mb (0.56 g/L), and porcine Mb (1.14 g/L), respectively."
+  read: abstract
+  note: >-
+    Shake flask only, so not comparable with bioreactor titers; heme titer up 90.75-fold. An
+    earlier C. glutamicum paper (doi:10.1186/s13068-023-02337-9, OA) reached "approximately 20% of
+    total protein" as intracellular plant hemoglobin with propionate/gluconate induction - a
+    fraction, not a titer.
+
+- key: titer_plant_globins_hemin_fed_yeast_2025
+  value: 1.6527
+  unit: g/L secreted soy LegHb (gmaLegHb) in K. phaffii with hemin; 398.1 mg/L in S. cerevisiae
+  grade: A
+  source: "Secretory production of plant heme-containing globins by recombinant yeast via precision fermentation. Foods 14(8):1422 (2025)"
+  doi_or_url: 10.3390/foods14081422
+  locator: "Abstract and §3 (PMC12026525 full text, inbox PMC12026525.txt)"
+  quote: "In S. cerevisiae , gmaLegHb expression reached up to 398.1 mg/L, while in K. phaffii , gmaLegHb showed the highest production level, reaching up to 1652.7 mg/L."
+  read: fulltext
+  note: >-
+    Methanol-induced (BMMY, 0.5% methanol every 24 h) with 10 uM hemin; flask-scale, His-tag
+    purified, no bioreactor. Hemin raised both titer and peroxidase activity. Useful only as
+    evidence that hemin feeding is the standard academic crutch; not a process basis.
+
+- key: heme_loading_published_range
+  value: 0.73
+  low: 0.22
+  high: 0.93
+  unit: "fraction of globin molecules carrying heme (heme-binding ratio) in published recombinant preparations"
+  grade: A
+  source: "Derived (mine) from the titer entries above: Shao 2022 (93%, K. phaffii secreted), Bioresour Technol 2026 (73.1%, K. marxianus secreted), J Agric Food Chem 2021 (0.22 mol/mol, porcine Mb + hemin)"
+  doi_or_url: 10.1016/j.biortech.2022.127884
+  locator: "see individual entries"
+  quote: null
+  read: abstract
+  note: >-
+    Derived (mine): the central value is the K. marxianus secreted measurement. Implication for a
+    cost-in-use note: a preparation at 25-75% loading needs 1.3-4x more protein for the same heme
+    (colour/flavour) effect, which matters more than the $/kg of protein. Apo-globin is not a
+    colourant. No public holoprotein-basis titer exists for the commercial product.
+
+# =======================================================================================
+# 7. Prices, costs, volumes (question 4)
+# =======================================================================================
+
+- key: adl_p1_pf_cost_range
+  value: 78
+  low: 32
+  high: 122
+  unit: "USD/kg modelled PF cost of production, 'P1' archetype (leghemoglobin, myoglobin, brazzein, monellin)"
+  grade: C
+  source: "GFI Europe & Arthur D. Little (2025). Pathfinding: assessing the commercial viability of precision fermentation"
+  doi_or_url: https://gfieurope.org/wp-content/uploads/2025/06/Pathfinding-assessing-the-commercial-viability-of-precision-fermentation.pdf
+  locator: "slide 20 'Step 5: Market price viability analysis', P1 archetype chart (references/text/GFIEurope_2025_...txt l.576-590)"
+  quote: "PF cost range $122 (High) $78 (Mid) $32 (Low)"
+  read: fulltext
+  note: >-
+    Consultancy CoP model; titer, scale and purity inputs are not disclosed, so it cannot be
+    reproduced or audited. The same slide plots conventional market prices: leghemoglobin $275/kg,
+    brazzein $275/kg, myoglobin $187/kg, monellin $28.96M/kg. Treat the range as an outside view
+    only. The appendix table also carries a column "PF average price" = 28 for all four P1
+    molecules, which contradicts the $32 low bound; the report does not define it. Flag as an
+    inconsistency rather than using it.
+
+- key: adl_legh_market_size_and_price
+  value: 275
+  unit: "USD/kg 'average price' of conventional leghemoglobin; market 150 MT, 41 M USD"
+  grade: C
+  source: "GFI Europe & Arthur D. Little (2025), appendix table 'Market size and prices for conventional and estimated PF molecules'"
+  doi_or_url: https://gfieurope.org/wp-content/uploads/2025/06/Pathfinding-assessing-the-commercial-viability-of-precision-fermentation.pdf
+  locator: "appendix (references/text/GFIEurope_2025_...txt l.1492), row 'Leghemoglobin', price data source 'Volza'"
+  quote: "Protein Leghemoglobin P1 41 150 275 28 ... Volza"
+  read: fulltext
+  note: >-
+    $275/kg is from Volza trade data, i.e. almost certainly declared customs values of Impossible's
+    OWN LegH Prep shipments (there is no third-party LegH market), and the basis (LegH protein vs
+    preparation) is unknown. Derived (mine): 150 t/yr of LegH protein at 0.45% implies ~33 kt/yr of
+    analogue; but if the 150 t is LegH *Prep* (5% LegH) it implies only ~1.7 kt/yr of analogue, and
+    the 41 M USD / 150 t is self-consistent at $275/kg either way. Do NOT use as an incumbent
+    price. Myoglobin row: 528 MT at $187/kg, price source Alibaba (so: lab/chemical myoglobin,
+    not a food ingredient).
+
+- key: beef_retail_price_us_2026
+  value: 6.923
+  unit: USD per lb, ground beef 100% beef, US city average, August 2026
+  grade: A
+  source: "US Bureau of Labor Statistics, CPI Average Price Data, series APU0000703112 (Ground beef, 100%, per lb., U.S. city average)"
+  doi_or_url: https://api.bls.gov/publicAPI/v1/timeseries/data/APU0000703112
+  locator: "series APU0000703112, 2026 August (retrieved 2026-10-02)"
+  quote: "2026 August 6.923"
+  read: fulltext
+  note: >-
+    Derived (mine): 6.923 USD/lb = 15.26 USD/kg. 2026 monthly range 6.70-6.92 USD/lb. This is the
+    right denominator for the cost-in-use note: LegH at 0.45% and $78/kg adds $0.35/kg of analogue,
+    i.e. 2.3% of the beef retail price.
+
+- key: impossible_burger_retail_price_us_2026
+  value: 9.0
+  low: 9.0
+  high: 13.3
+  unit: USD per lb of Impossible Burger (12 oz pack) at US grocery retailers, Oct 2026
+  grade: C
+  source: "Retailer listings for Impossible Burger 12 oz (Walmart, Shaw's, Albertsons, Acme), as summarised by a web search on 2026-10-02"
+  doi_or_url: https://www.walmart.com/grocery/ip/Impossible-Burger-12-oz/377356856
+  locator: "search-result summaries; the retailer pages themselves blocked automated access (Walmart bot wall, 403s)"
+  quote: null
+  read: html
+  note: >-
+    NOT verified on the retailer pages (blocked twice; Pablo can check in a browser). Reported
+    figures: Walmart $6.78/12 oz = $9.04/lb; Shaw's/Albertsons $8.99/12 oz = $11.99/lb; Acme
+    $9.99/12 oz = $13.32/lb. Derived (mine): $9.04/lb = $19.93/kg, i.e. 1.3x the BLS ground-beef
+    price per lb; at the high end 1.9x. So the retail gap to beef is $3-14/kg, while heme's
+    cost-in-use is $0.1-1.2/kg: heme is at most ~10% of the gap and typically ~3%.
+
+- key: impossible_uk_launch_without_heme
+  value: "UK retail launch 23 Sep 2026 (Tesco), four products, no soy leghemoglobin; colour from beetroot red and anthocyanins; made in the Netherlands"
+  unit: company/market status
+  grade: C
+  source: "Green Queen, 'At Long Last, the Impossible Burger Lands in the UK' (23 Sep 2026); Impossible Foods press release of the same date"
+  doi_or_url: https://www.greenqueen.com.hk/impossible-foods-burger-uk-launch-plant-based-beef-kofta-chicken-tesco/
+  locator: "article body (read via WebFetch 2026-10-02); Impossible's own release returned 403"
+  quote: "All of Impossible Foods's UK products are being produced at its new co-manufacturing facility in the Netherlands."
+  read: html
+  note: >-
+    Same article: the European burger "contains a base of 20% soy protein and sunflower and coconut
+    oils" with colour from "beetroot red and anthocyanins". Evidence that a heme-free reformulation
+    is commercially acceptable to the company when the alternative is not selling: directly
+    relevant to question 6 and to how much heme is worth.
+
+- key: legh_uk_application_status
+  value: "RP-735 Soy Leghemoglobin, Impossible Foods Inc.: In progress, stage 'Risk assessment' (checked 2026-10-02)"
+  unit: regulatory status
+  grade: A
+  source: "UK Food Standards Agency, Register of regulated product applications, RP-735"
+  doi_or_url: https://data.food.gov.uk/regulated-product-applications/products-list/RP-735
+  locator: "application summary page (WebFetch 2026-10-02)"
+  quote: "Status: In progress ... Current Stage: Risk assessment"
+  read: html
+  note: >-
+    Classified as both "Genetically modified organisms (GMOs) as food and feed" and "Flavourings".
+    A related application RP-733 (flavouring precursor) appears in FSA committee minutes; not
+    checked. Submitted 2021 per trade press [C]. So: no UK authorisation as of Oct 2026.
+
+- key: legh_eu_authorisation_status
+  value: "no EU authorisation as of 2026-10-02; two positive EFSA opinions (FAF May 2024, GMO Oct 2024), Commission implementing acts pending"
+  unit: regulatory status
+  grade: C
+  source: "EFSA opinions (above) plus trade press; no Commission authorising act found in searches on 2026-10-02"
+  doi_or_url: 10.2903/j.efsa.2024.9060
+  locator: "EFSA GMO 2024 conclusions; absence of a Union-list entry (negative evidence)"
+  quote: null
+  read: html
+  note: >-
+    Grade C because it rests partly on absence of evidence: I did not find a machine-readable EU
+    food-additives register endpoint (the webgate API 404s), so a Union-list check by hand is
+    worth doing before publishing. Two authorisations are needed in parallel: food additive
+    (Regs 1331/2008 and 1333/2008) and GM food (Reg 1829/2003), since recombinant DNA is present
+    in the product (EFSA GMO §3.6.2). The 23 Sep 2026 heme-free UK/EU launch is consistent with
+    "still pending".
+
+# =======================================================================================
+# 8. Does heme change consumer liking or repeat purchase? (question 6)
+# =======================================================================================
+
+- key: heme_sensory_direct_consumer_evidence
+  value: "none found"
+  unit: "studies isolating heme-protein addition in a consumer liking or repeat-purchase design"
+  grade: E
+  source: "Derived (mine) from systematic searches of Europe PMC on 2026-10-02: full-text queries ((leghemoglobin OR leghaemoglobin) AND 'overall liking') and ('soy leghemoglobin' AND ('sensory panel' OR hedonic)) both returned 0 hits; title queries and 4 topic searches returned only instrumental or unrelated studies"
+  doi_or_url: https://www.ebi.ac.uk/europepmc/webservices/rest/search
+  locator: "search logs .preview/heme/sensory_abstracts*.txt"
+  quote: null
+  read: fulltext
+  note: >-
+    Negative result, stated as such. No published study gives the liking or repeat-purchase effect
+    of adding a heme protein to an analogue at a stated inclusion rate with human panellists. The
+    welfare case for heme therefore rests on instrumental flavour/colour chemistry plus company
+    behaviour, not on measured consumer response. Paywalled sensory literature could still hold
+    something; I only searched Europe PMC and the open web.
+
+- key: heme_volatile_chemistry_effect
+  value: "heme-protein addition raises meaty aldehydes and pyrazines and lowers beany volatiles (instrumental, HS-SPME-GC-MS)"
+  unit: qualitative instrumental effect
+  grade: A
+  source: "Improving the aromatic profile of plant-based meat alternatives: effects of leghemoglobin and myoglobin addition on volatiles. Food Chem 492:145299 (2025)"
+  doi_or_url: 10.1016/j.foodchem.2025.145299
+  locator: abstract
+  quote: "The addition of heme proteins increased the content of aldehydes and pyrazines associated with meaty flavor in plant-based meat, while significantly reducing the content of beany flavor compounds."
+  read: abstract
+  note: >-
+    No human panel. Companion earlier study with myoglobin only at 0, 0.5 and 1.0% in soy-protein
+    burgers grilled 12 min (Foods 11:1985, 2022, doi:10.3390/foods11131985, OA): "Myoglobin
+    significantly affected several classes of volatile compounds ... A notable increase in
+    aldehydes and a decrease in hydrocarbons" [A, abstract]. That paper's 0.5-1.0% levels bracket
+    Motif's 1-1.25% myoglobin use level, so the inclusion rates in the cost table are the ones at
+    which an instrumental effect is demonstrated.
+
+- key: heme_colour_fidelity_evidence
+  value: "Impossible (the only heme-containing product tested) had the smallest colour difference from beef across cooking"
+  unit: instrumental colour comparison
+  grade: A
+  source: "Colour transition dynamics of commercial plant- and animal-based meat analogues. Foods 14(21):3616 (2025)"
+  doi_or_url: 10.3390/foods14213616
+  locator: abstract
+  quote: "The sample Impossible PB burgers had the lowest colour differences (∆a*, ∆b*, ∆c*, and ∆E*), showing a beef-like colour transition in both raw and cooked states."
+  read: abstract
+  note: >-
+    Four commercial plant-based vs six animal-based burgers at five internal temperatures.
+    Observational: the design does not isolate LegH (formulations differ in many ways), but
+    Impossible is the only heme product in the set, so this is the strongest public evidence that
+    heme buys beef-like colour kinetics - the attribute LegH is legally a colour additive for.
+
+- key: pbma_consumer_liking_gap
+  value: 0.3
+  unit: "points on a 7-point overall-liking scale, plant-based vs animal burger benchmark (category means)"
+  grade: A
+  source: "Open-source benchmarking of plant-based and animal meats. Foods 15(12):2112 (2026)"
+  doi_or_url: 10.3390/foods15122112
+  locator: abstract
+  quote: "Plant-based unbreaded chicken filets, chicken nuggets, and burgers achieved mean overall liking scores of 5.1, 4.9, and 5.2, differing from the animal benchmarks by only Δ = 0.1, 0.2, and 0.3 points on a seven-point scale."
+  read: abstract
+  note: >-
+    2,684 consumers, blinded, 14 categories, >11,000 evaluations. Does not say which burgers
+    contained heme, so it bounds the size of the remaining sensory gap heme could be closing
+    (small, for burgers) rather than attributing it. Context for the welfare argument: the gap
+    heme might fix is ~0.3/7 points, while purchase behaviour (next entry) does not track liking.
+
+- key: pbma_repeat_purchase_behaviour
+  value: "86% of PBMA buyers also buy ground meat; ground-meat consumption did not fall after a first PBMA purchase"
+  unit: household scanner-panel behaviour
+  grade: A
+  source: "Most plant-based meat alternative buyers also buy meat. Sci Rep 12:13062 (2022)"
+  doi_or_url: 10.1038/s41598-022-16996-5
+  locator: abstract
+  quote: "after a household's first PBMA purchase, ground meat consumption did not fall. The number of households buying a PBMA for the first time fell over the two year period studied"
+  read: abstract
+  note: >-
+    Two-year US scanner data; no heme attribution. Taken with the Appetite 2026 narrative review
+    ("we do not find support for the PTC conjecture", doi:10.1016/j.appet.2025.108301, abstract
+    [A]), the honest reading for pf-tea's welfare framing is: heme's marginal effect on animals
+    spared is unmeasured and probably small, and no public evidence lets us put a number on it.
+    Impossible's own willingness to launch heme-free in the UK/EU (entry above) is a revealed
+    preference pointing the same way, though it was forced by regulation, not by consumers.
+
+# =======================================================================================
+# 9. Can pf-tea model heme proteins? Route gap and the recommended bound (question 5)
+# =======================================================================================
+
+- key: pftea_route_gap_intracellular
+  value: "yes - both commercial preparations are intracellular lysate concentrates; pf-tea has no lysis/clarification route"
+  unit: model-scope finding
+  grade: B
+  source: "GRN 737 notice §2.6.3 and FDA GRN 1001 letter p.2 (process quotes above); pf-tea src/pftea/dsp.py route set (read-only inspection, 2026-10-02)"
+  doi_or_url: https://www.fda.gov/media/124351/download
+  locator: "see legh_prep_process_route and mb_motif_process_and_strain"
+  quote: null
+  read: fulltext
+  note: >-
+    Commercial route: bead-mill (or HPH) lysis -> centrifugation -> microfiltration -> UF ->
+    stabilisers -> frozen liquid (plus a heat hold in the EU spec). pf-tea's existing routes are
+    secreted-protein routes (membrane concentrate / spray-dried / resin capture). Missing unit
+    operations: homogeniser (energy ~ a few kWh/kg wet cells and a major CAPEX item at scale),
+    debris removal (disc-stack centrifuge + MF with a real yield loss, typically 10-30%), and
+    cold-chain frozen liquid product instead of powder. Adding them is a new DSP module, not a
+    parameter swap: that is the scope decision.
+
+- key: pftea_bound_secreted_proxy
+  value: "secreted UF/DF concentrate (OVA route, K. phaffii) at public heme titers, 72 h production, 70% dry-matter concentrate target"
+  unit: recommended modelling approach
+  grade: D
+  source: "Derived (mine): read-only runs of pf-tea v4 via .preview/heme/run_bound.py (PYTHONPATH=src, scenarios.base_params('ova', overrides))"
+  doi_or_url: null
+  locator: ".preview/heme/bound_runs.json"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine) - all numbers below are model output, not sourced data. MSP (cost-and-capital
+    floor, msp_ccf, USD/kg protein), glucose vs 100% methanol in production:
+    titer 1.0 g/L: 150 t/yr 668/718, 1 kt 583/637, 10 kt 569/622
+    titer 3.5 g/L: 150 t/yr 251/267, 1 kt 175/192, 10 kt 164/180
+    titer 6.0 g/L: 150 t/yr 180/190, 1 kt 109/119, 10 kt 96/107
+    titer 10.1 g/L: 150 t/yr 135/142, 1 kt 71/77, 10 kt 58/65
+    All runs feasible, no flags. Vessel sizing picks 50-200 m3. Interpretation: at the two
+    plausible commercial titers (3.5-6 g/L secreted) and a heme-sized plant (150-1,000 t/yr), the
+    bound is $110-270/kg of protein; the ADL mid ($78/kg) corresponds to ~6 g/L at 1 kt/yr or
+    ~10 g/L at 150-1,000 t/yr. Methanol costs only 4-8% more than glucose here, so the
+    methanol-free argument for K. marxianus is about food-grade acceptability, not cost.
+    Caveats: (i) this is a SECRETED route applied to an intracellular product, so it omits lysis
+    and debris removal and overstates recovery - it is a floor, not an estimate; (ii) it prices a
+    dry protein basis, whereas the commercial product is a 5-7% frozen liquid, which adds
+    formulation, freezing and cold-chain cost per kg of LegH; (iii) titers are measured on
+    globin, not holoprotein, and loading is 22-93%, so cost per kg of FUNCTIONAL heme protein
+    could be up to ~4x the figures above.
+
+- key: titer_mammalian_hemoglobins_kphaffii_2024
+  value: 0.3769
+  low: 0.1011
+  high: 0.3769
+  unit: "g/L secreted bovine hemoglobin (porcine 0.1192, human 0.1011), fermenter, 100 mg/L hemin + 2% methanol"
+  grade: A
+  source: "Efficient secretory expression for mammalian hemoglobins in Pichia pastoris. Fermentation 10(4):208 (2024)"
+  doi_or_url: 10.3390/fermentation10040208
+  locator: "abstract (Crossref record; MDPI page returned 403)"
+  quote: "the higher titers of bovine hemoglobin (bHB, 376.9 ± 13.3 mg/L), porcine hemoglobin (pHB, 119.2 ± 7.3 mg/L), and human hemoglobin (hHB, 101.1 ± 6.7 mg/L) were achieved at fermenter level"
+  read: abstract
+  note: >-
+    Confirms the survey's "100-377 mg/L, methanol plus hemin" line and fixes its reading: the
+    conditions (BMMY, 100 mg/L hemin, 2% methanol, 24 C) were optimised at shake-flask level and
+    the titers were then obtained "at fermenter level"; scale not given in the abstract. VPS10,
+    VTH1, PEP5 knockouts plus AHSP co-expression. Hemoglobins, not myoglobin or LegH, so only an
+    analogy for Mb economics (grade D if used that way).
+
+- key: paleo_company_status
+  value: "Paleo (BE): precision-fermented myoglobins (beef, chicken, pork, lamb, tuna, mammoth), no GRAS or EU novel-food authorisation found as of 2026-10-02"
+  unit: company/regulatory status
+  grade: C
+  source: "Trade press (FoodNavigator-USA 2022; vegconomist; Green Queen), as summarised from web searches on 2026-10-02"
+  doi_or_url: https://www.foodnavigator-usa.com/Article/2022/07/14/we-make-animal-proteins-without-animals-paleo-ups-ante-in-alt-meat-arena-with-animal-free-myoglobin/
+  locator: "search-result summaries; individual articles not read in full"
+  quote: null
+  read: html
+  note: >-
+    Grade C and partly negative evidence. Reported: founded Oct 2020; myoglobin said to be
+    bio-identical and "GMO-free" in the final product (the production strain is GM, but the
+    protein is claimed to fall outside the GMO food rules and inside Reg. (EU) 2015/2283 novel
+    food); a pet-food heme patent filing; an EU-funded salmon-analogue project with Revo Foods;
+    EUR 12M raised. No titer, no scale, no price is public. The survey's "cost cut by a factor of
+    613" and ">10 m3" claims are company statements I could not re-verify; treat as C at best.
+    For pf-tea: no usable process or cost data exists for Paleo.
+
+# =======================================================================================
+# 10. FULL-TEXT UPDATE 2026-10-02b: Shao 2022 and Chen 2025 read in full
+# (references/text/Shao2022_leghemoglobin_kphaffii.txt, Chen2025_leghemoglobin_kphaffii.txt;
+#  PDFs in references/papers/). These entries supersede the abstract-only versions above where
+#  they conflict; the earlier entries are kept so the upgrade is auditable.
+# =======================================================================================
+
+- key: titer_legh_kphaffii_chen2025_fulltext
+  value: 6.0
+  unit: g/L secreted LegH in the supernatant, 5 L fermenter, 102 h total
+  grade: A
+  source: "Chen H, Niu Y, Wang Y, Zhang L, Dai Z, Luo A, Du G, Zhao X (2025). The optimized signal peptide and feeding strategy to enhance secretory expression of LegH in Komagataella phaffii. Process Biochem 156:255-262"
+  doi_or_url: 10.1016/j.procbio.2025.06.005
+  locator: "§3.4, p.260 (and Conclusion p.260; Fig. 4c,d)"
+  quote: "the secretory titer of LegH reached 6.0 g/L in 102 h (Fig. 4c, d), which is the highest value for LegH secretory expression to date."
+  read: fulltext
+  note: >-
+    UPGRADES the earlier grade-C entry (titer_legh_kphaffii_chen2025) to A. Full-text process:
+    host K. phaffii X33 lineage, strain P1H9-V50A-LegH with cn=2 (P1 = enhanced heterologous
+    expression, P1H9 = additionally enhanced heme supply, from Adv Sci 2023 doi:10.1002/advs.202302826),
+    alpha-Mat signal peptide with the V50A pro-region mutation (+151% secretion), two copies of the
+    LegH cassette; pAOX1, so METHANOL-INDUCED ("K. phaffii X33 has been widely applied to express
+    heterologous proteins for the robust methanol-inducible promoter (pAOX1)", §3.3).
+    Vessel 5 L with 2.7 L BSM (40 g/L glycerol), 30 C, 1 vvm, 400-1200 rpm; glycerol fed-batch of
+    50% glycerol at 30 mL/h to ~300 g/L wet cell weight; induction pH 6.5 (pH 5.5 gave 2.15 g/L vs
+    4.26 g/L at 6.5, §3.4); methanol by mu-STAT exponential feed (mu = 0.012, F0 = 13.5) with
+    50 g/L sorbitol co-fed; the methanol feed carries 12 mL/L PTM1 and 100 mg/L hemin (§2.4).
+    Titer ladder in the SAME vessel: constant feed 10 mL/h 420 mg/L; 20 mL/h 504 mg/L; methanol
+    controller at 0.5% 403.3 mg/L; DO-STAT 656.5 mg/L; mu-STAT 1.1 g/L; mu-STAT with P1-LegH
+    1.50 g/L and P1H9-LegH 1.78 g/L; +V50A 2.15 g/L; pH 6.5 4.26 g/L; +50 g/L sorbitol 4.5 g/L;
+    +second copy 6.0 g/L. Assay: supernatant on 10% SDS-PAGE, total protein by Bradford, LegH
+    share by Image Lab densitometry (§2.6) - a densitometry titer, so +-20-30%.
+    HEME LOADING IS NOT REPORTED in this paper (only peroxidase activity), so 6.0 g/L is TOTAL
+    secreted globin, not holoprotein. Derived (mine): 6 g/L of 16.0 kDa holo-LegH needs 231 mg/L
+    heme b, while only 100 mg/L hemin (153 umol/L) is fed, so at most ~41% of the globin could be
+    loaded from the feed; the rest must come from the P1H9 strain's own pathway or stay apo.
+    This is the central weakness of using 6.0 g/L as the commercial-proxy titer.
+
+- key: titer_legh_kphaffii_shao2022_fulltext
+  value: 3.5
+  unit: g/L secreted LegH in the supernatant, 10 L bioreactor, 93% heme-binding ratio
+  grade: A
+  source: "Shao Y, Xue C, Liu W, Zuo S, Wei P, Huang L, et al. (2022). High-level secretory production of leghemoglobin in Pichia pastoris through enhanced globin expression and heme biosynthesis. Bioresour Technol 363:127884"
+  doi_or_url: 10.1016/j.biortech.2022.127884
+  locator: "Table 2 (strain HA-KU70) and §3.4, p.8"
+  quote: "The strain HA-KU70 expressed the largest amount of LegH and showed the highest heme-binding ratio, reaching 3.5 g/L and 93 %, respectively"
+  read: fulltext
+  note: >-
+    Confirms the abstract and adds the basis. Table 2 (p.8) gives the full ladder with growth
+    rates: GS115-HIS4 mu_gly 0.177 / mu_MeOH 0.032, no LegH; L10A1T-HIS4 1.5 g/L at 45% heme
+    binding; HA 2.0 g/L at 91%; HA-KU70 3.5 g/L at 93% (mu_gly 0.169, mu_MeOH 0.018 h^-1).
+    So the 93% loading is for the best strain only, and multi-copy strains without the heme-pathway
+    overexpression sit at 45%. Heme-binding ratio method (§2.7): QuantiChrom heme assay on the
+    PURIFIED protein, ratio of molar heme to molar LegH - a real holoprotein measurement, unlike
+    Chen 2025. Titer basis: supernatant, Bradford plus Quantity-One densitometry (§2.5).
+    Process (§2.4): 10 L bioreactor, 5.0 L WZI medium, 400 mL seed, pH 6.5, 30 C, four phases -
+    glycerol batch; glycerol fed-batch (63% w/v glycerol + 12 mL/L PTM1) to 200 g/L wet cell
+    weight; a 3 h transition with the glycerol rate ramped down; then methanol fed to keep DO
+    above 10%. AOX1 promoter with Delta-ku70 host (ku70 disruption was needed for high-density
+    fed-batch; the authors note methanol accumulation and cell lysis in the HA strain). Total
+    fermentation time is only in Fig. 6 and is not stated numerically in the text.
+    Earlier flask stage: best broth titer 529 mg/L (strain HA); 10 uM hemin raised activity in
+    flasks, but the bioreactor process does NOT feed hemin - heme comes from the overexpressed
+    native pathway. That makes Shao 2022 the better model basis for a food process (no
+    animal-derived hemin) even though its titer is lower than Chen's.
+
+- key: pftea_bound_secreted_proxy_fulltext
+  value: "with full-text inputs: 3.5 g/L / 72 h (Shao, hemin-free, 93% loaded) and 6.0 g/L / 96 h (Chen, hemin-fed, loading unknown), both methanol"
+  unit: recommended modelling basis (supersedes pftea_bound_secreted_proxy)
+  grade: D
+  source: "Derived (mine): read-only runs of pf-tea v4, .preview/heme/run_bound_fulltext.py -> bound_runs_fulltext.json"
+  doi_or_url: null
+  locator: ".preview/heme/bound_runs_fulltext.json"
+  quote: null
+  read: fulltext
+  note: >-
+    Derived (mine), model output not data. MSP (msp_ccf, USD/kg protein) at 150 t / 1 kt / 10 kt
+    per year:
+    Shao 3.5 g/L, 72 h prod, methanol: 267 / 192 / 180
+    Shao 3.5 g/L, 96 h prod, methanol: 291 / 214 / 202
+    Chen 6.0 g/L, 72 h prod, methanol: 190 / 119 / 107
+    Chen 6.0 g/L, 96 h prod, methanol: 205 / 132 / 119  <- preferred central case (102 h total)
+    Chen 6.0 g/L, 96 h, on glucose (counterfactual): 193 / 120 / 107
+    K. marxianus secreted 1.02 g/L, 72 h, glucose: 644 / 572 / 558
+    K. marxianus intracellular 10.1 g/L, 72 h, glucose: 135 / 71 / 58 (floor only; the real route
+    needs lysis and debris removal, which this run omits)
+    All feasible, no flags. Changes vs my earlier abstract-based run: the 102 h total time costs
+    ~8-11% more than assuming 72 h, and methanol vs glucose is worth only ~1-7% at 6 g/L - so
+    the methanol-free argument remains about food-grade acceptability, not cost.
+    Honest central bound for a heme-sized plant (150-1,000 t/yr of protein) on the best published
+    secreted process: USD 130-205/kg, or USD 190-290/kg on the hemin-free Shao process.
+    Per kg of FUNCTIONAL (heme-loaded) protein, divide by the loading: 93% for Shao (so almost
+    unchanged), unknown and plausibly 40-60% for Chen (so 1.7-2.5x).

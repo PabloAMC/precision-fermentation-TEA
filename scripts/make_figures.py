@@ -47,7 +47,15 @@ def save(fig, name):
 
 
 def money(axis):
-    axis.set_major_formatter(FuncFormatter(lambda x, _: f"${x:,.0f}" if x >= 1 else f"${x:.1f}"))
+    fmt = lambda x: f"${x:,.0f}" if x >= 1 else f"${x:.1f}"   # noqa: E731
+    axis.set_major_formatter(FuncFormatter(lambda x, _: fmt(x)))
+
+    def minor(x, _):                          # on a log axis spanning under ~2.5 decades, label the 2s and 5s
+        lo, hi = axis.get_view_interval()
+        if lo <= 0 or hi / lo > 300:
+            return ""
+        return fmt(x) if round(x / 10 ** np.floor(np.log10(x))) in (2, 5) else ""
+    axis.set_minor_formatter(FuncFormatter(minor))
 
 
 def plain(axis, ticks):
@@ -65,12 +73,13 @@ def feasible_part(xs, ys, feas):
 
 PRODS = list(R["base"])                      # products in results order (data/pf/products.yaml)
 PROD = {"blg": "beta-lactoglobulin (whey protein)", "ova": "ovalbumin (egg-white protein)",
-        "ovd": "ovomucoid (egg-white protein)", "cas": "beta-casein (milk casein)", "lf": "lactoferrin (milk)"}
-SHORT = {"blg": "BLG", "ova": "OVA", "ovd": "ovomucoid", "cas": "casein", "lf": "lactoferrin"}
-BAND = {"blg": "#e3edf9", "ova": "#fbe6dc", "ovd": "#fbe6dc", "cas": "#e6f4ec", "lf": "#efe9f7", "whey": "#e3edf9", "egg": "#fbe6dc"}
+        "ovd": "ovomucoid (egg-white protein)", "cas": "beta-casein (milk casein)", "lf": "lactoferrin (milk)",
+        "alb": "serum albumin (cell-culture media)", "alac": "alpha-lactalbumin (whey protein)"}
+SHORT = {"blg": "BLG", "ova": "OVA", "ovd": "ovomucoid", "cas": "casein", "lf": "lactoferrin", "alb": "albumin", "alac": "alpha-lac"}
+BAND = {"blg": "#e3edf9", "ova": "#fbe6dc", "ovd": "#fbe6dc", "cas": "#e6f4ec", "lf": "#efe9f7", "alb": "#f6efd9", "alac": "#e3edf9", "whey": "#e3edf9", "egg": "#fbe6dc"}
 PCOL = {k: CAT[i] for i, k in enumerate(PRODS)}
 inc = R["benchmarks"]["incumbents"]
-REPORTED = {d["compare_to"]: d for d in [R.get("lactoferrin", {}).get("reported_prices")] if d}
+REPORTED = {d["compare_to"]: d for d in [R.get(s_, {}).get("reported_prices") for s_ in ("lactoferrin", "albumin", "alac")] if d}
 
 
 def market(prod):
@@ -181,10 +190,13 @@ for ax, prod in zip(axes, PRODS):
         x, y = np.append(x, cx), np.append(y, cy)
     ax.plot(x, y, color=CAT[1], ls=(0, (3, 2)), lw=1.4, label="72 h production, design-report capital", zorder=3)
     ax.plot([], [], marker="D", ms=6, color=INK2, ls="none", label="cheapest feasible design at that time")
-    for t, lab in marks.get(prod, []):
-        ax.axvline(t, color=AXIS, lw=0.8, zorder=0)
-        ax.text(t, 1.012, f"{lab}: {t:g} g/L", transform=ax.get_xaxis_transform(), rotation=60, ha="left",
-                va="bottom", fontsize=6.2, color=INK2, rotation_mode="anchor")
+    n_low = 0
+    for t, lab in sorted(marks.get(prod, []), key=lambda m: m[0]):
+        tx = t if t >= 1.9 else 1.9 * 1.16 ** n_low   # below the axis (e.g. alpha-lac 0.4 g/L): at the left edge, staggered
+        n_low += t < 1.9
+        ax.axvline(tx, color=AXIS, lw=0.8, zorder=0, ls="-" if t == tx else ":")
+        ax.text(tx, 1.012, ("<< " if t < tx else "") + f"{lab}: {t:.3g} g/L", transform=ax.get_xaxis_transform(),
+                rotation=60, ha="left", va="bottom", fontsize=6.2, color=INK2, rotation_mode="anchor")
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlim(1.8, 170)
     ys_all = [v_ for v_ in ys_all if v_ and np.isfinite(v_)]
@@ -197,10 +209,10 @@ for ax, prod in zip(axes, PRODS):
             fontsize=9, fontweight="bold", color=INK)
 h, l_ = axes[0].get_legend_handles_labels()
 fig.legend(h, [x.split(" (ceiling")[0] for x in l_], loc="lower center", ncol=3, fontsize=7.2, bbox_to_anchor=(0.5, -0.02))
-fig.text(0.01, -0.06, f"Each product's base case ({SCALES}), US Midwest, 200 m3 fermenters, glucose fed at 500 g/L. Each line ends "
+fig.text(0.01, -0.06, f"Each product's base case ({SCALES}), US Midwest, fermenters sized to each plant (200 m3 at 10 kt/yr; 100 m3 for lactoferrin, albumin and alpha-lac), glucose fed at 500 g/L. Each line ends "
          "at the highest feasible titer in that production time (O2 transfer, heat removal, minimum fill, specific productivity).\n"
          "Price bands, per kg protein in 2025 dollars: export unit values of whey protein >80% and dried egg albumin (OVA and ovomucoid), casein export and "
-         "US import prices, and reported dairy lactoferrin prices (grade C). Top axis: published and claimed titers (data/titers.csv).",
+         "US import prices, reported dairy lactoferrin prices, bulk albumin trade values and alpha-lac market-report prices per kg alpha-lac (grade C). Top axis: published and claimed titers (data/titers.csv).",
          fontsize=7, color=MUTED)
 save(fig, "fig1_cost_vs_titer.png")
 
@@ -242,10 +254,10 @@ for j, (ax, prod) in enumerate(zip(axes, PRODS)):
     ax.set_xlabel("production phase (h)")
     ax.set_ylabel("titer needed (g/L)")
     ax.set_title(f"{PROD[prod]}, {tpy(R['base'][prod]):,.0f} t/yr", fontsize=9)
-    ax.legend(fontsize=6.4, loc="lower right", ncol=2)
+    ax.legend(fontsize=6.4, loc="best", ncol=2)
 fig.text(0.01, -0.03, "Lines: titer at which the minimum selling price equals the target (each product's base plant, US; solid "
          "price-anchored, dashed design-report capital), searched only below the feasibility ceiling; grey: designs the fermenter "
-         "cannot run. Targets bracket each product's market (lactoferrin sells for hundreds of $/kg)."
+         "cannot run. Targets bracket each product's market (lactoferrin sells for hundreds of $/kg; albumin's run from GFI's $10/kg target to $100/kg; alpha-lac's $25 and $130 are the ends of its band per kg alpha-lac)."
          + (f"\nNot reachable at any production time with the base cells and yield: {', '.join(missing)}." if missing else ""),
          fontsize=7, color=MUTED, wrap=True)
 save(fig, "fig3_required_titer.png")
@@ -283,7 +295,7 @@ for ax, prod in zip(axes, PRODS):
 h, l_ = axes[0].get_legend_handles_labels()
 fig.legend(h, l_, fontsize=7.5, ncol=4, loc="lower center", bbox_to_anchor=(0.5, -0.06))
 fig.text(0.01, -0.1, "$/kg target protein, 2025; capital charge 14.6%/yr of total capital investment. Physical limit: each "
-         "product at 100 kt/yr (lactoferrin at its largest market estimate).", fontsize=7, color=MUTED)
+         "product at 100 kt/yr (lactoferrin at its largest market estimate; albumin at GFI's high 2030 demand).", fontsize=7, color=MUTED)
 save(fig, "fig4_breakdown.png")
 
 # ------------------------------------------------------------------ Fig 5 tornado
@@ -294,7 +306,7 @@ ORD["structural"] = INK2
 def tlabel(par, trunc):
     txt = {"design-report (NREL-style)": "design-report", "price-anchored (Humbird)": "price-anchored",
            "vendor quote (base)": "vendor quote", "aseptic cell-culture STR (ACCE)": "aseptic STR"}.get(par, None)
-    txt = txt or (f"{par:.3g}" if isinstance(par, float) else f"{par}")
+    txt = txt or ((f"{par:,.0f}" if abs(par) >= 1000 else f"{par:.3g}") if isinstance(par, (int, float)) else f"{par}")
     return txt + (" \u2020" if trunc else "")
 
 
@@ -332,7 +344,7 @@ fig.legend(handles=[Patch(color=ORD[g], label=f"grade {g}") for g in "ABCDE"]
            + [Patch(color=ORD["structural"], label="convention")], fontsize=7.5, ncol=6,
            loc="lower center", bbox_to_anchor=(0.5, -0.02))
 fig.text(0.01, -0.05, "One parameter at a time over its evidence range, coloured by evidence grade; the ten largest swings per "
-         "product. Each product on its own plant (lactoferrin 250 t/yr)."
+         "product. Each product on its own plant (lactoferrin 250 t/yr, albumin 1 kt/yr)."
          + ("\n\u2020 the end of the evidence range breaks a physical limit; the bar stops at the last feasible value shown."
             if trunc_any else ""), fontsize=7, color=MUTED)
 save(fig, "fig5_tornado.png")
@@ -499,6 +511,11 @@ ROUTES = {   # (label, result) per product: the base route first, then its alter
             ("UF/DF only (Eden Brew, FSANZ A1342)", R.get("casein", {}).get("cases", {}).get("cas_ufdf_edenbrew/humbird"))],
     "lf": [("cation exchange (base)", R["base"].get("lf")),
            ("UF/DF only (Intelligen case a)", LFX.get("cases", {}).get("lf_ufdf_only/humbird"))],
+    "alac": [("UF/DF concentrate (base)", R["base"].get("alac")),
+             ("isolate: ammonium-sulfate precipitation (not GFI's >99% grade)", R["base_isolate"].get("alac"))],
+    "alb": [("cation exchange + anion-exchange polish (base)", R["base"].get("alb")),
+            ("capture only (96% assumed; optimistic)", R.get("albumin", {}).get("cases", {}).get("alb_capture_only/humbird")),
+            ("UF/DF only (77% albumin; below spec)", R.get("albumin", {}).get("cases", {}).get("alb_ufdf_only/humbird"))],
 }
 rprods = [k for k in PRODS if k in ROUTES]
 fig, axes = grid(len(rprods), w=12, h=2.5, gridspec_kw=dict(hspace=0.8, wspace=1.0))
@@ -515,7 +532,7 @@ for ax, prod in zip(axes, rprods):
         ax.plot([tp], [i], "o", ms=7, color=PCOL[prod], zorder=3)
         ax.plot([pw], [i], "o", ms=7, mfc=SURF, mec=PCOL[prod], mew=1.6, zorder=3)
         ax.text(max(tp, pw) * 1.12, i, f"${tp:,.1f}/kg {SHORT[prod]}; ${pw:,.2f}/kg powder; "
-                f"{100 * d['design']['purity_dry']:.0f}% of dry matter", fontsize=6.6, color=INK2, va="center")
+                f"{int(100 * d['design']['purity_dry'] + 0.5)}% of dry matter", fontsize=6.6, color=INK2, va="center")
         xs += [tp, pw]
     if prod == "lf":                                   # Intelligen's own model: cost of production, not MSP
         for c_ in LFX.get("reported_prices", {}).get("comparators", []):
@@ -547,7 +564,11 @@ ACAD = {"blg": [("best public strain, 13.9 g/L (Yao 2026)", "academic/blg"), ("b
                 ("EVERY patent example, 30 g/L", "academic/ovd_patent")],
         "cas": [("best peer-reviewed in K. phaffii, intracellular (Choi 1996)", "academic/cas"),
                 ("best public casein, 3 g/L (E. coli patent)", "academic/cas_patent")],
-        "lf": [("best public methanol-free (Yen 2024)", "academic/lf"), ("best public secreted (Lv 2023; methanol)", "academic/lf_lv2023")]}
+        "lf": [("best public methanol-free (Yen 2024)", "academic/lf"), ("best public secreted (Lv 2023; methanol)", "academic/lf_lv2023")],
+        "alac": [("best public, 0.6 g/L of supernatant (Wang 2025; human alpha-lac; ethanol)", "academic/alac")],
+        "alb": [("best public rHSA, 8.7 g/L of broth in 192 h (Zhu 2021; methanol)", "academic/alb"),
+                ("4.4 g/L of broth in 96 h (Zhu 2018; methanol)", "academic/alb_zhu2018"),
+                ("best methanol-free, 1.5 g/L (Delta patent)", "academic/alb_patent")]}
 
 
 def ladder(prod):
@@ -619,7 +640,7 @@ if ctx:
     ax.set_yticks(range(len(rows)))
     ax.set_yticklabels([c["label"] for c in rows], fontsize=7.8)
     LS = ["-", (0, (4, 2)), (0, (1, 2)), (0, (6, 2, 1, 2)), (0, (2, 1))]
-    marks = [(f"{SHORT[k]} base", R["base"][k]["msp_ccf"]) for k in PRODS if R["base"][k]["msp_ccf"] < 150]
+    marks = [(f"{SHORT[k]} base", R["base"][k]["msp_ccf"]) for k in PRODS if k not in REPORTED and R["base"][k]["msp_ccf"] < 150]
     marks += [("BLG, 42 g/L", R["scenarios"]["industry/blg"]["msp_ccf"]),
               ("BLG best case", R["physical_limit"]["blg/humbird"]["msp_ccf"])]
     for j, (lab, x) in enumerate(marks):
@@ -634,6 +655,67 @@ if ctx:
     ax.set_title("Protein ingredients, per kg of protein, against our modelled costs", fontsize=9.5, loc="left")
     fig.text(0.01, -0.02, "Bars: market prices. Export unit values are 2015-2025 in 2025 dollars (grade A); GFI 2025 ranges are nominal, "
              "about 2024-2025 (grade C). Lines: this model's production costs (price-anchored capital, 10 kt/yr; best case at "
-             "100 kt/yr), which include a return on capital but no margin, sales or distribution. Lactoferrin (hundreds of $/kg) "
-             "is off this scale (Figs 1 and 10).", fontsize=6.8, color=MUTED, wrap=True)
+             "100 kt/yr), which include a return on capital but no margin, sales or distribution. Lactoferrin and albumin, "
+             "which are not food-ingredient commodities, are in Figs 1 and 10.", fontsize=6.8, color=MUTED, wrap=True)
     save(fig, "fig11_protein_context.png")
+
+# ------------------------------------------------------------------ Fig 12 feedstock and conversion: PF against the animal
+FL = R.get("floor")
+FNAME = {"cas": "β-casein", "alac": "α-lactalbumin"}
+if FL:
+    ANI = FL["animals"]
+    fprods = [k for k in FL["food_products"] if k in PRODS]          # benchmarks.yaml feed_bills.food_products
+    offs = [FL["products"][k][loc_]["msp"] for k in PRODS if k not in fprods for loc_ in FL["products"][k]]
+    xmax = 1.25 * max(FL["products"][k][loc_]["msp"] for k in fprods for loc_ in FL["products"][k])
+    locs = [("us_midwest", "United States"), ("eu_nw", "European Union")]
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 0.36 * (len(ANI) + len(fprods) + 1) + 2.0), sharey=True)
+    FEED, REST = CAT[3], "#c9dcf3"
+    for ax, (loc, title) in zip(axes, locs):
+        rows = []                                    # (label, feedstock, other, total range or None, kind)
+        for name, a in ANI.items():
+            d = a["regions"].get(loc)
+            rows.append((a["label"] + " (farm gate)", d and d["feed"], d and d["other"],
+                         d and d["total"] and (d["total_low"], d["total_high"]), "animal"))
+        for prod in fprods:
+            d = FL["products"][prod][loc]
+            rows.append((f"PF {FNAME.get(prod, SHORT[prod])} (base case, ex works)", d["glucose_usd"], d["other"], None, "pf"))
+        f0 = FL["products"]["blg"][loc]["floor"]
+        rows.append(("PF metabolic floor (inputs only)", f0["cost"]["substrate"], f0["total"] - f0["cost"]["substrate"], None, "floor"))
+        for i, (lab, fs, ot, rng, kind) in enumerate(rows):
+            y = len(rows) - 1 - i
+            if fs is None:
+                ax.text(0.3, y, "not gathered", fontsize=6.8, color=MUTED, va="center")
+                continue
+            ax.barh(y, fs, color=FEED, height=0.62, zorder=3)
+            if ot is None:                           # feed only: no comparable farm cost (EU milk)
+                ax.text(fs + 0.4, y, f"${fs:.1f} feed (lower bound); farm cost not comparable", fontsize=6.6, color=INK2, va="center")
+                continue
+            ax.barh(y, ot, left=fs, color=REST, height=0.62, zorder=3, hatch="////" if kind == "floor" else None,
+                    edgecolor=SURF if kind != "floor" else INK2, lw=0)
+            if rng:                                  # range of the farm cost, drawn above the bar
+                yw = y + 0.42
+                ax.plot(rng, [yw, yw], color=INK2, lw=1.0, zorder=4)
+                for x_ in rng:
+                    ax.plot([x_, x_], [yw - 0.09, yw + 0.09], color=INK2, lw=1.0, zorder=4)
+            ax.text(fs + ot + 0.4, y, f"${fs:.1f} + ${ot:.1f}", fontsize=6.6, color=INK2, va="center")
+        ax.set_yticks(range(len(rows)))
+        ax.set_yticklabels([r[0] for r in rows][::-1], fontsize=7.6)
+        ax.axhline(len(rows) - len(ANI) - 0.5, color=AXIS, lw=0.8)
+        ax.set_xlim(0, xmax)
+        ax.xaxis.set_major_formatter(FuncFormatter(lambda x_, _: f"${x_:,.0f}"))
+        ax.grid(axis="y", visible=False)
+        ax.set_xlabel("$ per kg edible or ingredient protein")
+        ax.set_title(title, loc="left")
+    fig.legend(handles=[Patch(color=FEED, label="feedstock: animal feed, or glucose"),
+                        Patch(color=REST, label="everything else (housing, labour, capital; PF plant and DSP)")],
+               fontsize=7, loc="upper center", ncol=2, bbox_to_anchor=(0.5, 1.0))
+    fig.text(0.01, -0.05, "Animals: feed bill per kg of edible crude protein, all of it charged to the protein (milk's and eggs' feed also makes "
+             "their fat and lactose), parent and pullet feed included, milk net of the cattle credit (derived from breeder targets, "
+             "industry, USDA, Eurostat and Wageningen data, grade D), and the rest of the farm's cost from the feed share of cost "
+             "(bars: US " + str(ANI["broiler"]["regions"]["us_midwest"]["year"]) + ", EU " + str(ANI["broiler"]["regions"]["eu_nw"]["year"])
+             + " in that year's dollars; whiskers above the bars: the farm cost over feed-price years, feed conversion and edible "
+             "yield, at the central feed share; US milk year by year). "
+             "Farm gate, before slaughter, grading or processing. EU milk values home-grown forage at its seed and fertiliser cost only. PF: each product's base case, price-anchored capital, glucose "
+             "against everything else; the floor is the least glucose, ammonia and aeration power at the host's energetic ceiling (BLG; "
+             "hatched = ammonia and power). " + (f"Lactoferrin and albumin (${min(offs):.0f}-{max(offs):.0f}/kg) are off this scale." if offs else ""), fontsize=6.8, color=MUTED, wrap=True)
+    save(fig, "fig12_feed_vs_floor.png")

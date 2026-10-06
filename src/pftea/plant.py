@@ -25,7 +25,8 @@ Blocks (data in data/pf/base.yaml; equations in each block's comments):
       concentration of the MF permeate), so the cycle time is (CV_tot + q / c_load) / flow.
       Resin replaced per year = resin-cycles / life; resin volume installed = resin-cycles per
       hour x cycle time (first fill added to TCI unfactored); column hardware per litre of resin.
-      Recovery R_cex.
+      Recovery R_cex. Polish columns (dsp.polish_columns, albumin: 1, anion exchange after capture as in
+      US 6,638,740) repeat the same arithmetic on the capture eluate, loaded at polish_dbc, recovery R_pol.
    d. Isolate only: ammonium-sulfate precipitation and washed basket centrifuges; the dryer is
       fed the cake (solids fraction s_cake).
    d'. 'acid' spec only (casein): the dairy acid-casein line applied to the MF permeate. The permeate
@@ -58,7 +59,9 @@ Blocks (data in data/pf/base.yaml; equations in each block's comments):
        ISBL TDC = PEC_ISBL (1 + m) (1 + f_ISBL);  OSBL TDC = PEC_OSBL (1 + m) (1 + f_OSBL)
        buildings = sum(area x levels x $/m2 by class)
        TDC = ISBL + OSBL + buildings; TPC = TDC (1 + E&C); TCI = TPC (1 + fees & contingency)
-     with m = missing-capital allowance (m = 0.1/0.9). All 2018$ x cost index x location factor.
+     with m = missing-capital allowance (m = 0.1/0.9). All 2018$ x cost index x location factor
+     (x pioneer factor: 1 for the nth plant of the base; 1/0.78 for a pioneer plant, RAND R-2569's mean
+     ratio of estimated to actual cost, shown only as a separate sensitivity).
    - design-report ('light', NREL 2011 style): NREL installation factors, site development on
      ISBL, indirect costs on TDC; same buildings except the warehouse (inside NREL's site factor).
 7. Operating costs: raw materials, utilities, consumables, waste; labour (Humbird's operator
@@ -117,7 +120,7 @@ def _host(p) -> pf.Host:
     f = v(p, f"{h}.biomass_formula")
     return pf.Host(bio=th.biomass(f["C"], f["H"], f["O"], f["N"]), mu_max=v(p, f"{h}.mu_max_per_h"),
                    T_C=v(p, f"{h}.temperature_C"), maint_factor=v(p, f"{h}.maint_factor"),
-                   m_s_prod=_opt(p, f"{h}.m_s_prod_g_g_h"))
+                   m_s_prod=_opt(p, f"{h}.m_s_prod_g_g_h"), m_s_prod_meoh=_opt(p, f"{h}.m_s_prod_methanol_g_g_h"))
 
 
 def _vessel(p, volume=None) -> pf.STR:
@@ -145,10 +148,13 @@ def batch(p, keep_series=False) -> pf.Batch:
     c = _conditions(p)
     strain = pf.Strain(product=pr.protein(v(p, "plant.product")), Y_ps=v(p, "strain.Y_ps_g_g"),
                        X_prod=v(p, "strain.X_prod_g_L"), mu_prod=v(p, "strain.mu_prod_per_h"),
-                       t_prod=v(p, "strain.t_prod_h"), X_max=v(p, "strain.X_max_g_L"))
+                       t_prod=v(p, "strain.t_prod_h"), X_max=v(p, "strain.X_max_g_L"),
+                       meoh_frac=_opt(p, "strain.methanol_frac_prod", 0.0),
+                       Y_ps_meoh=methanol_yield(p) if _opt(p, "strain.methanol_frac_prod", 0.0) > 0 else None)
     return pf.run_batch(_vessel(p), c, host, strain, X0=v(p, "strain.X0_g_L"),
                         titer=v(p, "strain.titer_g_L"), c_s=v(p, "fermenter.feed_glucose_g_L"),
-                        c_nh3=v(p, "fermenter.nh3_feed_g_L"), keep_series=keep_series)
+                        c_nh3=v(p, "fermenter.nh3_feed_g_L"), keep_series=keep_series,
+                        c_meoh=v(p, "fermenter.feed_methanol_g_L"))
 
 
 def atp_per_residue(p) -> float:
@@ -164,14 +170,22 @@ def atp_per_residue(p) -> float:
             + s_per_res * (v(p, f"{e}.sulfur_atp_per_S") + v(p, f"{e}.sulfur_electrons_per_S") / 2 * po))
 
 
-def energetic_ceiling(p) -> float:
+def energetic_ceiling(p, csource: str = "Glucose (s)") -> float:
     """Upper bound on the product-reaction yield [g/g]: the ATP of atp_per_residue paid by
-    respiring glucose at the host's P/O ratio (product.energetic_ceiling). Transport, secretion,
-    folding and turnover costs are not counted, so this stays an upper bound."""
+    respiring the C-source at the host's P/O ratio (product.energetic_ceiling). Transport, secretion,
+    folding and turnover costs are not counted, so this stays an upper bound. Glucose yields
+    substrate-level ATP + 12 P/O; methanol yields methanol_respired_O x P/O (alcohol oxidase passes
+    its electrons to H2O2). The amino-acid synthesis cost is Stouthamer's from glucose for both."""
     h = f"hosts.{v(p, 'strain.host')}"
-    atp_glc = v(p, "energetics.substrate_atp_per_glucose") + 12 * v(p, f"{h}.po_ratio")
-    return pr.energetic_ceiling(pr.protein(v(p, "plant.product")), th.get("Glucose (s)"),
-                                atp_per_residue(p), atp_glc)
+    po = v(p, f"{h}.po_ratio")
+    atp = (v(p, "energetics.substrate_atp_per_glucose") + 12 * po if csource == "Glucose (s)"
+           else v(p, "energetics.methanol_respired_O") * po)
+    return pr.energetic_ceiling(pr.protein(v(p, "plant.product")), th.get(csource), atp_per_residue(p), atp)
+
+
+def methanol_yield(p) -> float:
+    """Product-reaction yield on methanol: the glucose yield's fraction of its energetic ceiling."""
+    return v(p, "strain.Y_ps_g_g") * energetic_ceiling(p, "Methanol") / energetic_ceiling(p)
 
 
 def _coincident_peak(prof_t, prof_v, t_total: float, interval: float) -> float:
@@ -192,7 +206,8 @@ def _coincident_peak(prof_t, prof_v, t_total: float, interval: float) -> float:
 
 def evaluate(p, keep_series=False) -> Result:
     flags = []
-    idx = v(p, "capital.cost_index_2018_to_2025") * v(p, "capital.location_factor")
+    idx = (v(p, "capital.cost_index_2018_to_2025") * v(p, "capital.location_factor")
+           * _opt(p, "capital.pioneer_factor", 1.0))          # 1 = nth plant (base); RAND's pioneer-plant cost growth as a sensitivity
     b = batch(p, keep_series)
     if not b.ok:
         flags.append(b.reason)
@@ -225,7 +240,7 @@ def evaluate(p, keep_series=False) -> Result:
     crude = spec == "crude"
     n_st = int(v(p, "dsp.centrifuge_stages"))
     resin_cyc = buffer_m3 = nacl_kg = naoh_kg = etoh_kg = 0.0     # cation exchange ('cex' spec only)
-    load_cv = cex_cycle_h = 0.0
+    load_cv = cex_cycle_h = resin_cyc_h = 0.0                     # resin_cyc_h: resin-cycle x hours (installed resin)
     if crude:                                              # whole broth used as is (NREL on-site enzyme)
         dil, V1, V_clar, V_wash, R_cell = 1.0, W, W, 0.0, 1.0
         R_mf = R_uf = 1.0
@@ -256,7 +271,22 @@ def evaluate(p, keep_series=False) -> Result:
                                    + v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_nacl_kg_m3"))
             naoh_kg = resin_cyc * v(p, "dsp.cex_cip_cv") * v(p, "dsp.cex_cip_naoh_kg_m3")
             etoh_kg = resin_cyc * v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_etoh_kg_m3")
+            resin_cyc_h = resin_cyc * cex_cycle_h
             P_uf *= v(p, "dsp.cex_recovery")
+            for _ in range(int(_opt(p, "dsp.polish_columns", 0))):
+                # c''. polish column(s) on the capture eluate (albumin: anion exchange, US 6,638,740), same cycle
+                # recipe, resin, life and hardware as the capture column; loaded at polish_dbc from the eluate
+                rc = P_uf / v(p, "dsp.polish_dbc_g_L")
+                cyc_h = (v(p, "dsp.cex_cv_per_cycle") + v(p, "dsp.polish_dbc_g_L") / (P_uf / V_uf)) / v(p, "dsp.cex_flow_cv_per_h")
+                buffer_m3 += v(p, "dsp.cex_cv_per_cycle") * rc
+                nacl_kg += rc * (v(p, "dsp.cex_elution_cv") * v(p, "dsp.cex_elution_nacl_kg_m3")
+                                 + v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_nacl_kg_m3"))
+                naoh_kg += rc * v(p, "dsp.cex_cip_cv") * v(p, "dsp.cex_cip_naoh_kg_m3")
+                etoh_kg += rc * v(p, "dsp.cex_regen_cv") * v(p, "dsp.cex_regen_etoh_kg_m3")
+                resin_cyc += rc
+                resin_cyc_h += rc * cyc_h
+                V_uf = v(p, "dsp.cex_elution_cv") * rc
+                P_uf *= v(p, "dsp.polish_recovery")
         # c. ultrafiltration + diafiltration ('acid' route: concentration to the precipitation feed only)
         sigma = v(p, "dsp.uf_rejection")
         C_in = P_uf / V_uf                                 # kg/m3 into UF
@@ -414,7 +444,7 @@ def evaluate(p, keep_series=False) -> Result:
         n_d, dsize = eq.units(evap_kg_h, v(p, "dsp.spray_dryer_max_kg_h"))
         isbl["spray dryers"] = eq.spray_dryer(dsize, v(p, "dsp.spray_dryer_cost_2018usd"), v(p, "dsp.spray_dryer_ref_kg_h"),
                                               v(p, "dsp.spray_dryer_exponent")) * n_d
-    resin_m3 = n_batches * resin_cyc / H * cex_cycle_h if spec == "cex" else 0.0   # installed resin
+    resin_m3 = n_batches * resin_cyc_h / H if spec == "cex" else 0.0   # installed resin (capture + polish)
     if spec == "cex":
         isbl["CEX columns and skids"] = resin_m3 * 1000 * v(p, "dsp.cex_hardware_usd_per_L_resin")
     if spec == "isolate":
@@ -526,7 +556,8 @@ def evaluate(p, keep_series=False) -> Result:
         "salts & other media": n_batches * (v(p, "media.salts_kg_per_m3") * W * v(p, "media.salts_price_usd_kg")
                                             + v(p, "media.h3po4_kg_per_kg_cells") * b.cells_kg * v(p, "media.h3po4_price_usd_kg")
                                             + v(p, "media.antifoam_kg_per_m3") * W * v(p, "media.antifoam_price_usd_kg")
-                                            + v(p, "media.methanol_kg_per_kg_product") * P_in * v(p, "media.methanol_price_usd_kg")),
+                                            + (b.methanol_kg + _opt(p, "media.methanol_inducer_kg_per_kg_product", 0.0) * P_in)
+                                            * v(p, "media.methanol_price_usd_kg")),
         "DSP chemicals": n_batches * (AS_kg * v(p, "dsp.ammonium_sulfate_usd_kg") + cip_chem * cip_kg * v(p, "dsp.cip_price_usd_kg")
                                       + nacl_kg * v(p, "dsp.nacl_usd_kg") + naoh_kg * v(p, "dsp.naoh_usd_kg")
                                       + etoh_kg * v(p, "dsp.ethanol_usd_kg") + acid_kg * v(p, "media.h3po4_price_usd_kg")),
@@ -556,6 +587,7 @@ def evaluate(p, keep_series=False) -> Result:
     powder_frac = target / powder
     physical = {
         "glucose_kg": glc_kg / annual_target_kg,
+        "methanol_kg": n_batches * b.methanol_kg / annual_target_kg,
         "o2_kg": n_batches * (b.o2_kmol + seed_o2_kmol) * 32 / annual_target_kg,
         "electricity_kWh": elec_kWh / annual_target_kg,
         "natural_gas_MJ": gas_GJ * 1000 / annual_target_kg,

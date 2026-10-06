@@ -1,5 +1,11 @@
 # Documents to download (for Pablo)
 
+**Status 2026-10-05 (titer check).** 43 of 134 rows in data/titers.csv are not verified in full text. No base case and
+no headline scenario uses any of them. Four uses do, so these three papers come first (all paywalled):
+**15** Liu 2026 (lactoferrin marker, report Figure 3), **32** Hu 2025 (lactoferrin marker, report Figure 3) and **48** Zhu 2018 (albumin
+marker and the `alb_zhu2018` variant). Their chart labels now say "abstract only". The other 39 rows are literature
+context (P3) and change nothing.
+
 **Status 2026-09-27.**
 - Received and filed: 1 (Li), 2 (Yao), 3 (Aro), 4 (Järviö, article and Supplementary
   Information), 5 (Nielsen), FDA GRN 1056, plus Shukla 2026, Behm 2022, Zhang 2024, Yamanie 2026,
@@ -116,3 +122,16 @@ Save patents in `references/patents/`, articles in `references/papers/` (both gi
 | 43 | Fermify WO2024200234A1 (non-micellar casein gel) | patents.google.com | `patents/Fermify_WO2024200234A1.pdf` | Cheese without micelles: does unphosphorylated casein work? |
 | 44 | Balasubramanian et al. Trends Biotechnol 43:2304 (2025) | journal page | `papers/Balasubramanian2025_phospho_as1_ecoli.pdf` | Fully phosphorylated αs1-casein in *E. coli*; may give a titer |
 | 45 | FDA GRN 967 and GRN 1104 full notices (EVERY: ovomucoid; egg-white protein) | FDA GRAS Notice Inventory | `reports/FDA-GRN967_ovomucoid.pdf`, `reports/FDA-GRN1104_egg-white.pdf` | Specs and process for the next product (ovomucoid / egg-white mix) |
+
+## P7 — albumin and the v4 model review (added 2026-10-02)
+
+Save articles in `references/papers/`, reports in `references/reports/` (both git-ignored). In order of value:
+
+| # | Document | DOI / where | Save as | Why |
+|---|---|---|---|---|
+| 46 | **Received 2026-10-02.** Zhu W, Xu R, Gong G, et al. Medium optimization for high yield production of human serum albumin in *Pichia pastoris* and its efficient purification. Protein Expr Purif 181:105831 (2021) | 10.1016/j.pep.2021.105831 | `papers/Zhu2021_hsa_pichia.pdf` | Albumin's academic titer (17.47 g/L, 192 h, methanol), read only as an abstract: needs scale, cell density, methanol use and the 3-step purification |
+| 47 | **Received 2026-10-02 (OCR'd: references/text/RAND_R2569.txt).** Merrow EW, Phillips KE, Myers CW. Understanding cost growth and performance shortfalls in pioneer process plants. RAND R-2569-DOE (1981). Free | rand.org/pubs/reports/R2569.html (blocks scripts; download in a browser) | `reports/RAND_R2569_pioneer_plants.pdf` | The only sourced basis for a first-of-a-kind premium (SCOPE promises it as a separate sensitivity) |
+| 48 | Zhu W, Gong G, Pan J, et al. High level expression and purification of recombinant human serum albumin in *Pichia pastoris*. Protein Expr Purif 147:61 (2018) | 10.1016/j.pep.2018.02.003 | `papers/Zhu2018_hsa_pichia.pdf` | Albumin variant (8.86 g/L in 96 h); time course, recovery 58% |
+| 49 | Mallem M, et al. Biotechnol Prog (2014): rHSA in Mut-s *K. phaffii* at 10 g/L | 10.1002/btpr.1990 | `papers/Mallem2014_hsa_muts.pdf` | Induction length, specific productivity and growth rate (two weeks at mu ~0.002/h?) |
+| 50 | Kobayashi K, et al. Biologicals 34:55 (2006); Ohya T, et al. Biotechnol Bioeng 90:876 (2005) | 10.1016/j.biologicals.2005.08.021 | `papers/Kobayashi2006_medway.pdf`, `papers/Ohya2005_medway.pdf` | The Mitsubishi (Medway) industrial rHSA process: commercial titer and purification |
+| 51 | Sun et al. Industrial recombinant HSA review. Biotechnol Adv 90:108914 (2026) | 10.1016/j.biotechadv.2026.108914 | `papers/Sun2026_rhsa_review.pdf` | Current industrial titers and trains in one place |
