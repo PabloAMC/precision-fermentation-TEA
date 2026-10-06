@@ -70,7 +70,7 @@ def num(x):
 ws = wb.active
 ws.title = "README"
 lines = [
-    ("Supplementary workbook: the cost of precision-fermented BLG, OVA, ovomucoid, beta-casein, lactoferrin, serum albumin and alpha-lactalbumin (v4), with notes on rennet-cheese casein and heme", HDR),
+    ("Supplementary workbook: the cost of precision-fermented BLG, OVA, ovomucoid, beta-casein, lactoferrin, serum albumin and alpha-lactalbumin (v4), with notes on rennet-cheese casein, heme, transferrin, binders and the metabolic floor", HDR),
     (f"Generated from results/analyses.json ({R['generated']}) and the data files of the pf-tea repository.", BODY),
     ("All sheets hold values exported by scripts/build_si_workbook.py, except 'Accounting', which is live (formulas).", BODY),
     ("Money: 2025 US dollars. Per kg = per kg of target protein unless the column says powder.", BODY),
@@ -110,7 +110,7 @@ sheet("Parameters", ["path", "label", "value (US)", "value (EU)", "low", "high",
 
 # ---------------------------------------------------------------- Scenarios
 rows = []
-for name in ("academic", "industry", "physical_limit", "lactoferrin", "casein", "albumin", "cheese", "heme"):
+for name in ("academic", "industry", "physical_limit", "lactoferrin", "casein", "albumin", "cheese", "heme", "transferrin", "binder"):
     s = yaml.safe_load((ROOT / f"data/pf/scenarios/{name}.yaml").read_text())
     for blk, body in s.items():
         if blk in ("description", "search", "mc_paths"):
@@ -143,6 +143,7 @@ rows += [res_row(f"cheese/alpha-s1/{k}", d) for k, d in R.get("cheese", {}).get(
 rows += [res_row(f"cheese/{r}/share {s}/{t} g/L", d) for r, rr in R.get("cheese", {}).get("kap", {}).items()
          for s, dd in rr.items() for t, d in dd.items()]
 rows += [res_row(f"heme/{k}", d) for k, d in R.get("heme", {}).get("cases", {}).items()]
+rows += [res_row(f"transferrin/{k}", d) for k, d in R.get("transferrin", {}).get("cases", {}).items()]
 sheet("Results", ["case", "titer g/L", "MSP_CCF $/kg", "COP $/kg", "MSP_DCF $/kg", "MSP_CCF $/kg powder", "TCI $",
                   "glucose kg/kg", "electricity kWh/kg", "feasible", "flags"], rows,
       [30, 10, 13, 11, 13, 16, 16, 13, 16, 9, 60])
@@ -379,7 +380,8 @@ if FLR:
 with (ROOT / "data/titers.csv").open() as fh:
     t = list(csv.reader(fh))
 sheet("Titers", t[0], t[1:], [14, 14, 10, 10, 8, 10, 12, 20, 6, 50, 20, 12, 8, 8, 50])
-for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein", "ovomucoid", "albumin", "alac", "heme"):
+for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "lactoferrin", "casein", "ovomucoid", "albumin", "alac", "heme",
+          "feed", "kinetic", "transferrin", "binder"):
     E = yaml.safe_load((ROOT / f"data/evidence/{f}.yaml").read_text())
     rows = [[e.get("key"), num(e.get("value")) if not isinstance(e.get("value"), (dict, list)) else json.dumps(e.get("value")),
              num(e.get("low")), num(e.get("high")), e.get("unit", ""), e.get("grade", ""), e.get("source", ""),

@@ -1,0 +1,16 @@
+# 'binder': a cost-in-use note for PF ovalbumin as the binder of plant-based meat analogues (report sec. "Ovalbumin as a
+# binder"; run_analyses.s_binder). No new process is modelled: the OVA costs are the model's own (base case, industry
+# benchmark, physical limit), set against methylcellulose (MC) and dried egg white at their use levels. Evidence:
+# data/evidence/binder.yaml. Cost per kg of analogue = use level x price. The dose at which OVA binds as well as MC is
+# not measured: EVERY's only like-for-like test used 5% OVA against 0.7% MC and found OVA harder (binder_rova_vs_mc_burger_every_us12096784).
+description: "Binder note: PF ovalbumin against methylcellulose and dried egg white in meat analogues"
+use:
+  mc_frac: {value: 0.015, low: 0.007, high: 0.03, grade: D,
+    source: "judgment within the evidence: commercial patties use under 2% MC (binder_mc_commercial_burgers_lt2pct_today2020, C); Penaranda 2025 1.34% (binder_mc_use_level_penaranda2025, A); EVERY's patent control 0.7% (binder_mc_use_level_every_us12096784_burger, B; low); lab optimum 3% (binder_mc_use_level_bakhsh2021, A; high)"}
+  egg_protein_product_frac: {value: 0.05, low: 0.03, high: 0.08, grade: B,
+    source: "egg-white protein product in meat alternatives, 3-8% ('based upon current usage rates of egg white protein'), burgers 4-8% (FDA GRN 1104 Table 5, binder_newp_meat_analogue_use_grn1104); 5% = EVERY's patent burger dose (binder_rova_vs_mc_burger_every_us12096784). The same dose is applied to dried egg white and to PF OVA"}
+  protein_frac_of_product: {value: 0.80, grade: B,
+    source: "GRN 1104 Table 5 footnote c: 'Adjusted for 80g protein in 100g NEWP' (binder_newp_meat_analogue_use_grn1104 note): use levels are per kg of an ~80%-protein product; costs here are per kg protein"}
+price:
+  mc_usd_kg: {value: 4.45, low: 2.6, high: 26.3, grade: A,
+    source: "India import unit value 2025, tariff line 39123912 'methyl cellulose non-plasticized', the only official line that isolates MC: all origins 4.45; China-origin ~2.6 (low; presumably industrial grade); US-origin ~26.3 (high; Germany ~10.6), presumably specialty food/pharma grades (an inference) (mc_price_india_import_unit_value_39123912). Mixed-ether lines: EU imports 6.64 EUR/kg, US imports 7.69 USD/kg (cellulose_ethers_other_*)"}
