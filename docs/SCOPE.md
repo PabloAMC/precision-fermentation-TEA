@@ -73,16 +73,24 @@ Original (v1):
 | Base spec | Dairy α-lac isolate, FDA GRN 763 (Agropur): ≥95% protein, ≥90% of it α-lac, i.e. ~90% of dry matter |
 | Base downstream train | BLG's membrane route (MF, UF/DF, spray dry); GFI Europe/ADL's food-grade route |
 | Academic | Wang 2025, 0.60 g/L human α-lac (supernatant), ethanol-fed >90 h, priced as glucose |
-| Plant | 1 kt/yr (design choice: ~27% of the high-purity market, 3% of the food-grade one; GFI Europe 2025, C) |
+| Plant | 1 kt/yr (design choice: about 5% of the α-lac market, ~19 kt/yr of α-lac; GFI Europe 2025, C; audit R15-M1) |
 | Incumbent | Dairy α-lac, $15–123/kg (GFI Europe/ADL; FMI $31–86; grade C) |
 
-Notes outside the product list (run on existing routes by analogy; data/pf/scenarios/cheese.yaml, heme.yaml):
+Notes outside the product list (run on existing routes by analogy; data/pf/scenarios/cheese.yaml, heme.yaml,
+transferrin.yaml, binder.yaml):
 - *Casein for rennet cheese:* α<sub>s1</sub>-casein (base design point, β-casein's acid route) blended with κ-casein
   from its own strain and plant at 12–19% κ (Antuma 2025); output: the blend's cost against κ titer, and the κ
   titer at which the blend costs ≤10% more than α<sub>s1</sub> alone.
 - *Heme:* soy leghemoglobin from the best published secreting strains (Chen 2025, Shao 2022) on the membrane
   route at LegH Prep's purity; cost per kg LegH and per kg of beef analogue at 0.45% use. The commercial
   route (intracellular, lysed, frozen liquid) is not modelled.
+- *Transferrin (v4.1):* recombinant human transferrin on albumin's plant and two-column route with its own column
+  data (Novozymes), at the design point and the best published titer (Finnis 2010), at ~10 and ~100 t/yr; cost per kg
+  of cultivated meat at 0.075-1.19 g/kg (data/pf/scenarios/transferrin.yaml).
+- *Ovalbumin as a binder (v4.1):* PF ovalbumin's cost per kg of plant-based meat analogue at egg-white-protein use
+  levels, against methylcellulose and dried egg white (data/pf/scenarios/binder.yaml). No new process.
+- *Feedstock against feed (v4.1):* the metabolic floor (src/pftea/floor.py) beside the incumbent animals' feed bill and
+  farm-gate cost per kg of edible protein, US and EU (data/evidence/feed.yaml).
 
 Vessel size (v4): the designer takes the cheapest feasible plant over 50–200 m³ vessels (cap 200 m³),
 so the small plants (lactoferrin, albumin) use smaller vessels. First-of-a-kind: a pioneer-plant case

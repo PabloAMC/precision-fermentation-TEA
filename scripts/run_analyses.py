@@ -573,6 +573,7 @@ def s_lactoferrin(res):
     out = {"reported_prices": bm.reported_prices()["lactoferrin"], "cases": {}}
     for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
         out["cases"][f"lf_ufdf_only/{label}"] = summary(sc.run("lactoferrin", "lf", extra, variant="lf_ufdf_only"))
+        out["cases"][f"lf_methanol/{label}"] = summary(sc.run("lactoferrin", "lf", extra, variant="lf_methanol"))
     p = sc.base_params("lf")
     # cost vs titer at the design production time (Fig. 9); cost_vs_titer['lf'] is at 48/72/120 h like BLG and OVA
     titers = [1, 2.8, 5, 10, 20, 30]
@@ -716,6 +717,45 @@ def s_heme(res):
     res["heme"] = out
 
 
+def s_transferrin(res):
+    """Transferrin note: rTf on albumin's plant and two-column route with its own column data (data/pf/scenarios/
+    transferrin.yaml), at the base design point and at the best published titer, at ~10 and ~100 t/yr. Cost in use per
+    kg of cultivated meat = c_rTf x g rTf per kg (0.075-1.19 g/kg), set against catalogue, GFI and Humbird prices."""
+    cfg = sc.load("transferrin")
+    common = {k: (x["value"] if isinstance(x, dict) else x) for k, x in cfg["common"].items()}
+    out = {"cases": {}, "scales": cfg["scales_t_per_yr"],
+           "use": {k: {kk: x for kk, x in d.items() if kk in ("value", "low", "high")} for k, d in cfg["use"].items()},
+           "price": {k: {kk: x for kk, x in d.items() if kk in ("value", "low", "high")} for k, d in cfg["price"].items()}}
+    for var in ("tf", "tf_finnis2010"):
+        for t in cfg["scales_t_per_yr"]:
+            for label, extra in (("humbird", {}), ("light", sc.LIGHT)):
+                p = sc.base_params("alb", {**common, **(cfg.get(var) or {}), "plant.annual_target_protein_t": float(t), **extra})
+                out["cases"][f"{var}/{t}/{label}"] = summary(plant.evaluate(p))
+    res["transferrin"] = out
+
+
+def s_binder(res):
+    """Binder note: PF ovalbumin as the binder of plant-based meat analogues against methylcellulose and dried egg white
+    (data/pf/scenarios/binder.yaml). Cost per kg of analogue = product dose x protein fraction x $/kg protein for the
+    protein binders (OVA from the base, industry and physical-limit results; dried egg white from its 2015-2025 export
+    unit values, benchmarks.incumbents), and MC dose x MC price. Needs the base, scenarios and physical_limit sections."""
+    cfg = sc.load("binder")
+    use, price = cfg["use"], cfg["price"]
+    rng = lambda d: (d["low"], d["value"], d["high"])  # noqa: E731
+    dose = [x * use["protein_frac_of_product"]["value"] for x in rng(use["egg_protein_product_frac"])]   # kg protein per kg analogue
+    egg = bm.incumbents()["egg"]
+    ova = {"base": res["base"]["ova"]["msp_ccf"], "industry": res["scenarios"]["industry/ova"]["msp_ccf"],
+           "physical limit": res["physical_limit"]["ova/humbird"]["msp_ccf"]}
+    res["binder"] = dict(
+        protein_dose=dose, product_dose=list(rng(use["egg_protein_product_frac"])),
+        mc=dict(frac=list(rng(use["mc_frac"])), usd_kg=list(rng(price["mc_usd_kg"])),
+                per_kg=[use["mc_frac"]["low"] * price["mc_usd_kg"]["low"], use["mc_frac"]["value"] * price["mc_usd_kg"]["value"],
+                        use["mc_frac"]["high"] * price["mc_usd_kg"]["high"]]),
+        egg_white=dict(usd_kg_protein=list(egg["band"]), per_kg=[egg["band"][0] * dose[0], egg["band"][0] * dose[1],
+                                                                  egg["band"][1] * dose[1], egg["band"][1] * dose[2]]),
+        ova={k: dict(usd_kg_protein=x, per_kg=[x * d for d in dose]) for k, x in ova.items()})
+
+
 def s_floor(res):
     """Metabolic floor (floor.py) of every product beside its base case's own feedstock bill, and the incumbent
     animals' feed bill and farm-gate cost per kg of edible protein (benchmarks.feed_bills), US and EU.
@@ -742,7 +782,7 @@ SECTIONS = {"base": s_base, "scenarios": s_scenarios, "physical_limit": s_physic
             "tornado": s_tornado,
             "monte_carlo": s_monte_carlo, "scale": s_scale, "calibration": s_calibration,
             "equivalents": s_equivalents, "lactoferrin": s_lactoferrin, "casein": s_casein, "alac": s_alac, "cheese": s_cheese, "heme": s_heme,
-            "albumin": s_albumin, "floor": s_floor}
+            "albumin": s_albumin, "floor": s_floor, "binder": s_binder, "transferrin": s_transferrin}
 
 if __name__ == "__main__":
     t0 = time.time()

@@ -1,0 +1,36 @@
+# 'transferrin': a cost-in-use note for recombinant human transferrin (rTf), the iron carrier of serum-free cell-culture
+# media (report sec. "Transferrin"; run_analyses.s_transferrin). Not on the main product list: its demand is tens of
+# t/yr at most and companies are dropping it (Wildtype's FDA file). It is run on ALBUMIN's plant and route (data/pf/
+# products.yaml alb: cation-exchange capture, anion-exchange polish, UF/DF, spray drying), the route Novozymes uses for
+# both on the same yeast platform, with transferrin's own column data (US/EP patents, transferrin.yaml). Evidence:
+# data/evidence/transferrin.yaml. Not costed: the potassium tetraborate in the polish (5-150 mM; not a permitted food
+# additive in the EU, so it must be washed out) and iron loading (2 Fe per molecule, ~1.5 kg iron per tonne).
+description: "Transferrin note: rTf on albumin's two-column route, and its cost per kg of cultivated meat"
+common:
+  plant.product: tf
+  dsp.cex_recovery: {value: 0.70, low: 0.675, high: 0.94, grade: B,
+    source: "Novozymes EP 2393834 B1 (SP-FF capture of rTf, load pH 5.1, elution pH 7.0): Table 4, 67.5-72.1% with one to three washes; Table 2 up to 94.0% at a 2 M NaCl wash (transferrin.yaml tf_novozymes_sp_ff_capture)"}
+  dsp.cex_dbc_g_L: {value: 30, low: 25, high: 40, unit: g protein/L resin, grade: B,
+    source: "EP 2393834 B1: loading 25 (Example 1a) to 40 (Example 5) mg transferrin per mL matrix; the description prefers 30-50 (tf_novozymes_sp_ff_capture)"}
+  dsp.polish_recovery: {value: 0.93, low: 0.536, high: 0.932, grade: B,
+    source: "Novozymes, anion-exchange polish (Capto Q) with 5-15.7 mM potassium tetraborate: 93.2% recovery (Table 7); without borate 53.6% (low) (transferrin.yaml tf_novozymes_aex_borate_polish)"}
+  dsp.polish_dbc_g_L: {value: 35, low: 30, high: 40, unit: g protein/L resin, grade: B,
+    source: "the same patent: 30-40 mg transferrin per mL matrix on the anion exchanger (tf_novozymes_aex_borate_polish)"}
+tf:                                     # albumin's base design point (30 g/L, 72 h, glucose): what a commercial strain might reach
+  {}
+tf_finnis2010:                          # Finnis et al. 2010: the best published secreted rTf (full text read)
+  strain.titer_g_L: 1.47                # 'an average rTf titer of 2.29 g/L' (Table 1), S. cerevisiae, sucrose, 10 L fed-batch, per litre of
+                                        # SUPERNATANT (HPLC) x 0.643 = whole broth, the model's wet-cell volume at 107 g/L dry cells (X/300;
+                                        # derived, D; as the heme note)
+  # FLAGS: S. cerevisiae on sucrose, costed as K. phaffii on glucose (analogy, D; as albumin's Delta variant); run time not stated,
+  # so the base production time is kept. K. phaffii reaches only 20-30 mg/L (tf_kphaffii_titers): 19 disulfides favour this host.
+scales_t_per_yr: [10, 100]              # ~10 t/yr: Humbird's transferrin demand at 100 kt/yr of cultivated meat (9.3 t/yr, tf_humbird2021_fedbatch_demand);
+                                        # 100 t/yr: GFI 2023's low 2030 scenario (~90 t/yr, tf_gfi2023_derived_demand_and_use_level, D)
+use:
+  g_per_kg_cm: {value: 0.37, low: 0.075, high: 1.19, grade: D,
+    source: "GFI 2023's implied 28 mg/L x 13 L medium per kg cultivated meat (8-42 L: 0.23-1.19 g/kg; tf_gfi2023_derived_demand_and_use_level, D); low = Humbird 2021's E8-based medium, 10.7 mg/L (0.075-0.093 g/kg; tf_humbird2021_perfusion_demand, B)"}
+price:
+  catalogue_usd_kg: {value: 217716, low: 217716, high: 351720, grade: C,
+    source: "InVitria Optiferrin, recombinant human transferrin: '10 g $2,177.16' (low) and '1 g $351.72' (high) (tf_invitria_optiferrin_spec_and_price)"}
+  gfi_target_usd_kg: {value: 1000, grade: C, source: "GFI 2023 Table 1: transferrin $1,000/kg assumed (tf_gfi2023_cost_target_and_extrapolation)"}
+  humbird_at_scale_usd_kg: {value: 12000, grade: B, source: "Humbird 2021 Table 4.4: $12/g at 9.3 t/yr global demand, from his price-volume regression (tf_humbird2021_fedbatch_demand)"}
