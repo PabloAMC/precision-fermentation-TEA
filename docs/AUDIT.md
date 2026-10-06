@@ -586,3 +586,22 @@ results/analyses.json. No HIGH findings. Fixes:
 Also: titer check. 43 of 134 titers.csv rows are unverified; none is used in a base case or headline scenario. Four uses (the
 alb_zhu2018 variant and three Fig. 3 markers: Liu 2026, Hu 2025, Zhu 2018) rest on paywalled papers, now labelled "abstract
 only" and listed first in references/DOWNLOADS.md. Report: `.preview/audit_R16.md` (local).
+
+### R17 (2026-10-06): AI cold read of the whole v4.1 report and memo
+
+A sceptical reader went through the whole report and memo, not one section. About 120 numbers were checked against
+results/analyses.json; all matched. No HIGH findings. Fixes:
+- M1: the vessel bound over the cooling range is capped by O2 transfer (8-17 kg/m3/h, not 8-21; floor.p_max_range_kg_m3_h).
+- M2: the industry case (42 g/L in a 72 h production phase) now states the secretion it needs, ~7 mg/g/h, about three times
+  the best demonstrated, in the summary, results, answers, funders section and memo.
+- M3: the secretion-ceiling evidence reconciled: "below 1" is K. phaffii only; 15-16 mg/g/h is the highest *measured*
+  rate; cellulase processes imply 5-20 at assumed cell densities.
+- M4: the Q2 answer says the column, not productivity, leads for lactoferrin and albumin.
+- M5: lactoferrin's 10 g/L is Intelligen's methanol-induced design, costed on glucose; a methanol variant (lf_methanol,
+  $177 vs $168/kg) and the best methanol-free titer ($413) are now quoted; "the size of its market" corrected.
+- Low: nine results, not eight (L1); version labels v4.1, question table, priors header, memo caveat, SCOPE alpha-lac plant
+  (L2); the Intelligen comparison's sign (L3); summary point 9 in dollars (L4); albumin resin arithmetic read from the
+  parameters (L6); the routes figure's stars captioned as costs of production (L7); bridge title to one decimal (L8);
+  uncited references removed and the two Wang 2025 papers told apart (L11); a glossary box for policy readers (L12);
+  typos (L13). Not changed: the unquoted spent-cells sensitivity (L5), marker-label overlaps in the cost-vs-titer figure
+  (L9) and typed reference numbers in make_figures.py labels (L10). Report: `.preview/audit_R17.md` (local).

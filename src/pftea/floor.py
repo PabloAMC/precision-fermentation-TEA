@@ -55,6 +55,7 @@ def metabolic_floor(p: dict, csource: str = "Glucose (s)", price_usd_kg: float |
     p_o2 = v(p, "fermenter.otr_cap_mol_m3_h") / n_o2
     p_heat = 3.6 * v(p, "fermenter.heat_removal_max_kW_m3") / heat_MJ
     q_lo, q_hi = params.bounds(p, "fermenter.heat_removal_max_kW_m3") or (v(p, "fermenter.heat_removal_max_kW_m3"),) * 2
-    return dict(p_max_heat_range_kg_m3_h=(3.6 * q_lo / heat_MJ, 3.6 * q_hi / heat_MJ), yield_g_g=y, substrate_kg=m_s, nh3_kg=m_n, o2_mol=n_o2, heat_MJ=heat_MJ, kWh_per_kmol_o2=e_o2,
+    p_rng = tuple(min(3.6 * q / heat_MJ, p_o2) for q in (q_lo, q_hi))          # the binding limit at each end of q_max's range
+    return dict(p_max_heat_range_kg_m3_h=(3.6 * q_lo / heat_MJ, 3.6 * q_hi / heat_MJ), p_max_range_kg_m3_h=p_rng, yield_g_g=y, substrate_kg=m_s, nh3_kg=m_n, o2_mol=n_o2, heat_MJ=heat_MJ, kWh_per_kmol_o2=e_o2,
                 cost=cost, total=sum(cost.values()), p_max_o2_kg_m3_h=p_o2, p_max_heat_kg_m3_h=p_heat,
                 p_max_kg_m3_h=min(p_o2, p_heat))

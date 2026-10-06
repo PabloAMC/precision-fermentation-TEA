@@ -73,7 +73,7 @@ Original (v1):
 | Base spec | Dairy α-lac isolate, FDA GRN 763 (Agropur): ≥95% protein, ≥90% of it α-lac, i.e. ~90% of dry matter |
 | Base downstream train | BLG's membrane route (MF, UF/DF, spray dry); GFI Europe/ADL's food-grade route |
 | Academic | Wang 2025, 0.60 g/L human α-lac (supernatant), ethanol-fed >90 h, priced as glucose |
-| Plant | 1 kt/yr (design choice: ~27% of the high-purity market, 3% of the food-grade one; GFI Europe 2025, C) |
+| Plant | 1 kt/yr (design choice: about 5% of the α-lac market, ~19 kt/yr of α-lac; GFI Europe 2025, C; audit R15-M1) |
 | Incumbent | Dairy α-lac, $15–123/kg (GFI Europe/ADL; FMI $31–86; grade C) |
 
 Notes outside the product list (run on existing routes by analogy; data/pf/scenarios/cheese.yaml, heme.yaml,

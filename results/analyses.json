@@ -43524,6 +43524,116 @@
     },
     "feasible": true
    },
+   "lf_methanol/humbird": {
+    "ok": true,
+    "flags": [],
+    "msp_ccf": 176.7677090190993,
+    "cop": 159.35704871413103,
+    "msp_dcf": 173.30495817232253,
+    "per_kg_powder": 151.1363912113299,
+    "tci": 95273650.3659833,
+    "per_kg": {
+     "glucose": 9.914351648503533,
+     "ammonia": 0.9489443356527857,
+     "salts & other media": 12.064816145619112,
+     "DSP chemicals": 9.240040011458943,
+     "chromatography resin": 21.161237994711282,
+     "membranes": 0.49656266849991426,
+     "electricity": 3.7236499853991343,
+     "natural gas & steam": 0.13518712904469418,
+     "water & wastewater": 2.0339085331176623,
+     "biomass disposal": 6.458002991311651,
+     "labour": 20.772372992665,
+     "maintenance": 15.24378405855733,
+     "insurance": 19.054730073196662,
+     "capital charge": 55.52012045136159
+    },
+    "capex": {
+     "ISBL: production fermenters": 5587349.327299112,
+     "ISBL: seed fermenters": 130186.81072946961,
+     "ISBL: media sterilizers": 199543.06760219182,
+     "ISBL: media + feed tanks": 1363218.661917034,
+     "ISBL: centrifuges": 928501.6444370564,
+     "ISBL: MF + UF skids": 201033.16645206604,
+     "ISBL: harvest + hold tanks": 2772369.773880022,
+     "ISBL: spray dryers": 341423.53713914,
+     "ISBL: CEX columns and skids": 1489415.9113569427,
+     "OSBL: air compressors": 547137.6193747888,
+     "OSBL: chillers": 1348805.9746345666,
+     "OSBL: cooling tower": 194467.23179992422,
+     "OSBL: boiler": 179717.91365872437,
+     "OSBL: water treatment": 322230.6437333494,
+     "ISBL installation & missing": 26026083.801626064,
+     "OSBL installation & missing": 4698651.382052452,
+     "buildings": 8089471.289771025,
+     "engineering & construction": 27209803.878731973,
+     "fees & contingency": 12244411.745429367,
+     "CEX resin first fill": 1399826.984358029
+    },
+    "physical": {
+     "glucose_kg": 24.78587912125883,
+     "methanol_kg": 11.947178999721578,
+     "o2_kg": 24.177960505734468,
+     "electricity_kWh": 43.1977956542823,
+     "natural_gas_MJ": 15.454721952157634,
+     "water_m3": 1.1162524139528671,
+     "cells_kg": 14.100443212470854,
+     "overall_yield_g_g": 0.040345553010556756,
+     "fermenter_m3_per_kt": 3200.0,
+     "fte_per_kt": 165.84078934254433
+    },
+    "design": {
+     "N_prod": 7.006379532341137,
+     "N_prod_int": 8.0,
+     "n_batches": 420.02732008850904,
+     "cycle_h": 132.11170617294306,
+     "t_growth_h": 37.111706172943045,
+     "t_total_h": 120.11170617294304,
+     "W0_m3": 41.59043072820219,
+     "W_end_m3": 80.00000000000009,
+     "X_end": 104.90718801264198,
+     "titer": 9.999999999971978,
+     "q_p_mg_g_h": 1.216479693112754,
+     "recovery": 0.743999223514853,
+     "recovery_cell_removal": 0.9688581314878892,
+     "target_per_batch_kg": 595.1993788102152,
+     "product_made_kg": 799.9999999977591,
+     "o2_kmol_batch": 448.82479925356034,
+     "powder_per_batch_kg": 696.1396243394329,
+     "purity_dry": 0.9,
+     "otr_max": 128.66666666666666,
+     "our_peak": 172.63659003915708,
+     "heat_peak_kW_m3": 24.356035669880733,
+     "seed_units": [
+      2,
+      2
+     ],
+     "mf_m2": 692.3618300175082,
+     "uf_m2": 686.9789158155871,
+     "CF": 18.67096944151739,
+     "evap_kg_h": 100.17216539209882,
+     "resin_m3": 1.119861587486423,
+     "cex_cycle_h": 2.095648604091388,
+     "cex_load_cv": 25.912972081827768,
+     "acid_kg_batch": 0.0,
+     "acid_steam_kg_batch": 0.0,
+     "whey_m3_batch": 0.0,
+     "wash_m3_batch": 0.0,
+     "dissolve_m3_batch": 0.0,
+     "naoh_kg_batch": 1209.134948093499,
+     "heat_plant_peak_kW": 3824.480460866326,
+     "heat_sum_of_peaks_kW": 7927.535235657608,
+     "dryer_inlet_solids": 0.2632280932313969,
+     "fte": 41.46019733563608,
+     "area_m2": 1929.504353854842,
+     "lang_effective": 6.105171448784096,
+     "y_ps_over_ceiling": 0.8015535538138115,
+     "energetic_ceiling": 0.5801234337837049,
+     "effective_yield_production": null,
+     "building_to_pec": 0.5183763712668887
+    },
+    "feasible": true
+   },
    "lf_ufdf_only/light": {
     "ok": true,
     "flags": [],
@@ -43630,6 +43740,116 @@
      "energetic_ceiling": 0.5801234337837049,
      "effective_yield_production": 0.12975869485462452,
      "building_to_pec": 0.5161346009770952
+    },
+    "feasible": true
+   },
+   "lf_methanol/light": {
+    "ok": true,
+    "flags": [],
+    "msp_ccf": 138.29132161520135,
+    "cop": 124.18387453431903,
+    "msp_dcf": 135.33654004673866,
+    "per_kg_powder": 118.23907998099718,
+    "tci": 77197990.03585485,
+    "per_kg": {
+     "glucose": 9.914351648503533,
+     "ammonia": 0.9489443356527857,
+     "salts & other media": 12.064816145619112,
+     "DSP chemicals": 9.408630011458943,
+     "chromatography resin": 21.161237994711282,
+     "membranes": 0.49656266849991426,
+     "electricity": 3.7002451224361006,
+     "natural gas & steam": 0.13518712904469418,
+     "water & wastewater": 2.0339085331176623,
+     "biomass disposal": 6.458002991311651,
+     "labour": 20.772372992665,
+     "maintenance": 4.048875225952487,
+     "insurance": 2.1615437210039357,
+     "capital charge": 44.98664309522425
+    },
+    "capex": {
+     "ISBL: production fermenters": 5587349.327299112,
+     "ISBL: seed fermenters": 130186.81072946961,
+     "ISBL: media sterilizers": 199543.06760219182,
+     "ISBL: media + feed tanks": 1363218.661917034,
+     "ISBL: centrifuges": 928501.6444370564,
+     "ISBL: MF + UF skids": 268044.22193608806,
+     "ISBL: harvest + hold tanks": 2772369.773880022,
+     "ISBL: spray dryers": 341423.53713914,
+     "ISBL: CEX columns and skids": 1489415.9113569427,
+     "OSBL: air compressors": 547137.6193747888,
+     "OSBL: chillers": 1348805.9746345666,
+     "OSBL: cooling tower": 194467.23179992422,
+     "OSBL: boiler": 179717.91365872437,
+     "OSBL: water treatment": 322230.6437333494,
+     "ISBL installation & missing": 20660573.92664034,
+     "OSBL installation & missing": 3240449.2290016916,
+     "buildings": 7800416.412045065,
+     "engineering & construction": 28424311.14431131,
+     "fees & contingency": 0.0,
+     "CEX resin first fill": 1399826.984358029
+    },
+    "physical": {
+     "glucose_kg": 24.78587912125883,
+     "methanol_kg": 11.947178999721578,
+     "o2_kg": 24.177960505734468,
+     "electricity_kWh": 42.926277522460566,
+     "natural_gas_MJ": 15.454721952157634,
+     "water_m3": 1.1162524139528671,
+     "cells_kg": 14.100443212470854,
+     "overall_yield_g_g": 0.040345553010556756,
+     "fermenter_m3_per_kt": 3200.0,
+     "fte_per_kt": 165.84078934254433
+    },
+    "design": {
+     "N_prod": 7.006379532341137,
+     "N_prod_int": 8.0,
+     "n_batches": 420.02732008850904,
+     "cycle_h": 132.11170617294306,
+     "t_growth_h": 37.111706172943045,
+     "t_total_h": 120.11170617294304,
+     "W0_m3": 41.59043072820219,
+     "W_end_m3": 80.00000000000009,
+     "X_end": 104.90718801264198,
+     "titer": 9.999999999971978,
+     "q_p_mg_g_h": 1.216479693112754,
+     "recovery": 0.743999223514853,
+     "recovery_cell_removal": 0.9688581314878892,
+     "target_per_batch_kg": 595.1993788102152,
+     "product_made_kg": 799.9999999977591,
+     "o2_kmol_batch": 448.82479925356034,
+     "powder_per_batch_kg": 696.1396243394329,
+     "purity_dry": 0.9,
+     "otr_max": 128.66666666666666,
+     "our_peak": 172.63659003915708,
+     "heat_peak_kW_m3": 24.356035669880733,
+     "seed_units": [
+      2,
+      2
+     ],
+     "mf_m2": 692.3618300175082,
+     "uf_m2": 686.9789158155871,
+     "CF": 18.67096944151739,
+     "evap_kg_h": 100.17216539209882,
+     "resin_m3": 1.119861587486423,
+     "cex_cycle_h": 2.095648604091388,
+     "cex_load_cv": 25.912972081827768,
+     "acid_kg_batch": 0.0,
+     "acid_steam_kg_batch": 0.0,
+     "whey_m3_batch": 0.0,
+     "wash_m3_batch": 0.0,
+     "dissolve_m3_batch": 0.0,
+     "naoh_kg_batch": 1209.134948093499,
+     "heat_plant_peak_kW": 3824.480460866326,
+     "heat_sum_of_peaks_kW": 7927.535235657608,
+     "dryer_inlet_solids": 0.2632280932313969,
+     "fte": 41.46019733563608,
+     "area_m2": 1758.0913918461686,
+     "lang_effective": 4.925724793578622,
+     "y_ps_over_ceiling": 0.8015535538138115,
+     "energetic_ceiling": 0.5801234337837049,
+     "effective_yield_production": null,
+     "building_to_pec": 0.49771638488518194
     },
     "feasible": true
    }
@@ -52866,9 +53086,9 @@
    ]
   }
  },
- "generated": "2026-10-06 10:38",
+ "generated": "2026-10-06 11:00",
  "fast": false,
- "runtime_s": 21.326231956481934,
+ "runtime_s": 38.2638521194458,
  "floor": {
   "products": {
    "blg": {
@@ -52877,6 +53097,10 @@
       "p_max_heat_range_kg_m3_h": [
        7.947783647776582,
        21.19408972740422
+      ],
+      "p_max_range_kg_m3_h": [
+       7.947783647776582,
+       17.100120391094595
       ],
       "yield_g_g": 0.5634788366891144,
       "substrate_kg": 1.7746895444659363,
@@ -52906,6 +53130,10 @@
       "p_max_heat_range_kg_m3_h": [
        7.947783647776582,
        21.19408972740422
+      ],
+      "p_max_range_kg_m3_h": [
+       7.947783647776582,
+       17.100120391094595
       ],
       "yield_g_g": 0.5634788366891144,
       "substrate_kg": 1.7746895444659363,
@@ -52938,6 +53166,10 @@
        7.870140307722546,
        20.987040820593457
       ],
+      "p_max_range_kg_m3_h": [
+       7.870140307722546,
+       16.77944068561079
+      ],
       "yield_g_g": 0.5699256438253659,
       "substrate_kg": 1.7546148534183443,
       "nh3_kg": 0.1987968208751192,
@@ -52966,6 +53198,10 @@
       "p_max_heat_range_kg_m3_h": [
        7.870140307722546,
        20.987040820593457
+      ],
+      "p_max_range_kg_m3_h": [
+       7.870140307722546,
+       16.77944068561079
       ],
       "yield_g_g": 0.5699256438253659,
       "substrate_kg": 1.7546148534183443,
@@ -52998,6 +53234,10 @@
        7.394743892815767,
        19.719317047508714
       ],
+      "p_max_range_kg_m3_h": [
+       7.394743892815767,
+       14.917860402182303
+      ],
       "yield_g_g": 0.6026422355847435,
       "substrate_kg": 1.6593593030028844,
       "nh3_kg": 0.20354765589991317,
@@ -53026,6 +53266,10 @@
       "p_max_heat_range_kg_m3_h": [
        7.394743892815767,
        19.719317047508714
+      ],
+      "p_max_range_kg_m3_h": [
+       7.394743892815767,
+       14.917860402182303
       ],
       "yield_g_g": 0.6026422355847435,
       "substrate_kg": 1.6593593030028844,
@@ -53058,6 +53302,10 @@
        8.18747851390771,
        21.833276037087227
       ],
+      "p_max_range_kg_m3_h": [
+       8.18747851390771,
+       18.003551853044655
+      ],
       "yield_g_g": 0.5574386003232437,
       "substrate_kg": 1.7939195445384066,
       "nh3_kg": 0.19353345686961904,
@@ -53086,6 +53334,10 @@
       "p_max_heat_range_kg_m3_h": [
        8.18747851390771,
        21.833276037087227
+      ],
+      "p_max_range_kg_m3_h": [
+       8.18747851390771,
+       18.003551853044655
       ],
       "yield_g_g": 0.5574386003232437,
       "substrate_kg": 1.7939195445384066,
@@ -53118,6 +53370,10 @@
        7.918367179140113,
        21.115645811040302
       ],
+      "p_max_range_kg_m3_h": [
+       7.918367179140113,
+       16.755735881533457
+      ],
       "yield_g_g": 0.5801234337837049,
       "substrate_kg": 1.7237710834705622,
       "nh3_kg": 0.2114490237661631,
@@ -53146,6 +53402,10 @@
       "p_max_heat_range_kg_m3_h": [
        7.918367179140113,
        21.115645811040302
+      ],
+      "p_max_range_kg_m3_h": [
+       7.918367179140113,
+       16.755735881533457
       ],
       "yield_g_g": 0.5801234337837049,
       "substrate_kg": 1.7237710834705622,
@@ -53178,6 +53438,10 @@
        7.892590220626412,
        21.046907255003763
       ],
+      "p_max_range_kg_m3_h": [
+       7.892590220626412,
+       16.759465117509514
+      ],
       "yield_g_g": 0.5758640637331429,
       "substrate_kg": 1.736520930855312,
       "nh3_kg": 0.2014796277262887,
@@ -53206,6 +53470,10 @@
       "p_max_heat_range_kg_m3_h": [
        7.892590220626412,
        21.046907255003763
+      ],
+      "p_max_range_kg_m3_h": [
+       7.892590220626412,
+       16.759465117509514
       ],
       "yield_g_g": 0.5758640637331429,
       "substrate_kg": 1.736520930855312,
@@ -53238,6 +53506,10 @@
        7.978665729988272,
        21.27644194663539
       ],
+      "p_max_range_kg_m3_h": [
+       7.978665729988272,
+       16.915504691723562
+      ],
       "yield_g_g": 0.5803448213767352,
       "substrate_kg": 1.7231135062560377,
       "nh3_kg": 0.19459186329926328,
@@ -53266,6 +53538,10 @@
       "p_max_heat_range_kg_m3_h": [
        7.978665729988272,
        21.27644194663539
+      ],
+      "p_max_range_kg_m3_h": [
+       7.978665729988272,
+       16.915504691723562
       ],
       "yield_g_g": 0.5803448213767352,
       "substrate_kg": 1.7231135062560377,
