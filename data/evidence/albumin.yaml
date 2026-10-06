@@ -456,15 +456,20 @@
   grade: A
   source: "Zhu W, Gong G, Pan J, et al. High level expression and purification of recombinant human serum albumin in Pichia pastoris. Protein Expr Purif 147:61-68 (2018)"
   doi_or_url: 10.1016/j.pep.2018.02.003
-  locator: abstract
-  quote: "Performing high density fermentation further improved the highest yield to 8.86 g/L in a fermenter after 96 h of methanol induction."
-  read: abstract
+  locator: "sect. 3 (5 L fermenter), Figs. 7-8; SDS-PAGE densitometry against commercial rHSA"
+  quote: "The rHSA concentration reached the highest level of 8.86 g/L at 96 h of the induction phase (120 h of the fermentation)"
+  read: fulltext
   note: >-
     Also: "the desired protein was purified by filtration and Cibacron Blue affinity chromatography,
     which yielded a 58% recovery of a product that had over a 96% purity"; and "the previous reports
     of industrial applications, which reported the highest yield as 92.29 mg/L/h" (probably the
     Mitsubishi/Medway process; source not identified). Derived (mine): 8.86/96 = 0.092 g/L/h, the same
     space-time yield as Zhu 2021 (0.091 g/L/h) - the 2021 gain came from running twice as long.
+    Full text read 2026-10-06 (references/papers/Zhu2018_hsa_pichia.pdf): per litre of SUPERNATANT ("The total
+    protein concentration of the supernatant was 17.65 g/L at 96 h", so rHSA is about half of it); 1 L BMGY start
+    (40 g/L glycerol), WCW 120 g/L after 20 h, ~200 g/L after the 4 h glycerol feed, 437 g/L after 132 h of
+    induction; titer fell after 96 h as cells lysed. The model's whole-broth factor (0.50, from Zhu 2021) is
+    kept; by this run's wet cell weight (~400 g/L at 96 h, read from the text, not Fig. 7) it would be ~0.6.
 
 - key: hsa_kphaffii_mitsubishi_kobayashi2000
   value: 1.4

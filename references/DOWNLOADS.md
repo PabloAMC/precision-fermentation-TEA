@@ -5,6 +5,8 @@ no headline scenario uses any of them. Four uses do, so these three papers come 
 **15** Liu 2026 (lactoferrin marker, report Figure 3), **32** Hu 2025 (lactoferrin marker, report Figure 3) and **48** Zhu 2018 (albumin
 marker and the `alb_zhu2018` variant). Their chart labels now say "abstract only". The other 39 rows are literature
 context (P3) and change nothing.
+**2026-10-06:** 15 (Liu 2026), 32 (Hu 2025) and 48 (Zhu 2018) received, read and verified; their rows are now
+`verified: yes` and the 'abstract only' labels are gone. Still worth having: P1c 22 (Yao 2026 Supplementary data).
 
 **Status 2026-09-27.**
 - Received and filed: 1 (Li), 2 (Yao), 3 (Aro), 4 (Järviö, article and Supplementary
