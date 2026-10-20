@@ -1,56 +1,99 @@
-# pf-tea — open techno-economic model for precision-fermented food proteins
+# pf-tea: an open cost model for precision-fermented food proteins
 
-A transparent, public-data-only cost model for seven proteins made by precision fermentation, on an
-equal footing: β-lactoglobulin and α-lactalbumin (whey), ovalbumin and ovomucoid (egg white), β-casein (the cheese
-protein), lactoferrin (a scarce, high-value milk protein) and serum albumin (for cultivated-meat growth
-media), with notes on casein for rennet cheese (α<sub>s1</sub>- plus κ-casein), heme (soy leghemoglobin), transferrin
-(for cultivated-meat media) and ovalbumin as a binder in plant-based meat, and a comparison of PF's metabolic floor
-with the animals' feed bill. It
-uses Humbird's (2021) method: element- and electron-balanced stoichiometry, an O₂-limited
-fed-batch fermenter, and Humbird's capital factors and fixed costs, which with his workbook land
-in the market-implied cost of baker's yeast. It is checked against NREL 2011, Intelligen 2025 and
-Voutilainen 2021.
+pf-tea estimates what food proteins made by precision fermentation (PF) cost to produce. It uses public
+data only, and you can rerun and check every number.
 
-**Status (2026-10-06):** `main` = v4, merged from `model-v4`; v4.1 (branch `v4.1`) adds the metabolic floor and the
-animals' feed bill (US and EU), notes on transferrin and on ovalbumin as a binder, and full texts for three titers.
-All AI-audited only. Earlier, v4: after an independent AI review of the method against the
-published state of the art, methanol-induced production, vessel sizing and Monte Carlo rank correlations
-were added, and serum albumin and α-lactalbumin joined the five v3 proteins, with the rennet-cheese casein and heme
-notes (AI-audited only). v2.1 (2026-09-27): The v1 draft was audited by eight independent AI reviewers, and v2
-by four simulated AI expert reviewers (Phase F pre-review), followed by a reading of the sources
-they pointed to (aeration, strain physiology, Intelligen's lactoferrin model); every finding and fix is in
-[docs/AUDIT.md](docs/AUDIT.md) and [docs/REVIEW.md](docs/REVIEW.md). Built with an AI assistant
-(Claude, Anthropic) under the author's direction; not yet reviewed by human experts. Start with
-the report.
+It covers seven proteins on an equal footing:
 
-## Deliverables
+| Protein | What it is |
+|---|---|
+| β-lactoglobulin (BLG) | the main whey protein |
+| α-lactalbumin | the second whey protein, used in infant formula |
+| ovalbumin (OVA) | the main egg-white protein |
+| ovomucoid | another egg-white protein, sold as a heat-stable ingredient |
+| β-casein | one of the two main proteins of cheese curd |
+| lactoferrin | a scarce, high-value milk protein |
+| serum albumin | a protein in the growth media of cultivated meat |
+
+Short notes cover casein for rennet cheese, heme (soy leghemoglobin), transferrin and ovalbumin as a
+binder. A last section compares the sugar a PF plant needs with the feed that animals eat.
+
+**Start here:** the one-page memo (`report/memo.pdf`), then the summary of the report
+(`report/pf_tea_report.pdf`). `docs/GFI_SUBMISSION.md` lists the base-case numbers per protein.
+
+**Status.** No human expert has reviewed this work yet. The author built it with an AI assistant
+(Claude, Anthropic), and independent AI reviewers audited each version. `docs/AUDIT.md` and
+`docs/REVIEW.md` record every finding and every fix.
+
+## How it works
+
+The model follows Humbird's (2021) method for cultivated meat and applies it to a microbe that secretes
+a protein:
+
+1. **Fermentation.** The model balances every element and every electron in the reaction. It then
+   checks that the fermenter can supply enough oxygen and remove enough heat. It never costs a design
+   that breaks these limits.
+2. **Purification.** Membranes, precipitation or chromatography columns turn the broth into a dry powder.
+3. **Plant and money.** The model sizes the whole plant, prices the equipment, and adds labour, energy,
+   materials and a charge on the capital invested.
+
+It reports four scenarios and never mixes them. *Academic* uses the best titers in published papers.
+*Industry* uses the average titer in companies' cost models. *Required* asks what titer would reach a
+target price. *Physical limit* sets every assumed limit at its best at once.
+
+## How it differs from published cost models
+
+Only a handful of public cost models exist for PF food proteins. Most are single-protein flowsheets
+built in commercial software (SuperPro Designer), such as Intelligen's ovalbumin and lactoferrin
+models. pf-tea differs in five ways:
+
+- **It checks the physics.** It balances elements and electrons, and it tests oxygen transfer, heat
+  removal and vessel volume. Most published models assume a titer and a yield and never ask whether a
+  real fermenter could reach them.
+- **It shows where each number comes from.** Every input has a source, a short quote from that source
+  and an evidence grade from A (measured) to E (guess). The uncertainty charts are coloured by grade.
+- **It tests itself first.** Before any new claim, the model reproduces the market cost of baker's
+  yeast with Humbird's workbook and rebuilds three published designs (NREL 2011, Intelligen 2025,
+  Voutilainen 2021). `docs/VALIDATION.md` records the misses instead of tuning them away.
+- **It treats seven proteins the same way.** The same plant, prices and accounting apply to every
+  protein, so you can compare them directly.
+- **It is open.** All code, data and results are in this repository. Published models usually give
+  results, but not the files you would need to rerun them.
+
+Its costs often come out higher than published NREL-style designs, mainly because of accounting.
+Humbird's method charges about 9% of the investment a year for maintenance and insurance; NREL-style
+design reports charge under 2%. The report shows both. Published costs differ from pf-tea's in both
+directions: Intelligen's ovalbumin design lands within a few percent of it, and Intelligen's
+lactoferrin model comes out higher. Section 5.2 of the report ("Why published PF costs are lower")
+traces the differences line by line.
+
+## What you get
 
 | What | Where |
 |---|---|
-| Report (preprint draft) | `report/pf_tea_report.pdf` (source `report/pf_tea_report.typ`) |
-| One-page funder memo | `report/memo.pdf` |
-| Supplementary workbook | `report/pf_tea_SI.xlsx`: parameters, evidence, all result tables, one live accounting sheet |
-| Interactive explorer | `docs/explorer.html`: about 12,700 precomputed model runs, no install needed |
+| One-page memo | `report/memo.pdf` |
+| Full report (preprint draft) | `report/pf_tea_report.pdf` (source `report/pf_tea_report.typ`) |
+| Workbook with every parameter and result | `report/pf_tea_SI.xlsx` |
+| Interactive explorer (no install) | `docs/explorer.html` |
 | Figures | `docs/figures/*.png` |
-| Calibration record | `docs/VALIDATION.md` |
-| Audit log (v1 → v2) | `docs/AUDIT.md` |
-| Review packet | `docs/REVIEW.md` |
+| Checks against published models | `docs/VALIDATION.md` |
+| Audit log and AI reviews | `docs/AUDIT.md`, `docs/REVIEW.md`, `docs/ai-review/` |
+| Entry for GFI's fermentation cost-model database | `docs/GFI_SUBMISSION.md` |
+
+New to bioprocessing? Read `docs/PRIMER.md` first.
 
 ## Design rules
 
-1. Every equation lives in plain Python in `src/pftea/`, with the equations in each module's
-   docstring. There is no hidden cost engine.
-2. Every number lives in `data/pf/base.yaml` with a range, an evidence grade (A–E) and a
-   source. The evidence behind it is in `data/evidence/*.yaml`, with verbatim quotes and
-   locators.
-3. The method was checked before any new claim: against a market price (baker's yeast)
-   and three published models. Misses are recorded, not tuned away (`docs/VALIDATION.md`).
-4. Four scenarios are never merged: academic, industry, required and physical limit.
-   Uncertainty is shown as a tornado coloured by evidence grade and as a Monte Carlo over
-   feasible plants.
+1. Plain Python in `src/pftea/` holds every equation, and each module's docstring states them. No
+   hidden cost engine exists.
+2. `data/pf/base.yaml` holds every number, with a range, an evidence grade (A–E) and a source.
+   `data/evidence/*.yaml` holds the evidence, with quotes and page locators.
+3. The model passed its checks against baker's yeast and three published models before it made any new
+   claim. `docs/VALIDATION.md` records the misses.
+4. The four scenarios stay separate. A tornado chart, coloured by evidence grade, and a Monte Carlo
+   over feasible plants show the uncertainty.
 
-Start with [docs/SCOPE.md](docs/SCOPE.md) (the question) and [PLAN.md](PLAN.md) (phases).
-New to bioprocessing? Read [docs/PRIMER.md](docs/PRIMER.md).
+`docs/SCOPE.md` states the question, and `PLAN.md` the phases.
 
 ## Layout
 
@@ -94,7 +137,7 @@ PLAN.md                     phases, honesty protocol, decisions log
 ```
 uv venv --python 3.12 .venv && uv pip install -p .venv/bin/python -e ".[dev]"
 .venv/bin/python -m pytest
-.venv/bin/python scripts/run_analyses.py        # about 2-3 h with four products; --fast for a quick pass
+.venv/bin/python scripts/run_analyses.py        # a few hours; --fast for a quick pass
 .venv/bin/python scripts/make_figures.py
 .venv/bin/python scripts/explorer_grid.py && .venv/bin/python scripts/build_explorer.py
 .venv/bin/python scripts/build_si_workbook.py
@@ -104,9 +147,9 @@ typst compile --root . report/pf_tea_report.typ && typst compile --root . report
 Never run `uv run` inside the repo without `--no-project`: it re-syncs `.venv` and strips
 the dev extras.
 
-Or all of it at once: `scripts/build_all.sh` (about 1.5 h; `--fast` for a quick pass).
+Or all of it at once: `scripts/build_all.sh` (a few hours; `--fast` for a quick pass).
 
 ## Licence
 
 Code: MIT (`LICENSE`). Data, text and figures: CC BY 4.0 (`LICENSE-DATA.md`). Cite as in
-`CITATION.cff`. (Proposed; to be confirmed by the author before public release.)
+`CITATION.cff`. (Proposed licences; the author confirms them at public release.)

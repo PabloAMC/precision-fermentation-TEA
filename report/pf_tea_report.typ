@@ -176,152 +176,169 @@
 
 #v(0.6em)
 #note[
-  *Status.* Not yet peer-reviewed. The model code, the evidence extraction and this text were
-  produced with an AI assistant (Claude, Anthropic) under the author's direction. Version 1 was
-  audited by eight independent AI reviewers, each owning one area and required to support every
-  finding with a computation, quote or code line; version 2 was then read by four simulated expert
-  reviewers (a fermentation scientist, a bioprocess engineer, a sceptic and the method's author's
-  perspective), also AI. Every finding, decision and effect is logged in `docs/AUDIT.md` and
-  `docs/REVIEW.md`, and version 2.1 implements them. Version 3 adds ovomucoid and β-casein and puts
-  lactoferrin on the same footing as BLG and OVA; those additions were audited by three further AI reviewers (`docs/AUDIT.md`,
-  v3 audit) but not by the simulated expert pre-review. Version 4 follows an independent AI review of the method against the
-  published state of the art: methanol-induced production phases are now modelled, vessels are sized to the plant, and the
-  Monte Carlo reports rank correlations; it adds serum albumin for cultivated-meat media and α-lactalbumin, and notes on
-  casein for rennet cheese (α#sub[s1]- plus κ-casein) and on heme, audited by AI reviewers only (`docs/AUDIT.md`, v4). Version 4.1 sets
-  the metabolic floor beside the animals' feed bill and adds notes on transferrin and on ovalbumin as a binder, also
-  AI-audited only. No human expert has reviewed the analysis yet.
-  Every number is computed by the model and read from `results/analyses.json` at compile time;
-  every input traces to a source and an evidence grade in `data/` (Appendix A). Inputs graded E are
-  guesses; they are listed in @sec-limits.
+  *Status.* No human expert has reviewed this analysis yet. The author built the model, the evidence
+  base and this text with an AI assistant (Claude, Anthropic). Independent AI reviewers then audited
+  each version, and each reviewer had to back every finding with a computation, a quote or a line of
+  code. `docs/AUDIT.md` and `docs/REVIEW.md` log every finding, every decision and every fix, version by
+  version. The model computes every number in this report, and the report reads them from
+  `results/analyses.json` when it compiles. Every input has a source and an evidence grade in `data/`
+  (Appendix A). Inputs graded E are guesses; @sec-limits lists them.
 ]
 
 // ---------------------------------------------------------------- abstract
 #heading(level: 1, numbering: none)[Summary]
 
-Precision fermentation (PF) uses an engineered microbe to secrete a single animal protein. We
-estimate what seven proteins cost to make, and what performance would bring them to the
-price of the proteins they replace: β-lactoglobulin (BLG, the main whey protein), α-lactalbumin (α-lac, the
-second whey protein, sold enriched for infant formula), ovalbumin (OVA, the
-main egg-white protein), ovomucoid (another egg-white protein, about 11% of it, sold by EVERY as a
-heat-stable ingredient), β-casein (one of the two main caseins, the proteins of cheese curd), lactoferrin (a
-scarce, high-value milk protein) and serum albumin, the carrier protein of the serum-free media in which
-cultivated meat is grown, the one medium protein that would be needed by the thousand tonnes. The method is Humbird's (2021): element- and
-electron-balanced black-box stoichiometry, an oxygen-transfer-limited fed-batch fermenter, and his
-capital factors and fixed costs, with which his baker's-yeast workbook lands on that product's
-market-implied cost. We add a secreted product, a methanol-induced production phase and three downstream
-routes (membranes, isoelectric precipitation and ion exchange), and check the model against three
-published designs.
+Precision fermentation (PF) uses an engineered microbe to make one animal protein and release it
+into the broth. This report asks two questions about seven such proteins. What does each one cost to
+make? And how well must the microbe perform before the protein matches the price of the one it
+replaces? The seven proteins are:
+- β-lactoglobulin (BLG), the main whey protein;
+- α-lactalbumin (α-lac), the second whey protein, sold enriched for infant formula;
+- ovalbumin (OVA), the main egg-white protein;
+- ovomucoid, another egg-white protein (about 11% of it), which EVERY sells as a heat-stable ingredient;
+- β-casein, one of the two main proteins of cheese curd;
+- lactoferrin, a scarce, high-value milk protein;
+- serum albumin, the carrier protein in the serum-free media that grow cultivated meat. It is the only
+  medium protein the industry would need by the thousand tonnes.
 
-The base case is a secreting *Komagataella phaffii* strain at 30 g/L after a 72 h production phase,
-the design point of Intelligen's (2025) OVA process, in 200 m³ industrial fermenters making 10 kt/yr
-of protein in the US Midwest (2025 dollars). Lactoferrin runs on the design point of Intelligen's published process (10 g/L,
-cation exchange; their strain is methanol-induced, costed here on glucose) at 250 t/yr, near the low end of its
-0.3–1.6 kt/yr market, and albumin on the base design point with the
-two-column train of the industrial recombinant-albumin process (cation-exchange capture, anion-exchange
-polish) at 1 kt/yr, over a quarter of the lowest of GFI's 2030 demand scenarios and about the size of
-today's whole human-albumin market. α-Lactalbumin runs BLG's membrane route at its isolate purity at
-1 kt/yr, about 5% of the α-lac market; small plants use smaller fermenters. With a capital charge of 14.6% of investment
-per year the minimum selling price per kg of target protein is *#plist(p => R.base.at(p).msp_ccf)*.
-With the lighter accounting of NREL-style design reports it is #plist(p => R.base_light.at(p).msp_ccf).
-At the average titer that private companies' cost models assume (42 g/L, GFI 2025, a survey average
-over unnamed proteins, given without a fermentation time) it is #plist(p => S("industry/" + p).msp_ccf, ps: COMMODITY);
-in our 72 h production phase that titer needs secretion at about #fx(S("industry/blg").design.q_p_mg_g_h, d: 0) mg/g/h, about three times the best demonstrated
-on glucose (2.1). At the best public
-titers it is #plist(p => S("academic/" + p).msp_ccf) (@tab-key). Per kg of protein, in 2015–2025 and 2025
-dollars, whey protein traded at #usd(inc.whey.band.at(0), d: 0)–#usd(inc.whey.band.at(1), d: 0), dried
-egg white (the incumbent for OVA and ovomucoid) at #usd(inc.egg.band.at(0), d: 0)–#usd(inc.egg.band.at(1), d: 0) and casein at
-#usd(inc.casein.band.at(0), d: 0)–#usd(inc.casein.band.at(1), d: 0)\; dairy lactoferrin was reported at
-#usd0(MKT("lf").at(0))–#usd0(MKT("lf").at(1)), bulk bovine serum albumin (our reading of GFI's
-"high-value albumins" in trade data) at
-#usd(MKT("alb").at(0), d: 0)–#usd(MKT("alb").at(1), d: 0) and dairy α-lactalbumin at
-#usd(MKT("alac").at(0), d: 0)–#usd0(MKT("alac").at(1)) per kg of α-lac (all three grade C).
+We follow Humbird's (2021) method. It balances every element and every electron in the fermentation,
+it limits the fermenter by how fast it can transfer oxygen, and it prices capital with his factors and
+fixed costs. With these, his baker's-yeast workbook lands on the cost the market implies for baker's
+yeast. We add a secreted product, a methanol-fed production phase and three purification routes:
+membranes, isoelectric precipitation and ion exchange. We then check the model against three
+published plant designs.
 
-Nine results stand out:
-1. *Cheap protein needs fast secretion more than high titer.* At the base cell density, \$20/kg BLG
+*The base case.* A secreting *Komagataella phaffii* strain reaches 30 g/L after a 72 h production
+phase, the design point of Intelligen's (2025) OVA process. The plant runs 200 m³ industrial
+fermenters, makes 10 kt of protein a year and sits in the US Midwest. All costs are in 2025 dollars.
+Three proteins depart from this base:
+- Lactoferrin uses Intelligen's own lactoferrin design: 10 g/L, purified by cation exchange, at 250 t/yr.
+  That plant sits near the low end of the 0.3–1.6 kt/yr world market. Intelligen's strain needs
+  methanol; we cost it on glucose.
+- Albumin uses the two columns of the industrial recombinant-albumin process (cation-exchange
+  capture, then an anion-exchange polish) at 1 kt/yr. That is over a quarter of GFI's lowest 2030
+  demand scenario and about the size of today's whole human-albumin market.
+- α-Lac uses BLG's membrane route, purified to isolate grade, at 1 kt/yr, about 5% of the α-lac market.
+Small plants use smaller fermenters.
+
+*What they cost.* We charge 14.6% of the investment each year as the cost of capital. With that
+charge, the minimum selling price per kg of target protein is *#plist(p => R.base.at(p).msp_ccf)*.
+NREL-style design reports use lighter accounting; with it, the price is #plist(p => R.base_light.at(p).msp_ccf).
+Private companies' cost models assume an average titer of 42 g/L (GFI 2025, a survey average over
+unnamed proteins, with no fermentation time given). At that titer the price is
+#plist(p => S("industry/" + p).msp_ccf, ps: COMMODITY). To reach 42 g/L in our 72 h production phase,
+cells must secrete about #fx(S("industry/blg").design.q_p_mg_g_h, d: 0) mg of protein per g of cells per
+hour, about three times the best rate shown on glucose (2.1). At the best titers in the published
+literature, the price is #plist(p => S("academic/" + p).msp_ccf) (@tab-key).
+
+*What they replace.* Per kg of protein, in 2015–2025 and in 2025 dollars, whey protein traded at
+#usd(inc.whey.band.at(0), d: 0)–#usd(inc.whey.band.at(1), d: 0), dried egg white (which OVA and
+ovomucoid replace) at #usd(inc.egg.band.at(0), d: 0)–#usd(inc.egg.band.at(1), d: 0) and casein at
+#usd(inc.casein.band.at(0), d: 0)–#usd(inc.casein.band.at(1), d: 0). Reports put dairy lactoferrin at
+#usd0(MKT("lf").at(0))–#usd0(MKT("lf").at(1)), bulk bovine serum albumin at
+#usd(MKT("alb").at(0), d: 0)–#usd(MKT("alb").at(1), d: 0) (our reading of GFI's "high-value albumins"
+in trade data) and dairy α-lactalbumin at #usd(MKT("alac").at(0), d: 0)–#usd0(MKT("alac").at(1)) per kg
+of α-lac. These last three prices are grade C.
+
+Nine findings stand out:
+1. *Cheap protein needs fast secretion more than a high titer.* At the base cell density, \$20/kg BLG
    needs #fx(req("blg/humbird", 20, tpi(48)).titer, d: 0)–#fx(req("blg/humbird", 20, tpi(72)).titer, d: 0) g/L
-   in 48–72 h, a specific productivity of #fx(req("blg/humbird", 20, tpi(72)).q_p_mg_g_h, d: 0)–#fx(req("blg/humbird", 20, tpi(48)).q_p_mg_g_h, d: 0)
-   mg protein per g cells per hour against #fx(blg.design.q_p_mg_g_h, d: 1) in the base design. With
-   today's biology and capital, the cheapest design the model finds costs
-   #usd(BD(40).msp_ccf)/kg if cells could secrete #fx(BD(40).design.q_p_mg_g_h, d: 0) mg/g/h (the ceiling we allow),
-   and #usd(BD(10).msp_ccf) at 10 mg/g/h. No published *K. phaffii* process is near either rate. At the
-   best rate demonstrated in a public glucose fed-batch, 2.1 mg/g/h (Prielhofer et al. 2018), the
-   cheapest design costs #usd(BD(2.1).msp_ccf)/kg, and even the best case of point 3
-   #usd(QP(2.1).msp_ccf)/kg, #where(QP(2.1).msp_ccf, inc.whey.band) the whey price band. The same holds
-   for every protein here: none has a published secretion rate of its own.
-2. *The titer ceiling is a design ceiling.* With Intelligen's 500 g/L glucose feed and a batch that
-   must start at least 30% full, a 200 m³ fermenter at 107 g/L cells reaches about
-   #fx(CEIL72, d: 0) g/L in a 72 h production phase; with a 600 g/L feed, about #fx(CEIL600, d: 0) g/L.
-3. *A best case, not a floor.* With every assumed limit at its best at once, 400 m³ vessels and
-   100 kt/yr, the cost per kg is #plist(p => PL(p + "/humbird").msp_ccf, ps: COMMODITY)\; lactoferrin,
-   capped at its largest market estimate, #usd(PL("lf/humbird").msp_ccf). That assumes secretion at #fx(PL("blg/humbird").design.q_p_mg_g_h, d: 0) mg/g/h;
-   at 10 mg/g/h the BLG case costs #usd(QP(10).msp_ccf), at 5 mg/g/h #usd(QP(5).msp_ccf).
-4. *Capital: the vessel price and the fixed-cost rule.* Aseptic cell-culture vessels instead of
-   industrial ones would add #usd(R.base_aseptic.blg.msp_ccf - blg.msp_ccf)/kg to the base BLG; the lighter
-   design-report accounting would remove #usd(blg.msp_ccf - R.base_light.blg.msp_ccf), mostly through
-   fixed costs of under 2% of investment a year instead of Humbird's 9%. Published NREL-style designs
-   come out #pubratio×
-   cheaper than our model of the same process, for those reasons; our model comes within
-   #sgn(calrel("intelligen2025_ova", "usd_per_kg_powder (Humbird convention)")) of Intelligen's food-PF design.
-5. *The market decides more than the process.* The same fermentation and accounting put the
-   commodity proteins at #fx(calc.min(..COMMODITY.map(p => R.base.at(p).msp_ccf / MKT(p).at(1))), d: 1)–#fx(calc.max(..COMMODITY.map(p => R.base.at(p).msp_ccf / MKT(p).at(1))), d: 1)×
-   the top of their incumbents' price bands at the base titer, and lactoferrin
+   in 48–72 h. Cells would then have to secrete #fx(req("blg/humbird", 20, tpi(72)).q_p_mg_g_h, d: 0)–#fx(req("blg/humbird", 20, tpi(48)).q_p_mg_g_h, d: 0)
+   mg of protein per g of cells per hour; the base design secretes #fx(blg.design.q_p_mg_g_h, d: 1).
+   Suppose cells could secrete #fx(BD(40).design.q_p_mg_g_h, d: 0) mg/g/h, the ceiling we allow, with
+   today's biology and capital. The cheapest design the model then finds costs #usd(BD(40).msp_ccf)/kg.
+   At 10 mg/g/h it costs #usd(BD(10).msp_ccf). No published *K. phaffii* process comes near either rate.
+   The best rate shown in a public glucose fed-batch is 2.1 mg/g/h (Prielhofer et al. 2018). At that
+   rate the cheapest design costs #usd(BD(2.1).msp_ccf)/kg, and even the best case of finding 3 costs
+   #usd(QP(2.1).msp_ccf)/kg, which is #where(QP(2.1).msp_ccf, inc.whey.band) the whey price band. The
+   same holds for every protein here: none has a published secretion rate of its own.
+2. *The fermenter's design sets the titer ceiling.* Suppose the plant feeds Intelligen's 500 g/L
+   glucose and each batch must start at least 30% full. A 200 m³ fermenter at 107 g/L of cells then
+   reaches about #fx(CEIL72, d: 0) g/L in a 72 h production phase. A 600 g/L feed raises this to about
+   #fx(CEIL600, d: 0) g/L.
+3. *This is a best case, not a floor.* We set every assumed limit at its best at once, with 400 m³
+   vessels and 100 kt/yr. The cost per kg is then #plist(p => PL(p + "/humbird").msp_ccf, ps: COMMODITY)\;
+   lactoferrin, capped at its largest market estimate, costs #usd(PL("lf/humbird").msp_ccf). This
+   assumes secretion at #fx(PL("blg/humbird").design.q_p_mg_g_h, d: 0) mg/g/h. At 10 mg/g/h the BLG
+   case costs #usd(QP(10).msp_ccf), and at 5 mg/g/h #usd(QP(5).msp_ccf).
+4. *The vessel price and the fixed-cost rule drive capital.* Aseptic cell-culture vessels instead of
+   industrial ones would add #usd(R.base_aseptic.blg.msp_ccf - blg.msp_ccf)/kg to the base BLG. The
+   lighter design-report accounting would remove #usd(blg.msp_ccf - R.base_light.blg.msp_ccf). Most of
+   that gap comes from fixed costs: under 2% of the investment a year instead of Humbird's 9%. For these
+   reasons, published NREL-style designs come out #pubratio× cheaper than our model of the same
+   process. Our model comes within #sgn(calrel("intelligen2025_ova", "usd_per_kg_powder (Humbird convention)"))
+   of Intelligen's food-PF design.
+5. *The market decides more than the process.* With the same fermentation and accounting, the
+   commodity proteins cost #fx(calc.min(..COMMODITY.map(p => R.base.at(p).msp_ccf / MKT(p).at(1))), d: 1)–#fx(calc.max(..COMMODITY.map(p => R.base.at(p).msp_ccf / MKT(p).at(1))), d: 1)×
+   the top of their incumbents' price bands at the base titer. Lactoferrin lands
    #where(lfb.msp_ccf, MKT("lf")) its reported range at its design titer, because dairy lactoferrin is
-   scarce rather than a by-product. For casein the downstream route changes the product itself:
-   precipitated, as dairy casein is, it reaches the 90% protein of the one precipitated PF casein on
-   file at #usd(cas.msp_ccf)/kg, while the only public *K. phaffii* casein process uses membranes alone
-   and makes a powder that is about 6% β-casein (@sec-routes).
-6. *Albumin for cultivated meat: the columns, not the strain, set the cost.* Purified to a cell-culture
-   grade by the minimal train of the industrial process (cation-exchange capture, then an anion-exchange
-   polish), albumin costs #money(alb.msp_ccf)/kg at the base titer and #money(S("industry/alb").msp_ccf) at
-   42 g/L, against #usd(MKT("alb").at(0), d: 0)–#usd(MKT("alb").at(1), d: 0) for bulk bovine albumin and the
-   \$#ALB.cm.gfi_target_usd_kg/kg that GFI's cultivated-meat cost targets assume. Resin and the low recovery
-   of the capture step (56%) carry most of it, at the most favourable resin life on record: capture
-   alone would cost #money(ALB.cases.at("alb_capture_only/humbird").msp_ccf), a \$100/L polymeric resin on both
-   columns #money(ALB.resin.at("dsp.cex_resin_usd_L=100")), and membranes alone
+   scarce rather than a by-product. For casein, the purification route changes the product itself.
+   Precipitated, as dairy casein is, β-casein reaches 90% protein at #usd(cas.msp_ccf)/kg, like the one
+   precipitated PF casein on file. The only public *K. phaffii* casein process uses membranes alone and
+   makes a powder that is about 6% β-casein (@sec-routes).
+6. *For cultivated-meat albumin, the columns set the cost, not the strain.* We purify albumin to
+   cell-culture grade with the minimal train of the industrial process: cation-exchange capture, then an
+   anion-exchange polish. It then costs #money(alb.msp_ccf)/kg at the base titer and
+   #money(S("industry/alb").msp_ccf) at 42 g/L. Bulk bovine albumin sells for
+   #usd(MKT("alb").at(0), d: 0)–#usd(MKT("alb").at(1), d: 0), and GFI's cultivated-meat cost targets
+   assume \$#ALB.cm.gfi_target_usd_kg/kg. Resin and the low recovery of the capture step (56%) carry
+   most of the cost, even at the longest resin life on record. Capture alone would cost
+   #money(ALB.cases.at("alb_capture_only/humbird").msp_ccf), and a \$100/L polymeric resin on both
+   columns #money(ALB.resin.at("dsp.cex_resin_usd_L=100")). Membranes alone would cost
    #money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf), but they reach only 77% albumin, short of the
-   96% grade. At
-   #fx(ALB.cm.g_per_kg_cm.at(0), d: 0)–#fx(ALB.cm.g_per_kg_cm.at(2), d: 0) g of albumin per kg of
-   cultivated meat that is #usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(0) / 1000, d: 2)–#usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(2) / 1000, d: 2)
-   per kg of meat at the base cost (@sec-equiv).
-7. *α-Lactalbumin: a whey protein whose strains are far behind.* On BLG's membrane route at its
-   isolate purity it costs #money(alac.msp_ccf)/kg at the base titer on a 1 kt/yr plant
-   (#money(AL.at_10kt.msp_ccf) at BLG's 10 kt/yr), #where(alac.msp_ccf, MKT("alac")) the reported
-   #usd(MKT("alac").at(0), d: 0)–#usd0(MKT("alac").at(1)) band per kg of α-lac (grade C); the isolate grade it matches sells at
-   the top of that band. The best public titer is
-   0.6 g/L of human α-lac in the supernatant, #fx(S("academic/alac").design.titer, d: 2) g/L of broth (Wang X et al. 2025; bovine
-   α-lac in yeast: 2 mg/L), which costs #money(S("academic/alac").msp_ccf)/kg (@sec-q1).
-8. *Notes: casein for cheese, heme, transferrin, binders.* A rennet cheese needs κ-casein at about
-   #pct(CH.kappa_share.at(1)) of its casein. Made by its own strain and co-precipitated with α#sub[s1], κ must reach
-   roughly α#sub[s1]'s own design titer for the blend to cost within 10% of α#sub[s1]-casein alone (#money(CH.as1.base.msp_ccf)/kg);
-   on its own column no titer up to 42 g/L is enough. At the best published
-   κ titer, a 0.25 g/L patent example, the blend costs #money(CH.blend.kap.at(str(CH.kappa_share.at(1))).at(0))–#money(CH.blend.kap_cex.at(str(CH.kappa_share.at(1))).at(0))/kg (@sec-cheese).
-   Soy leghemoglobin from the best published secreting strain costs
-   #money(HM.cases.at("legh_chen2025/150/humbird").msp_ccf)/kg on a 150 t/yr plant: at Impossible's 0.45% use
-   level that is #usd(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value, d: 2)
-   per kg of beef analogue ex works (the factory-gate cost, before transport and margins), equal to #pct(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value / HM.use.beef_usd_kg.value)
-   of US ground beef's retail price (@sec-heme). Recombinant transferrin for cultivated-meat media, made at food scale,
-   adds #usd(R.transferrin.cases.at("tf_finnis2010/100/humbird").msp_ccf * R.transferrin.use.g_per_kg_cm.value / 1000, d: 2) per kg of
-   cultivated meat at today's best titer, against #usd(R.transferrin.price.catalogue_usd_kg.value * R.transferrin.use.g_per_kg_cm.value / 1000, d: 0)
-   at catalogue prices (@sec-transferrin). As a binder in plant-based meat, PF ovalbumin costs about what dried egg white
-   does but #fx(R.binder.ova.base.per_kg.at(1) / R.binder.mc.per_kg.at(1), d: 0) times methylcellulose per kg of analogue (@sec-binder).
-9. *Feedstock is not PF's problem.* With all of an animal's feed charged to its protein, the base case's glucose
-   (#usd(R.floor.products.blg.us_midwest.glucose_usd, d: 1)/kg BLG, #pct(R.floor.products.blg.us_midwest.glucose_usd / R.floor.products.blg.us_midwest.msp)
-   of its cost) is no dearer than chickens', hens' or cows' feed per kg of protein
-   (#usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1), US);
-   its glucose floor, #fx(R.floor.products.blg.us_midwest.floor.substrate_kg, d: 1) kg (#usd(R.floor.products.blg.us_midwest.floor.cost.substrate, d: 2)) per kg of protein, is #fx(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)) / R.floor.products.blg.us_midwest.floor.cost.substrate, d: 0)–#fx(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)) / R.floor.products.blg.us_midwest.floor.cost.substrate, d: 0) times below them. The gap is the
-   plant (@sec-floor).
+   96% grade. Cultivated meat uses #fx(ALB.cm.g_per_kg_cm.at(0), d: 0)–#fx(ALB.cm.g_per_kg_cm.at(2), d: 0) g
+   of albumin per kg, so at the base cost albumin adds
+   #usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(0) / 1000, d: 2)–#usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(2) / 1000, d: 2)
+   per kg of meat (@sec-equiv).
+7. *α-Lactalbumin is a whey protein whose strains lag far behind.* On BLG's membrane route at isolate
+   purity, it costs #money(alac.msp_ccf)/kg at the base titer on a 1 kt/yr plant
+   (#money(AL.at_10kt.msp_ccf) at BLG's 10 kt/yr). That is #where(alac.msp_ccf, MKT("alac")) the
+   reported #usd(MKT("alac").at(0), d: 0)–#usd0(MKT("alac").at(1)) band per kg of α-lac (grade C), and
+   the isolate grade it matches sells at the top of that band. The best public titer is 0.6 g/L of
+   human α-lac in the supernatant, or #fx(S("academic/alac").design.titer, d: 2) g/L of broth (Wang X et
+   al. 2025). In yeast, bovine α-lac has reached only 2 mg/L. At the best public titer, α-lac costs
+   #money(S("academic/alac").msp_ccf)/kg (@sec-q1).
+8. *Notes: casein for cheese, heme, transferrin and binders.*
+   - A rennet cheese needs κ-casein at about #pct(CH.kappa_share.at(1)) of its casein. Suppose a
+     separate strain makes κ, and κ precipitates together with α#sub[s1]. Then κ must reach roughly
+     α#sub[s1]'s own design titer before the blend costs within 10% of α#sub[s1]-casein alone
+     (#money(CH.as1.base.msp_ccf)/kg). Purified on its own column, κ falls short at every titer up to
+     42 g/L. The best published κ titer is a 0.25 g/L patent example; at that titer the blend costs
+     #money(CH.blend.kap.at(str(CH.kappa_share.at(1))).at(0))–#money(CH.blend.kap_cex.at(str(CH.kappa_share.at(1))).at(0))/kg (@sec-cheese).
+   - Soy leghemoglobin from the best published secreting strain costs
+     #money(HM.cases.at("legh_chen2025/150/humbird").msp_ccf)/kg on a 150 t/yr plant. Impossible uses it
+     at 0.45%, so it adds #usd(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value, d: 2)
+     per kg of beef analogue at the factory gate, before transport and margins. That equals
+     #pct(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value / HM.use.beef_usd_kg.value)
+     of the retail price of US ground beef (@sec-heme).
+   - Recombinant transferrin for cultivated-meat media, made at food scale at today's best titer, adds
+     #usd(R.transferrin.cases.at("tf_finnis2010/100/humbird").msp_ccf * R.transferrin.use.g_per_kg_cm.value / 1000, d: 2)
+     per kg of cultivated meat. At catalogue prices it would add
+     #usd(R.transferrin.price.catalogue_usd_kg.value * R.transferrin.use.g_per_kg_cm.value / 1000, d: 0) (@sec-transferrin).
+   - As a binder in plant-based meat, PF ovalbumin costs about what dried egg white does, but
+     #fx(R.binder.ova.base.per_kg.at(1) / R.binder.mc.per_kg.at(1), d: 0) times as much as methylcellulose
+     per kg of analogue (@sec-binder).
+9. *Sugar is not PF's problem.* Charge all of an animal's feed to its protein. The base case's glucose
+   then costs no more than chickens', hens' or cows' feed per kg of protein:
+   #usd(R.floor.products.blg.us_midwest.glucose_usd, d: 1)/kg BLG
+   (#pct(R.floor.products.blg.us_midwest.glucose_usd / R.floor.products.blg.us_midwest.msp) of its cost)
+   against #usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)
+   for the animals in the US. PF's glucose floor, #fx(R.floor.products.blg.us_midwest.floor.substrate_kg, d: 1) kg
+   (#usd(R.floor.products.blg.us_midwest.floor.cost.substrate, d: 2)) per kg of protein, sits
+   #fx(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)) / R.floor.products.blg.us_midwest.floor.cost.substrate, d: 0)–#fx(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)) / R.floor.products.blg.us_midwest.floor.cost.substrate, d: 0)
+   times below the animals' feed. The gap lies in the plant (@sec-floor).
 
-The least-tested assumption is secretion without growth. The production phase follows Intelligen's
-design, whose cells secrete #fx(blg.design.q_p_mg_g_h, d: 1) mg/g/h while barely growing. In the one
-near-zero-growth study we found (a *K. phaffii* strain secreting an antibody fragment), secretion fell
-as growth slowed and settled about five times below the trend at faster growth (Rebnegger et al.
-2024, who link part of the fall to the promoter used). Across the literature *K. phaffii* secretes
-fastest while growing: a review compiles maximal rates of 0.004–0.69 mg/g/h, those on glucose peaking
-at growth rates of 0.15–0.20/h (Looser et al. 2015), and the best glucose fed-batch we found reached
-2.1 mg/g/h near 0.1/h (Prielhofer et al. 2018). Growing while producing does not rescue the design:
-at that strain's ratio, 21 mg of protein per g of new cells, #pv("strain.titer_g_L") g/L would need
-#fx(pv("strain.titer_g_L") / 21, d: 1) kg of new cells per litre. No public study we found shows
-secretion at the design rate without growth.
+*The least-tested assumption is secretion without growth.* The production phase follows Intelligen's
+design, in which cells secrete #fx(blg.design.q_p_mg_g_h, d: 1) mg/g/h while barely growing. We found
+one study near zero growth: a *K. phaffii* strain that secretes an antibody fragment (Rebnegger et al.
+2024). There, secretion fell as growth slowed and settled about five times below the trend at faster
+growth; the authors link part of the fall to the promoter they used. Across the literature,
+*K. phaffii* secretes fastest while it grows. A review compiles maximal rates of 0.004–0.69 mg/g/h,
+with the glucose ones peaking at growth rates of 0.15–0.20/h (Looser et al. 2015). The best glucose
+fed-batch we found reached 2.1 mg/g/h near 0.1/h (Prielhofer et al. 2018). Growth during production
+does not rescue the design. That strain makes 21 mg of protein per g of new cells, so
+#pv("strain.titer_g_L") g/L would need #fx(pv("strain.titer_g_L") / 21, d: 1) kg of new cells per litre.
+No public study we found shows secretion at the design rate without growth.
 
 // ---------------------------------------------------------------- key numbers table
 #let pair(h, l) = if h == none [—] else [#money(h.msp_ccf)#if l != none [ (#money(l.msp_ccf))]]
