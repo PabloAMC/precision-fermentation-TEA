@@ -41,7 +41,7 @@
 #let wheyobs = inc.whey.series.values().map(s => s.values()).flatten()
 #let above(x) = wheyobs.filter(p => p >= x).len()
 
-#set page(paper: "a4", margin: (x: 2cm, y: 1.3cm))
+#set page(paper: "a4", margin: (x: 1.9cm, y: 1.1cm))
 #set text(font: ("Libertinus Serif", "New Computer Modern"), size: 9.8pt)
 #set par(justify: true, leading: 0.5em, spacing: 0.7em)
 #set table(stroke: none, inset: (x: 4pt, y: 2.3pt))
@@ -56,51 +56,61 @@
 Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs · prepared with an AI assistant; not yet reviewed by human experts]
 
 *Bottom line.*
-- *Today's public strains are far too expensive.* At the best peer-reviewed titers, β-lactoglobulin
+- *Today's public strains cost far too much.* At the best peer-reviewed titers, β-lactoglobulin
   (BLG, whey), ovalbumin (OVA), ovomucoid (both egg white) and β-casein cost #money(S("academic/blg").msp_ccf),
   #money(S("academic/ova").msp_ccf), #money(S("academic/ovd").msp_ccf) and #money(S("academic/cas").msp_ccf) per kg
-  protein. Whey protein, dried egg white and casein traded at #usd(inc.whey.band.at(0))–#usd(inc.whey.band.at(1)),
-  #usd(inc.egg.band.at(0))–#usd(inc.egg.band.at(1)) and #usd(inc.casein.band.at(0))–#usd(inc.casein.band.at(1))
-  per kg protein in 2015–2025 (2025 dollars). The one public titer near the design point is a company's own:
-  EVERY's 30 g/L ovomucoid patent example, at #money(S("academic/ovd_patent").msp_ccf).
-- *At the titers companies' cost models assume, the commodity proteins near their markets.* At
-  42 g/L BLG costs #money(S("industry/blg").msp_ccf) (#money(S("industry/blg/light").msp_ccf) with the lighter
+  of protein. The proteins they replace sold for #usd(inc.whey.band.at(0))–#usd(inc.whey.band.at(1)) (whey),
+  #usd(inc.egg.band.at(0))–#usd(inc.egg.band.at(1)) (dried egg white) and #usd(inc.casein.band.at(0))–#usd(inc.casein.band.at(1))
+  (casein) per kg of protein in 2015–2025 (2025 dollars). Only one public titer comes near the design point,
+  and a company reports it: EVERY's 30 g/L ovomucoid patent example, at #money(S("academic/ovd_patent").msp_ccf).
+- *At the titers in companies' own cost models, the commodity proteins near their markets.* At
+  42 g/L, BLG costs #money(S("industry/blg").msp_ccf) (#money(S("industry/blg/light").msp_ccf) with the lighter
   accounting of NREL-style design reports), OVA #money(S("industry/ova").msp_ccf), ovomucoid
-  #money(S("industry/ovd").msp_ccf) and β-casein #money(S("industry/cas").msp_ccf)\; #above(S("industry/blg").msp_ccf) of #wheyobs.len() annual whey export
-  prices in 2015–2025 were above the BLG figure. Casein has the thinnest evidence: no company discloses
-  a titer, and no secreted casein titer is public for any yeast or fungus.
-- *The gate is secretion, not titer.* \$20/kg needs about #fx(req("blg/humbird", 20, 72).q_p_mg_g_h)–#fx(req("blg/humbird", 20, 48).q_p_mg_g_h)
-  mg protein per g of cells per hour at the base cell density (the base design: #fx(blg.design.q_p_mg_g_h, d: 1)).
-  With today's biology and capital, design alone reaches #money(BD(40).msp_ccf)/kg BLG at 40 mg/g/h
-  and #money(BD(10).msp_ccf) at 10. No published *K. phaffii* process is near either rate: the best glucose
-  fed-batch we found reached 2.1, and in the one near-zero-growth study secretion fell as growth slowed.
-- *Sugar is not the problem.* Glucose is #fx(100 * R.floor.products.blg.us_midwest.glucose_usd / R.floor.products.blg.us_midwest.msp)% of the base cost (#usd(R.floor.products.blg.us_midwest.glucose_usd, d: 1)/kg BLG), no more than animal feed per kg of protein with all the feed charged to protein (#usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1), US); the gap is the plant (#usd(R.floor.products.blg.us_midwest.other, d: 0)/kg against #usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.other)), d: 0)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.other)), d: 0) on the farm).
-- *Best case, not a floor.* With every assumed limit at its best, 400 m³ vessels and 100 kt/yr, BLG,
-  OVA, ovomucoid and β-casein cost #money(PL("blg/humbird").msp_ccf), #money(PL("ova/humbird").msp_ccf),
-  #money(PL("ovd/humbird").msp_ccf) and #money(PL("cas/humbird").msp_ccf) per kg if cells secrete 40 mg/g/h; at 10 mg/g/h BLG costs
-  #money(QP(10).msp_ccf), and at the best rate demonstrated (2.1 mg/g/h) #money(QP(2.1).msp_ccf).
-- *Scarce proteins are the easier case.* At the 10 g/L of Intelligen's methanol-induced design and a 250 t/yr plant,
-  PF lactoferrin costs #money(R.base_light.lf.msp_ccf)–#money(lfb.msp_ccf)/kg (#money(LF.cases.at("lf_methanol/humbird").msp_ccf) costed on methanol),
-  #where(lfb.msp_ccf, MKT("lf")) the #money(MKT("lf").at(0))–#money(MKT("lf").at(1))/kg reported for the dairy
-  product; at the best public methanol-free titer (2.8 g/L) #money(S("academic/lf").msp_ccf), #where(S("academic/lf").msp_ccf, MKT("lf")) it.
-- *The route can change the product.* Precipitated, as dairy casein is, β-casein reaches dairy purity
-  at #money(cas.msp_ccf)/kg; the only public yeast casein process (membranes only) makes a powder that
-  is about 6% β-casein, mostly yeast carbohydrate.
-- *Albumin for cultivated-meat media: the columns set the cost.* With the industrial process's minimal
-  train (cation exchange, then anion exchange), at cell-culture purity and 1 kt/yr, albumin costs
+  #money(S("industry/ovd").msp_ccf) and β-casein #money(S("industry/cas").msp_ccf). Whey sold above the BLG figure
+  in #above(S("industry/blg").msp_ccf) of #wheyobs.len() annual export prices in 2015–2025. Casein has the thinnest
+  evidence: no secreted casein titer is public.
+- *Secretion, not titer, is the gate.* To reach \$20/kg, cells must secrete about
+  #fx(req("blg/humbird", 20, 72).q_p_mg_g_h)–#fx(req("blg/humbird", 20, 48).q_p_mg_g_h) mg of protein per g of
+  cells per hour at the base cell density. The base design secretes #fx(blg.design.q_p_mg_g_h, d: 1). With
+  today's biology and capital, the best design reaches #money(BD(40).msp_ccf)/kg BLG at 40 mg/g/h and
+  #money(BD(10).msp_ccf) at 10. No published *K. phaffii* process comes near either rate; the best glucose
+  fed-batch we found reached 2.1.
+- *Sugar is not the problem.* Glucose makes up #fx(100 * R.floor.products.blg.us_midwest.glucose_usd / R.floor.products.blg.us_midwest.msp)%
+  of the base cost (#usd(R.floor.products.blg.us_midwest.glucose_usd, d: 1)/kg BLG). That is no more than an animal's
+  feed per kg of protein, with all the feed charged to protein (#usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)
+  in the US). The plant makes the gap: #usd(R.floor.products.blg.us_midwest.other, d: 0)/kg, against
+  #usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.other)), d: 0)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.other)), d: 0) on the farm.
+- *A best case, not a floor.* Set every assumed limit at its best, with 400 m³ vessels and 100 kt/yr. If
+  cells secrete 40 mg/g/h, BLG, OVA, ovomucoid and β-casein then cost #money(PL("blg/humbird").msp_ccf),
+  #money(PL("ova/humbird").msp_ccf), #money(PL("ovd/humbird").msp_ccf) and #money(PL("cas/humbird").msp_ccf) per kg.
+  At 10 mg/g/h BLG costs #money(QP(10).msp_ccf); at the best rate shown so far (2.1 mg/g/h), #money(QP(2.1).msp_ccf).
+- *Scarce proteins are the easier case.* Intelligen's lactoferrin design reaches 10 g/L with methanol. At that
+  titer, a 250 t/yr plant makes lactoferrin for #money(R.base_light.lf.msp_ccf)–#money(lfb.msp_ccf)/kg
+  (#money(LF.cases.at("lf_methanol/humbird").msp_ccf) costed on methanol). That is #where(lfb.msp_ccf, MKT("lf")) the
+  #money(MKT("lf").at(0))–#money(MKT("lf").at(1))/kg reported for dairy lactoferrin. At the best public methanol-free
+  titer (2.8 g/L) it costs #money(S("academic/lf").msp_ccf), #where(S("academic/lf").msp_ccf, MKT("lf")) that range.
+- *The route can change the product.* Precipitated, as dairy casein is, β-casein reaches dairy purity at
+  #money(cas.msp_ccf)/kg. The only public yeast casein process uses membranes alone. Its powder is about
+  6% β-casein and mostly yeast carbohydrate.
+- *For cultivated-meat albumin, the columns set the cost.* We use the industrial process's minimal train
+  (cation exchange, then anion exchange), cell-culture purity and a 1 kt/yr plant. Albumin then costs
   #money(alb.msp_ccf)/kg (#money(S("industry/alb").msp_ccf) at 42 g/L; #money(S("academic/alb").msp_ccf) at the
-  best public titer, 8.7 g/L of broth made with methanol), against #usd(MKT("alb").at(0))–#usd(MKT("alb").at(1))
-  for bulk bovine albumin and GFI's \$#ALB.cm.gfi_target_usd_kg/kg target. Capture alone would cost
-  #money(ALB.cases.at("alb_capture_only/humbird").msp_ccf) and a \$100/L resin #money(ALB.resin.at("dsp.cex_resin_usd_L=100"))\;
-  membranes alone (#money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf)) reach only 77% albumin. At the base cost it adds
-  #usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(0) / 1000, d: 2)–#usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(2) / 1000, d: 2) per kg of cultivated meat, while leading firms are removing albumin from their media.
-- *α-Lactalbumin and κ-casein: the strains are missing.* α-Lac (infant-formula whey protein) costs
-  #money(alac.msp_ccf)/kg at the base titer on a 1 kt/yr plant, against #usd(MKT("alac").at(0))–#money(MKT("alac").at(1)) reported per kg
-  α-lac (grade C), but #money(S("academic/alac").msp_ccf) at its best public titer (0.6 g/L of supernatant, human α-lac). Rennet cheese needs
-  κ-casein at about #fx(100 * CH.kappa_share.at(1))% of its casein: at the best κ titer (0.25 g/L) an α#sub[s1] + κ blend costs
-  #money(CH.blend.kap.at(str(CH.kappa_share.at(1))).at(0))–#money(CH.blend.kap_cex.at(str(CH.kappa_share.at(1))).at(0))/kg, and κ co-precipitated
-  with α#sub[s1] must reach roughly α#sub[s1]'s design titer to add under 10%. At 0.45% use, heme from the best secreting strain adds
-  #usd(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value, d: 2) per kg of beef analogue at the factory gate.
+  best public titer, 8.7 g/L of broth made with methanol). Bulk bovine albumin sells for
+  #usd(MKT("alb").at(0))–#usd(MKT("alb").at(1)), and GFI targets \$#ALB.cm.gfi_target_usd_kg/kg. Capture alone
+  would cost #money(ALB.cases.at("alb_capture_only/humbird").msp_ccf), and a \$100/L resin
+  #money(ALB.resin.at("dsp.cex_resin_usd_L=100")). Membranes alone cost #money(ALB.cases.at("alb_ufdf_only/humbird").msp_ccf)
+  but reach only 77% albumin. At the base cost, albumin adds #usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(0) / 1000, d: 2)–#usd(alb.msp_ccf * ALB.cm.g_per_kg_cm.at(2) / 1000, d: 2)
+  per kg of cultivated meat, and leading firms are removing it from their media.
+- *For α-lactalbumin and κ-casein, the strains are missing.* α-Lac, the infant-formula whey protein, costs
+  #money(alac.msp_ccf)/kg at the base titer on a 1 kt/yr plant. Reports put α-lac at
+  #usd(MKT("alac").at(0))–#money(MKT("alac").at(1)) per kg (grade C). At its best public titer (0.6 g/L of
+  supernatant, human α-lac) it costs #money(S("academic/alac").msp_ccf). Rennet cheese needs κ-casein at about
+  #fx(100 * CH.kappa_share.at(1))% of its casein. At the best κ titer (0.25 g/L), an α#sub[s1] + κ blend costs
+  #money(CH.blend.kap.at(str(CH.kappa_share.at(1))).at(0))–#money(CH.blend.kap_cex.at(str(CH.kappa_share.at(1))).at(0))/kg.
+  To add under 10%, κ co-precipitated with α#sub[s1] must reach roughly α#sub[s1]'s design titer. Heme from the
+  best secreting strain, used at 0.45%, adds
+  #usd(HM.cases.at("legh_chen2025/150/humbird").msp_ccf * HM.use.beef_analogue_frac.value, d: 2) per kg of
+  beef analogue at the factory gate.
 
 #table(
   columns: (2.1fr,) + PRODS.map(_ => 1fr),
@@ -118,28 +128,27 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
 #text(size: 8pt, fill: rgb("#52514e"))[Plants: 10 kt/yr (lactoferrin 250 t/yr, albumin and α-lac 1 kt/yr); physical limit at 100 kt/yr (lactoferrin 1.6 kt/yr, α-lac about 19 kt/yr). Albumin's incumbent: bulk bovine albumin (technical grade).]
 
 *Where evidence would help most*, in our judgment:
-+ *Secretion without growth.* How much protein a strain secretes per g of cells per hour when it
-  barely grows, over days, at 1–10 m³. It sets both today's cost and the best case, for every protein here.
-+ *Open fed-batch data.* Titer, productivity and sugar yield measured *together*; for casein, any
-  secreted titer above a few g/L, and whether the unphosphorylated protein makes cheese like dairy casein;
-  for bovine α-lac and κ-casein, any secreted titer above 1 g/L.
-+ *Real plant costs.* Capital, staffing and running costs of recent PF plants would settle the vessel
-  price basis and the fixed-cost rule (aseptic vessels would add #usd(R.base_aseptic.blg.msp_ccf - blg.msp_ccf, d: 1)/kg;
-  the two accounting conventions differ by #usd(blg.msp_ccf - R.base_light.blg.msp_ccf, d: 1)/kg on BLG).
++ *Secretion without growth.* How much protein does a strain secrete per g of cells per hour when it
+  barely grows, over days, at 1–10 m³? This rate sets both today's cost and the best case, for every protein here.
++ *Open fed-batch data.* Titer, productivity and sugar yield, measured *together*. For casein: any
+  secreted titer above a few g/L, and whether the unphosphorylated protein makes cheese like dairy casein.
+  For bovine α-lac and κ-casein: any secreted titer above 1 g/L.
++ *Real plant costs.* The capital, staff and running costs of recent PF plants would settle the vessel
+  price and the fixed-cost rule. Aseptic vessels would add #usd(R.base_aseptic.blg.msp_ccf - blg.msp_ccf, d: 1)/kg,
+  and the two accounting conventions differ by #usd(blg.msp_ccf - R.base_light.blg.msp_ccf, d: 1)/kg on BLG.
 + *The design ceiling.* Workable starting volumes, feed concentrations and O#sub[2] transfer at scale.
 
 *Animal welfare.* The cost model does not say which protein matters most for animals, but the
-products differ: whey is a by-product of cheese, so displacing it mostly lowers the whey price; casein
-is what milk is bought for, and egg white (OVA, ovomucoid) carries far more animal-years per kg of protein than either.
+products differ. Whey is a by-product of cheese, so replacing it mostly lowers the whey price. Casein
+is what people buy milk for. Egg white (OVA, ovomucoid) carries far more animal-years per kg of protein than either.
 
-*EU.* At Dutch sugar, energy, wage and construction prices the BLG plant costs about
-#usd(R.policy.at("EU base") - R.policy.at("US base"), d: 1)/kg more; a capital charge at 4% over 20 years
-instead of 7.5% over 10 would cut #usd(R.policy.at("EU base") - R.policy.at("EU, capital at 4%/20 yr"), d: 1)/kg.
-Cost effects on one plant, not policy recommendations.
+*EU.* At Dutch prices for sugar, energy, wages and construction, the BLG plant costs about
+#usd(R.policy.at("EU base") - R.policy.at("US base"), d: 1)/kg more. Capital at 4% over 20 years,
+instead of 7.5% over 10, would cut #usd(R.policy.at("EU base") - R.policy.at("EU, capital at 4%/20 yr"), d: 1)/kg.
+These are cost effects on one plant, not policy recommendations.
 
-#text(size: 8.3pt, fill: rgb("#52514e"))[*Caveats.* A production cost with a 14.6%/yr capital charge, not a
-market price. Excludes R&D, licensing, regulatory, sales, start-up, failed batches and first-of-a-kind
-premiums. Strain parameters rest on design values and company-reported averages (evidence grades B–C);
-casein and lactoferrin titers are borrowed from other proteins or species. Ovomucoid and β-casein were
-added in version 3, albumin, α-lactalbumin and the casein and heme notes in version 4, the feed, transferrin and binder notes in 4.1; they have been audited by AI reviewers only (docs/AUDIT.md). Full report, audit log, simulated expert reviews and
-data: `pf-tea` repository.]
+#text(size: 8.3pt, fill: rgb("#52514e"))[*Caveats.* These are production costs with a 14.6%/yr capital charge, not
+market prices. They exclude R&D, licensing, regulation, sales, start-up, failed batches and the premium of a
+first plant. Strain parameters rest on design values and company-reported averages (evidence grades B–C).
+The casein and lactoferrin titers come from other proteins or species. Only AI reviewers have audited the work since
+version 2. Full report, audit log and data: the `pf-tea` repository.]
