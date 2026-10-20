@@ -461,7 +461,7 @@ variant: the bridge varies base.yaml directly, so it could not carry ovomucoid's
 Pablo asked whether this is "the best possible model for this ... no artificial complexity, but SOTA or
 close". An AI reviewer read the code, data and report and the published PF, recombinant-protein and
 cultivated-meat TEAs (Humbird 2021, BioSTEAM-based work, Intelligen SuperPro models, GFI Europe/ADL 2025,
-Voutilainen, Järviö, NREL). Its report: `.preview/sota_review.md` (local, git-ignored). Verdict: at or
+Voutilainen, Järviö, NREL). Its report: [`docs/ai-review/sota_review.md`](ai-review/sota_review.md). Verdict: at or
 above the published state of the art for a public multi-protein screening TEA (its P ~0.85 that no
 structural change moves the commodity base cases by >10%); conventions (design-report capital −22%,
 aseptic vessels +46% on BLG) and strain data dominate. Each gap and the decision:
@@ -483,7 +483,7 @@ Crossref after the first draft had some from memory (Zhu 2021, Delta patents: co
 
 ### R12 (2026-10-02): AI audit of the v4 model changes and the albumin data
 
-Independent reviewer, read-only, with computations (report: `.preview/audit_R12.md`, local). Methanol physics
+Independent reviewer, read-only, with computations (report: [`docs/ai-review/audit_R12.md`](ai-review/audit_R12.md)). Methanol physics
 checked and fine (balances close, no CO2 fixed, maintenance conversion dimensionally right, heat signs, blend
 only in production, Y_ps on methanol below both ceilings); sizing side effects and cache fine; every albumin
 source value matches its source (Comtrade and 1.13 g/L recomputed). Findings and decisions:
@@ -522,7 +522,7 @@ and the polish inputs sampled in the Monte Carlo (M2, M6); the pioneer factor st
 RAND's mean ratio, with the mean overrun ~1.36 beside it, 'conservative' dropped, resin first fill noted (M4);
 the methanol-maintenance check reworded (M5); 'favourable end' limited to resin life and purification (M1);
 scale-section clarifications (M3); Spearman noise floor stated (M6); route-figure labels and rounding (M7);
-references sorted; low-severity wording. Report: `.preview/audit_R13.md` (local).
+references sorted; low-severity wording. Report: [`docs/ai-review/audit_R13.md`](ai-review/audit_R13.md).
 
 ### R14 (2026-10-02): AI audit of the α-lactalbumin, rennet-cheese casein and heme data and logic
 
@@ -545,7 +545,7 @@ the four formulas and sequences, and every number the main session relies on aga
 - Low: α-lac purity derivation (0.855 at the spec minimum, 0.90 typical); LegH purity 0.43 (batch mean); hemin coverage
   "at most" 41%; unused_paths no longer hides cas1's own dryer leaf (tested); cas1.yaml evidence pointer; marker label.
   Not changed: four evidence quotes over 40 words (L9) and scale_L conventions in the new titers.csv rows (L10).
-Report: `.preview/audit_R14_data.md` (local).
+Report: [`docs/ai-review/audit_R14_data.md`](ai-review/audit_R14_data.md).
 
 ### R15 (2026-10-03): AI audit of the compiled report's new content (α-lac, rennet-cheese casein, heme)
 
@@ -558,7 +558,7 @@ in culture below pH 5.5) (M4); a stale limitation on the old $15 price (M5); the
 conclusion stated as $/kg of analogue ex works and % of retail beef, not "a small part" (M7); α-lac titer basis
 (supernatant vs broth) consistent (M8); low-severity fixes to figure footnotes and labels, the Wang 2021 reference (title,
 DOI), a Panchanawaporn 2026 evidence entry, Chen 2025's author list, and ten clarity rewrites. Report:
-`.preview/audit_R15.md` (local).
+[`docs/ai-review/audit_R15.md`](ai-review/audit_R15.md).
 
 ### R16 (2026-10-05): AI audit of the metabolic floor and the animals' feed bill
 
@@ -585,7 +585,7 @@ results/analyses.json. No HIGH findings. Fixes:
   loss named (L14).
 Also: titer check. 43 of 134 titers.csv rows are unverified; none is used in a base case or headline scenario. Four uses (the
 alb_zhu2018 variant and three Fig. 3 markers: Liu 2026, Hu 2025, Zhu 2018) rest on paywalled papers, now labelled "abstract
-only" and listed first in references/DOWNLOADS.md. Report: `.preview/audit_R16.md` (local).
+only" and listed first in references/DOWNLOADS.md. Report: [`docs/ai-review/audit_R16.md`](ai-review/audit_R16.md).
 
 ### R17 (2026-10-06): AI cold read of the whole v4.1 report and memo
 
@@ -604,4 +604,4 @@ results/analyses.json; all matched. No HIGH findings. Fixes:
   parameters (L6); the routes figure's stars captioned as costs of production (L7); bridge title to one decimal (L8);
   uncited references removed and the two Wang 2025 papers told apart (L11); a glossary box for policy readers (L12);
   typos (L13). Not changed: the unquoted spent-cells sensitivity (L5), marker-label overlaps in the cost-vs-titer figure
-  (L9) and typed reference numbers in make_figures.py labels (L10). Report: `.preview/audit_R17.md` (local).
+  (L9) and typed reference numbers in make_figures.py labels (L10). Report: [`docs/ai-review/audit_R17.md`](ai-review/audit_R17.md).

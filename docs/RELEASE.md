@@ -39,5 +39,9 @@ Claude can do steps 1–2 on request. Steps 3–5 need Pablo's accounts.
      *Komagataella phaffii*;
    - licence CC BY 4.0;
    - the repository link.
-5. Share the explorer and the memo. For the explorer, use the artifact link, or GitHub Pages
+5. Submit to GFI's fermentation TEA database (gfi.org/fermentation-tea, 'Submit a TEA'; an Airtable
+   form whose DOI/URL field is required, so after step 2 or 4). Every field is drafted in
+   `docs/GFI_SUBMISSION.md` (regenerate with `scripts/gfi_submission.py`); set `date-released` in
+   `CITATION.cff` on release day.
+6. Share the explorer and the memo. For the explorer, use the artifact link, or GitHub Pages
    serving `docs/explorer.html`.
