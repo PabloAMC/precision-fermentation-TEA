@@ -635,7 +635,10 @@ function render() {
   $("u-hint").textContent = UNIT === 1 ? `Multiplies $/kg by ${eq.grams.toFixed(2)} g / 1000.`
     : UNIT === 2 ? `Our powder is ${Math.round(100 * D.powder_frac[prodKey()])}% target protein; market prices per kg of product (${Math.round(100 * MKT().frac)}% protein).` : "";
   // comparison panel: in the shown unit throughout
+  // the base case to compare with: the simple model's, also when the detailed physics are on
+  const phys0 = PHYS; PHYS = 0;
   const base = at(Object.assign({}, baseFor(S.product), {convention: S.convention, site: S.site}));
+  PHYS = phys0;
   const mk = marketNow(), rows = [];
   if (v) {
     const cur = v[0] * conv(), [lo, hi] = mk.band;
@@ -654,7 +657,7 @@ function render() {
       rows.push([`Titer to match the ${mk.years[0]}–${mk.years[1]} average (${fmtU(avg)})`,
                  r ? (r.first ? `≤ ${r.t} g/L` : `${Math.round(r.t)} g/L${r.ok ? "" : " (not runnable)"}`) : "not reached"]);
     }
-    if (base) rows.push(["Change from the base case", (v[0] >= base[0] ? "+" : "−") + moneyU(Math.abs(v[0] - base[0]))]);
+    if (base) rows.push([PHYS === 1 ? "Change from the simple base case" : "Change from the base case", (v[0] >= base[0] ? "+" : "−") + moneyU(Math.abs(v[0] - base[0]))]);
   }
   $("compare-h").textContent = UNIT === 1 ? "Against milk and eggs" : "Against the market";
   $("compare").innerHTML = rows.map(r => `<div class="row"><span class="k">${r[0]}</span><span class="v${/^[+−]?\$[\d.,–$]+$/.test(r[1]) ? " num" : ""}">${r[1]}</span></div>`).join("");
