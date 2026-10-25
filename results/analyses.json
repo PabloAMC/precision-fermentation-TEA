@@ -22081,7 +22081,7 @@
    "q_p_mg_g_h": 39.620041566117685
   },
   {
-   "label": "T. reesei homologous secreted protein (Behm 2022, grade C)",
+   "label": "T. reesei homologous secreted protein (Behm 2022, company claim)",
    "titer": 100.0,
    "host": "treesei",
    "product": "blg",
@@ -22095,7 +22095,7 @@
    "q_p_mg_g_h": 39.942600681613456
   },
   {
-   "label": "Onego platform claim (protein not specified; tested as OVA; press, grade C)",
+   "label": "Onego platform claim (protein not specified; tested as OVA; press, company claim)",
    "titer": 120.0,
    "host": "treesei",
    "product": "ova",
@@ -53086,9 +53086,9 @@
    ]
   }
  },
- "generated": "2026-10-25 00:53",
+ "generated": "2026-10-25 09:33",
  "fast": false,
- "runtime_s": 1384.2741842269897,
+ "runtime_s": 56.26544427871704,
  "floor": {
   "products": {
    "blg": {

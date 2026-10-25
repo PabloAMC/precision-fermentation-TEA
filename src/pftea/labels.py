@@ -95,5 +95,14 @@ LABELS = {
 }
 
 
+# kinds of evidence, as shown to readers; the data files store the letters A-E (data/evidence/README.md)
+EVIDENCE = {"A": "measured", "B": "published design", "C": "company claim or survey", "D": "analogy or judgment",
+            "E": "guess", "structural": "modelling choice"}
+
+
+def evidence(grade: str) -> str:
+    return EVIDENCE.get(grade, grade)
+
+
 def label(path: str) -> str:
     return LABELS.get(path, path.split(".")[-1])

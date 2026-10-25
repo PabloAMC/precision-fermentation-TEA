@@ -20,7 +20,7 @@ from openpyxl.utils import get_column_letter
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from pftea.labels import label  # noqa: E402
+from pftea.labels import evidence, label  # noqa: E402
 
 R = json.loads((ROOT / "results/analyses.json").read_text())
 P = yaml.safe_load((ROOT / "data/pf/base.yaml").read_text())
@@ -77,7 +77,7 @@ lines = [
     ("MSP_CCF: annual operating cost plus a capital charge (7.5%, 10 years = 14.6% of TCI per year), divided by output.", BODY),
     ("Capital conventions: 'humbird' = price-anchored capital (Humbird 2021 facility classes; base);", BODY),
     ("        'light' = design-report capital (NREL-style vendor-quote fermenters and ~2% fixed costs).", BODY),
-    ("Evidence grades: A measured/official, B design value or patent example, C claim or survey, D analogy or derived,", BODY),
+    ("Kinds of evidence (stored as letters A-E): A measured/official, B published design or patent example, C company claim or survey, D analogy or judgment,", BODY),
     ("        E guess (listed in docs/VALIDATION.md and docs/AUDIT.md).", BODY),
     ("Sheets: Parameters, Scenarios, Results, Cost_breakdown, Capex_base, Cost_vs_titer, Required_titer, Claims,", BODY),
     ("        Convention_steps, Base_sensitivities, Constants, Best_design_base, Ceiling_limits, Tornado, MonteCarlo,", BODY),
@@ -103,10 +103,10 @@ rows = []
 for path, x in flat(P):
     val = x.get("value", x.get("us_midwest"))
     rows.append([path, label(path), num(val) if not isinstance(val, (dict, list)) else json.dumps(val),
-                 num(x.get("eu_nw")), num(x.get("low")), num(x.get("high")), x.get("unit", ""), x.get("grade", ""),
+                 num(x.get("eu_nw")), num(x.get("low")), num(x.get("high")), x.get("unit", ""), evidence(x.get("grade", "")),
                  x.get("source", x.get("note", ""))])
-sheet("Parameters", ["path", "label", "value (US)", "value (EU)", "low", "high", "unit", "grade", "source"], rows,
-      [34, 30, 14, 12, 10, 10, 12, 7, 110], note="data/pf/base.yaml, every parameter with its range, grade and source.")
+sheet("Parameters", ["path", "label", "value (US)", "value (EU)", "low", "high", "unit", "evidence", "source"], rows,
+      [34, 30, 14, 12, 10, 10, 12, 7, 110], note="data/pf/base.yaml, every parameter with its range, kind of evidence and source.")
 
 # ---------------------------------------------------------------- Scenarios
 rows = []
@@ -218,9 +218,9 @@ sheet("Best_design_base", ["product", "secretion ceiling mg/g/h", "MSP_CCF $/kg"
 sheet("Ceiling_limits", ["case", "t_prod h", "ceiling g/L", "limit that fails above it"],
       [[k, r_["t_prod"], r_["ceiling"], r_["limit"]] for k, rows_ in R["ceiling_limits"].items() for r_ in rows_],
       [44, 10, 12, 30])
-sheet("Tornado", ["product", "parameter", "label", "grade", "low", "high", "MSP at low", "MSP at high", "base", "swing",
+sheet("Tornado", ["product", "parameter", "label", "evidence", "low", "high", "MSP at low", "MSP at high", "base", "swing",
                   "low truncated to feasibility", "high truncated to feasibility"],
-      [[prod, t["path"], label(t["path"]), t["grade"], num(t["low"]), num(t["high"]), t["msp_low"], t["msp_high"], t["base"],
+      [[prod, t["path"], label(t["path"]), evidence(t["grade"]), num(t["low"]), num(t["high"]), t["msp_low"], t["msp_high"], t["base"],
         t["swing"], t.get("truncated_low"), t.get("truncated_high")]
        for prod, tor_ in (R.get("tornado_by_product") or {"blg": R["tornado"]}).items() for t in tor_],
       [10, 38, 32, 9, 12, 12, 12, 12, 10, 10, 16, 16],
@@ -279,7 +279,7 @@ sheet("Lactoferrin", ["case", "titer g/L", "MSP_CCF $/kg LF", "cost of productio
       [52, 10, 16, 16, 14, 16],
       note=f"Lactoferrin route variants, cost vs titer at the design time, scale and resin levers; base case 250 t/yr, cation "
            f"exchange (data/pf/products.yaml; variants in data/pf/scenarios/lactoferrin.yaml). Reported dairy bLF prices "
-           f"${L_['reported_prices']['band'][0]:,.0f}-{L_['reported_prices']['band'][1]:,.0f}/kg in 2025 dollars (grade C); "
+           f"${L_['reported_prices']['band'][0]:,.0f}-{L_['reported_prices']['band'][1]:,.0f}/kg in 2025 dollars (company claims or surveys); "
            + "; ".join(f"{c_['key']}: ${c_['value_money_year']:.0f}/kg (a cost of production, 2025$)" for c_ in L_['reported_prices'].get('comparators', [])))
 C_ = R.get("casein")
 if C_:
@@ -304,7 +304,7 @@ if A_:
           note=f"Serum albumin for cultivated-meat media: methanol induction, CEX recovery and UF/DF-only variants, resin levers, plant "
                f"size, and the cost per kg of cultivated meat at GFI 2023's medium use (data/pf/products.yaml; data/pf/scenarios/albumin.yaml; "
                f"data/evidence/albumin.yaml). Bulk albumin ${A_['reported_prices']['band'][0]:,.0f}-{A_['reported_prices']['band'][1]:,.0f}/kg "
-               f"(technical BSA, grade C); GFI's target ${cm['gfi_target_usd_kg']}/kg; research-catalogue rHSA "
+               f"(technical BSA, company or survey figures); GFI's target ${cm['gfi_target_usd_kg']}/kg; research-catalogue rHSA "
                f"${cm['catalogue_usd_kg'][0]:,.0f}-{cm['catalogue_usd_kg'][1]:,.0f}/kg.")
 # Intelligen's lactoferrin model against ours, SuperPro categories, $/kg LF (report tab-lf-rec; review L)
 CATS = [("raw materials", "raw_materials"), ("labour", "labour"), ("facility", "facility"), ("lab/QC/QA", "lab_qc_qa"),
@@ -329,8 +329,8 @@ sheet("Lactoferrin_reconciliation", ["Intelligen case", "category", "Intelligen 
            "(operating + 10-yr depreciation) in the same categories. Their design inputs: data/pf/scenarios/lactoferrin.yaml "
            "lf_intelligen_a/b. data/evidence/lactoferrin.yaml lf_cost_intelligen2026_case_a_ufdf and _case_b_cex.")
 
-sheet("Market_context", ["ingredient", "low $/kg protein", "high $/kg protein", "basis", "grade", "evidence key"],
-      [[c["label"], c["lo"], c["hi"], c["when"] or "2015-2025, 2025$", c["grade"], c["key"]] for c in R["benchmarks"].get("context", [])],
+sheet("Market_context", ["ingredient", "low $/kg protein", "high $/kg protein", "basis", "evidence", "evidence key"],
+      [[c["label"], c["lo"], c["hi"], c["when"] or "2015-2025, 2025$", evidence(c["grade"]), c["key"]] for c in R["benchmarks"].get("context", [])],
       [42, 16, 16, 24, 8, 36], note="Protein ingredients for context (report Q1, fig 11). GFI 2025 ranges are nominal; export unit "
                                     "values are deflated to 2025 dollars. data/evidence/prices.yaml.")
 
@@ -366,14 +366,14 @@ if FLR:
         for loc, d in a["regions"].items():
             rows.append([f"{a['label']} (farm gate)", loc, None, d["feed"], d["other"], d["total"], d["share"], None,
                          d["feed_low"], d["feed_high"], d["total_low"], d["total_high"], d["alloc"], d["year"],
-                         f"feed {d['grades']['feed']}, share {d['grades']['share'] or '-'}", ", ".join(d["keys"]), None])
+                         f"feed {evidence(d['grades']['feed'])}, share {evidence(d['grades']['share']) if d['grades']['share'] else '-'}", ", ".join(d["keys"]), None])
     sheet("Floor_vs_feed", ["case", "location", "glucose kg/kg protein", "feedstock $/kg protein", "everything else $/kg",
                             "total $/kg", "feed share of farm cost", "productivity bound kg/m3/h", "feed low", "feed high",
-                            "total low", "total high", "share of farm value charged (co-product credit)", "year", "grades",
+                            "total low", "total high", "share of farm value charged (co-product credit)", "year", "evidence",
                             "evidence keys (data/evidence/feed.yaml)", ""], rows,
           [40, 12, 14, 14, 14, 12, 14, 16, 10, 10, 10, 10, 14, 8, 16, 60, 2],
           note="Metabolic floor (src/pftea/floor.py), each product's base case split into glucose and the rest, and the incumbent "
-               "animals' feed bill and farm-gate cost per kg of edible protein (data/evidence/feed.yaml, grade D). Report section "
+               "animals' feed bill and farm-gate cost per kg of edible protein (data/evidence/feed.yaml; our derivation). Report section "
                "'Feedstock against feed'.")
 
 # ---------------------------------------------------------------- data
@@ -384,10 +384,10 @@ for f in ("hosts", "dsp", "engineering", "prices", "placeholders", "milk_egg", "
           "feed", "kinetic", "transferrin", "binder"):
     E = yaml.safe_load((ROOT / f"data/evidence/{f}.yaml").read_text())
     rows = [[e.get("key"), num(e.get("value")) if not isinstance(e.get("value"), (dict, list)) else json.dumps(e.get("value")),
-             num(e.get("low")), num(e.get("high")), e.get("unit", ""), e.get("grade", ""), e.get("source", ""),
+             num(e.get("low")), num(e.get("high")), e.get("unit", ""), evidence(e.get("grade", "")), e.get("source", ""),
              str(e.get("doi_or_url", "")), str(e.get("locator", "")), str(e.get("quote", "")), str(e.get("note", ""))]
             for e in E]
-    sheet(f"Evidence_{f}", ["key", "value", "low", "high", "unit", "grade", "source", "doi/url", "locator", "quote", "note"],
+    sheet(f"Evidence_{f}", ["key", "value", "low", "high", "unit", "evidence", "source", "doi/url", "locator", "quote", "note"],
           rows, [34, 12, 9, 9, 18, 6, 40, 30, 24, 60, 50], note=f"data/evidence/{f}.yaml")
 
 # ---------------------------------------------------------------- Accounting (live)
