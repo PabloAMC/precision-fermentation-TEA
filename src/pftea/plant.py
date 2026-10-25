@@ -163,7 +163,8 @@ def batch(p, keep_series=False) -> pf.Batch:
                         titer=None if strain.q_p is not None else v(p, "strain.titer_g_L"),
                         c_s=v(p, "fermenter.feed_glucose_g_L"),
                         c_nh3=v(p, "fermenter.nh3_feed_g_L"), keep_series=keep_series,
-                        c_meoh=v(p, "fermenter.feed_methanol_g_L"), continuous=cont)
+                        c_meoh=v(p, "fermenter.feed_methanol_g_L"), continuous=cont,
+                        q_max=(_opt(p, "strain.q_p_max_mg_g_h") or 0) / 1000 or None)
 
 
 def atp_per_residue(p) -> float:

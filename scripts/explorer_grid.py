@@ -7,6 +7,9 @@ Each product runs on its own base case (data/pf/products.yaml: lactoferrin at 25
 exchange; BLG and OVA at 10 kt/yr); the grid axes override titer, time, cells and yield.
 Run:  .venv/bin/python scripts/explorer_grid.py   (parallel; writes results/explorer_grid.json)
       .venv/bin/python scripts/explorer_grid.py --detailed   (adds the 'detailed' sub-grid to the existing file)
+The detailed run is gentle on a laptop: 4 worker processes at low priority, a 60 s cap per point
+(a point that hits it is recorded as no design), progress printed and saved every 100 points to
+results/explorer_grid.detailed.partial.json, from which an interrupted run resumes.
 The 'detailed' sub-grid runs the same strain levers with the optional physics of
 data/pf/scenarios/detailed.yaml ('common': secretion tied to growth, large-tank yield loss), at the
 base capital convention, site and product yield only; each run also returns the secretion rate q_ref (at the
@@ -55,12 +58,35 @@ _VESSEL: dict = {}
 DETAILED_AXES = ["product", "titer", "t_prod", "X_prod"]   # yield at its base value: with secretion tied to growth it matters little
 
 
+POINT_TIMEOUT_S = 60
+
+
+def _alarm(*_):
+    raise TimeoutError
+
+
+def _gentle():
+    """Worker initializer: low priority, so the laptop stays responsive."""
+    import os
+    import signal
+    os.nice(10)
+    signal.signal(signal.SIGALRM, _alarm)
+
+
 def run_detailed(point):
-    """One run of the detailed sub-grid: base convention and site, detailed.yaml 'common' physics."""
+    """One run of the detailed sub-grid: base convention and site, detailed.yaml 'common' physics.
+    A point that takes longer than POINT_TIMEOUT_S is recorded as no design (None)."""
+    import signal
     from pftea import scenarios as sc
     prod, T, tp, X = point
     Y = _base["Y_ps_g_g"]["value"]
-    return run((prod, "humbird", "us_midwest", T, tp, X, Y), extra=sc.load("detailed")["common"])
+    signal.alarm(POINT_TIMEOUT_S)
+    try:
+        return run((prod, "humbird", "us_midwest", T, tp, X, Y), extra=sc.load("detailed")["common"])
+    except TimeoutError:
+        return None
+    finally:
+        signal.alarm(0)
 
 
 def run(point, extra=None):
@@ -82,6 +108,8 @@ def run(point, extra=None):
         return None
     if not (r.msp_ccf == r.msp_ccf) or r.msp_ccf <= 0:   # NaN guard
         return None
+    if extra and any("not reachable" in f or "did not reach" in f for f in r.flags):
+        return None                                    # the titer cannot be made: no design, not a price
     g = [round(sum(r.per_kg.get(k, 0.0) for k in keys), 3) for keys in GROUPS.values()]
     flag = 0 if sc.is_feasible(r) else 1
     if any("solubility" in f for f in r.flags):
@@ -97,14 +125,24 @@ def run(point, extra=None):
 if __name__ == "__main__" and "--detailed" in sys.argv:
     t0 = time.time()
     path = ROOT / "results/explorer_grid.json"
+    part = ROOT / "results/explorer_grid.detailed.partial.json"
     grid = json.loads(path.read_text())
     points = list(itertools.product(*(AXES[a] for a in DETAILED_AXES)))
-    with Pool(8) as pool:
-        out = pool.map(run_detailed, points, chunksize=8)
+    done = json.loads(part.read_text()) if part.exists() else []
+    if done:
+        print(f"resuming after {len(done)} of {len(points)} points", flush=True)
+    out = list(done)
+    with Pool(4, initializer=_gentle) as pool:
+        for i, res in enumerate(pool.imap(run_detailed, points[len(done):], chunksize=2), start=len(done) + 1):
+            out.append(res)
+            if i % 100 == 0 or i == len(points):
+                part.write_text(json.dumps(out, separators=(",", ":"), default=float))
+                print(f"{i}/{len(points)} points, {time.time() - t0:.0f}s", flush=True)
     grid["detailed"] = {"order": DETAILED_AXES, "values": out, "physics": __import__("pftea.scenarios", fromlist=["load"]).load("detailed")["common"],
                         "generated": time.strftime("%Y-%m-%d %H:%M")}
-    path.write_text(json.dumps(grid, separators=(",", ":")))
-    print(f"detailed: {len(points)} points in {time.time() - t0:.0f}s; failed {sum(o is None for o in out)}")
+    path.write_text(json.dumps(grid, separators=(",", ":"), default=float))
+    part.unlink(missing_ok=True)
+    print(f"detailed: {len(points)} points in {time.time() - t0:.0f}s; no design {sum(o is None for o in out)}")
 elif __name__ == "__main__":
     t0 = time.time()
     points = list(itertools.product(*AXES.values()))
