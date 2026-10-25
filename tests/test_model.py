@@ -723,3 +723,15 @@ def test_coupled_search_is_bounded_and_stalls_fast():
     strain = pf.Strain(product=pr.protein("blg"), Y_ps=0.465, X_prod=140, mu_prod=0.0, t_prod=36,
                        secretion="growth_coupled", qp_floor=v(p, "strain.qp_floor_frac"))
     assert s <= v(p, "strain.q_p_max_mg_g_h") / 1000 / strain.qp_of(host.mu_max, 1.0) * 1.001
+
+
+@pytest.mark.parametrize("prod", ["blg", "lf", "alb"])
+def test_batch_balances_close(prod):
+    """The sugar and oxygen split by use adds up to the simulator's totals (within the trapezoid
+    error, ~2%), and carbon in equals carbon out (balances.py)."""
+    from pftea import balances
+    b = balances.batch_balances(sc.base_params(prod))
+    f, sp = b["flows"], b["split"]
+    assert sum(sp["glucose_kg"].values()) == pytest.approx(f["glucose_kg"], rel=0.02)
+    assert sum(sp["o2_kg"].values()) == pytest.approx(f["o2_kg"], rel=0.02)
+    assert abs(b["carbon"]["gap"]) < 0.005

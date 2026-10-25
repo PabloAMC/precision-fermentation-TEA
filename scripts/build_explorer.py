@@ -227,12 +227,93 @@ for p_ in PRODS:
         PRESET[p_] = dict(titer=a_["design"]["titer"], t_prod=a_["design"]["t_total_h"] - a_["design"]["t_growth_h"],
                           X_prod=_params.v(q_, "strain.X_prod_g_L"), msp=a_["msp_ccf"],
                           host=_params.v(q_, "strain.host"))
+from pftea import balances as _bal  # noqa: E402
+from pftea.labels import EVIDENCE as _EV, label as _lab  # noqa: E402
+
+
+def _fmt(x):
+    """A parameter value as short text (numbers, strings, small dicts)."""
+    if isinstance(x, dict):
+        if "us_midwest" in x:
+            return f"{_fmt(x['us_midwest'])} (US), {_fmt(x.get('eu_nw'))} (EU)"
+        return ", ".join(f"{k} {_fmt(v)}" for k, v in x.items())
+    if isinstance(x, float):
+        return f"{x:.4g}"
+    return "" if x is None else str(x)
+
+
+def _leaves(d, pre=""):
+    for k, x in d.items():
+        path = f"{pre}.{k}" if pre else k
+        if isinstance(x, dict) and ("value" in x or "us_midwest" in x or "grade" in x or "note" in x):
+            yield path, x
+        elif isinstance(x, dict):
+            yield from _leaves(x, path)
+
+
+def _row(path, x):
+    val = x.get("value", {k: x[k] for k in ("us_midwest", "eu_nw") if k in x} or None)
+    rng = f"{_fmt(x['low'])} to {_fmt(x['high'])}" if x.get("low") is not None and x.get("high") is not None else ""
+    return dict(path=path, name=_lab(path), value=_fmt(val), range=rng, unit=x.get("unit", ""),
+                evidence=_EV.get(str(x.get("grade", "")), ""), source=x.get("source") or x.get("note") or "")
+
+
+BASE_P = _params.load()
+INPUTS = {path: _row(path, x) for path, x in _leaves(BASE_P)}
+CHECK = {}
+for p_ in PRODS:
+    q_ = _sc.base_params(p_)
+    b_, d_ = R["base"][p_], R["base"][p_]["design"]
+    bb = _bal.batch_balances(q_)
+    made = bb["flows"]["product_kg"]
+    spec_ = _params.v(q_, "plant.spec")
+    steps = [("Cell removal (centrifuges; protein lost in the liquid trapped in the cell paste)", d_["recovery_cell_removal"]),
+             ("Microfiltration (removes the last cells and debris)", _params.v(q_, "dsp.mf_recovery"))]
+    if spec_ == "cex":
+        steps.append(("Cation-exchange column (binds the protein, then releases it pure)", _params.v(q_, "dsp.cex_recovery")))
+    if spec_ == "isolate":
+        steps.append(("Ammonium-sulfate precipitation", _params.v(q_, "dsp.precip_recovery")))
+    steps.append(("Spray dryer (powder lost in cyclones and filters)", _params.v(q_, "dsp.dryer_recovery")))
+    known = 1.0
+    for _, f in steps:
+        known *= f
+    steps.insert(len(steps) - 1, ("Membranes and the remaining steps (ultrafiltration, diafiltration" +
+                                  (", acid precipitation" if spec_ == "acid" else "") + ")", d_["recovery"] / known))
+    unused = _sc.unused_paths(q_)
+    host_ = _params.v(q_, "strain.host")
+    paths = [k for k in INPUTS if not k.startswith(unused) and not (k.startswith("hosts.") and not k.startswith(f"hosts.{host_}."))]
+    prod_over = {}
+    for k in (_sc.product_base(p_) or {}):
+        node = q_
+        for part in k.split("."):
+            node = node[part]
+        prod_over[k] = _row(k, node)
+    CHECK[p_] = dict(made_kg=made, sold_kg=d_["target_per_batch_kg"], flows=bb["flows"], split=bb["split"], carbon=bb["carbon"],
+                     steps=steps, recovery=d_["recovery"], capex=b_["capex"], tci=b_["tci"], per_kg=b_["per_kg"],
+                     msp=b_["msp_ccf"], batches=d_["n_batches"], fermenters=d_["N_prod_int"], vol=_params.v(q_, "fermenter.volume_m3"),
+                     cycle=d_["cycle_h"], our_peak=d_["our_peak"], heat_peak=d_["heat_peak_kW_m3"], lang=d_["lang_effective"],
+                     paths=paths, overrides=prod_over)
+EVID = []
+for f_ in sorted((ROOT / "data/evidence").glob("*.yaml")):
+    for e in yaml.safe_load(f_.read_text()) or []:
+        EVID.append(dict(key=e.get("key", ""), file=f_.stem, value=_fmt(e.get("value")), unit=e.get("unit", ""),
+                         evidence=_EV.get(str(e.get("grade", "")), ""), source=e.get("source", ""), url=str(e.get("doi_or_url") or ""),
+                         locator=e.get("locator", ""), quote=e.get("quote") or "", read=e.get("read", "")))
+REFS = []
+for line in (ROOT / "references/INDEX.md").read_text().splitlines():
+    cells = [c.strip() for c in line.strip().strip("|").split("|")]
+    if line.startswith("| ") and len(cells) >= 4 and cells[0] not in ("key", "") and not set(cells[0]) <= set("-"):
+        REFS.append(dict(key=cells[0], role=cells[1], citation=cells[2], doi=cells[3]))
 DET = yaml.safe_load((ROOT / "data/pf/scenarios/detailed.yaml").read_text())
 Q_DEMO = DET["demonstrated"]["strain.q_ref_mg_g_h"]
 MU_REF = _params.v(_params.load(), "strain.qp_mu_ref_per_h")
 DATA = {
     "grid": G,
     "walk": WALK,
+    "check": CHECK,
+    "inputs": INPUTS,
+    "evid": EVID,
+    "refs": REFS,
     "checks": dict(
         yeast=[R["calibration"]["bakers_yeast"]["cop"], R["calibration"]["bakers_yeast"]["market_implied"]],
         intelligen=R["calibration"]["intelligen2025_ova"]["usd_per_kg_powder (Humbird convention)"],
@@ -302,12 +383,14 @@ HTML = r"""<title>Precision Fermentation Cost Explorer</title>
   --shadow: none;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { background: var(--bg); color: var(--ink); font: 15px/1.5 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; }
 .wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 48px; }
 h1 { font: 600 clamp(26px, 4vw, 34px)/1.1 "IBM Plex Sans Condensed", "IBM Plex Sans", system-ui, sans-serif; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
 h2 { font: 600 13px/1.3 "IBM Plex Sans", system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); margin: 0 0 10px; }
 p { margin: 0; }
 .lede { color: var(--ink-2); max-width: 68ch; margin-top: 8px; }
+.lede a { color: var(--accent); }
 .num { font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
 header { display: grid; gap: 4px; margin-bottom: 22px; }
 .summary { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; margin-bottom: 18px; }
@@ -387,6 +470,22 @@ details.step .body { display: grid; gap: 8px; padding: 8px 0 10px 18px; color: v
 details.step .eq { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; color: var(--ink); background: var(--accent-soft); padding: 6px 10px; border-radius: 6px; overflow-x: auto; white-space: pre; }
 details.step .vs { font-size: 13px; color: var(--muted); }
 details.step table { font-size: 13px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+.tab { font: 500 13.5px "IBM Plex Sans", system-ui, sans-serif; color: var(--ink-2); background: transparent; border: 1px solid var(--rule); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.search { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+.search label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.search input { flex: 1 1 220px; max-width: 420px; font: 14px "IBM Plex Sans", system-ui, sans-serif; padding: 6px 10px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.tab-body { display: grid; gap: 14px; }
+.tab-body h3 { font: 600 14px "IBM Plex Sans", system-ui, sans-serif; margin: 6px 0 0; color: var(--ink); }
+.tab-body p { color: var(--ink-2); font-size: 14px; max-width: 86ch; }
+.tab-body td.src { font-size: 12.5px; color: var(--ink-2); max-width: 46ch; }
+.tab-body td.q { font-size: 12.5px; color: var(--ink-2); font-style: italic; max-width: 46ch; }
+.tab-body tr.tot td { font-weight: 600; color: var(--ink); }
+.tab-body a { color: var(--accent); }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; color: var(--muted); }
 .def { font-size: 12.5px; color: var(--ink-2); margin: 0; max-width: 60ch; }
 .verdict { margin-top: 14px; font-size: 15px; color: var(--ink); max-width: 52ch; text-wrap: pretty; }
 .seg.pills { display: flex; flex-wrap: wrap; gap: 6px; border: 0; overflow: visible; }
@@ -421,7 +520,9 @@ fieldset[disabled] { opacity: .45; }
     not a market price.</p>
     <p class="lede">The model follows Humbird's (2021) cost model for cultivated meat. The yeast (<i>K.&nbsp;phaffii</i>) secretes the protein
     in fermenters of up to 200&nbsp;m&sup3;; the plant makes 10,000&nbsp;t a year (lactoferrin 250&nbsp;t, albumin and &alpha;-lactalbumin 1,000&nbsp;t).
-    New to this? Start with one of the buttons below, then open "How the price is built" for the calculation step by step.</p>
+    New to this? Start with one of the buttons below, then open "How the price is built" for the calculation step by step.
+    To verify it, <a href="#check">Check the model</a> shows the sugar and oxygen balances, the equipment and costs, every input
+    and every source behind the price.</p>
   </header>
 
   <section class="summary" aria-live="polite">
@@ -557,6 +658,22 @@ __PRODRADIOS__
         <div class="tablewrap" style="margin-top:10px"><table id="breakdown"></table></div>
       </div>
     </div>
+  </section>
+
+  <section class="panel check" id="check" style="margin-top:16px">
+    <div class="panel-head"><h2 id="check-h">Check the model</h2></div>
+    <p class="hint">Every intermediate number behind the base-case price of the protein selected above, from the same model run as the report. Pick a tab.</p>
+    <div class="tabs" role="tablist" aria-label="What to check">
+      <button type="button" role="tab" class="tab" id="tab-bal" aria-selected="true">Sugar, oxygen and carbon</button>
+      <button type="button" role="tab" class="tab" id="tab-dsp" aria-selected="false">Purification</button>
+      <button type="button" role="tab" class="tab" id="tab-cap" aria-selected="false">Equipment and capital</button>
+      <button type="button" role="tab" class="tab" id="tab-cost" aria-selected="false">Operating costs</button>
+      <button type="button" role="tab" class="tab" id="tab-in" aria-selected="false">Inputs and sources</button>
+      <button type="button" role="tab" class="tab" id="tab-ev" aria-selected="false">Evidence quotes</button>
+      <button type="button" role="tab" class="tab" id="tab-ref" aria-selected="false">References</button>
+    </div>
+    <div class="search" id="search-wrap" hidden><label for="q">Search</label><input id="q" type="search" placeholder="e.g. oxygen, Intelligen, titer"><span class="hint" id="q-n"></span></div>
+    <div class="tab-body" id="check-body"></div>
   </section>
 
   <section class="panel" style="margin-top:16px">
@@ -740,6 +857,7 @@ function render() {
   drawBreakdown(v);
   drawWalk();
   drawOptions();
+  drawCheck();
 }
 
 function verdict(v) {
@@ -858,6 +976,100 @@ function drawWalk() {
       "price = (running costs + fixed costs + 0.146 × investment) / kg made per year",
       "exactly the same money step."),
   ].join("");
+}
+
+let TAB = "bal";
+const esc = x => String(x == null ? "" : x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const kg = x => x >= 100 ? Math.round(x).toLocaleString("en-US") : x >= 10 ? x.toFixed(1) : x.toFixed(2);
+const usd0 = x => "$" + Math.round(x).toLocaleString("en-US");
+function table(head, rows, cls) {
+  return `<div class="tablewrap"><table${cls ? ` class="${cls}"` : ""}><thead><tr>${head.map(h => `<th${h[1] ? ' class="r"' : ""}>${h[0]}</th>`).join("")}</tr></thead><tbody>` +
+    rows.join("") + "</tbody></table></div>";
+}
+const tr = (cells, cls) => `<tr${cls ? ` class="${cls}"` : ""}>${cells.map(c => `<td${c[1] ? ` class="${c[1]}"` : ""}>${c[0]}</td>`).join("")}</tr>`;
+
+function drawCheck() {
+  const k = prodKey(), c = D.check[k], label = $("p-" + k).nextElementSibling.textContent;
+  $("check-h").textContent = "Check the model: " + label + ", base case";
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.id === "tab-" + TAB ? "true" : "false"));
+  const searchable = ["in", "ev", "ref"].includes(TAB);
+  $("search-wrap").hidden = !searchable;
+  const body = $("check-body");
+  if (!c) { body.innerHTML = ""; return; }
+  const per = x => x / c.made_kg;      // per kg of protein made in the fermenter
+  if (TAB === "bal") {
+    const f = c.flows, sp = c.split;
+    let h = `<p>One batch makes ${kg(c.made_kg)} kg of protein in the fermenter (${kg(c.sold_kg)} kg after purification). Below, per kg of protein made.</p>`;
+    if (sp) {
+      const totG = Object.values(sp.glucose_kg).reduce((a, b) => a + b, 0), totO = Object.values(sp.o2_kg).reduce((a, b) => a + b, 0);
+      h += "<h3>Where the sugar and oxygen go</h3>" + table([["Use"], ["Glucose, kg", 1], ["Share", 1], ["Oxygen, kg", 1], ["Share", 1]],
+        Object.keys(sp.glucose_kg).map(u => tr([[u], [per(sp.glucose_kg[u]).toFixed(2), "r"], [Math.round(100 * sp.glucose_kg[u] / totG) + "%", "r"],
+          [per(sp.o2_kg[u]).toFixed(2), "r"], [Math.round(100 * sp.o2_kg[u] / totO) + "%", "r"]]))
+        .concat([tr([["Sum of the uses"], [per(totG).toFixed(2), "r"], [""], [per(totO).toFixed(2), "r"], [""]], "tot"),
+                 tr([["The simulator's own total"], [per(f.glucose_kg).toFixed(2), "r"], [""], [per(f.o2_kg).toFixed(2), "r"], [""]])]));
+      h += `<p>Growth stores much of its sugar in the new cells, so it uses less oxygen per kg of sugar than maintenance, which burns sugar to CO₂. The two totals differ by about 1% because the uses are integrated from the batch's time series.</p>`;
+    }
+    h += "<h3>Everything that goes in and out of one batch</h3>" + table([["Flow"], ["Per batch", 1], ["Per kg protein made", 1]], [
+      tr([["Glucose fed, kg"], [kg(f.glucose_kg), "r"], [per(f.glucose_kg).toFixed(2), "r"]]),
+      tr([["Ammonia fed, kg"], [kg(f.nh3_kg), "r"], [per(f.nh3_kg).toFixed(3), "r"]]),
+      tr([["Oxygen used, kg"], [kg(f.o2_kg), "r"], [per(f.o2_kg).toFixed(2), "r"]]),
+      tr([["CO₂ released, kg"], [kg(f.co2_kg), "r"], [per(f.co2_kg).toFixed(2), "r"]]),
+      tr([["Cells at harvest, kg dry"], [kg(f.cells_kg), "r"], [per(f.cells_kg).toFixed(2), "r"]]),
+      tr([["Protein made, kg"], [kg(f.product_kg), "r"], ["1", "r"]]),
+      tr([["Water evaporated into the exhaust air, kg"], [kg(f.water_evaporated_kg), "r"], [per(f.water_evaporated_kg).toFixed(2), "r"]]),
+      tr([["Heat removed by the chillers, kWh"], [kg(f.heat_removed_kWh), "r"], [per(f.heat_removed_kWh).toFixed(1), "r"]]),
+      tr([["Broth at the start and at harvest, m³"], [`${kg(f.broth_start_m3)} → ${kg(f.broth_end_m3)}`, "r"], [""]]),
+      tr([["Growth phase and whole batch, hours"], [`${Math.round(f.growth_h)} and ${Math.round(f.total_h)}`, "r"], [""]]),
+      tr([["Titer at harvest, g/L"], [f.titer_g_L.toFixed(1), "r"], [""]]),
+    ]);
+    const cb = c.carbon;
+    h += `<h3>Carbon balance</h3><p>Carbon in (glucose plus the cells in the inoculum): ${kg(cb.in_kmol)} kmol. Carbon out (cells, protein and CO₂): ${kg(cb.out_kmol)} kmol. The gap is ${(100 * cb.gap).toFixed(4)}%: no carbon is lost or created.</p>`;
+    h += `<p>Peak oxygen demand: ${Math.round(c.our_peak)} mol O₂ per m³ of broth per hour. Peak heat: ${c.heat_peak.toFixed(1)} kW per m³ (the limit is 25).</p>`;
+    body.innerHTML = h;
+  } else if (TAB === "dsp") {
+    let run = 1;
+    body.innerHTML = `<p>Each step keeps a fraction of the protein; the fractions multiply. The last step before the dryer is what remains of the model's total recovery once the steps with a fixed recovery are taken out.</p>` +
+      table([["Step"], ["Fraction kept", 1], ["Kept so far", 1]], c.steps.map(([n, x]) => { run *= x; return tr([[esc(n)], [(100 * x).toFixed(1) + "%", "r"], [(100 * run).toFixed(1) + "%", "r"]]); })
+        .concat([tr([["Total recovery in the model"], [(100 * c.recovery).toFixed(1) + "%", "r"], [""]], "tot")])) +
+      `<p>So ${kg(c.made_kg)} kg made becomes ${kg(c.sold_kg)} kg in the powder.</p>`;
+  } else if (TAB === "cap") {
+    const items = Object.entries(c.capex), pec = items.filter(([n]) => n.startsWith("ISBL:") || n.startsWith("OSBL:")).reduce((a, [, x]) => a + x, 0);
+    body.innerHTML = `<p>${c.fermenters} production fermenters of ${Math.round(c.vol)} m³ run ${Math.round(c.batches).toLocaleString("en-US")} batches a year, ${Math.round(c.cycle)} hours each including cleaning. Equipment is priced first; Humbird's factors then add the rest of the plant. Total: ${c.lang.toFixed(1)} times the equipment. 2025 dollars.</p>` +
+      table([["Item"], ["Cost", 1], ["Share", 1]], items.map(([n, x]) => tr([[esc(n.replace(/^ISBL: /, "Process equipment: ").replace(/^OSBL: /, "Utilities equipment: "))], [usd0(x), "r"], [Math.round(100 * x / c.tci) + "%", "r"]]))
+        .concat([tr([["Equipment as purchased (the items above marked equipment)"], [usd0(pec), "r"], [Math.round(100 * pec / c.tci) + "%", "r"]]),
+                 tr([["Total capital investment"], [usd0(c.tci), "r"], ["100%", "r"]], "tot")]));
+  } else if (TAB === "cost") {
+    const rows = Object.entries(c.per_kg).filter(([, x]) => Math.abs(x) > 0.0005).sort((a, b) => b[1] - a[1]);
+    body.innerHTML = `<p>Every cost line, per kg of protein sold. The capital charge repays the investment at 7.5% over 10 years (14.6% of it a year); maintenance and insurance are 4% and 5% of it a year.</p>` +
+      table([["Cost line"], ["$ per kg", 1], ["Share", 1]], rows.map(([n, x]) => tr([[esc(n.charAt(0).toUpperCase() + n.slice(1))], ["$" + x.toFixed(2), "r"], [Math.round(100 * x / c.msp) + "%", "r"]]))
+        .concat([tr([["Minimum selling price"], ["$" + c.msp.toFixed(2), "r"], ["100%", "r"]], "tot")]));
+  } else {
+    drawSearch();
+  }
+}
+
+function drawSearch() {
+  const k = prodKey(), c = D.check[k], q = ($("q").value || "").toLowerCase().trim(), body = $("check-body");
+  const hit = o => !q || Object.values(o).some(v => String(v).toLowerCase().includes(q));
+  const link = u => /^10\.\d/.test(u) ? `<a href="https://doi.org/${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>` : /^https?:/.test(u) ? `<a href="${esc(u)}" target="_blank" rel="noopener">link</a>` : esc(u);
+  let rows = [], n = 0, total = 0;
+  if (TAB === "in") {
+    const all = c.paths.map(p => c.overrides[p] || D.inputs[p]).concat(Object.keys(c.overrides).filter(p => !c.paths.includes(p)).map(p => c.overrides[p]));
+    total = all.length;
+    for (const r of all) if (hit(r)) { n++; if (rows.length < 400) rows.push(tr([[`${esc(r.name)}<div class="mono">${esc(r.path)}</div>`], [esc(r.value), "r"], [esc(r.range), "r"], [esc(r.unit)], [esc(r.evidence)], [esc(r.source), "src"]])); }
+    body.innerHTML = `<p>Every input this protein's plant uses, with the value, the range tested, the kind of evidence and the source note from the data file (data/pf/base.yaml, data/pf/products.yaml). US values shown first where the EU differs.</p>` +
+      table([["Input"], ["Value", 1], ["Range", 1], ["Unit"], ["Evidence"], ["Source"]], rows);
+  } else if (TAB === "ev") {
+    total = D.evid.length;
+    for (const e of D.evid) if (hit(e)) { n++; if (rows.length < 300) rows.push(tr([[`${esc(e.key)}<div class="mono">${esc(e.file)}.yaml</div>`], [`${esc(e.value)} ${esc(e.unit)}`], [esc(e.evidence)], [`${esc(e.source)}<div class="mono">${link(e.url)}${e.locator ? " · " + esc(e.locator) : ""}</div>`, "src"], [e.quote ? "“" + esc(e.quote) + "”" : "", "q"]])); }
+    body.innerHTML = `<p>The evidence library behind the inputs: every entry with its value, the kind of evidence, the source and locator, and the quote it rests on (data/evidence). Up to 300 matches are shown; search to narrow them.</p>` +
+      table([["Entry"], ["Value"], ["Evidence"], ["Source"], ["Quote"]], rows);
+  } else {
+    total = D.refs.length;
+    for (const r of D.refs) if (hit(r)) { n++; rows.push(tr([[esc(r.key), "mono"], [esc(r.citation)], [link(r.doi)], [esc(r.role)]])); }
+    body.innerHTML = `<p>Every source the model uses (references/INDEX.md).</p>` + table([["Key"], ["Citation"], ["DOI or link"], ["Used as"]], rows);
+  }
+  $("q-n").textContent = q ? `${n} of ${total} match` : `${total} entries`;
 }
 
 function drawMethod() {
@@ -1073,6 +1285,8 @@ function init() {
   }));
   document.querySelectorAll("input[name=refp]").forEach(el => el.addEventListener("change", e => { REFP = e.target.value; drawRef(); }));
   for (const k of ["best", "base", "ind", "lim"]) $("pre-" + k).addEventListener("click", () => preset(k));
+  for (const k of ["bal", "dsp", "cap", "cost", "in", "ev", "ref"]) $("tab-" + k).addEventListener("click", () => { TAB = k; drawCheck(); });
+  $("q").addEventListener("input", () => { if (["in", "ev", "ref"].includes(TAB)) drawSearch(); });
   $("yourprice").addEventListener("input", yourPrice);
   $("reset").addEventListener("click", () => {
     S = baseFor(S.product);
