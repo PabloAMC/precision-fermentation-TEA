@@ -206,7 +206,7 @@ for p_ in PRODS:
                     qp=d_["q_p_mg_g_h"], glucose=ph_["glucose_kg"], o2=ph_["o2_kg"], yield_=ph_["overall_yield_g_g"],
                     cells=ph_["cells_kg"], recovery=d_["recovery"], batches=d_["n_batches"], fermenters=d_["N_prod_int"],
                     vol=_params.v(q_, "fermenter.volume_m3"), tpy=d_["n_batches"] * d_["target_per_batch_kg"] / 1000,
-                    tci=b_["tci"], msp=b_["msp_ccf"],
+                    tci=b_["tci"], msp=b_["msp_ccf"], lang=d_["lang_effective"],
                     capital=(b_["per_kg"]["capital charge"] + b_["per_kg"]["maintenance"] + b_["per_kg"]["insurance"]) / b_["msp_ccf"],
                     glucose_share=b_["per_kg"]["glucose"] / b_["msp_ccf"],
                     route=ROUTE.get(spec_, spec_ + " route"))
@@ -417,7 +417,8 @@ fieldset[disabled] { opacity: .45; }
     <h1>Precision Fermentation Cost Explorer</h1>
     <p class="lede">What does it cost to make a milk or egg protein with an engineered yeast? Pick a protein, move the strain's
     performance, and see the price per kg, whether a real fermenter could run the design, and how the price compares with the
-    protein it would replace. Every number on this page is a run of the full model; nothing is estimated in your browser.</p>
+    protein it would replace. The price is a production cost that includes a return on the money spent building the plant; it is
+    not a market price.</p>
     <p class="lede">The model follows Humbird's (2021) cost model for cultivated meat. The yeast (<i>K.&nbsp;phaffii</i>) secretes the protein
     in fermenters of up to 200&nbsp;m&sup3;; the plant makes 10,000&nbsp;t a year (lactoferrin 250&nbsp;t, albumin and &alpha;-lactalbumin 1,000&nbsp;t).
     New to this? Start with one of the buttons below, then open "How the price is built" for the calculation step by step.</p>
@@ -520,7 +521,7 @@ __PRODRADIOS__
             <p class="def">Grams of dry yeast per litre while they make the protein. More cells make more protein, but use more oxygen.</p>
             <input type="range" id="X_prod" min="0" max="2" step="1"><div class="ticks" id="t-X_prod"></div></div>
           <div class="slider"><div class="top"><label for="Y_ps">Product yield on glucose</label><output id="o-Y_ps" for="Y_ps"></output></div>
-            <p class="def">Grams of protein the protein-making reaction gets from 1 g of sugar. It matters less than you might think.</p>
+            <p class="def">Grams of protein the protein-making reaction gets from 1 g of sugar. <span id="y-effect"></span></p>
             <input type="range" id="Y_ps" min="0" max="2" step="1"><div class="ticks" id="t-Y_ps"></div></div>
           <p class="hint">Each step is a value the full model was run at. Everything else stays at the protein's base case.</p>
         </fieldset>
@@ -576,7 +577,7 @@ __REFRADIOS__
 
   <section class="notes">
     <p><b>What this is.</b> A cost with a capital charge of 14.6% of investment a year (7.5% over 10 years), not a market price. It excludes R&amp;D, licences, regulatory work, sales and first-of-a-kind premiums.</p>
-    <p><b>Limits.</b> A 200&nbsp;m&sup3; fermenter transfers at most 200&nbsp;mol&nbsp;O&#8322; per m&sup3; of cell-free liquid per hour (about 130 per m&sup3; of broth at the base cell density; Humbird's air-sparged value) and removes at most 25&nbsp;kW/m&sup3; of heat; a batch must start at least 30% full, with glucose fed at 500&nbsp;g/L; and cells secrete at most 40&nbsp;mg of protein per gram per hour, a judgment about 8 times the base design and above any published <i>K.&nbsp;phaffii</i> value. A design that breaks any of these is marked; its price is shown but cannot be achieved as designed. The minimum fill and the feed concentration are design choices: with a 600&nbsp;g/L feed the ceiling rises (report, Q3).</p>
+    <p><b>Limits.</b> A design marked in red breaks a physical limit (step 4 of "How the price is built"): its price is shown, but no real fermenter could run it as set. The model also caps secretion at 40&nbsp;mg of protein per g of cells per hour, a judgment above any published <i>K.&nbsp;phaffii</i> strain.</p>
     <p><b>Market prices.</b> Export unit values from UN&nbsp;Comtrade and Eurostat, deflated to 2025 dollars. Per kg of protein they assume 80% protein for whey (the minimum for its trade code; more isolate in the mix would lower the per-protein price) and 81.1% for egg white; "per kg powder" compares the same export prices per kg of product with our powder's cost per kg. The 2026 whey spot is from USDA Dairy Market News narrative quotes. Lactoferrin prices are reported ranges (trade press and reports; company claims or surveys). Our figures are production costs with a return on capital, not selling prices: a seller would add margin, sales and distribution.</p>
     <p><b>Milk and egg equivalents.</b> The price of replacing the protein of a litre of milk (33.7&nbsp;g) or of one egg's white (3.64&nbsp;g) with PF protein, beside what the litre or the egg costs. This flatters PF: charging the whole price of milk or eggs to their protein makes them look dearer per gram, when fat, lactose and yolk carry part of that price. The same egg white bought as dried egg white cost __EGGWHITE__ in 2015–2025, and a litre's whey protein bought as WPC80/WPI __WHEYSHARE__ of the farm milk price in the same year.</p>
     <p class="hint" id="gen"></p>
@@ -639,7 +640,7 @@ function titerText(r, price) {
 }
 const SERIES = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6"];
 const FLAG = {
-  0: ["good", "Achievable in a 200 m³ fermenter", "M3 8l3 3 7-7"],
+  0: ["good", "A real fermenter can run this", "M3 8l3 3 7-7"],
   1: ["bad", "Breaks a physical limit (O₂, heat, fill or productivity)", "M4 4l8 8M12 4l-8 8"],
   2: ["warn", "Above an assumed solubility", "M8 3v6M8 12v1"],
   3: ["bad", "Yield above the energetic ceiling", "M4 4l8 8M12 4l-8 8"],
@@ -677,6 +678,10 @@ function render() {
   $("u-src").disabled = !hasEq;
   if (!hasEq && UNIT === 1) { UNIT = 0; $("u-kg").checked = true; }
   for (const a of ["titer", "t_prod", "X_prod", "Y_ps"]) { $(a).value = S[a]; $("o-" + a).textContent = fmtAxis(a, AX[a][S[a]]); }
+  { // how much the yield moves this design's price, over its whole range (simple model only)
+    const y0 = PHYS === 0 ? at(Object.assign({}, S, {Y_ps: 0})) : null, y1 = PHYS === 0 ? at(Object.assign({}, S, {Y_ps: AX.Y_ps.length - 1})) : null;
+    $("y-effect").textContent = y0 && y1 ? `Over its whole range it moves this design's price by only ${moneyU(Math.abs(y0[0] - y1[0]))}: most sugar goes to the cells, not the protein.` : "";
+  }
   const v = at(S);
   const band = D.bands[prodKey()];
   const chips = [];
@@ -687,10 +692,10 @@ function render() {
     $("msp").textContent = moneyU(v[0]);
     chips.push(chip(v[1]));
     const tp = AX.t_prod[S.t_prod], ceil = D.ceiling[prodKey()][String(tp)];
-    if (PHYS === 0 && ceil && AX.X_prod[S.X_prod] === 107 && AX.Y_ps[S.Y_ps] === 0.465) chips.push(`<span class="chip plain">Feasibility ceiling at ${tp} h: about ${Math.round(ceil)} g/L</span>`);
+    if (PHYS === 0 && ceil && AX.X_prod[S.X_prod] === 107 && AX.Y_ps[S.Y_ps] === 0.465) chips.push(`<span class="chip plain">The fermenter can reach at most about ${Math.round(ceil)} g/L in ${tp} hours</span>`);
     if (PHYS === 1 && v[3] != null) {
       const x = v[3] / D.q_demo;
-      chips.push(`<span class="chip ${x > 1.5 ? "warn" : "good"}">Needs a strain secreting ${v[3].toFixed(1)} mg/g/h at growth ${D.mu_ref}/h: ${x < 1 ? "below" : x.toFixed(1) + "×"} the best published (${D.q_demo})</span>`);
+      chips.push(`<span class="chip ${x > 1.5 ? "warn" : "good"}">Needs cells that secrete ${v[3].toFixed(1)} mg of protein per g per hour while growing at ${Math.round(100 * D.mu_ref)}% an hour: ${x < 1 ? "less than" : x.toFixed(1) + " times"} the best published strain (${D.q_demo})</span>`);
     }
   }
   $("chips").innerHTML = chips.join("");
@@ -717,10 +722,10 @@ function render() {
       const avg = all.reduce((a, b) => a + b, 0) / all.length;
       rows.push([`${mk.label}, ${mk.years[0]}–${mk.years[1]} market prices`, `${fmtU(lo)}–${fmtU(hi)}`]);
       rows.push(["This design", pos]);
-      rows.push(["Years this design would have been cheaper", `${all.filter(p => p >= cur).length} of ${all.length} annual prices`]);
+      rows.push([`Yearly prices it would have beaten (${mk.series.map(x => x.label).join(" and ")}, ${mk.years[0]}–${mk.years[1]})`, `${all.filter(p => p >= cur).length} of ${all.length}`]);
       for (const p of mk.spot) rows.push([`${p.label}: one recent quote, far above the 2015–2025 range`, fmtU(p.value) + (cur <= p.value ? ", undercut" : ", not reached")]);
       const r = titerFor(avg);
-      rows.push([`Titer to match the ${mk.years[0]}–${mk.years[1]} average (${fmtU(avg)})`,
+      rows.push([`Titer to match the ${mk.years[0]}–${mk.years[1]} average price (${fmtU(avg)}), estimated between runs`,
                  r ? (r.first ? `≤ ${r.t} g/L` : `${Math.round(r.t)} g/L${r.ok ? "" : " (not runnable)"}`) : "not reached"]);
     }
     if (base && Math.abs(v[0] - base[0]) >= 0.005) rows.push([PHYS === 1 ? "Change from the simple base case" : "Change from the base case", (v[0] >= base[0] ? "+" : "−") + moneyU(Math.abs(v[0] - base[0]))]);
@@ -747,7 +752,7 @@ function verdict(v) {
   if (!feasible(v[1])) return s + " But a real fermenter could not run it as set: it breaks a physical limit.";
   if (cur > hi && UNIT !== 1) {
     const r = titerFor(hi);
-    s += r ? (r.first ? "" : ` To match the top of that range it would need about ${r.t < 10 ? r.t.toFixed(1) : Math.round(r.t)} g/L${r.ok ? "" : ", which the fermenter cannot run with these settings"}.`)
+    s += r ? (r.first ? "" : ` To match the top of that range it would need about ${r.t < 10 ? r.t.toFixed(1) : Math.round(r.t)} g/L (estimated between the model's runs)${r.ok ? "" : ", which the fermenter cannot run with these settings"}.`)
            : " No titer on this chart gets it there with these settings.";
   }
   return s;
@@ -792,6 +797,7 @@ function drawWalk() {
   if (!w) { $("walk").innerHTML = ""; return; }
   const n0 = x => Math.round(x).toLocaleString("en-US"), n1 = x => x.toFixed(1), pc = x => Math.round(100 * x) + "%";
   $("walk-h").textContent = `New here? How the price of ${name} is built, in eight steps`;
+  const ceil72 = (D.ceiling[prodKey()] || {})["72"];
   const step = (n, title, line, body, eq, vs) => `<details class="step"><summary><b>${n}. ${title}.</b> ${line}</summary><div class="body">` +
     body.map(x => `<p>${x}</p>`).join("") + (eq ? `<div class="eq">${eq}</div>` : "") + (vs ? `<p class="vs"><b>Humbird:</b> ${vs}</p>` : "") + `</div></details>`;
   $("walk").innerHTML = [
@@ -800,28 +806,28 @@ function drawWalk() {
       ["For costing, a cell is a black box: glucose, ammonia and oxygen go in; cells, protein, CO₂, water and heat come out.",
        "Two conservation laws fix most of the flows. Carbon is conserved, and so are electrons: the electrons that leave glucose either stay in the protein or pass to oxygen.",
        "The model writes every species per carbon atom. The protein's formula comes from its amino-acid sequence."],
-      "γ(glucose) = Y_P × γ(protein) + 4 × O₂\nγ = electrons per carbon atom: C +4, H +1, O −2, N −3",
+      "per carbon atom of glucose:  4 = Y × γ + 4 × O₂\nY = carbon atoms of protein made; γ = the protein's spare electrons per carbon atom (C +4, H +1, O −2, N −3); O₂ = moles of oxygen used",
       "the same balance, with the cells as the product."),
     step(2, "Where the sugar goes",
       `Most of it builds and maintains the cells: ${n1(w.cells)} kg of yeast for every kg of ${name}. The overall yield is ${w.yield_.toFixed(3)} g/g.`,
       ["A cell spends sugar on three things: growing, staying alive (maintenance) and making the protein.",
        "The protein-making reaction alone would give about 0.47 g of protein per g of sugar. The whole batch gives far less, because the cells must first be grown and then kept alive for days.",
        "So sugar is not the expensive part: glucose is " + pc(w.glucose_share) + " of the price."],
-      "sugar per g cells per hour = growth / Y_X + maintenance + secretion / Y_PS   (Pirt)",
+      "sugar per g of cells per hour = growth rate ÷ cell yield + upkeep + secretion rate ÷ protein yield   (the Pirt equation)",
       "the same equation and correlations (Heijnen, Tijhuis). For cultivated meat the cells are the product, and the medium, not sugar, is the costly input."),
     step(3, "One batch through time",
       `Cells grow for ${n0(w.t_growth)} hours, then secrete for ${n0(w.t_prod)} hours, reaching ${n1(w.titer)} g/L.`,
       ["The batch starts with little broth. A pump feeds concentrated glucose as the cells need it, which sets how fast they grow (fed-batch).",
        "Phase one grows the cells to their working density. Phase two makes the protein while the cells barely grow; feeding raises the broth to 80% of the vessel.",
-       `The model solves for the starting volume and for the secretion rate that hits the target titer: here ${w.qp.toFixed(1)} mg of protein per g of cells per hour.`],
+       `The model solves for the starting volume and for the secretion rate that hits the target titer: here ${w.qp.toFixed(1)} mg of protein per g of cells per hour. The best published glucose process reaches ${D.q_demo}.`],
       "secretion rate ≈ protein made / (average cells × production hours)",
       "only the growth phase for baker's yeast; cultivated-meat batches last days to weeks."),
     step(4, "The physical limits",
       "The fermenter must supply the oxygen, remove the heat and hold the broth. A design that cannot is marked in red.",
       ["Oxygen dissolves poorly, so air must deliver it as fast as the cells use it. Stirred tanks top out near 200 mol of O₂ per m³ of liquid per hour.",
        "Respiration releases about 460 kJ per mol of O₂, removed at 30 °C. The model allows 25 kW per m³.",
-       "A batch must start at least 30% full. A higher titer needs more sugar feed, so the batch must start emptier. This sets the titer ceiling, about 70 g/L in 72 hours."],
-      "oxygen transfer = kLa × (C* − C)",
+       "A batch must start at least 30% full. A higher titer needs more sugar feed, so the batch must start emptier." + (ceil72 ? ` This caps the titer at about ${Math.round(ceil72)} g/L in a 72-hour production phase.` : "")],
+      "oxygen transfer = kLa × (C* − C)\nkLa = how fast the vessel mixes gas into the liquid; C* = oxygen the liquid could hold; C = oxygen it holds",
       "his Figure 1.3 prices oxygen transfer against vessel size. Animal cells have far tighter limits: bubbles and stirring damage them."),
     step(5, "Purification",
       `${w.route.charAt(0).toUpperCase() + w.route.slice(1)} keep ${pc(w.recovery)} of the protein.`,
@@ -840,7 +846,7 @@ function drawWalk() {
     step(7, "Capital",
       `Equipment times Humbird's factors gives a $${n0(w.tci / 1e6)} million investment.`,
       ["Each piece of equipment is priced from a quote at a reference size. Cost grows more slowly than size: twice the volume costs about 1.6 times as much.",
-       "Factors then add what a plant needs beyond its equipment: missing items, installation, buildings, engineering, fees and contingency. Overall the investment is about 6.5 times the equipment.",
+       `Factors then add what a plant needs beyond its equipment: missing items, installation, buildings, engineering, fees and contingency. Overall the investment is ${w.lang.toFixed(1)} times the equipment.`,
        "This is the model's biggest choice. Lighter NREL-style factors give a cheaper plant; pharmaceutical-grade vessels a much dearer one (the Capital estimate control)."],
       "cost = reference cost × (size / reference size)^0.7",
       "the same factors, from his table of facility classes. Cultivated meat sits in the costlier cell-culture classes."),
@@ -859,10 +865,11 @@ function drawMethod() {
   const step = (title, line, body) => `<details class="step"><summary><b>${title}.</b> ${line}</summary><div class="body">${body}</div></details>`;
   $("method-body").innerHTML = [
     step("Where the numbers come from", "Public data only, each with a source and a note of the kind of evidence.",
-      `<p>Every input has a range and a source: a measurement, a published plant design or patent, a company claim or survey, an analogy or engineering judgment, or a guess. Guesses are few and listed in the report.</p>
+      `<p>The prices on this page come straight from the model in the report, run at every lever setting the sliders offer, so they match the report and can be reproduced from the repository. The titers needed to reach a price are estimated between those runs, and the starting-point buttons move to the nearest run.</p>
+       <p>Every input has a range and a source: a measurement, a published plant design or patent, a company claim or survey, an analogy or engineering judgment, or a guess. Guesses are few and listed in the report.</p>
        <p>Market prices are trade statistics (UN Comtrade, Eurostat, USDA) for whey, egg white and casein, and reported prices for the scarce proteins.</p>`),
     step("The scenarios", "Four cases, never mixed: the best published strain, the base design, what companies assume, and a best case.",
-      `<p><b>Best published strain:</b> the highest titer in peer-reviewed papers. <b>Base design:</b> Intelligen's published plant design (30 g/L in 72 hours). <b>What companies assume:</b> the 42 g/L average in companies' own cost models (GFI 2025). <b>Best case:</b> every assumed limit at its best at once; not a floor, and far above any published strain.</p>`),
+      `<p><b>Best published strain:</b> the highest titer in peer-reviewed papers. <b>Base design:</b> Intelligen's published plant design (30 g/L in 72 hours). <b>What companies assume:</b> the 42 g/L average in companies' own cost models (GFI 2025). <b>Best case:</b> every assumed limit at its best at once, on a larger plant; not a floor, and far above any published strain. It needs a different plant from the one the levers describe, so it appears in the reference table, not on the levers.</p>`),
     step("How the model was checked", `It reproduces the real cost of baker's yeast (${m(c.yeast[0])} against ${m(c.yeast[1])} per kg) and lands within ${Math.round(100 * Math.abs(c.intelligen[0] / c.intelligen[1] - 1))}% of a published PF design.`,
       `<div class="tablewrap"><table><thead><tr><th>Check</th><th class="r">This model</th><th class="r">Published</th></tr></thead><tbody>
        <tr><td>Baker's yeast, cost per kg (Humbird's model; market price less a 33% margin)</td><td class="r">${m(c.yeast[0])}</td><td class="r">${m(c.yeast[1])}</td></tr>
@@ -886,19 +893,22 @@ function drawOptions() {
   $("opt").innerHTML = `<thead><tr><th>Case (base titer unless noted)</th><th class="r">$/kg protein</th><th>What it means</th></tr></thead><tbody>` +
     row("Simple model (base case)", o.base, "steady secretion while barely growing, as in published plant designs") +
     row("Large tank loses 6.5% of its growth yield", o.loss, "mixing gradients in big vessels (George et al. 1998, baker's yeast)") +
-    row("Secretion tied to growth", o.coupled, `the strain must secrete ${o.q_need.toFixed(1)} mg/g/h at growth ${D.mu_ref}/h, ${(o.q_need / D.q_demo).toFixed(1)}× the best published`) +
+    row("Secretion tied to growth", o.coupled, `the cells must secrete ${o.q_need.toFixed(1)} mg per g per hour while growing at ${Math.round(100 * D.mu_ref)}% an hour: ${(o.q_need / D.q_demo).toFixed(1)} times the best published strain`) +
     row(`Best published strain (${D.q_demo} mg/g/h), best fed-batch design`, o.demo, o.demo_titer ? `the titer then reaches only ${o.demo_titer.toFixed(1)} g/L` : "") +
-    row("Same strain, run continuously", o.cont, "production as a chemostat for 10 days") + "</tbody>";
+    row("Same strain, run continuously", o.cont, "fed and harvested continuously for 10 days instead of in batches") + "</tbody>";
   $("opt-note").textContent = "Detailed rows are sensitivities: the growth link and the tank loss come from single published strains. The Model switch above shows the detailed physics across all titers and production times.";
 }
 
+const GROUP_NAME = {"capital": "Capital charge (repaying the plant)", "maintenance + insurance": "Maintenance and insurance",
+  "labour": "Staff", "glucose": "Glucose", "other materials": "Other materials and waste disposal", "utilities": "Energy and water"};
+const gname = g => GROUP_NAME[g] || g;
 function drawBreakdown(v) {
   const bar = $("bar"), tb = $("breakdown");
   if (!v) { bar.innerHTML = ""; tb.innerHTML = ""; return; }
   const tot = v[2].reduce((a, b) => a + b, 0);
-  bar.innerHTML = v[2].map((x, i) => `<div style="flex:${Math.max(x, 0)} 0 0;background:var(${SERIES[i]})" title="${G.groups[i]}: ${money(x)}"></div>`).join("");
+  bar.innerHTML = v[2].map((x, i) => `<div style="flex:${Math.max(x, 0)} 0 0;background:var(${SERIES[i]})" title="${gname(G.groups[i])}: ${money(x)}"></div>`).join("");
   tb.innerHTML = `<thead><tr><th>Cost item</th><th class="r">$ ${unitWord()}</th><th class="r">Share</th></tr></thead><tbody>` +
-    v[2].map((x, i) => `<tr><td><span style="display:inline-flex;align-items:center;gap:8px"><i class="sw" style="background:var(${SERIES[i]})"></i>${G.groups[i]}</span></td><td class="r">${moneyU(x)}</td><td class="r">${(100 * x / tot).toFixed(0)}%</td></tr>`).join("") +
+    v[2].map((x, i) => `<tr><td><span style="display:inline-flex;align-items:center;gap:8px"><i class="sw" style="background:var(${SERIES[i]})"></i>${gname(G.groups[i])}</span></td><td class="r">${moneyU(x)}</td><td class="r">${(100 * x / tot).toFixed(0)}%</td></tr>`).join("") +
     `<tr><td><b>Total</b></td><td class="r"><b>${moneyU(v[0])}</b></td><td class="r">100%</td></tr></tbody>`;
 }
 
@@ -1070,7 +1080,7 @@ function init() {
     render();
   });
   drawMethod();
-  $("gen").textContent = `Model runs generated ${D.generated}. Grid: ${G.values.length.toLocaleString("en-US")} runs of the full model (repository pf-tea).`;
+  $("gen").textContent = `Model results generated ${D.generated}. The page holds ${G.values.length.toLocaleString("en-US")} simple-model runs${DG ? " and " + DG.values.length.toLocaleString("en-US") + " detailed-model runs" : ""} (repository pf-tea).`;
   drawRef();
   render();
 }
