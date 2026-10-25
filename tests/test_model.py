@@ -705,3 +705,21 @@ def test_continuous_flags_o2_at_high_dilution():
                                "strain.q_ref_mg_g_h": 2.1, "fermenter.mode": "continuous",
                                "fermenter.dilution_rate_per_h": 0.15})
     assert not sc.is_feasible(plant.evaluate(p))
+
+
+def test_coupled_search_is_bounded_and_stalls_fast():
+    """The coupled law's search stops at the secretion ceiling, and a stalled growth phase ends at
+    MAX_GROWTH_COUPLED_H instead of the 1,000 h guard: an impossible titer is flagged in seconds."""
+    import time
+    p = params.override(BASE, {"plant.product": "blg", "strain.secretion_model": "growth_coupled",
+                               "strain.titer_g_L": 110.0, "strain.t_prod_h": 36.0, "strain.X_prod_g_L": 140.0})
+    t0 = time.time()
+    r = plant.evaluate(p)
+    assert time.time() - t0 < 20
+    assert not sc.is_feasible(r)
+    assert r.batch.t_total <= pf.MAX_GROWTH_COUPLED_H + v(p, "strain.t_prod_h") + 1
+    s = plant.batch(p).q_p   # q_ref searched up to the value whose peak reaches q_p_max
+    host = plant._host(p)
+    strain = pf.Strain(product=pr.protein("blg"), Y_ps=0.465, X_prod=140, mu_prod=0.0, t_prod=36,
+                       secretion="growth_coupled", qp_floor=v(p, "strain.qp_floor_frac"))
+    assert s <= v(p, "strain.q_p_max_mg_g_h") / 1000 / strain.qp_of(host.mu_max, 1.0) * 1.001

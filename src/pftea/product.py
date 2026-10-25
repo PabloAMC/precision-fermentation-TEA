@@ -96,8 +96,22 @@ def anabolic(p: Protein, csource: th.Species) -> th.Reaction:
     return th.anabolic(p.species, csource)
 
 
+_RX_CACHE: dict = {}
+
+
 def product_reaction(p: Protein, csource: th.Species, Y_ps: float) -> th.Reaction:
-    """Formation of 1 C-mol protein at product yield Y_ps (g/g) through this reaction."""
+    """Formation of 1 C-mol protein at product yield Y_ps (g/g) through this reaction.
+    Cached on the protein's and substrate's formulas and the yield (the batch loop asks for the
+    same reaction at every step); callers only read the returned reaction."""
+    sp = p.species
+    key = (sp.name, sp.C, sp.H, sp.O, sp.N, getattr(sp, "S", 0.0), sp.mw, csource.name, csource.mw, Y_ps)
+    rx = _RX_CACHE.get(key)
+    if rx is None:
+        rx = _RX_CACHE[key] = _product_reaction(p, csource, Y_ps)
+    return rx
+
+
+def _product_reaction(p: Protein, csource: th.Species, Y_ps: float) -> th.Reaction:
     an = anabolic(p, csource)
     nu = an.of(csource.name)                          # negative
     lam = p.species.mw / (Y_ps * csource.mw) + nu
