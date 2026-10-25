@@ -78,6 +78,11 @@ Options (all off by default, so the base model is unchanged):
     needs, r_glc / (D W), must not exceed the feed concentration c_s. The harvest (outflow plus
     the final broth) is what downstream processing receives: W_end, X_end, titer and cells_kg
     describe it.
+    Solving the coupled law (titer mode): q_ref is searched only up to the value at which the peak
+    secretion, at mu_max, reaches the secretion ceiling q_p_max, since a stronger strain is
+    infeasible anyway; and a growth phase that has not reached X_prod after MAX_GROWTH_COUPLED_H
+    (secretion so strong that O2 leaves nothing for growth) stops at once and is flagged. The
+    nested searches use looser tolerances (1e-4) than the base model's.
 Volume balance (broth tracked as M = 1000 kg per m3; feeds by concentration c in kg/m3 = g/L):
     dM/dt = 1000 (glucose/c_s + methanol/c_m + NH3/c_N) + O2 absorbed - CO2 released - water evaporated
     so a 500 g/L glucose solution (about 42 wt%) adds 2 L per kg of glucose.
@@ -95,6 +100,7 @@ from . import product as pr
 from . import thermo as th
 
 RHO = 1000.0            # kg/m3 broth
+MAX_GROWTH_COUPLED_H = 200.0   # h: a coupled-law growth phase still short of X_prod by then has stalled
 GLC, MEOH = "Glucose (s)", "Methanol"
 MW = {"glc": 180.1572, "meoh": 32.042, "O2": 31.9988, "CO2": 44.0098, "NH3": 17.0304, "H2O": 18.0152}
 CELL_DRY_FRAC = fm.Broth().cell_dry_frac   # 0.3 g dry / g wet cells [A.1!C67]
@@ -461,7 +467,7 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
             t_end_prod = t + (continuous[1] if continuous else strain.t_prod)
         if phase == 2 and t >= t_end_prod - 1e-9:
             break
-        if t > 1000:
+        if t > 1000 or (phase == 1 and strain.coupled and t > MAX_GROWTH_COUPLED_H):
             ok, reason = False, "growth phase did not reach X_prod"
             break
         omax = otr_max(v, c, X)
@@ -476,7 +482,7 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
                 def our_at(m_):
                     r_, _ = _rates(host, strain, m_, strain.qp_of(m_, qp), F * np.exp(m_ * dt / 2))
                     return -r_["O2 (aq)"] / W * 1000 - omax
-                mu = _bisect(our_at, 0.0, mu, n=40, rtol=1e-6)
+                mu = _bisect(our_at, 0.0, mu, n=30, rtol=1e-4)
                 q = strain.qp_of(mu, qp)
                 r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2))
                 our = -r["O2 (aq)"] / W * 1000
@@ -633,7 +639,7 @@ def _bisect(f, lo, hi, n=40, log=False, rtol=1e-4):
 
 def run_batch(v: STR, c: Conditions, host: Host, strain: Strain, X0: float, titer: float | None = None,
               c_s: float = 500.0, c_nh3: float = 268.0, keep_series: bool = False,
-              c_meoh: float = 791.0, continuous: tuple | None = None) -> Batch:
+              c_meoh: float = 791.0, continuous: tuple | None = None, q_max: float | None = None) -> Batch:
     """Solve W0 (end exactly at fill_max) and, in titer mode, q_p (end at the target titer).
     In continuous mode the broth must reach fill_max at the switch to production instead, and the
     titer is that of the harvest (outflow plus final broth); in the coupled secretion law q_p is q_ref.
@@ -651,14 +657,21 @@ def run_batch(v: STR, c: Conditions, host: Host, strain: Strain, X0: float, tite
     def filled(b_):
         return b_.W_switch if continuous else b_.W_end
 
-    def solve_W0(qp):
-        return _bisect(lambda w0: filled(sim(w0, qp)) - V_end, 0.02 * V_end, 0.98 * V_end, n=40, rtol=1e-5)
+    tol = 1e-4 if strain.coupled else 1e-5            # the base model keeps its original tolerances
 
+    def solve_W0(qp):
+        return _bisect(lambda w0: filled(sim(w0, qp)) - V_end, 0.02 * V_end, 0.98 * V_end, n=40, rtol=tol)
+
+    # search bracket for q: the base model's [1e-6, 1] g/g/h; for the coupled law, q_ref only up to
+    # the value whose peak secretion (at mu_max) reaches the ceiling q_max (module docstring)
+    q_hi = 1.0
+    if strain.coupled and q_max:
+        q_hi = min(1.0, q_max / strain.qp_of(host.mu_max, 1.0))
     if titer is None:
         qp = strain.q_p
         b = sim(solve_W0(qp), qp, keep_series)
     else:
-        qp = _bisect(lambda q: sim(solve_W0(q), q).titer - titer, 1e-6, 1.0, n=40, log=True, rtol=1e-5)
+        qp = _bisect(lambda q: sim(solve_W0(q), q).titer - titer, 1e-6, q_hi, n=40, log=True, rtol=tol)
         b = sim(solve_W0(qp), qp, keep_series)
         if abs(b.titer - titer) > 0.02 * titer:
             b.ok = False

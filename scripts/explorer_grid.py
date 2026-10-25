@@ -6,6 +6,14 @@ this grid, so every number it shows is a real model run. Grid:
 Each product runs on its own base case (data/pf/products.yaml: lactoferrin at 250 t/yr with cation
 exchange; BLG and OVA at 10 kt/yr); the grid axes override titer, time, cells and yield.
 Run:  .venv/bin/python scripts/explorer_grid.py   (parallel; writes results/explorer_grid.json)
+      .venv/bin/python scripts/explorer_grid.py --detailed   (adds the 'detailed' sub-grid to the existing file)
+The detailed run is gentle on a laptop: 4 worker processes at low priority, a 60 s cap per point
+(a point that hits it is recorded as no design), progress printed and saved every 100 points to
+results/explorer_grid.detailed.partial.json, from which an interrupted run resumes.
+The 'detailed' sub-grid runs the same strain levers with the optional physics of
+data/pf/scenarios/detailed.yaml ('common': secretion tied to growth, large-tank yield loss), at the
+base capital convention, site and product yield only; each run also returns the secretion rate q_ref (at the
+scenario's reference growth rate) that the titer needs.
 """
 import itertools
 import json
@@ -47,7 +55,41 @@ GROUPS = {"capital": ["capital charge"], "maintenance + insurance": ["maintenanc
 _VESSEL: dict = {}
 
 
-def run(point):
+DETAILED_AXES = ["product", "titer", "t_prod", "X_prod"]   # yield at its base value: with secretion tied to growth it matters little
+
+
+POINT_TIMEOUT_S = 60
+
+
+def _alarm(*_):
+    raise TimeoutError
+
+
+def _gentle():
+    """Worker initializer: low priority, so the laptop stays responsive."""
+    import os
+    import signal
+    os.nice(10)
+    signal.signal(signal.SIGALRM, _alarm)
+
+
+def run_detailed(point):
+    """One run of the detailed sub-grid: base convention and site, detailed.yaml 'common' physics.
+    A point that takes longer than POINT_TIMEOUT_S is recorded as no design (None)."""
+    import signal
+    from pftea import scenarios as sc
+    prod, T, tp, X = point
+    Y = _base["Y_ps_g_g"]["value"]
+    signal.alarm(POINT_TIMEOUT_S)
+    try:
+        return run((prod, "humbird", "us_midwest", T, tp, X, Y), extra=sc.load("detailed")["common"])
+    except TimeoutError:
+        return None
+    finally:
+        signal.alarm(0)
+
+
+def run(point, extra=None):
     from pftea import params, plant
     from pftea import scenarios as sc
     prod, conv, site, T, tp, X, Y = point
@@ -55,7 +97,7 @@ def run(point):
         _VESSEL[prod] = params.v(sc.base_params(prod), "fermenter.volume_m3")
     ch = {"plant.product": prod, "plant.location": site, "strain.titer_g_L": float(T), "strain.t_prod_h": float(tp),
           "strain.X_prod_g_L": float(X), "strain.Y_ps_g_g": float(Y),
-          "fermenter.sizing": "fixed", "fermenter.volume_m3": _VESSEL[prod]}
+          "fermenter.sizing": "fixed", "fermenter.volume_m3": _VESSEL[prod], **(extra or {})}
     if conv == "light":
         ch.update(sc.LIGHT)
     elif conv == "aseptic":
@@ -66,16 +108,42 @@ def run(point):
         return None
     if not (r.msp_ccf == r.msp_ccf) or r.msp_ccf <= 0:   # NaN guard
         return None
+    if extra and any("not reachable" in f or "did not reach" in f for f in r.flags):
+        return None                                    # the titer cannot be made: no design, not a price
     g = [round(sum(r.per_kg.get(k, 0.0) for k in keys), 3) for keys in GROUPS.values()]
     flag = 0 if sc.is_feasible(r) else 1
     if any("solubility" in f for f in r.flags):
         flag = 2 if flag == 0 else flag
     if any("energetic ceiling" in f for f in r.flags):
         flag = 3
-    return [round(r.msp_ccf, 3), flag, g]
+    out = [round(r.msp_ccf, 3), flag, g]
+    if extra:                                          # detailed physics: the secretion the design needs
+        out.append(round(r.design["q_ref_mg_g_h"], 2))
+    return out
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and "--detailed" in sys.argv:
+    t0 = time.time()
+    path = ROOT / "results/explorer_grid.json"
+    part = ROOT / "results/explorer_grid.detailed.partial.json"
+    grid = json.loads(path.read_text())
+    points = list(itertools.product(*(AXES[a] for a in DETAILED_AXES)))
+    done = json.loads(part.read_text()) if part.exists() else []
+    if done:
+        print(f"resuming after {len(done)} of {len(points)} points", flush=True)
+    out = list(done)
+    with Pool(4, initializer=_gentle) as pool:
+        for i, res in enumerate(pool.imap(run_detailed, points[len(done):], chunksize=2), start=len(done) + 1):
+            out.append(res)
+            if i % 100 == 0 or i == len(points):
+                part.write_text(json.dumps(out, separators=(",", ":"), default=float))
+                print(f"{i}/{len(points)} points, {time.time() - t0:.0f}s", flush=True)
+    grid["detailed"] = {"order": DETAILED_AXES, "values": out, "physics": __import__("pftea.scenarios", fromlist=["load"]).load("detailed")["common"],
+                        "generated": time.strftime("%Y-%m-%d %H:%M")}
+    path.write_text(json.dumps(grid, separators=(",", ":"), default=float))
+    part.unlink(missing_ok=True)
+    print(f"detailed: {len(points)} points in {time.time() - t0:.0f}s; no design {sum(o is None for o in out)}")
+elif __name__ == "__main__":
     t0 = time.time()
     points = list(itertools.product(*AXES.values()))
     with Pool(8) as pool:

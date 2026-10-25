@@ -189,8 +189,45 @@ for name, src in EQ.items():
         equiv[prod] = dict(per=EQ_WHAT[name][0], grams=src["all_protein_g"], what=EQ_WHAT[name][1],
                            bands=[src_band(name, b) for b in EQ_BANDS[name]])
 
+import sys as _sys
+_sys.path.insert(0, str(ROOT / "src"))
+from pftea import params as _params  # noqa: E402
+from pftea import scenarios as _sc  # noqa: E402
+ROUTE = {"concentrate": "centrifuges, membrane filtration and a spray dryer",
+         "cex": "centrifuges, a cation-exchange column, membranes and a spray dryer",
+         "acid": "centrifuges, acid precipitation (as dairy casein) and a dryer",
+         "isolate": "centrifuges, membranes, precipitation and a spray dryer"}
+WALK = {}
+for p_ in PRODS:
+    b_, q_ = R["base"][p_], _sc.base_params(p_)
+    d_, ph_ = b_["design"], b_["physical"]
+    spec_ = _params.v(q_, "plant.spec")
+    WALK[p_] = dict(titer=d_["titer"], t_growth=d_["t_growth_h"], t_prod=d_["t_total_h"] - d_["t_growth_h"],
+                    qp=d_["q_p_mg_g_h"], glucose=ph_["glucose_kg"], o2=ph_["o2_kg"], yield_=ph_["overall_yield_g_g"],
+                    cells=ph_["cells_kg"], recovery=d_["recovery"], batches=d_["n_batches"], fermenters=d_["N_prod_int"],
+                    vol=_params.v(q_, "fermenter.volume_m3"), tpy=d_["n_batches"] * d_["target_per_batch_kg"] / 1000,
+                    tci=b_["tci"], msp=b_["msp_ccf"],
+                    capital=(b_["per_kg"]["capital charge"] + b_["per_kg"]["maintenance"] + b_["per_kg"]["insurance"]) / b_["msp_ccf"],
+                    glucose_share=b_["per_kg"]["glucose"] / b_["msp_ccf"],
+                    route=ROUTE.get(spec_, spec_ + " route"))
+OPT = {}
+for p_ in PRODS:
+    o_ = R.get("options", {}).get(p_)
+    if o_:
+        OPT[p_] = dict(base=o_["base"]["msp_ccf"], loss=o_["yield_loss"]["0.065"]["msp_ccf"],
+                       coupled=o_["coupled_titer"]["msp_ccf"], q_need=o_["coupled_titer"]["design"]["q_ref_mg_g_h"],
+                       demo=o_["demonstrated"]["msp_ccf"] if o_["demonstrated"] else None,
+                       demo_titer=o_["demonstrated"]["design"]["titer"] if o_["demonstrated"] else None,
+                       cont=o_["continuous"]["msp_ccf"] if o_["continuous"] else None)
+DET = yaml.safe_load((ROOT / "data/pf/scenarios/detailed.yaml").read_text())
+Q_DEMO = DET["demonstrated"]["strain.q_ref_mg_g_h"]
+MU_REF = _params.v(_params.load(), "strain.qp_mu_ref_per_h")
 DATA = {
     "grid": G,
+    "walk": WALK,
+    "options": OPT,
+    "q_demo": Q_DEMO,
+    "mu_ref": MU_REF,
     "products": PRODS,
     "base_point": BASE_POINT,
     "bands": {p: dict(label=m["label"], lo=m["band"][0], hi=m["band"][1], years=m["years"],
@@ -323,6 +360,10 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .seg.small label { padding: 5px 10px; font-size: 13px; }
 tr.mkt td { color: var(--ink-2); background: var(--accent-soft); }
 .notes b { color: var(--ink); font-weight: 600; }
+ol.walk { margin: 0; padding-left: 22px; display: grid; gap: 8px; max-width: 86ch; }
+ol.walk li { color: var(--ink-2); }
+ol.walk li b { color: var(--ink); font-weight: 600; }
+fieldset[disabled] { opacity: .45; }
 @media (max-width: 860px) {
   .summary, .main { grid-template-columns: minmax(0, 1fr); }
 }
@@ -332,12 +373,12 @@ tr.mkt td { color: var(--ink-2); background: var(--accent-soft); }
 <div class="wrap">
   <header>
     <h1>Precision Fermentation Cost Explorer</h1>
-    <p class="lede">Food-grade &beta;-lactoglobulin (the main whey protein), ovalbumin and ovomucoid (egg-white proteins), &beta;-casein
-    (the main cheese protein), lactoferrin, and serum albumin for cultivated-meat growth media, made by a secreting <i>K.&nbsp;phaffii</i>
-    strain in fed-batch fermenters of up to 200&nbsp;m&sup3; and dried: 10&nbsp;kt of protein a year (lactoferrin 250&nbsp;t, the size of its market;
-    albumin 1&nbsp;kt). Each protein has its own purification: membranes for BLG, ovalbumin and ovomucoid, isoelectric precipitation for casein,
-    cation exchange for lactoferrin and albumin.
-    Move the strain levers and see the minimum selling price, whether a real fermenter can run the design, and how the price compares with whey, egg white, casein, lactoferrin, bulk albumin, milk and eggs.</p>
+    <p class="lede">What does it cost to make a milk or egg protein with an engineered yeast? Pick a protein, move the strain's
+    performance, and see the price per kg, whether a real fermenter could run the design, and how the price compares with the
+    protein it would replace. Every number on this page is a run of the full model; nothing is estimated in your browser.</p>
+    <p class="lede">The model follows Humbird's (2021) cost model for cultivated meat. The yeast (<i>K.&nbsp;phaffii</i>) secretes the protein
+    in fermenters of up to 200&nbsp;m&sup3;; the plant makes 10,000&nbsp;t a year (lactoferrin 250&nbsp;t, albumin and &alpha;-lactalbumin 1,000&nbsp;t).
+    "How the price is built", below, walks through the calculation step by step.</p>
   </header>
 
   <section class="summary" aria-live="polite">
@@ -367,6 +408,14 @@ __PRODRADIOS__
           </div>
         </fieldset>
         <fieldset>
+          <legend>Model</legend>
+          <div class="seg" role="radiogroup">
+            <input type="radio" name="physics" id="m-s" value="0" checked><label for="m-s">Simple (base)</label>
+            <input type="radio" name="physics" id="m-d" value="1"><label for="m-d">Detailed</label>
+          </div>
+          <p class="hint" id="phys-hint">Simple: cells secrete at one steady rate while barely growing, as in published plant designs. Detailed: secretion falls as growth slows (as measured in <i>K.&nbsp;phaffii</i>), and a large tank loses 6.5% of its growth yield. Detailed runs use the base capital estimate and US site.</p>
+        </fieldset>
+        <fieldset id="fs-capital">
           <legend>Capital estimate</legend>
           <div class="seg" role="radiogroup">
             <input type="radio" name="convention" id="c-h" value="0" checked><label for="c-h">Price-anchored (base)</label>
@@ -384,7 +433,7 @@ __PRODRADIOS__
           </div>
           <p class="hint" id="u-hint"></p>
         </fieldset>
-        <fieldset>
+        <fieldset id="fs-site">
           <legend>Plant site</legend>
           <div class="seg" role="radiogroup">
             <input type="radio" name="site" id="s-us" value="0" checked><label for="s-us">US Midwest</label>
@@ -438,6 +487,18 @@ __PRODRADIOS__
   </section>
 
   <section class="panel" style="margin-top:16px">
+    <div class="panel-head"><h2 id="walk-h">How the price is built</h2></div>
+    <p class="hint" style="margin-bottom:10px">Eight steps, with this protein's base case. Each step hands its result to the next.</p>
+    <ol class="walk" id="walk"></ol>
+  </section>
+
+  <section class="panel" style="margin-top:16px">
+    <div class="panel-head"><h2 id="opt-h">Simple or detailed: what the extra physics changes</h2></div>
+    <div class="tablewrap"><table id="opt"></table></div>
+    <p class="hint" id="opt-note" style="margin-top:8px"></p>
+  </section>
+
+  <section class="panel" style="margin-top:16px">
     <div class="panel-head"><h2>Reference cases from the report</h2>
       <div class="seg small" role="radiogroup" aria-label="Protein shown in the table">
 __REFRADIOS__
@@ -465,6 +526,8 @@ const BASE = {product: 0, convention: 0, site: 0, titer: AX.titer.indexOf(30), t
 const baseFor = i => { const bp = D.base_point[D.products[i]] || {}, ti = AX.titer.indexOf(bp.titer), tp = AX.t_prod.indexOf(bp.t_prod);
   return Object.assign({}, BASE, {product: i}, ti >= 0 ? {titer: ti} : {}, tp >= 0 ? {t_prod: tp} : {}); };
 let S = baseFor(0);
+let PHYS = 0;   // 0: simple (base); 1: detailed physics (sub-grid: base convention and site, base yield)
+const DG = G.detailed || null;
 let UNIT = 0;   // 0: $/kg protein; 1: per litre of milk (BLG) or per egg (OVA); 2: per kg powder
 let REFP = "blg";   // protein shown in the reference table
 const EQV = () => D.equiv[prodKey()] || null;   // lactoferrin has no milk or egg unit
@@ -521,6 +584,10 @@ const money = (x, d) => "$" + (x >= 100 ? Math.round(x).toLocaleString("en-US") 
 
 function at(sel) {
   let k = 0;
+  if (PHYS === 1 && DG) {
+    for (const a of DG.order) k = k * AX[a].length + sel[a];
+    return DG.values[k];
+  }
   for (const a of ORDER) k = k * AX[a].length + sel[a];
   return G.values[k];
 }
@@ -554,7 +621,11 @@ function render() {
     $("msp").textContent = moneyU(v[0]);
     chips.push(chip(v[1]));
     const tp = AX.t_prod[S.t_prod], ceil = D.ceiling[prodKey()][String(tp)];
-    if (ceil && AX.X_prod[S.X_prod] === 107 && AX.Y_ps[S.Y_ps] === 0.465) chips.push(`<span class="chip plain">Feasibility ceiling at ${tp} h: about ${Math.round(ceil)} g/L</span>`);
+    if (PHYS === 0 && ceil && AX.X_prod[S.X_prod] === 107 && AX.Y_ps[S.Y_ps] === 0.465) chips.push(`<span class="chip plain">Feasibility ceiling at ${tp} h: about ${Math.round(ceil)} g/L</span>`);
+    if (PHYS === 1 && v[3] != null) {
+      const x = v[3] / D.q_demo;
+      chips.push(`<span class="chip ${x > 1.5 ? "warn" : "good"}">Needs a strain secreting ${v[3].toFixed(1)} mg/g/h at growth ${D.mu_ref}/h: ${x < 1 ? "below" : x.toFixed(1) + "×"} the best published (${D.q_demo})</span>`);
+    }
   }
   $("chips").innerHTML = chips.join("");
   const eq = EQV() || {per: "litre of milk", what: "", grams: 0, bands: []};
@@ -564,7 +635,10 @@ function render() {
   $("u-hint").textContent = UNIT === 1 ? `Multiplies $/kg by ${eq.grams.toFixed(2)} g / 1000.`
     : UNIT === 2 ? `Our powder is ${Math.round(100 * D.powder_frac[prodKey()])}% target protein; market prices per kg of product (${Math.round(100 * MKT().frac)}% protein).` : "";
   // comparison panel: in the shown unit throughout
+  // the base case to compare with: the simple model's, also when the detailed physics are on
+  const phys0 = PHYS; PHYS = 0;
   const base = at(Object.assign({}, baseFor(S.product), {convention: S.convention, site: S.site}));
+  PHYS = phys0;
   const mk = marketNow(), rows = [];
   if (v) {
     const cur = v[0] * conv(), [lo, hi] = mk.band;
@@ -583,7 +657,7 @@ function render() {
       rows.push([`Titer to match the ${mk.years[0]}–${mk.years[1]} average (${fmtU(avg)})`,
                  r ? (r.first ? `≤ ${r.t} g/L` : `${Math.round(r.t)} g/L${r.ok ? "" : " (not runnable)"}`) : "not reached"]);
     }
-    if (base) rows.push(["Change from the base case", (v[0] >= base[0] ? "+" : "−") + moneyU(Math.abs(v[0] - base[0]))]);
+    if (base) rows.push([PHYS === 1 ? "Change from the simple base case" : "Change from the base case", (v[0] >= base[0] ? "+" : "−") + moneyU(Math.abs(v[0] - base[0]))]);
   }
   $("compare-h").textContent = UNIT === 1 ? "Against milk and eggs" : "Against the market";
   $("compare").innerHTML = rows.map(r => `<div class="row"><span class="k">${r[0]}</span><span class="v${/^[+−]?\$[\d.,–$]+$/.test(r[1]) ? " num" : ""}">${r[1]}</span></div>`).join("");
@@ -592,6 +666,39 @@ function render() {
   drawChart(band);
   drawMarket(v);
   drawBreakdown(v);
+  drawWalk();
+  drawOptions();
+}
+
+function drawWalk() {
+  const w = D.walk[prodKey()], label = $("p-" + prodKey()).nextElementSibling.textContent;
+  const name = label.charAt(0).toLowerCase() + label.slice(1);       // lower case inside a sentence
+  if (!w) { $("walk").innerHTML = ""; return; }
+  const n0 = x => Math.round(x).toLocaleString("en-US"), n1 = x => x.toFixed(1), pc = x => Math.round(100 * x) + "%";
+  $("walk-h").textContent = "How the price is built: " + label;
+  $("walk").innerHTML = [
+    `<b>The cell as a chemical reaction.</b> Element and electron balances give the sugar and oxygen each reaction needs. Making 1 kg of ${name} takes ${n1(w.glucose)} kg of glucose and ${n1(w.o2)} kg of oxygen in all: an overall yield of ${w.yield_.toFixed(3)} g of protein per g of sugar.`,
+    `<b>Where the sugar goes.</b> Most of it builds and maintains the cells, not the protein: the plant grows ${n1(w.cells)} kg of yeast for every kg of ${name}.`,
+    `<b>One batch.</b> The cells grow for ${n0(w.t_growth)} hours, then secrete the protein for ${n0(w.t_prod)} hours, reaching ${n1(w.titer)} g/L. They secrete ${w.qp.toFixed(1)} mg of protein per g of cells per hour.`,
+    `<b>The physical limits.</b> The fermenter must supply the oxygen and remove the heat, and a batch must start at least 30% full. A design that breaks a limit is marked in red on the chart above.`,
+    `<b>Purification.</b> ${w.route.charAt(0).toUpperCase() + w.route.slice(1)}. Together they keep ${pc(w.recovery)} of the protein.`,
+    `<b>Scale.</b> ${n0(w.tpy)} t a year takes ${n0(w.batches)} batches in ${w.fermenters} fermenters of ${n0(w.vol)} m³.`,
+    `<b>Capital.</b> Equipment prices times Humbird's factors give a total investment of $${n0(w.tci / 1e6)} million.`,
+    `<b>Money.</b> Running costs plus a 14.6% yearly charge on the investment give $${w.msp >= 100 ? n0(w.msp) : w.msp.toFixed(2)} per kg. Paying for the plant is ${pc(w.capital)} of that; glucose is ${pc(w.glucose_share)}.`,
+  ].map(x => `<li>${x}</li>`).join("");
+}
+
+function drawOptions() {
+  const o = D.options[prodKey()];
+  if (!o) { $("opt").innerHTML = ""; $("opt-note").textContent = ""; return; }
+  const row = (k, x, note) => `<tr><td>${k}</td><td class="r">${x == null ? "–" : money(x)}</td><td>${note || ""}</td></tr>`;
+  $("opt").innerHTML = `<thead><tr><th>Case (base titer unless noted)</th><th class="r">$/kg protein</th><th>What it means</th></tr></thead><tbody>` +
+    row("Simple model (base case)", o.base, "steady secretion while barely growing, as in published plant designs") +
+    row("Large tank loses 6.5% of its growth yield", o.loss, "mixing gradients in big vessels (George et al. 1998, baker's yeast)") +
+    row("Secretion tied to growth", o.coupled, `the strain must secrete ${o.q_need.toFixed(1)} mg/g/h at growth ${D.mu_ref}/h, ${(o.q_need / D.q_demo).toFixed(1)}× the best published`) +
+    row(`Best published strain (${D.q_demo} mg/g/h), best fed-batch design`, o.demo, o.demo_titer ? `the titer then reaches only ${o.demo_titer.toFixed(1)} g/L` : "") +
+    row("Same strain, run continuously", o.cont, "production as a chemostat for 10 days") + "</tbody>";
+  $("opt-note").textContent = "Detailed rows are sensitivities: the growth link and the tank loss come from single published strains. The Model switch above shows the detailed physics across all titers and production times.";
 }
 
 function drawBreakdown(v) {
@@ -754,11 +861,19 @@ function init() {
     }));
   }
   document.querySelectorAll("input[name=unit]").forEach(el => el.addEventListener("change", e => { UNIT = +e.target.value; render(); }));
+  if (!DG) { $("m-d").disabled = true; $("phys-hint").textContent += " (Detailed runs are not in this build.)"; }
+  document.querySelectorAll("input[name=physics]").forEach(el => el.addEventListener("change", e => {
+    PHYS = +e.target.value;
+    const det = PHYS === 1;
+    $("fs-capital").disabled = det; $("fs-site").disabled = det; $("Y_ps").disabled = det;
+    if (det) { S.convention = 0; S.site = 0; S.Y_ps = baseFor(S.product).Y_ps; $("c-h").checked = true; $("s-us").checked = true; }
+    render();
+  }));
   document.querySelectorAll("input[name=refp]").forEach(el => el.addEventListener("change", e => { REFP = e.target.value; drawRef(); }));
   $("yourprice").addEventListener("input", yourPrice);
   $("reset").addEventListener("click", () => {
     S = baseFor(S.product);
-    document.querySelectorAll("input[type=radio]").forEach(el => { if (el.name !== "refp") el.checked = +el.value === (el.name === "unit" ? UNIT : S[el.name]); });
+    document.querySelectorAll("input[type=radio]").forEach(el => { if (el.name !== "refp" && el.name !== "physics") el.checked = +el.value === (el.name === "unit" ? UNIT : S[el.name]); });
     render();
   });
   $("gen").textContent = `Model runs generated ${D.generated}. Grid: ${G.values.length.toLocaleString("en-US")} runs of the full model (repository pf-tea).`;
