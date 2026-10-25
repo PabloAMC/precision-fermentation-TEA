@@ -78,6 +78,22 @@ Phase F (external review) has not started. Open items:
 
 ## Decisions log
 
+- **2026-10-25, optional physics, plain-language evidence labels and a short preprint (Pablo: "implement them, and
+  add the option to keep it simple or more complex"; "grade is internal slang"; "focus on the cleanups"; Claude built
+  it, for Pablo's review):**
+  - Three switches, all off by default (base results unchanged to the cent): growth-coupled secretion
+    (`strain.secretion_model`; Maurer 2006 shape, Rebnegger 2024 floor), a large-tank growth-yield loss
+    (`fermenter.growth_yield_loss`; George 1998, Bylund 1998) and continuous production (`fermenter.mode`; Yamanie
+    2026 run length). Preset `scenarios/detailed.yaml`; analysis section `options`. Result: tied to growth, the base
+    titer needs ~19 mg/g/h at 0.1/h (9x the best measured); at the best measured rate BLG costs ~$136/kg
+    (fed-batch) or ~$106 (continuous), and lactoferrin stays inside its market band.
+  - Real-plant capital check (`data/evidence/plants.yaml`, `benchmarks.plant_cost_check`, VALIDATION check 5):
+    $68k per m3 of fermenter against $55-91k from Liberation Labs scaled to 7,200 m3.
+  - Readers now see the kind of evidence in words (measured, published design, company claim or survey, analogy or
+    judgment, guess, modelling choice); the data files keep the letters A-E.
+  - `report/preprint.typ`: a five-page preprint sharing the report's helpers (`report/common.typ`).
+  - Candidate list: osteopontin, sweet proteins, food enzymes (`docs/PROTEIN_CANDIDATES.md`).
+
 - **2026-10-06, v4.1: three full texts, transferrin and binder notes (Pablo: downloaded the three papers; "I'd do both
   proteins"; Claude built it, for Pablo's review):**
   - Liu 2026, Hu 2025 and Zhu 2018 read in full: titers.csv rows verified (40 of 134 rows remain unverified, none in a
