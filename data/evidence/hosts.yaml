@@ -1747,3 +1747,22 @@
     2012). Intelligen's design point (4.75 mg/g/h at mu 0.0014/h) is 6.9x the table's maximum and
     about 18x the 0.26 reached at low growth; Prielhofer 2018 (2.1, glucose fed-batch) is the
     highest glucose value on file.
+
+- key: kphaffii_continuous_run_length_yamanie2026
+  value: 240
+  low: 240
+  high: 360
+  unit: h of continuous operation (5 L)
+  grade: A
+  host: kphaffii
+  source: "Yamanie A, de Sa Magalhaes S, Wijayadikusumah AR, et al. Enhancing sustainability and productivity in Komagataella phaffii fermentation: a techno-economic comparison of fed-batch and continuous cultivation with mixed induction strategies. Fermentation 12:97 (2026)"
+  doi_or_url: https://mdpi-res.com/d_attachment/fermentation/fermentation-12-00097/article_deploy/fermentation-12-00097.pdf
+  locator: "Section 2.2 (Methods); Section 3 (15-day comparison)"
+  quote: "the cultivation transitioned to continuous mode for a minimum of 10 days (approximately 240 h) to maintain system stability"
+  read: fulltext
+  note: >-
+    Read 2026-10-25 from the MDPI PDF (open access). They also report "Under continuous operation
+    for 15 days" (high = 360 h) and genetic stability of the chromosomally integrated strain over
+    the run. 5 L scale, AOX1/KEX2, methanol and mixed induction: the run length at production
+    scale for a glucose food-protein process is not public (grade D where used,
+    base.yaml fermenter.continuous_run_h).

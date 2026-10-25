@@ -67,6 +67,20 @@ directions: Intelligen's ovalbumin design lands within a few percent of it, and 
 lactoferrin model comes out higher. Section 5.2 of the report ("Why published PF costs are lower")
 traces the differences line by line.
 
+## Simple or detailed
+
+The base case is the simple model. Three switches in `data/pf/base.yaml` turn on more physics;
+each is off by default, so the base numbers do not change:
+
+| Switch | Simple (base) | Detailed |
+|---|---|---|
+| `strain.secretion_model` | `constant`: one secretion rate in production, none while growing | `growth_coupled`: secretion falls as growth slows (Maurer 2006 shape, Rebnegger 2024 floor) |
+| `fermenter.growth_yield_loss` | `0`: a large tank behaves like a lab one | `0.065`: gradients in a large tank cost 6.5% of the growth yield (George 1998) |
+| `fermenter.mode` | `fed_batch` | `continuous`: production runs as a chemostat for 10 days (Yamanie 2026) |
+
+The scenario `data/pf/scenarios/detailed.yaml` switches them on together. A fourth check,
+`benchmarks.plant_cost_check`, compares the model's capital with a real plant (`docs/VALIDATION.md`).
+
 ## What you get
 
 | What | Where |
