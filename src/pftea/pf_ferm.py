@@ -476,7 +476,7 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
                 def our_at(m_):
                     r_, _ = _rates(host, strain, m_, strain.qp_of(m_, qp), F * np.exp(m_ * dt / 2))
                     return -r_["O2 (aq)"] / W * 1000 - omax
-                mu = _bisect(our_at, 0.0, mu, n=40, rtol=1e-6)
+                mu = _bisect(our_at, 0.0, mu, n=30, rtol=1e-4)
                 q = strain.qp_of(mu, qp)
                 r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2))
                 our = -r["O2 (aq)"] / W * 1000
