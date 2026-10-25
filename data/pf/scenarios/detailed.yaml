@@ -1,0 +1,25 @@
+# 'detailed': the base case with the model's optional physics switched on (pf_ferm docstring
+# "Options"; base.yaml strain.secretion_model, fermenter.growth_yield_loss, fermenter.mode).
+# - Secretion follows growth (Maurer 2006 shape, Rebnegger 2024 floor) in both phases, instead of
+#   one constant rate in production. In titer mode the strain's q_ref (at 0.1/h) is solved; the
+#   'demonstrated' variant fixes it at the best glucose fed-batch on file (Prielhofer 2018, 2.1
+#   mg/g/h) and the titer becomes the result.
+# - Large tanks lose 6.5% of the growth yield (George 1998, baker's yeast at 215 m3; an analogy).
+# The 'continuous' variant runs production as a chemostat (Yamanie 2026 run length).
+# These are sensitivities on the structure of the model, not a new base case: every parameter
+# that drives them is grade D.
+description: "Base case with growth-coupled secretion and a large-tank yield loss"
+common:
+  strain.secretion_model: growth_coupled
+  fermenter.growth_yield_loss: 0.065
+demonstrated:                         # the best measured secretion, titer as the result
+  strain.q_ref_mg_g_h: 2.1
+continuous:                           # chemostat production at the measured secretion
+  strain.q_ref_mg_g_h: 2.1
+  fermenter.mode: continuous
+  fermenter.dilution_rate_per_h: 0.05 # inside the feasible range at 107 g/L cells (0.1/h breaks the O2 cap)
+search:                               # design search with q_ref fixed (scenarios.best_design_rate)
+  X_prod_g_L: [30, 40, 50, 65, 80, 107, 130, 150]
+  t_prod_h: [24, 48, 72, 96, 120]
+  mu_prod_per_h: [0.0, 0.005, 0.01, 0.02, 0.03, 0.05]
+  dilution_rate_per_h: [0.02, 0.03, 0.05, 0.07]

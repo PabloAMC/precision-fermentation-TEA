@@ -775,13 +775,37 @@ def s_floor(res):
     res["floor"] = out
 
 
+def s_options(res):
+    """The model's optional physics (pf_ferm docstring 'Options'; scenarios/detailed.yaml), per
+    product: the large-tank yield loss alone; growth-coupled secretion in titer mode (the strain's
+    q_ref the base titer needs); and, with the best measured secretion (q_ref 2.1 mg/g/h at 0.1/h),
+    the cheapest fed-batch and continuous designs (titer is then a result)."""
+    out = {}
+    for prod in PRODUCTS:
+        p0 = sc.base_params(prod)
+        o = {"base": evp(prod)}
+        o["yield_loss"] = {str(L): evp(prod, {"fermenter.growth_yield_loss": L}) for L in (0.065, 0.20)}
+        o["coupled_titer"] = summary(plant.evaluate(params.override(p0, {"strain.secretion_model": "growth_coupled"})))
+        o["detailed_titer"] = summary(sc.run("detailed", prod))
+        for var in ("demonstrated", "continuous"):
+            b = sc.best_design_rate(sc.scenario_params("detailed", prod, variant=var))
+            o[var] = dict(summary(b["result"]), choice=b["choice"]) if b else None
+        out[prod] = o
+    res["options"] = out
+    # real plant costs (option 4): the base BLG plant's capital against disclosed plants (plants.yaml)
+    pb = sc.base_params("blg")
+    rb = plant.evaluate(pb)
+    res["plant_cost_check"] = bm.plant_cost_check(rb.tci, rb.design["N_prod_int"] * params.v(pb, "fermenter.volume_m3"),
+                                                  params.v(pb, "plant.annual_target_protein_t"))
+
+
 SECTIONS = {"base": s_base, "scenarios": s_scenarios, "physical_limit": s_physical_limit, "demonstrated": s_demonstrated,
             "cost_vs_titer": s_cost_vs_titer, "bridge": s_bridge, "required": s_required, "ceiling": s_ceiling,
             "claims": s_claims,
             "policy": s_policy,
             "tornado": s_tornado,
             "monte_carlo": s_monte_carlo, "scale": s_scale, "calibration": s_calibration,
-            "equivalents": s_equivalents, "lactoferrin": s_lactoferrin, "casein": s_casein, "alac": s_alac, "cheese": s_cheese, "heme": s_heme,
+            "equivalents": s_equivalents, "options": s_options, "lactoferrin": s_lactoferrin, "casein": s_casein, "alac": s_alac, "cheese": s_cheese, "heme": s_heme,
             "albumin": s_albumin, "floor": s_floor, "binder": s_binder, "transferrin": s_transferrin}
 
 if __name__ == "__main__":

@@ -313,6 +313,30 @@ def best_design(p: dict, fast: bool = False) -> dict | None:
     return best
 
 
+def best_design_rate(p: dict) -> dict | None:
+    """Cheapest feasible design for a given strain under growth-coupled secretion (rate mode:
+    strain.q_ref_mg_g_h set, titer is the result). With secretion tied to growth there is no
+    titer to push to a ceiling; the levers are the cell density at the switch and, in fed-batch,
+    the production time and growth rate, or, in continuous mode, the dilution rate. A grid from
+    detailed.yaml 'search'; infeasible designs are skipped."""
+    g = load("detailed")["search"]
+    cont = v(p, "fermenter.mode") == "continuous"
+    grid = ([{"strain.X_prod_g_L": float(X), "fermenter.dilution_rate_per_h": float(D)}
+             for X in g["X_prod_g_L"] for D in g["dilution_rate_per_h"]] if cont else
+            [{"strain.X_prod_g_L": float(X), "strain.t_prod_h": float(t), "strain.mu_prod_per_h": float(m)}
+             for X in g["X_prod_g_L"] for t in g["t_prod_h"] for m in g["mu_prod_per_h"]])
+    best = None
+    for ch in grid:
+        q = params.override(p, ch)
+        try:
+            r = plant.evaluate(q)
+        except ValueError:
+            continue
+        if is_feasible(r) and (best is None or r.msp_ccf < best["result"].msp_ccf):
+            best = dict(result=r, params=q, choice=ch)
+    return best
+
+
 def _boundary(p: dict, path: str, x0: float, x1: float, n: int = 8) -> float:
     """Last feasible value on the way from a feasible x0 towards an infeasible x1 (bisection)."""
     a, b_ = x0, x1

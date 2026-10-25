@@ -1434,3 +1434,41 @@
     Not modelled (a start-up shortfall; the model levelises an nth plant's steady output over 10 years). Stated in
     the report beside the capital sensitivity. Regression (Table 5.6, p.78): performance = 85.77 - 9.69 NEWSTEPS +
     0.33 BALANCE EQUATIONS - 4.12 WASTE - 17.91 SOLIDS (R^2 0.90).
+
+# ---------------------------------------------------------------------------------------
+# Large-tank yield loss (option fermenter.growth_yield_loss; added 2026-10-25)
+# ---------------------------------------------------------------------------------------
+
+- key: scale_yield_loss_george1998
+  value: 0.065
+  low: 0.06
+  high: 0.07
+  unit: fraction of the biomass yield lost at production scale
+  grade: D
+  source: "George S, Larsson G, Olsson K, Enfors S-O. Comparison of the Baker's yeast process performance in laboratory and production scale. Bioprocess Engineering 18:135-142 (1998)"
+  doi_or_url: 10.1007/PL00008979
+  locator: abstract
+  quote: "A yield reduction of about 6-7% was found, with both the production reactor and the SDR, as compared to the homogeneous reactor."
+  read: abstract
+  note: >-
+    215 m3 industrial bubble column (fed-batch baker's yeast) against a homogeneous laboratory
+    reactor and a scale-down reactor (SDR) that repeatedly exposes cells to high sugar. The authors
+    attribute the loss to a metabolic by-pass via ethanol. S. cerevisiae is Crabtree-positive and
+    K. phaffii is not, so for K. phaffii this is an analogy (D), probably an upper end. Abstract
+    read through a search tool's rendering (Springer and Semantic Scholar did not serve it):
+    re-check the quote against the source. value = midpoint of 6-7%.
+
+- key: scale_yield_loss_bylund1998
+  value: 0.20
+  unit: fraction of the biomass yield lost at large scale (upper bound, "up to")
+  grade: D
+  source: "Bylund F, Collet E, Enfors S-O, Larsson G. Substrate gradient formation in the large-scale bioreactor lowers cell yield and increases by-product formation. Bioprocess Engineering 18:171-180 (1998)"
+  doi_or_url: 10.1007/s004490050427
+  locator: abstract
+  quote: "up to 20% lower biomass yield compared to the bench scale"
+  read: abstract
+  note: >-
+    E. coli fed-batch in a 12 m3 stirred tank (H/D 2.5, three Rushton turbines); glucose at the
+    feed point reached about 400 times the mean, and acetate formed at large scale. Used as the
+    upper end of the option's range. Abstract read through a search tool's rendering (the
+    publisher elides it from APIs): re-check the quote against the source.

@@ -165,6 +165,31 @@ The remaining gap is mostly labour: 5.6 M€ in our Humbird attention model agai
 3.15 M€ (45 people). A further difference is their unitemised equipment list: 31.5 M€,
 multiplied by 4.07.
 
+## Check 5: capital against a real plant (added 2026-10-25)
+
+**What it is.** A check of the base plant's capital against the one purpose-built precision-fermentation
+plant that discloses its cost, fermentation volume and output: Liberation Labs, Richmond, Indiana
+($115M, four 150 m3 fermenters, 600-1,200 t of protein a year; data/evidence/plants.yaml, grade C).
+It is a check, not a calibration: no parameter is tuned to it. Code: `benchmarks.plant_cost_check`,
+results key `plant_cost_check`.
+
+**How.** The plant is 12 times smaller than the model's (600 against 7,200 m3), so its cost per m3 is
+scaled with the six-tenths rule: per m3, cost/m3 x (7,200/600)^(n-1), with n = 0.5-0.7.
+
+| | $ per m3 of fermentation volume | $ per (t/yr) of protein |
+|---|---|---|
+| Model, base BLG plant | 68,100 | 49,000 |
+| Liberation Labs as disclosed | 192,000 | 96,000-192,000 |
+| Liberation Labs scaled to 7,200 m3, n = 0.5 / 0.6 / 0.7 | 55,300 / 70,900 / 90,900 | 27,700-55,300 / 35,500-70,900 / 45,500-90,900 |
+
+**What it says.** The model's capital per m3 sits inside the scaled band, near its middle at the
+usual exponent of 0.6. Two cautions. Liberation Labs is unfinished and paused for funding, so its
+$115M is likely a floor. And the band moves by about +/-30% over the exponent range. Solar Foods'
+gas-fermentation Factory 02 (EUR 134M for 3.2 kt/yr of whole-cell protein, about $48,600 per t/yr)
+lands near the model's $49,000 per t/yr, but it is a different process (hydrogen, no purification)
+and the match is a coincidence. Whole-cell biomass plants cost far less per t/yr: Quorn's brownfield expansion about $9,800, Angel
+Yeast's planned line about $6,800. They are a floor: they skip purification and sell wet or whole cells.
+
 ## Summary: what the four anchors say
 
 1. **The port is exact; the PF extension is Humbird-style.** The port reproduces his baker's-yeast
