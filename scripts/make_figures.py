@@ -20,6 +20,7 @@ from matplotlib.ticker import FuncFormatter, NullFormatter  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+from pftea.labels import evidence  # noqa: E402
 from pftea.labels import label as plabel  # noqa: E402
 
 R = json.loads((ROOT / "results/analyses.json").read_text())
@@ -212,7 +213,7 @@ fig.legend(h, [x.split(" (ceiling")[0] for x in l_], loc="lower center", ncol=3,
 fig.text(0.01, -0.06, f"Each product's base case ({SCALES}), US Midwest, fermenters sized to each plant (200 m3 at 10 kt/yr; 100 m3 for lactoferrin, albumin and alpha-lac), glucose fed at 500 g/L. Each line ends "
          "at the highest feasible titer in that production time (O2 transfer, heat removal, minimum fill, specific productivity).\n"
          "Price bands, per kg protein in 2025 dollars: export unit values of whey protein >80% and dried egg albumin (OVA and ovomucoid), casein export and "
-         "US import prices, reported dairy lactoferrin prices, bulk albumin trade values and alpha-lac market-report prices per kg alpha-lac (grade C). Top axis: published and claimed titers (data/titers.csv).",
+         "US import prices, reported dairy lactoferrin prices, bulk albumin trade values and alpha-lac market-report prices per kg alpha-lac (company or survey figures). Top axis: published and claimed titers (data/titers.csv).",
          fontsize=7, color=MUTED)
 save(fig, "fig1_cost_vs_titer.png")
 
@@ -340,10 +341,10 @@ for ax, prod in zip(axes, tprods):
     ax.set_title(f"{PROD[prod]}: industry benchmark, ${base_v:,.1f}/kg", fontsize=9, loc="left")
     ax.grid(axis="y", visible=False)
 axes[-1].set_xlabel("$/kg target protein; numbers at the bar ends are the parameter values tested")
-fig.legend(handles=[Patch(color=ORD[g], label=f"grade {g}") for g in "ABCDE"]
-           + [Patch(color=ORD["structural"], label="convention")], fontsize=7.5, ncol=6,
+fig.legend(handles=[Patch(color=ORD[g], label=evidence(g)) for g in "ABCDE"]
+           + [Patch(color=ORD["structural"], label=evidence("structural"))], fontsize=7.5, ncol=6,
            loc="lower center", bbox_to_anchor=(0.5, -0.02))
-fig.text(0.01, -0.05, "One parameter at a time over its evidence range, coloured by evidence grade; the ten largest swings per "
+fig.text(0.01, -0.05, "One parameter at a time over its evidence range, coloured by the kind of evidence; the ten largest swings per "
          "product. Each product on its own plant (lactoferrin 250 t/yr, albumin 1 kt/yr)."
          + ("\n\u2020 the end of the evidence range breaks a physical limit; the bar stops at the last feasible value shown."
             if trunc_any else ""), fontsize=7, color=MUTED)
@@ -635,7 +636,7 @@ if ctx:
     gcol = {"plant": CAT[2], "dairy": CAT[0], "egg": CAT[1], "animal": CAT[4]}
     for i, c in enumerate(rows):
         ax.plot([c["lo"], c["hi"]], [i, i], color=gcol.get(c["group"], MUTED), lw=7, solid_capstyle="butt", alpha=0.55)
-        ax.text(c["hi"] * 1.07, i, f"${c['lo']:.1f}-{c['hi']:.1f}  ({c['when'] or 'grade ' + c['grade']})", fontsize=6.8,
+        ax.text(c["hi"] * 1.07, i, f"${c['lo']:.1f}-{c['hi']:.1f}  ({c['when'] or evidence(c['grade'])})", fontsize=6.8,
                 color=INK2, va="center")
     ax.set_yticks(range(len(rows)))
     ax.set_yticklabels([c["label"] for c in rows], fontsize=7.8)
@@ -653,8 +654,8 @@ if ctx:
     ax.set_xlabel("$ per kg protein (log scale)")
     ax.grid(axis="y", visible=False)
     ax.set_title("Protein ingredients, per kg of protein, against our modelled costs", fontsize=9.5, loc="left")
-    fig.text(0.01, -0.02, "Bars: market prices. Export unit values are 2015-2025 in 2025 dollars (grade A); GFI 2025 ranges are nominal, "
-             "about 2024-2025 (grade C). Lines: this model's production costs (price-anchored capital, 10 kt/yr; best case at "
+    fig.text(0.01, -0.02, "Bars: market prices. Export unit values are 2015-2025 in 2025 dollars (measured); GFI 2025 ranges are nominal, "
+             "about 2024-2025 (company or survey figures). Lines: this model's production costs (price-anchored capital, 10 kt/yr; best case at "
              "100 kt/yr), which include a return on capital but no margin, sales or distribution. Lactoferrin and albumin, "
              "which are not food-ingredient commodities, are in Figs 1 and 10.", fontsize=6.8, color=MUTED, wrap=True)
     save(fig, "fig11_protein_context.png")
@@ -711,7 +712,7 @@ if FL:
                fontsize=7, loc="upper center", ncol=2, bbox_to_anchor=(0.5, 1.0))
     fig.text(0.01, -0.05, "Animals: feed bill per kg of edible crude protein, all of it charged to the protein (milk's and eggs' feed also makes "
              "their fat and lactose), parent and pullet feed included, milk net of the cattle credit (derived from breeder targets, "
-             "industry, USDA, Eurostat and Wageningen data, grade D), and the rest of the farm's cost from the feed share of cost "
+             "industry, USDA, Eurostat and Wageningen data; our derivation), and the rest of the farm's cost from the feed share of cost "
              "(bars: US " + str(ANI["broiler"]["regions"]["us_midwest"]["year"]) + ", EU " + str(ANI["broiler"]["regions"]["eu_nw"]["year"])
              + " in that year's dollars; whiskers above the bars: the farm cost over feed-price years, feed conversion and edible "
              "yield, at the central feed share; US milk year by year). "

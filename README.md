@@ -51,7 +51,8 @@ models. pf-tea differs in five ways:
   removal and vessel volume. Most published models assume a titer and a yield and never ask whether a
   real fermenter could reach them.
 - **It shows where each number comes from.** Every input has a source, a short quote from that source
-  and an evidence grade from A (measured) to E (guess). The uncertainty charts are coloured by grade.
+  and the kind of evidence: measured, published design, company claim or survey, analogy or judgment,
+  or guess. The uncertainty charts are coloured by kind of evidence.
 - **It tests itself first.** Before any new claim, the model reproduces the market cost of baker's
   yeast with Humbird's workbook and rebuilds three published designs (NREL 2011, Intelligen 2025,
   Voutilainen 2021). `docs/VALIDATION.md` records the misses instead of tuning them away.
@@ -100,11 +101,11 @@ New to bioprocessing? Read `docs/PRIMER.md` first.
 
 1. Plain Python in `src/pftea/` holds every equation, and each module's docstring states them. No
    hidden cost engine exists.
-2. `data/pf/base.yaml` holds every number, with a range, an evidence grade (A–E) and a source.
+2. `data/pf/base.yaml` holds every number, with a range, the kind of evidence and a source.
    `data/evidence/*.yaml` holds the evidence, with quotes and page locators.
 3. The model passed its checks against baker's yeast and three published models before it made any new
    claim. `docs/VALIDATION.md` records the misses.
-4. The four scenarios stay separate. A tornado chart, coloured by evidence grade, and a Monte Carlo
+4. The four scenarios stay separate. A tornado chart, coloured by the kind of evidence, and a Monte Carlo
    over feasible plants show the uncertainty.
 
 `docs/SCOPE.md` states the question, and `PLAN.md` the phases.
@@ -112,12 +113,12 @@ New to bioprocessing? Read `docs/PRIMER.md` first.
 ## Layout
 
 ```
-data/pf/base.yaml           all parameters: value, range, grade, source (US and EU prices)
+data/pf/base.yaml           all parameters: value, range, kind of evidence, source (US and EU prices)
 data/pf/scenarios/          academic, industry, physical_limit, lactoferrin, casein, albumin, cheese, heme, transferrin, binder
 data/pf/benchmarks.yaml     incumbent prices and literature titers shown on the figures
 data/evidence/              hosts, dsp, engineering, prices, placeholders, milk_egg, lactoferrin, casein,
                             ovomucoid, albumin, alac, heme, feed, kinetic, transferrin, binder:
-                            graded evidence with quotes
+                            sourced evidence with quotes
 data/calibration/           the four calibration cases
 data/prices/                one-series CSVs behind prices.yaml
 data/titers.csv             every public titer/yield data point

@@ -165,9 +165,9 @@ claims:                    # Q5: is the claimed titer reachable within O2/heat l
   - {product: blg, source_key: behm2022, host: T. reesei, model_host: treesei, model_product: blg, t_prod_h: 120,
      label: "Behm 2022 BLG design titer (T. reesei, 120 h)"}
   - {product: "other:homologous-secreted-protein", source_key: behm2022, host: T. reesei, model_host: treesei, model_product: blg,
-     label: "T. reesei homologous secreted protein (Behm 2022, grade C)"}
+     label: "T. reesei homologous secreted protein (Behm 2022, company claim)"}
   - {product: ova, source_key: intelligen_ovalbumin2025, host: T. reesei, model_host: treesei, model_product: ova,
-     label: "Onego platform claim (protein not specified; tested as OVA; press, grade C)"}
+     label: "Onego platform claim (protein not specified; tested as OVA; press, company claim)"}
 
 feed_bills:                # the incumbent animals' feed bill and farm-gate cost per kg of edible crude protein
   # (benchmarks.feed_bills; report section on the metabolic floor, Fig. 12). Every number is read by key from

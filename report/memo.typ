@@ -103,7 +103,7 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
   per kg of cultivated meat, and leading firms are removing it from their media.
 - *For α-lactalbumin and κ-casein, the strains are missing.* α-Lac, the infant-formula whey protein, costs
   #money(alac.msp_ccf)/kg at the base titer on a 1 kt/yr plant. Reports put α-lac at
-  #usd(MKT("alac").at(0))–#money(MKT("alac").at(1)) per kg (grade C). At its best public titer (0.6 g/L of
+  #usd(MKT("alac").at(0))–#money(MKT("alac").at(1)) per kg (market reports). At its best public titer (0.6 g/L of
   supernatant, human α-lac) it costs #money(S("academic/alac").msp_ccf). Rennet cheese needs κ-casein at about
   #fx(100 * CH.kappa_share.at(1))% of its casein. At the best κ titer (0.25 g/L), an α#sub[s1] + κ blend costs
   #money(CH.blend.kap.at(str(CH.kappa_share.at(1))).at(0))–#money(CH.blend.kap_cex.at(str(CH.kappa_share.at(1))).at(0))/kg.
@@ -149,6 +149,6 @@ These are cost effects on one plant, not policy recommendations.
 
 #text(size: 8.3pt, fill: rgb("#52514e"))[*Caveats.* These are production costs with a 14.6%/yr capital charge, not
 market prices. They exclude R&D, licensing, regulation, sales, start-up, failed batches and the premium of a
-first plant. Strain parameters rest on design values and company-reported averages (evidence grades B–C).
+first plant. Strain parameters rest on published designs and company-reported averages.
 The casein and lactoferrin titers come from other proteins or species. Only AI reviewers have audited the work since
 version 2. Full report, audit log and data: the `pf-tea` repository.]
