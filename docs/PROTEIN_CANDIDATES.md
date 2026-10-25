@@ -389,6 +389,19 @@ After the EFSA opinions, the Commission drafts implementing acts and puts them t
 | Fish / seafood PF proteins | Nothing commercial found. Cultivated-seafood firms (Wildtype, BlueNalu) are not PF | Fish and shrimp have the highest lives per kg, but there is no PF data. Watch only |
 | Recombinant myofibrillar proteins | Actin 326 mg/L, myosin-tail fragment 572 mg/L in *E. coli* (Dolgin 2026) [A, Abs] | Too early |
 
+### Added 2026-10-25: high-value targets for profitability (Pablo's ask)
+
+Profit, not welfare, is the reason for these: they are scarce or dosed in milligrams, so a small plant
+can sell at a high price per kg, as lactoferrin does in the model. They displace few or no animals.
+Nothing below is model input yet; each needs the sources listed before it can be costed.
+
+| Candidate | What we know | What is needed to model it | Verdict |
+|---|---|---|---|
+| **Osteopontin (lactopontin)** | A signalling milk protein, about 18 mg/L in cow's milk (Green Queen, 20 Oct 2026, quoting Better Dairy). Better Dairy makes human osteopontin in a yeast, is self-affirmed GRAS in the US, and plans products in Q1 2027 (same article) [C]. Lv et al. 2023 (Green Chem 25:5460, already on file) says its *P. pastoris* system also made osteopontin [A, not yet read for a titer] | A secreted titer (check Lv 2023's full text first); a price for dairy osteopontin (Arla's Lacprodan OPN-10 is the incumbent ingredient: find a price) or for human-milk-protein ingredients; its phosphorylation and glycosylation, and whether the value depends on them | **Add as a cost-in-use note**, like transferrin, once a titer or a price is sourced. Same economics as lactoferrin |
+| **Sweet proteins (brazzein, thaumatin, monellin)** | Proteins hundreds to thousands of times sweeter than sugar by weight, so the dose per serving is tiny and the price per kg of protein can be high. Thaumatin is extracted from a plant today; companies make brazzein and monellin by fermentation [general knowledge, not yet sourced] | Sweetness relative to sucrose (per protein), regulatory status (GRAS notices), a published secreted titer in a food host, and a market price per kg of protein or per kg of sugar-equivalent | **Add as a candidate.** Cost-in-use per kg of sugar-equivalent is the right metric, as for heme |
+| Food enzymes (chymosin, lactase) | Fermentation-made chymosin already supplies most cheese rennet: the proof that PF can win a market outright [general knowledge, not yet sourced] | Enzyme activity per kg and price per activity unit, not per kg of protein | A reference case, not a target: the market is already won |
+
+
 ---
 
 ## 7. Comparison table

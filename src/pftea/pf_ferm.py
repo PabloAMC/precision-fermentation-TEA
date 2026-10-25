@@ -59,6 +59,25 @@ Two phases:
     The initial fill W0 is solved so the broth ends exactly at fill_max. In titer mode q_p is
     solved so the final titer equals the target. A design whose W0 is below the minimum
     working fill is flagged.
+Options (all off by default, so the base model is unchanged):
+    Secretion law (Strain.secretion). "constant": q_p is one number in production and zero in
+    growth (the base). "growth_coupled": secretion follows the growth rate in both phases,
+        q_p(mu) = q_ref [f0 + (1 - f0) g(mu) / g(mu_ref)],   g(mu) = mu / (k_q + mu)
+    Maurer et al. 2006's saturating form (k_q from their Fab chemostats), scaled so that the
+    strain secretes q_ref at mu_ref, with a growth-independent floor f0 (a fraction of q_ref;
+    Rebnegger 2024's retentostat). In titer mode q_ref is solved, so the result reads as "the
+    secretion the strain must reach at mu_ref", comparable to measured fed-batch maxima.
+    Large-tank yield loss (Host.growth_yield_loss = L). Substrate gradients in large vessels
+    lower the biomass yield (scale-down studies). Modelled as extra catabolism: for every unit of
+    glucose that growth takes, L / (1 - L) more is respired through the maintenance reaction, so
+    the yield on glucose for growth falls by the fraction L and O2, CO2 and heat stay balanced.
+    Continuous production (run_batch continuous=(D, t_run)). Growth runs as a fed-batch until
+    X = X_prod with the broth at fill_max; then a chemostat at dilution rate D for t_run hours:
+    volume constant, mu = D (cells steady), product dP/dt = q_p F - D P, broth harvested at D W.
+    The inflow carries the glucose and ammonia the cells take up; the glucose concentration it
+    needs, r_glc / (D W), must not exceed the feed concentration c_s. The harvest (outflow plus
+    the final broth) is what downstream processing receives: W_end, X_end, titer and cells_kg
+    describe it.
 Volume balance (broth tracked as M = 1000 kg per m3; feeds by concentration c in kg/m3 = g/L):
     dM/dt = 1000 (glucose/c_s + methanol/c_m + NH3/c_N) + O2 absorbed - CO2 released - water evaporated
     so a 500 g/L glucose solution (about 42 wt%) adds 2 L per kg of glucose.
@@ -263,6 +282,7 @@ class Host:
     maint_factor: float = 1.0        # multiplies Tijhuis maintenance (growth phase; both phases if m_s_prod is None)
     m_s_prod: float | None = None    # g glucose/g DCW/h in the production phase (measured, near-zero growth)
     m_s_prod_meoh: float | None = None   # g methanol/g DCW/h in a methanol production phase (measured)
+    growth_yield_loss: float = 0.0   # large-tank loss L of the growth yield (module docstring, Options)
 
     @property
     def growth(self) -> th.GrowthModel:
@@ -305,6 +325,22 @@ class Strain:
     X_max: float = 150.0             # g DCW/L: growth stops here (feed-limited plateau)
     meoh_frac: float = 0.0           # fraction of the production phase run on methanol
     Y_ps_meoh: float | None = None   # g product / g methanol through the product reaction
+    secretion: str = "constant"      # "constant" | "growth_coupled" (module docstring, Options)
+    qp_kq: float = 0.116             # 1/h, saturation constant of q_p(mu) (Maurer 2006)
+    qp_mu_ref: float = 0.1           # 1/h, growth rate at which the strain secretes q_ref
+    qp_floor: float = 0.0            # growth-independent secretion, fraction of q_ref
+
+    @property
+    def coupled(self) -> bool:
+        return self.secretion == "growth_coupled"
+
+    def qp_of(self, mu: float, q: float) -> float:
+        """Secretion rate [g/g/h] at growth rate mu: q itself if constant, else the coupled law
+        scaled to q at qp_mu_ref."""
+        if not self.coupled:
+            return q
+        g = lambda m: max(m, 0.0) / (self.qp_kq + max(m, 0.0))   # noqa: E731
+        return q * (self.qp_floor + (1 - self.qp_floor) * g(mu) / g(self.qp_mu_ref))
 
 
 @dataclass
@@ -337,6 +373,8 @@ class Batch:
     comp_max_kW: float
     air_max_kmol_h: float
     methanol_kg: float = 0.0
+    q_p_peak: float = float("nan")   # highest secretion rate reached [g/g/h] (= q_p if constant)
+    W_switch: float = float("nan")   # m3 broth at the switch to production
     series: dict = field(default_factory=dict)
     profile: dict = field(default_factory=dict)   # step start t [h], heat [kW] and air [kmol/h], always kept
 
@@ -349,6 +387,12 @@ def _rates_on(host: Host, strain: Strain, mu: float, qp: float, F: float, prod: 
     km = host.maint(prod, cs)
     for name in (cs, "O2 (aq)", "CO2 (aq)", "NH3 (aq)", "H2O (l)"):
         out[name] = (g.growth.of(name) * mu + km * g.maint.of(name)) * cmol
+    L = host.growth_yield_loss
+    if L > 0 and mu > 0:
+        # large-tank loss: respire L/(1-L) of growth's substrate more, through the maintenance reaction
+        extra = L / (1 - L) * g.growth.of(cs) * mu / g.maint.of(cs)
+        for name in out:
+            out[name] += extra * g.maint.of(name) * cmol
     heat = -(sum(out[n] * th.get(n).dHf for n in out) + mu * cmol * g.bio.dHf) * 1000 / 3600
     if qp > 0:
         p = strain.product
@@ -374,9 +418,10 @@ def _rates(host: Host, strain: Strain, mu: float, qp: float, F: float, prod: boo
     return out, heat
 
 
-def _heat_density(host, strain, b, mu, F, W, dt, omax, ours_tab, agit_tab, air_tab) -> float:
-    """Net heat to remove [kW/m3] in a growth step at rate mu (reaction + agitation - evaporation)."""
-    r, heat = _rates(host, strain, mu, 0.0, F * np.exp(mu * dt / 2))
+def _heat_density(host, strain, b, mu, F, W, dt, omax, ours_tab, agit_tab, air_tab, qp=0.0) -> float:
+    """Net heat to remove [kW/m3] in a growth step at rate mu (reaction + agitation - evaporation);
+    qp is the coupled law's q_ref (zero in the base: no product in growth)."""
+    r, heat = _rates(host, strain, mu, strain.qp_of(mu, qp) if strain.coupled else 0.0, F * np.exp(mu * dt / 2))
     our = -r["O2 (aq)"] / W * 1000
     agit = np.interp(min(our, omax), ours_tab, agit_tab) * W
     air = np.interp(min(our, omax), ours_tab, air_tab) * W
@@ -386,8 +431,10 @@ def _heat_density(host, strain, b, mu, F, W, dt, omax, ours_tab, agit_tab, air_t
 
 def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: float, qp: float,
              c_s: float = 500.0, c_nh3: float = 268.0, dt_g: float = 0.25, dt_p: float = 1.0,
-             keep_series: bool = False, c_meoh: float = 791.0) -> Batch:
-    """Run one batch from initial broth W0 [m3] at X0 [g/L]; feeds at c_s, c_meoh, c_nh3 [kg/m3]."""
+             keep_series: bool = False, c_meoh: float = 791.0, continuous: tuple | None = None) -> Batch:
+    """Run one batch from initial broth W0 [m3] at X0 [g/L]; feeds at c_s, c_meoh, c_nh3 [kg/m3].
+    qp is the constant q_p, or q_ref of the coupled law; continuous = (D [1/h], t_run [h]) runs the
+    production phase as a chemostat (module docstring, Options)."""
     w_s, w_nh3, w_m = c_s / RHO, c_nh3 / RHO, c_meoh / RHO   # kg solute per kg of broth-equivalent volume
     b = fm.Broth(T_C=c.T_C, p_back_bar=v.p_back_bar)
     ours_tab, comp_tab, agit_tab, air_tab = aeration_table(v, c)
@@ -399,6 +446,10 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
     prof = {"t": [], "heat": [], "air": []}
     t_end_prod = None
     ok, reason = True, ""
+    qpk = 0.0                                          # highest secretion rate reached
+    W_sw = float("nan")
+    D = continuous[0] if continuous else 0.0
+    harv = dict(vol=0.0, cells=0.0, prod=0.0)          # chemostat outflow (continuous only)
     while True:
         W = M / RHO
         if not np.isfinite(W) or W <= 0.001 * v.volume_m3:
@@ -406,8 +457,8 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
             break
         X = F / W
         if phase == 1 and X >= strain.X_prod * (1 - 1e-9):
-            phase, t_growth = 2, t
-            t_end_prod = t + strain.t_prod
+            phase, t_growth, W_sw = 2, t, W
+            t_end_prod = t + (continuous[1] if continuous else strain.t_prod)
         if phase == 2 and t >= t_end_prod - 1e-9:
             break
         if t > 1000:
@@ -415,7 +466,30 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
             break
         omax = otr_max(v, c, X)
         dt = dt_g if phase == 1 else min(dt_p, t_end_prod - t)
-        if phase == 1:
+        if phase == 1 and strain.coupled:
+            mu = host.mu_max
+            q = strain.qp_of(mu, qp)
+            r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2))
+            our = -r["O2 (aq)"] / W * 1000
+            if our > omax:
+                # O2-limited growth with secretion that falls with mu: OUR rises with mu, so bisect
+                def our_at(m_):
+                    r_, _ = _rates(host, strain, m_, strain.qp_of(m_, qp), F * np.exp(m_ * dt / 2))
+                    return -r_["O2 (aq)"] / W * 1000 - omax
+                mu = _bisect(our_at, 0.0, mu, n=40, rtol=1e-6)
+                q = strain.qp_of(mu, qp)
+                r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2))
+                our = -r["O2 (aq)"] / W * 1000
+            if v.heat_max_kW_m3 and _heat_density(host, strain, b, mu, F, W, dt, omax, ours_tab, agit_tab,
+                                                   air_tab, qp) > v.heat_max_kW_m3:
+                mu = _bisect(lambda m_: _heat_density(host, strain, b, m_, F, W, dt, omax, ours_tab, agit_tab,
+                                                      air_tab, qp) - v.heat_max_kW_m3, 0.0, mu, n=60, rtol=1e-7)
+                q = strain.qp_of(mu, qp)
+                r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2))
+                our = -r["O2 (aq)"] / W * 1000
+            if mu > 1e-12 and X * np.exp(mu * dt) > strain.X_prod:
+                dt = max(np.log(strain.X_prod / X) / mu, 1e-6)
+        elif phase == 1:
             mu, q = host.mu_max, 0.0
             r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2))
             our = -r["O2 (aq)"] / W * 1000
@@ -446,8 +520,19 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
             if mu > 1e-12 and X * np.exp(mu * dt) > strain.X_prod:
                 # land the last growth step on X_prod (feed dilution ignored within the step)
                 dt = max(np.log(strain.X_prod / X) / mu, 1e-6)
+        elif continuous:
+            mu = D                                       # chemostat: growth balances the outflow
+            q = strain.qp_of(mu, qp)
+            r, heat = _rates(host, strain, mu, q, F, prod=True)
+            our = -r["O2 (aq)"] / W * 1000
+            if our > omax * 1.0001:
+                ok, reason = False, f"production OUR {our:.0f} > OTR_max {omax:.0f} mol/m3/h"
+            s_in = -r[GLC] * MW["glc"] / (D * W) if D > 0 else float("inf")
+            if s_in > c_s * 1.0001 and ok:
+                ok, reason = False, f"chemostat feed needs {s_in:.0f} g/L glucose > {c_s:.0f}"
         else:
-            mu, q = (strain.mu_prod if X < strain.X_max else 0.0), qp
+            mu = strain.mu_prod if X < strain.X_max else 0.0
+            q = strain.qp_of(mu, qp)
             r, heat = _rates(host, strain, mu, q, F * np.exp(mu * dt / 2), prod=True)
             our = -r["O2 (aq)"] / W * 1000
             if our > omax * 1.0001:
@@ -463,6 +548,9 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
         nh3_kg_h = -r["NH3 (aq)"] * MW["NH3"]
         dM = (glc_kg_h / w_s + meoh_kg_h / w_m + nh3_kg_h / w_nh3 + (-r["O2 (aq)"]) * MW["O2"]
               - r["CO2 (aq)"] * MW["CO2"] - evap)
+        cont = continuous and phase == 2
+        if cont:
+            dM = 0.0                                     # inflow and gas exchange balanced by the outflow
         acc["glc"] += glc_kg_h * dt
         if phase == 2:
             acc["glc_p"] += glc_kg_h * dt
@@ -471,7 +559,8 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
         acc["o2"] += -r["O2 (aq)"] * dt
         acc["co2"] += r["CO2 (aq)"] * dt
         acc["evap"] += evap * dt
-        acc["feedw"] += (glc_kg_h / w_s * (1 - w_s) + nh3_kg_h / w_nh3 * (1 - w_nh3)) * dt
+        acc["feedw"] += ((D * W * RHO - glc_kg_h - nh3_kg_h) if cont else
+                         (glc_kg_h / w_s * (1 - w_s) + nh3_kg_h / w_nh3 * (1 - w_nh3))) * dt
         acc["comp"] += comp * dt
         acc["agit"] += agit * dt
         acc["heat"] += heat_total * dt
@@ -484,19 +573,32 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
         prof["t"].append(t); prof["heat"].append(heat_total); prof["air"].append(air)
         if keep_series:
             ser["t"].append(t); ser["X"].append(X); ser["titer"].append(P / W); ser["our"].append(our); ser["W"].append(W)
+        qpk = max(qpk, q)
+        if cont:
+            # chemostat step: cells steady (mu = D); product made at q F, broth leaves at D W
+            out_frac = D * dt
+            harv["vol"] += W * out_frac
+            harv["cells"] += F * out_frac
+            harv["prod"] += P * out_frac
+            P += q * F * dt - P * out_frac
+            t += dt
+            continue
         growth = np.exp(mu * dt)
         P += q * F * ((growth - 1) / (mu * dt) if mu * dt > 1e-9 else 1.0) * dt
         F *= growth
         M += dM * dt
         t += dt
     W = M / RHO
+    if continuous:                                       # the harvest: outflow plus the final broth
+        P, F, W = P + harv["prod"], F + harv["cells"], W + harv["vol"]
     return Batch(ok=ok, reason=reason, t_growth=t_growth or t, t_total=t, W0=W0, W_end=W, titer=P / W,
                  X_end=F / W, q_p=qp, product_kg=P, cells_kg=F, glucose_kg=acc["glc"], glucose_prod_kg=acc["glc_p"],
                  nh3_kg=acc["nh3"], o2_kmol=acc["o2"], co2_kmol=acc["co2"], evap_kg=acc["evap"],
                  feed_water_kg=acc["feedw"], comp_kWh=acc["comp"], agit_kWh=acc["agit"],
                  heat_kWh=acc["heat"], heat_ref_kWh=acc["ref"], our_max=our_peak,
                  heat_max_kW_m3=heat_peak, heat_max_kW=heat_peak_kW, comp_max_kW=comp_peak,
-                 air_max_kmol_h=air_peak, methanol_kg=acc["meoh"], series=ser, profile=prof)
+                 air_max_kmol_h=air_peak, methanol_kg=acc["meoh"], q_p_peak=qpk, W_switch=W_sw,
+                 series=ser, profile=prof)
 
 
 def _bisect(f, lo, hi, n=40, log=False, rtol=1e-4):
@@ -531,8 +633,10 @@ def _bisect(f, lo, hi, n=40, log=False, rtol=1e-4):
 
 def run_batch(v: STR, c: Conditions, host: Host, strain: Strain, X0: float, titer: float | None = None,
               c_s: float = 500.0, c_nh3: float = 268.0, keep_series: bool = False,
-              c_meoh: float = 791.0) -> Batch:
+              c_meoh: float = 791.0, continuous: tuple | None = None) -> Batch:
     """Solve W0 (end exactly at fill_max) and, in titer mode, q_p (end at the target titer).
+    In continuous mode the broth must reach fill_max at the switch to production instead, and the
+    titer is that of the harvest (outflow plus final broth); in the coupled secretion law q_p is q_ref.
 
     Both unknowns enter monotonically, so bracketed root finding is used: W_end rises with W0,
     and titer rises with q_p. If a target cannot be met inside the brackets, or the initial
@@ -541,10 +645,14 @@ def run_batch(v: STR, c: Conditions, host: Host, strain: Strain, X0: float, tite
     V_end = v.fill_max * v.volume_m3
 
     def sim(w0, qp, keep=False):
-        return simulate(v, c, host, strain, w0, X0, qp, c_s, c_nh3, keep_series=keep, c_meoh=c_meoh)
+        return simulate(v, c, host, strain, w0, X0, qp, c_s, c_nh3, keep_series=keep, c_meoh=c_meoh,
+                        continuous=continuous)
+
+    def filled(b_):
+        return b_.W_switch if continuous else b_.W_end
 
     def solve_W0(qp):
-        return _bisect(lambda w0: sim(w0, qp).W_end - V_end, 0.02 * V_end, 0.98 * V_end, n=40, rtol=1e-5)
+        return _bisect(lambda w0: filled(sim(w0, qp)) - V_end, 0.02 * V_end, 0.98 * V_end, n=40, rtol=1e-5)
 
     if titer is None:
         qp = strain.q_p
@@ -555,7 +663,7 @@ def run_batch(v: STR, c: Conditions, host: Host, strain: Strain, X0: float, tite
         if abs(b.titer - titer) > 0.02 * titer:
             b.ok = False
             b.reason = (b.reason + "; " if b.reason else "") + f"titer {titer} g/L not reachable (got {b.titer:.1f})"
-    if abs(b.W_end - V_end) > 0.03 * V_end:
+    if abs(filled(b) - V_end) > 0.03 * V_end:
         b.ok = False
         b.reason = (b.reason + "; " if b.reason else "") + "broth volume does not close at max fill"
     if v.min_fill and b.W0 < v.min_fill * v.volume_m3 * 0.999:

@@ -235,6 +235,29 @@ def titer_markers() -> dict:
     return out
 
 
+def plant_cost_check(tci_usd: float, fermentation_m3: float, output_t: float, exponent: float = 0.6) -> dict:
+    """The model's capital against disclosed plant costs (data/evidence/plants.yaml; option 4).
+
+    Liberation Labs (600 m3, 600-1,200 t/yr, $115M) is the one purpose-built PF plant with cost,
+    volume and output disclosed. It is scaled to the model plant's fermentation volume with the
+    six-tenths rule, cost ~ volume^n: per m3, cost/m3 x (V_model / V_plant)^(n - 1); n = 0.5-0.7
+    gives the band. Nominal money (a 2024 estimate against 2025 dollars; the index gap of a few
+    percent is inside the band). Returns $/m3 and $/(t/yr) for the model and the scaled plant."""
+    ev = {e["key"]: e for e in yaml.safe_load((ROOT / "data/evidence/plants.yaml").read_text())}
+    ll = ev["plant_capex_liberation_labs_richmond"]
+    V, cost = ll["values"]["fermentation_m3"], float(ll["value"])
+    scale = lambda n: (fermentation_m3 / V) ** (n - 1)   # noqa: E731
+    per_m3 = cost / V
+    out = dict(model_per_m3=tci_usd / fermentation_m3, model_per_tpy=tci_usd / output_t,
+               ll_per_m3=per_m3, ll_per_tpy=(cost / ll["values"]["output_t_high"], cost / ll["values"]["output_t_low"]),
+               ll_scaled_per_m3={str(n): per_m3 * scale(n) for n in (0.5, exponent, 0.7)},
+               ll_scaled_per_tpy={str(n): (cost / ll["values"]["output_t_high"] * scale(n),
+                                           cost / ll["values"]["output_t_low"] * scale(n)) for n in (0.5, exponent, 0.7)})
+    sf = ev["plant_capex_solar_foods_factory02_phase1"]
+    out["solar_foods_per_tpy_product"] = float(sf["value"]) * sf["values"]["eur_usd"] / sf["values"]["output_t"]
+    return out
+
+
 def required_targets() -> dict:
     """{product: [target $/kg target protein]} for the required-titer analysis (benchmarks.yaml)."""
     return yaml.safe_load((ROOT / "data/pf/benchmarks.yaml").read_text())["required_targets"]

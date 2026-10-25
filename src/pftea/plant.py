@@ -120,7 +120,8 @@ def _host(p) -> pf.Host:
     f = v(p, f"{h}.biomass_formula")
     return pf.Host(bio=th.biomass(f["C"], f["H"], f["O"], f["N"]), mu_max=v(p, f"{h}.mu_max_per_h"),
                    T_C=v(p, f"{h}.temperature_C"), maint_factor=v(p, f"{h}.maint_factor"),
-                   m_s_prod=_opt(p, f"{h}.m_s_prod_g_g_h"), m_s_prod_meoh=_opt(p, f"{h}.m_s_prod_methanol_g_g_h"))
+                   m_s_prod=_opt(p, f"{h}.m_s_prod_g_g_h"), m_s_prod_meoh=_opt(p, f"{h}.m_s_prod_methanol_g_g_h"),
+                   growth_yield_loss=_opt(p, "fermenter.growth_yield_loss", 0.0))
 
 
 def _vessel(p, volume=None) -> pf.STR:
@@ -150,11 +151,19 @@ def batch(p, keep_series=False) -> pf.Batch:
                        X_prod=v(p, "strain.X_prod_g_L"), mu_prod=v(p, "strain.mu_prod_per_h"),
                        t_prod=v(p, "strain.t_prod_h"), X_max=v(p, "strain.X_max_g_L"),
                        meoh_frac=_opt(p, "strain.methanol_frac_prod", 0.0),
-                       Y_ps_meoh=methanol_yield(p) if _opt(p, "strain.methanol_frac_prod", 0.0) > 0 else None)
+                       Y_ps_meoh=methanol_yield(p) if _opt(p, "strain.methanol_frac_prod", 0.0) > 0 else None,
+                       secretion=_opt(p, "strain.secretion_model", "constant"),
+                       qp_kq=_opt(p, "strain.qp_kq_per_h", 0.116), qp_mu_ref=_opt(p, "strain.qp_mu_ref_per_h", 0.1),
+                       qp_floor=_opt(p, "strain.qp_floor_frac", 0.0))
+    if strain.coupled and _opt(p, "strain.q_ref_mg_g_h") is not None:   # rate mode: a given strain, titer is the result
+        strain.q_p = v(p, "strain.q_ref_mg_g_h") / 1000
+    cont = ((v(p, "fermenter.dilution_rate_per_h"), v(p, "fermenter.continuous_run_h"))
+            if _opt(p, "fermenter.mode", "fed_batch") == "continuous" else None)
     return pf.run_batch(_vessel(p), c, host, strain, X0=v(p, "strain.X0_g_L"),
-                        titer=v(p, "strain.titer_g_L"), c_s=v(p, "fermenter.feed_glucose_g_L"),
+                        titer=None if strain.q_p is not None else v(p, "strain.titer_g_L"),
+                        c_s=v(p, "fermenter.feed_glucose_g_L"),
                         c_nh3=v(p, "fermenter.nh3_feed_g_L"), keep_series=keep_series,
-                        c_meoh=v(p, "fermenter.feed_methanol_g_L"))
+                        c_meoh=v(p, "fermenter.feed_methanol_g_L"), continuous=cont)
 
 
 def atp_per_residue(p) -> float:
@@ -227,8 +236,8 @@ def evaluate(p, keep_series=False) -> Result:
     if v(p, "strain.Y_ps_g_g") > ceiling:
         flags.append(f"Y_ps above the energetic ceiling {ceiling:.2f} g/g")
     qmax = _opt(p, "strain.q_p_max_mg_g_h")
-    if qmax and np.isfinite(b.q_p) and b.q_p * 1000 > qmax * 1.001:
-        flags.append(f"specific productivity {b.q_p * 1000:.1f} > {qmax:g} mg/g/h")
+    if qmax and np.isfinite(b.q_p_peak) and b.q_p_peak * 1000 > qmax * 1.001:
+        flags.append(f"specific productivity {b.q_p_peak * 1000:.1f} > {qmax:g} mg/g/h")
 
     # ---------------------------------------------------------------- 2. downstream per batch
     spec = v(p, "plant.spec")
@@ -599,7 +608,7 @@ def evaluate(p, keep_series=False) -> Result:
     }
     design = dict(N_prod=N_prod, N_prod_int=N_int, n_batches=n_batches, cycle_h=cycle,
                   t_growth_h=b.t_growth, t_total_h=b.t_total, W0_m3=b.W0, W_end_m3=W, X_end=X, titer=b.titer,
-                  q_p_mg_g_h=b.q_p * 1000, recovery=R_total, recovery_cell_removal=R_cell,
+                  q_p_mg_g_h=b.q_p_peak * 1000, q_ref_mg_g_h=b.q_p * 1000, recovery=R_total, recovery_cell_removal=R_cell,
                   target_per_batch_kg=target, product_made_kg=P_in, o2_kmol_batch=b.o2_kmol,
                   powder_per_batch_kg=powder, purity_dry=purity, otr_max=omax, our_peak=b.our_max,
                   heat_peak_kW_m3=b.heat_max_kW_m3, seeds_m3=seeds, seed_units=seed_units, mf_m2=mf_m2,

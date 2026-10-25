@@ -15,4 +15,5 @@ $PY scripts/build_explorer.py
 $PY scripts/build_si_workbook.py
 typst compile --root . report/pf_tea_report.typ
 typst compile --root . report/memo.typ
+typst compile --root . report/preprint.typ
 echo "built: results/, docs/figures/, docs/explorer.html, report/*.pdf, report/pf_tea_SI.xlsx"

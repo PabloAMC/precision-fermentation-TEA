@@ -161,15 +161,15 @@ def reported_market(key, label, rp, comparators=()):
 
 
 if "lf" in PRODS:
-    reported_market("lf", "Dairy lactoferrin (reports and trade press, grade C)", LFP,
+    reported_market("lf", "Dairy lactoferrin (reports and trade press; company claims or surveys)", LFP,
                     [dict(label="Intelligen's model, " + {"lf": "cation exchange", "lf_ufdf_only": "UF/DF only"}[c["ours"]],
                           value=c["value_money_year"],
                           ours=R["lactoferrin"].get("reconciliation", {}).get(c["ours"], {}).get("cop"))
                      for c in LFP.get("comparators", []) if c.get("ours")])
 if "alac" in PRODS:
-    reported_market("alac", "Dairy alpha-lactalbumin (market reports, grade C)", R["alac"]["reported_prices"])
+    reported_market("alac", "Dairy alpha-lactalbumin (market reports; company claims or surveys)", R["alac"]["reported_prices"])
 if "alb" in PRODS:
-    reported_market("alb", "Bulk serum albumin (technical BSA trade values, grade C)", R["albumin"]["reported_prices"])
+    reported_market("alb", "Bulk serum albumin (technical BSA trade values; company claims or surveys)", R["albumin"]["reported_prices"])
 powder_frac = {p: R["base"][p]["per_kg_powder"] / R["base"][p]["msp_ccf"] for p in PRODS}
 EQ = R["equivalents"]["sources"]
 
@@ -427,7 +427,7 @@ __PRODRADIOS__
         <p class="hint" id="mkt-note"></p>
         <details><summary>Show the market prices</summary><div class="tablewrap"><table id="mkt-table"></table></div></details>
         <details><summary>Other protein ingredients, for context</summary><div class="tablewrap"><table id="ctx-table"></table></div>
-          <p class="hint" style="margin-top:6px">$ per kg protein. Export unit values: 2015–2025 in 2025 dollars. GFI 2025 ranges: nominal, about 2024–2025 (industry data, grade C).</p></details>
+          <p class="hint" style="margin-top:6px">$ per kg protein. Export unit values: 2015–2025 in 2025 dollars. GFI 2025 ranges: nominal, about 2024–2025 (industry data; company claims or surveys).</p></details>
       </div>
       <div class="panel">
         <h2>What the price is made of</h2>
@@ -450,7 +450,7 @@ __REFRADIOS__
   <section class="notes">
     <p><b>What this is.</b> A cost with a capital charge of 14.6% of investment a year (7.5% over 10 years), not a market price. It excludes R&amp;D, licences, regulatory work, sales and first-of-a-kind premiums.</p>
     <p><b>Limits.</b> A 200&nbsp;m&sup3; fermenter transfers at most 200&nbsp;mol&nbsp;O&#8322; per m&sup3; of cell-free liquid per hour (about 130 per m&sup3; of broth at the base cell density; Humbird's air-sparged value) and removes at most 25&nbsp;kW/m&sup3; of heat; a batch must start at least 30% full, with glucose fed at 500&nbsp;g/L; and cells secrete at most 40&nbsp;mg of protein per gram per hour, a judgment about 8 times the base design and above any published <i>K.&nbsp;phaffii</i> value. A design that breaks any of these is marked; its price is shown but cannot be achieved as designed. The minimum fill and the feed concentration are design choices: with a 600&nbsp;g/L feed the ceiling rises (report, Q3).</p>
-    <p><b>Market prices.</b> Export unit values from UN&nbsp;Comtrade and Eurostat, deflated to 2025 dollars. Per kg of protein they assume 80% protein for whey (the minimum for its trade code; more isolate in the mix would lower the per-protein price) and 81.1% for egg white; "per kg powder" compares the same export prices per kg of product with our powder's cost per kg. The 2026 whey spot is from USDA Dairy Market News narrative quotes. Lactoferrin prices are reported ranges (trade press and reports, grade C). Our figures are production costs with a return on capital, not selling prices: a seller would add margin, sales and distribution.</p>
+    <p><b>Market prices.</b> Export unit values from UN&nbsp;Comtrade and Eurostat, deflated to 2025 dollars. Per kg of protein they assume 80% protein for whey (the minimum for its trade code; more isolate in the mix would lower the per-protein price) and 81.1% for egg white; "per kg powder" compares the same export prices per kg of product with our powder's cost per kg. The 2026 whey spot is from USDA Dairy Market News narrative quotes. Lactoferrin prices are reported ranges (trade press and reports; company claims or surveys). Our figures are production costs with a return on capital, not selling prices: a seller would add margin, sales and distribution.</p>
     <p><b>Milk and egg equivalents.</b> The price of replacing the protein of a litre of milk (33.7&nbsp;g) or of one egg's white (3.64&nbsp;g) with PF protein, beside what the litre or the egg costs. This flatters PF: charging the whole price of milk or eggs to their protein makes them look dearer per gram, when fat, lactose and yolk carry part of that price. The same egg white bought as dried egg white cost __EGGWHITE__ in 2015–2025, and a litre's whey protein bought as WPC80/WPI __WHEYSHARE__ of the farm milk price in the same year.</p>
     <p class="hint" id="gen"></p>
   </section>
@@ -715,7 +715,7 @@ function drawMarket(v) {
     : `${mk.label}, ${unitWord()}, 2025 dollars. This design would have been cheaper than ${all.filter(p => p >= cur).length} of ${all.length} annual export prices.`;
   const curP = v ? v[0] : null;   // $/kg protein, whatever the unit shown
   $("ctx-table").innerHTML = `<thead><tr><th>Ingredient</th><th class="r">$/kg protein</th><th>Source</th><th>This design</th></tr></thead><tbody>` +
-    D.context.map(c => `<tr><td>${c.label}</td><td class="r">${money(c.lo)}–${money(c.hi)}</td><td>${c.when || "grade " + c.grade}</td><td>${curP == null ? "–" : curP < c.lo ? "cheaper" : curP <= c.hi ? "within the range" : curP < 1.05 * c.hi ? "at the top edge" : (curP / c.hi).toFixed(1) + "× the top"}</td></tr>`).join("") + "</tbody>";
+    D.context.map(c => `<tr><td>${c.label}</td><td class="r">${money(c.lo)}–${money(c.hi)}</td><td>${c.when || ({A: "measured", B: "published design", C: "company claim or survey", D: "analogy or judgment", E: "guess"}[c.grade] || c.grade)}</td><td>${curP == null ? "–" : curP < c.lo ? "cheaper" : curP <= c.hi ? "within the range" : curP < 1.05 * c.hi ? "at the top edge" : (curP / c.hi).toFixed(1) + "× the top"}</td></tr>`).join("") + "</tbody>";
   const yrs = [...new Set(mk.series.flatMap(s_ => Object.keys(s_.pts)))].sort();
   $("mkt-table").innerHTML = `<thead><tr><th>Year</th>${mk.series.map(s_ => `<th class="r">${s_.label}</th>`).join("")}</tr></thead><tbody>` +
     yrs.map(y => `<tr><td>${y}</td>${mk.series.map(s_ => `<td class="r">${s_.pts[y] == null ? "–" : fmtU(s_.pts[y])}</td>`).join("")}</tr>`).join("") +

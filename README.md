@@ -18,8 +18,8 @@ It covers seven proteins on an equal footing:
 Short notes cover casein for rennet cheese, heme (soy leghemoglobin), transferrin and ovalbumin as a
 binder. A last section compares the sugar a PF plant needs with the feed that animals eat.
 
-**Start here:** the one-page memo (`report/memo.pdf`), then the summary of the report
-(`report/pf_tea_report.pdf`). `docs/GFI_SUBMISSION.md` lists the base-case numbers per protein.
+**Start here:** the one-page memo (`report/memo.pdf`), then the five-page preprint
+(`report/preprint.pdf`); the full report (`report/pf_tea_report.pdf`) has every method and result. `docs/GFI_SUBMISSION.md` lists the base-case numbers per protein.
 
 **Status.** No human expert has reviewed this work yet. The author built it with an AI assistant
 (Claude, Anthropic), and independent AI reviewers audited each version. `docs/AUDIT.md` and
@@ -51,7 +51,8 @@ models. pf-tea differs in five ways:
   removal and vessel volume. Most published models assume a titer and a yield and never ask whether a
   real fermenter could reach them.
 - **It shows where each number comes from.** Every input has a source, a short quote from that source
-  and an evidence grade from A (measured) to E (guess). The uncertainty charts are coloured by grade.
+  and the kind of evidence: measured, published design, company claim or survey, analogy or judgment,
+  or guess. The uncertainty charts are coloured by kind of evidence.
 - **It tests itself first.** Before any new claim, the model reproduces the market cost of baker's
   yeast with Humbird's workbook and rebuilds three published designs (NREL 2011, Intelligen 2025,
   Voutilainen 2021). `docs/VALIDATION.md` records the misses instead of tuning them away.
@@ -67,11 +68,26 @@ directions: Intelligen's ovalbumin design lands within a few percent of it, and 
 lactoferrin model comes out higher. Section 5.2 of the report ("Why published PF costs are lower")
 traces the differences line by line.
 
+## Simple or detailed
+
+The base case is the simple model. Three switches in `data/pf/base.yaml` turn on more physics;
+each is off by default, so the base numbers do not change:
+
+| Switch | Simple (base) | Detailed |
+|---|---|---|
+| `strain.secretion_model` | `constant`: one secretion rate in production, none while growing | `growth_coupled`: secretion falls as growth slows (Maurer 2006 shape, Rebnegger 2024 floor) |
+| `fermenter.growth_yield_loss` | `0`: a large tank behaves like a lab one | `0.065`: gradients in a large tank cost 6.5% of the growth yield (George 1998) |
+| `fermenter.mode` | `fed_batch` | `continuous`: production runs as a chemostat for 10 days (Yamanie 2026) |
+
+The scenario `data/pf/scenarios/detailed.yaml` switches them on together. A fourth check,
+`benchmarks.plant_cost_check`, compares the model's capital with a real plant (`docs/VALIDATION.md`).
+
 ## What you get
 
 | What | Where |
 |---|---|
 | One-page memo | `report/memo.pdf` |
+| Short preprint (5 pages) | `report/preprint.pdf` (source `report/preprint.typ`) |
 | Full report (preprint draft) | `report/pf_tea_report.pdf` (source `report/pf_tea_report.typ`) |
 | Workbook with every parameter and result | `report/pf_tea_SI.xlsx` |
 | Interactive explorer (no install) | `docs/explorer.html` |
@@ -86,11 +102,11 @@ New to bioprocessing? Read `docs/PRIMER.md` first.
 
 1. Plain Python in `src/pftea/` holds every equation, and each module's docstring states them. No
    hidden cost engine exists.
-2. `data/pf/base.yaml` holds every number, with a range, an evidence grade (A–E) and a source.
+2. `data/pf/base.yaml` holds every number, with a range, the kind of evidence and a source.
    `data/evidence/*.yaml` holds the evidence, with quotes and page locators.
 3. The model passed its checks against baker's yeast and three published models before it made any new
    claim. `docs/VALIDATION.md` records the misses.
-4. The four scenarios stay separate. A tornado chart, coloured by evidence grade, and a Monte Carlo
+4. The four scenarios stay separate. A tornado chart, coloured by the kind of evidence, and a Monte Carlo
    over feasible plants show the uncertainty.
 
 `docs/SCOPE.md` states the question, and `PLAN.md` the phases.
@@ -98,12 +114,12 @@ New to bioprocessing? Read `docs/PRIMER.md` first.
 ## Layout
 
 ```
-data/pf/base.yaml           all parameters: value, range, grade, source (US and EU prices)
+data/pf/base.yaml           all parameters: value, range, kind of evidence, source (US and EU prices)
 data/pf/scenarios/          academic, industry, physical_limit, lactoferrin, casein, albumin, cheese, heme, transferrin, binder
 data/pf/benchmarks.yaml     incumbent prices and literature titers shown on the figures
 data/evidence/              hosts, dsp, engineering, prices, placeholders, milk_egg, lactoferrin, casein,
                             ovomucoid, albumin, alac, heme, feed, kinetic, transferrin, binder:
-                            graded evidence with quotes
+                            sourced evidence with quotes
 data/calibration/           the four calibration cases
 data/prices/                one-series CSVs behind prices.yaml
 data/titers.csv             every public titer/yield data point
@@ -141,7 +157,7 @@ uv venv --python 3.12 .venv && uv pip install -p .venv/bin/python -e ".[dev]"
 .venv/bin/python scripts/make_figures.py
 .venv/bin/python scripts/explorer_grid.py && .venv/bin/python scripts/build_explorer.py
 .venv/bin/python scripts/build_si_workbook.py
-typst compile --root . report/pf_tea_report.typ && typst compile --root . report/memo.typ
+typst compile --root . report/pf_tea_report.typ && typst compile --root . report/memo.typ && typst compile --root . report/preprint.typ
 ```
 
 Never run `uv run` inside the repo without `--no-project`: it re-syncs `.venv` and strips

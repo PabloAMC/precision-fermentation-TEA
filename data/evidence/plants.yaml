@@ -1,0 +1,70 @@
+# data/evidence/plants.yaml: disclosed capital costs of real fermentation plants (option 4,
+# "real plant costs"; added 2026-10-25). Used only as a check on the model's capital
+# (benchmarks.plant_cost_check, docs/VALIDATION.md), never as a model input.
+# All are company releases or trade press (grade C at best). Read through a research agent with
+# web access: every quote below was returned as the page's own words but passed through a
+# language model; re-check each against its URL before citing it. Money is nominal unless noted.
+# Comparability: only Liberation Labs is a purpose-built precision-fermentation plant with cost,
+# fermenter volume and output disclosed. Biomass plants (Quorn, ENOUGH, Angel Yeast) sell whole
+# cells with little purification, often in wet tonnes, and are brownfield or co-located: a floor.
+
+- key: plant_capex_liberation_labs_richmond
+  value: 115000000
+  unit: USD (2023-25 estimate, whole greenfield site)
+  grade: C
+  source: "AgFunderNews, 'Liberation Labs bags $25m USDA-backed loan' (2025); fermenter and output figures from Green Queen and Agroempresario"
+  doi_or_url: https://agfundernews.com/liberation-labs-bags-25m-usda-backed-loan
+  locator: article body
+  quote: "it would take $115 million to get the site in Indiana up and running"
+  read: html
+  note: >-
+    Contract precision-fermentation plant, Richmond, Indiana; about 75% built and paused for
+    funding in June 2026, so the final cost is likely higher (the research pass judged P ~0.6 that
+    it exceeds $130M). Capacity: "designed around four 150,000-liter fermenters, providing a total
+    fermentation capacity of 600,000 liters" (agroempresario.com) = 600 m3; output "between 600 and
+    1,200 tonnes of protein annually" (greenqueen.com.hk). values below are for the check.
+  values: {fermentation_m3: 600, output_t_low: 600, output_t_high: 1200, money_year: 2024}
+
+- key: plant_capex_solar_foods_factory02_phase1
+  value: 134000000
+  unit: EUR (Oct 2025 estimate, phase 1, whole site incl. hydrogen production and partner-built real estate)
+  grade: C
+  source: "Solar Foods Oyj, investor release (inside information), October 2025"
+  doi_or_url: https://investors.solarfoods.com
+  locator: release on Factory 02 investment estimate
+  quote: "design capacity of the first phase is 3.2 kilotons per year and the total investment is estimated to be EUR 134 million"
+  read: html
+  note: >-
+    Gas fermentation (H2/CO2), not sugar-fed precision fermentation; includes an electrolyser and
+    real estate a PF plant would not need, excludes sugar handling. Per tonne of product (Solein,
+    whole-cell protein powder), not per tonne of a purified protein. Phases 1+2: EUR 182M for
+    6.4 kt/yr (same release).
+  values: {output_t: 3200, eur_usd: 1.16, money_year: 2025}
+
+- key: plant_capex_quorn_billingham_expansion
+  value: 150000000
+  unit: GBP (2017, brownfield expansion)
+  grade: C
+  source: "just-food, 'Quorn to spend GBP150m...' (2017); FoodNavigator (15 Nov 2018) for output"
+  doi_or_url: https://www.just-food.com/news/quorn-to-spend-gbp150m
+  locator: article body
+  quote: "spend GBP150m (US$195.5m) on its facility in Billingham"
+  read: html
+  note: >-
+    One added airlift fermenter and a 9,500 m2 factory beside existing plant; "adding approximately
+    20,000 tonnes per annum" (FoodNavigator) of wet mycoprotein. A floor, not comparable.
+  values: {output_t: 20000, usd: 195500000}
+
+- key: plant_capex_angel_yeast_protein_yichang
+  value: 970450000
+  unit: CNY (2026 plan, 20 kt/yr yeast-protein line plus blending and environmental facilities)
+  grade: D
+  source: "Angel Yeast Co. (SSE 600298) announcement, 1 Sep 2026, via filingreader.com"
+  doi_or_url: https://filingreader.com/news-wire/shanghai/2026-09-01/
+  locator: announcement summary
+  quote: "investment totaling 97,045万元 ... 20,000 tons of yeast protein"
+  read: html
+  note: >-
+    Read through a filing-summary site, not the exchange filing itself (re-check against SSE
+    600298). Whole-cell yeast protein; a floor, not comparable. About USD 137M at 7.1 CNY/USD.
+  values: {output_t: 20000, cny_usd: 7.1}

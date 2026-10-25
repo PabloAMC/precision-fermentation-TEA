@@ -623,3 +623,85 @@ def test_binder_cost_in_use_identity():
     mc, dose, frac = b["use"]["mc_frac"], b["use"]["egg_protein_product_frac"], b["use"]["protein_frac_of_product"]
     assert mc["low"] <= mc["value"] <= mc["high"] and dose["low"] <= dose["value"] <= dose["high"]
     assert 0 < frac["value"] <= 1 and 0 < b["price"]["mc_usd_kg"]["value"]
+
+
+# ---------------------------------------------------------------- optional physics (detailed.yaml)
+def _carbon_closes(p, r):
+    b = r.batch
+    host = plant._host(p)
+    prot = pr.protein(v(p, "plant.product"))
+    c_in = b.glucose_kg / pf.MW["glc"] * 6 + b.W0 * v(p, "strain.X0_g_L") / host.growth.bio.mw
+    c_out = b.cells_kg / host.growth.bio.mw + b.product_kg / prot.species.mw + b.co2_kmol
+    return c_out == pytest.approx(c_in, rel=0.005)
+
+
+def test_options_off_by_default(blg):
+    """The base case is the model with every option at its default."""
+    p, r = blg
+    q = params.override(p, {"strain.secretion_model": "constant", "fermenter.growth_yield_loss": 0.0,
+                            "fermenter.mode": "fed_batch"})
+    assert plant.evaluate(q).msp_ccf == pytest.approx(r.msp_ccf, rel=1e-12)
+
+
+def test_coupled_secretion_law():
+    """q_p(mu_ref) = q_ref; q_p(0) = floor x q_ref; rises with mu and saturates (Maurer shape)."""
+    s = pf.Strain(product=pr.protein("blg"), Y_ps=0.465, X_prod=107, mu_prod=0.0, t_prod=72,
+                  secretion="growth_coupled", qp_kq=0.116, qp_mu_ref=0.1, qp_floor=0.038)
+    assert s.qp_of(0.1, 2.0) == pytest.approx(2.0)
+    assert s.qp_of(0.0, 2.0) == pytest.approx(0.076)
+    assert s.qp_of(0.05, 1.0) < s.qp_of(0.1, 1.0) < s.qp_of(0.2, 1.0) < (0.038 + 0.962 / (0.1 / 0.216))
+    assert pf.Strain(product=pr.protein("blg"), Y_ps=0.465, X_prod=107, mu_prod=0.0, t_prod=72).qp_of(0.2, 3.0) == 3.0
+
+
+def test_coupled_titer_mode_hits_target_and_balances():
+    p = params.override(BASE, {"plant.product": "blg", "strain.secretion_model": "growth_coupled"})
+    r = plant.evaluate(p)
+    assert r.design["titer"] == pytest.approx(v(p, "strain.titer_g_L"), rel=0.02)
+    assert r.design["q_p_mg_g_h"] > r.design["q_ref_mg_g_h"]     # peak secretion happens in fast growth
+    assert _carbon_closes(p, r)
+
+
+def test_yield_loss_costs_glucose_and_balances(blg):
+    """A large-tank loss L respires extra glucose: more glucose per kg, carbon still closes."""
+    p, r = blg
+    q = params.override(p, {"fermenter.growth_yield_loss": 0.065})
+    r2 = plant.evaluate(q)
+    assert r2.physical["glucose_kg"] > r.physical["glucose_kg"]
+    assert r2.msp_ccf > r.msp_ccf
+    assert _carbon_closes(q, r2)
+
+
+def test_yield_loss_lowers_growth_yield_by_L():
+    """Growth rates alone (no maintenance): glucose per cell made rises by 1/(1-L)."""
+    p = params.override(BASE, {"plant.product": "blg"})
+    host = plant._host(p)
+    s = pf.Strain(product=pr.protein("blg"), Y_ps=0.465, X_prod=107, mu_prod=0.0, t_prod=72)
+    import dataclasses
+    lossy = dataclasses.replace(host, growth_yield_loss=0.2)
+    g = lambda h, mu: pf._rates(h, s, mu, 0.0, 1000.0)[0][pf.GLC]   # noqa: E731
+    growth_glc = lambda h: g(h, 0.1) - g(h, 0.0)                     # noqa: E731
+    assert growth_glc(lossy) == pytest.approx(growth_glc(host) / 0.8, rel=1e-9)
+
+
+def test_continuous_harvest_and_steady_titer():
+    """Chemostat: harvest = W (1 + D t_run); the outflow titer tends to q_p X / D."""
+    D, t_run = 0.05, 240
+    p = params.override(BASE, {"plant.product": "blg", "strain.secretion_model": "growth_coupled",
+                               "strain.q_ref_mg_g_h": 2.1, "fermenter.mode": "continuous",
+                               "fermenter.dilution_rate_per_h": D, "fermenter.continuous_run_h": t_run})
+    r = plant.evaluate(p)
+    b = r.batch
+    assert b.W_switch == pytest.approx(v(p, "fermenter.fill_max") * v(p, "fermenter.volume_m3"), rel=0.03)
+    assert b.W_end == pytest.approx(b.W_switch * (1 + D * t_run), rel=0.02)
+    s = pf.Strain(product=pr.protein("blg"), Y_ps=0.465, X_prod=107, mu_prod=0.0, t_prod=72,
+                  secretion="growth_coupled", qp_floor=v(p, "strain.qp_floor_frac"))
+    p_ss = s.qp_of(D, 2.1e-3) * v(p, "strain.X_prod_g_L") / D
+    assert r.design["titer"] == pytest.approx(p_ss, rel=0.05)
+    assert sc.is_feasible(r)
+
+
+def test_continuous_flags_o2_at_high_dilution():
+    p = params.override(BASE, {"plant.product": "blg", "strain.secretion_model": "growth_coupled",
+                               "strain.q_ref_mg_g_h": 2.1, "fermenter.mode": "continuous",
+                               "fermenter.dilution_rate_per_h": 0.15})
+    assert not sc.is_feasible(plant.evaluate(p))
