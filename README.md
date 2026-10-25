@@ -18,8 +18,8 @@ It covers seven proteins on an equal footing:
 Short notes cover casein for rennet cheese, heme (soy leghemoglobin), transferrin and ovalbumin as a
 binder. A last section compares the sugar a PF plant needs with the feed that animals eat.
 
-**Start here:** the one-page memo (`report/memo.pdf`), then the summary of the report
-(`report/pf_tea_report.pdf`). `docs/GFI_SUBMISSION.md` lists the base-case numbers per protein.
+**Start here:** the one-page memo (`report/memo.pdf`), then the five-page preprint
+(`report/preprint.pdf`); the full report (`report/pf_tea_report.pdf`) has every method and result. `docs/GFI_SUBMISSION.md` lists the base-case numbers per protein.
 
 **Status.** No human expert has reviewed this work yet. The author built it with an AI assistant
 (Claude, Anthropic), and independent AI reviewers audited each version. `docs/AUDIT.md` and
@@ -87,6 +87,7 @@ The scenario `data/pf/scenarios/detailed.yaml` switches them on together. A four
 | What | Where |
 |---|---|
 | One-page memo | `report/memo.pdf` |
+| Short preprint (5 pages) | `report/preprint.pdf` (source `report/preprint.typ`) |
 | Full report (preprint draft) | `report/pf_tea_report.pdf` (source `report/pf_tea_report.typ`) |
 | Workbook with every parameter and result | `report/pf_tea_SI.xlsx` |
 | Interactive explorer (no install) | `docs/explorer.html` |
@@ -156,7 +157,7 @@ uv venv --python 3.12 .venv && uv pip install -p .venv/bin/python -e ".[dev]"
 .venv/bin/python scripts/make_figures.py
 .venv/bin/python scripts/explorer_grid.py && .venv/bin/python scripts/build_explorer.py
 .venv/bin/python scripts/build_si_workbook.py
-typst compile --root . report/pf_tea_report.typ && typst compile --root . report/memo.typ
+typst compile --root . report/pf_tea_report.typ && typst compile --root . report/memo.typ && typst compile --root . report/preprint.typ
 ```
 
 Never run `uv run` inside the repo without `--no-project`: it re-syncs `.venv` and strips
