@@ -41,19 +41,30 @@
 #let wheyobs = inc.whey.series.values().map(s => s.values()).flatten()
 #let above(x) = wheyobs.filter(p => p >= x).len()
 
-#set page(paper: "a4", margin: (x: 1.9cm, y: 1.1cm))
-#set text(font: ("Libertinus Serif", "New Computer Modern"), size: 9.8pt)
+#set page(paper: "a4", margin: (x: 1.8cm, y: 1.0cm))
+#set text(font: ("Libertinus Serif", "New Computer Modern"), size: 9.6pt)
 #set par(justify: true, leading: 0.5em, spacing: 0.7em)
 #set table(stroke: none, inset: (x: 4pt, y: 2.3pt))
 #show table: set text(size: 8.6pt)
 
 #let BD(q) = R.best_design_base.at(str(q), default: none)
+// the price in one equation: capital-related charges are fixed fractions of the investment (report/common.typ, CORE)
+#let P = yaml("../data/pf/base.yaml")
+#let CRF = { let i = P.finance.ccf_rate.value; i / (1 - calc.pow(1 + i, -P.finance.ccf_life_y.value)) }
+#let FIXED = P.finance.maintenance_frac_tci.value + P.finance.insurance_tax_frac_tci.value
+#let CAP = blg.per_kg.at("capital charge") + blg.per_kg.maintenance + blg.per_kg.insurance
 #let QP(q) = R.physical_limit.at("blg/humbird/q_p_max_" + str(q), default: none)
 
 #text(size: 13pt, weight: "bold")[Precision-fermented dairy, egg and serum proteins: what they cost, and where evidence would help]
 #v(-0.3em)
 #text(size: 8.5pt, fill: rgb("#52514e"))[Memo · v4.1, seven proteins (#R.generated) · Pablo Antonio Moreno Casares · techno-economic model `pf-tea`,
 Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs · prepared with an AI assistant; not yet reviewed by human experts]
+
+*How the price works.* Figures are minimum selling prices: costs per kg of protein including a capital charge that repays
+the plant over #P.finance.ccf_life_y.value years at #fx(100 * P.finance.ccf_rate.value, d: 1)% (#fx(100 * CRF, d: 1)% of the investment a year), not market prices.
+Base β-lactoglobulin, #money(blg.msp_ccf)/kg: sugar #money(blg.per_kg.glucose), the plant #money(CAP) (that charge plus #fx(100 * FIXED)%/yr maintenance and insurance,
+over what each m³ of fermenter makes), the rest #money(blg.msp_ccf - CAP - blg.per_kg.glucose). Each m³ makes more when cells secrete faster
+(mg of protein per g of cells per hour); the _titer_ is grams per litre at harvest.
 
 *Bottom line.*
 - *Today's public strains cost far too much.* At the best peer-reviewed titers, β-lactoglobulin
@@ -64,8 +75,8 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
   (casein) per kg of protein in 2015–2025 (2025 dollars). Only one public titer comes near the design point,
   and a company reports it: EVERY's 30 g/L ovomucoid patent example, at #money(S("academic/ovd_patent").msp_ccf).
 - *At the titers in companies' own cost models, the commodity proteins near their markets.* At
-  42 g/L, BLG costs #money(S("industry/blg").msp_ccf) (#money(S("industry/blg/light").msp_ccf) with the lighter
-  accounting of NREL-style design reports), OVA #money(S("industry/ova").msp_ccf), ovomucoid
+  42 g/L, BLG costs #money(S("industry/blg").msp_ccf) (#money(S("industry/blg/light").msp_ccf) with
+  design-report capital, NREL-style), OVA #money(S("industry/ova").msp_ccf), ovomucoid
   #money(S("industry/ovd").msp_ccf) and β-casein #money(S("industry/cas").msp_ccf). Whey sold above the BLG figure
   in #above(S("industry/blg").msp_ccf) of #wheyobs.len() annual export prices in 2015–2025. Casein has the thinnest
   evidence: no secreted casein titer is public.
@@ -75,15 +86,14 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
   today's biology and capital, the best design reaches #money(BD(40).msp_ccf)/kg BLG at 40 mg/g/h and
   #money(BD(10).msp_ccf) at 10. No published *K. phaffii* process comes near either rate; the best glucose
   fed-batch we found reached 2.1.
-- *Sugar is not the problem.* Glucose makes up #fx(100 * R.floor.products.blg.us_midwest.glucose_usd / R.floor.products.blg.us_midwest.msp)%
-  of the base cost (#usd(R.floor.products.blg.us_midwest.glucose_usd, d: 1)/kg BLG). That is no more than an animal's
+- *Sugar is not the problem.* The base case's glucose (#usd(R.floor.products.blg.us_midwest.glucose_usd, d: 1)/kg BLG) costs no more than an animal's
   feed per kg of protein, with all the feed charged to protein (#usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.feed)), d: 1)
-  in the US). The plant makes the gap: #usd(R.floor.products.blg.us_midwest.other, d: 0)/kg, against
+  in the US). The gap is everything but the feedstock: #usd(R.floor.products.blg.us_midwest.other, d: 0)/kg in the plant, against
   #usd(calc.min(..R.floor.animals.values().map(a => a.regions.us_midwest.other)), d: 0)–#usd(calc.max(..R.floor.animals.values().map(a => a.regions.us_midwest.other)), d: 0) on the farm.
 - *A best case, not a floor.* Set every assumed limit at its best, with 400 m³ vessels and 100 kt/yr. If
   cells secrete 40 mg/g/h, BLG, OVA, ovomucoid and β-casein then cost #money(PL("blg/humbird").msp_ccf),
   #money(PL("ova/humbird").msp_ccf), #money(PL("ovd/humbird").msp_ccf) and #money(PL("cas/humbird").msp_ccf) per kg.
-  At 10 mg/g/h BLG costs #money(QP(10).msp_ccf); at the best rate shown so far (2.1 mg/g/h), #money(QP(2.1).msp_ccf).
+  At 10 mg/g/h BLG costs #money(QP(10).msp_ccf)\; at the best rate shown so far (2.1 mg/g/h), #money(QP(2.1).msp_ccf).
 - *Scarce proteins are the easier case.* Intelligen's lactoferrin design reaches 10 g/L with methanol. At that
   titer, a 250 t/yr plant makes lactoferrin for #money(R.base_light.lf.msp_ccf)–#money(lfb.msp_ccf)/kg
   (#money(LF.cases.at("lf_methanol/humbird").msp_ccf) costed on methanol). That is #where(lfb.msp_ccf, MKT("lf")) the
@@ -117,7 +127,7 @@ Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs 
   align: (left,) + PRODS.map(_ => right),
   table.header([*\$/kg protein, US*], ..PRODS.map(p => [*#NAME.at(p)*])),
   table.hline(stroke: 0.5pt + rgb("#c3c2b7")),
-  [best public academic strain], ..PRODS.map(p => [#money(S("academic/" + p).msp_ccf)]),
+  [best published strain], ..PRODS.map(p => [#money(S("academic/" + p).msp_ccf)]),
   [base case (30 g/L; lactoferrin 10 g/L)], ..PRODS.map(p => [#money(R.base.at(p).msp_ccf)]),
   [base case, design-report capital], ..PRODS.map(p => [#money(R.base_light.at(p).msp_ccf)]),
   [industry benchmark (42 g/L)], ..PRODS.map(p => [#money(S("industry/" + p).msp_ccf)]),
@@ -147,8 +157,7 @@ is what people buy milk for. Egg white (OVA, ovomucoid) carries far more animal-
 instead of 7.5% over 10, would cut #usd(R.policy.at("EU base") - R.policy.at("EU, capital at 4%/20 yr"), d: 1)/kg.
 These are cost effects on one plant, not policy recommendations.
 
-#text(size: 8.3pt, fill: rgb("#52514e"))[*Caveats.* These are production costs with a 14.6%/yr capital charge, not
-market prices. They exclude R&D, licensing, regulation, sales, start-up, failed batches and the premium of a
+#text(size: 8.3pt, fill: rgb("#52514e"))[*Caveats.* Costs exclude R&D, licensing, regulation, sales, start-up, failed batches and the premium of a
 first plant. Strain parameters rest on published designs and company-reported averages.
 The casein and lactoferrin titers come from other proteins or species. Only AI reviewers have audited the work since
 version 2. Full report, audit log and data: the `pf-tea` repository.]
