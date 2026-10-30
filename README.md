@@ -115,10 +115,11 @@ New to bioprocessing? Read `docs/PRIMER.md` first.
 
 ```
 data/pf/base.yaml           all parameters: value, range, kind of evidence, source (US and EU prices)
-data/pf/scenarios/          academic, industry, physical_limit, lactoferrin, casein, albumin, cheese, heme, transferrin, binder
+data/pf/scenarios/          academic, industry, physical_limit, lactoferrin, casein, albumin, cheese, heme, transferrin, binder,
+                            detailed (the three optional physics switches on)
 data/pf/benchmarks.yaml     incumbent prices and literature titers shown on the figures
 data/evidence/              hosts, dsp, engineering, prices, placeholders, milk_egg, lactoferrin, casein,
-                            ovomucoid, albumin, alac, heme, feed, kinetic, transferrin, binder:
+                            ovomucoid, albumin, alac, heme, feed, kinetic, transferrin, binder, plants:
                             sourced evidence with quotes
 data/calibration/           the four calibration cases
 data/prices/                one-series CSVs behind prices.yaml
@@ -135,12 +136,18 @@ src/pftea/plant.py          whole plant: batch -> DSP -> scale -> capital -> cos
 src/pftea/finance.py        capital charge, DCF
 src/pftea/calibration.py    anchors 2-4
 src/pftea/scenarios.py      scenarios, cost maps, bridge, required titer, tornado, Monte Carlo
-src/pftea/benchmarks.py     incumbent prices per kg protein, titer markers, claims
+src/pftea/benchmarks.py     incumbent prices per kg protein, titer markers, claims, real-plant capital check
+src/pftea/floor.py          metabolic floor: least sugar, O2 and heat per kg of protein; productivity bound
+src/pftea/balances.py       one batch's sugar and O2 split by use, for checking by hand
+src/pftea/params.py         loads base.yaml, applies scenario overrides, samples ranges
+src/pftea/labels.py         readable names for parameter paths (text only)
 scripts/run_analyses.py     every result -> results/analyses.json (--only to rerun sections)
 scripts/make_figures.py     docs/figures/*.png
 scripts/explorer_grid.py    results/explorer_grid.json (parallel)
 scripts/build_explorer.py   docs/explorer.html
 scripts/build_si_workbook.py report/pf_tea_SI.xlsx
+scripts/gfi_submission.py   docs/GFI_SUBMISSION.md, one row per protein for GFI's database
+scripts/extract_humbird_si.py constants and reference values from Humbird's SI workbook
 tests/                      Humbird port (exact), calibration records, model invariants
 docs/                       SCOPE, PRIMER, READING, exercises, LITERATURE, VALIDATION, AUDIT, REVIEW
 scripts/build_all.sh        one command: tests, analyses, figures, explorer, SI, PDFs
