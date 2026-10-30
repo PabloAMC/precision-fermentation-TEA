@@ -209,7 +209,14 @@ for p_ in PRODS:
                     tci=b_["tci"], msp=b_["msp_ccf"], lang=d_["lang_effective"],
                     capital=(b_["per_kg"]["capital charge"] + b_["per_kg"]["maintenance"] + b_["per_kg"]["insurance"]) / b_["msp_ccf"],
                     glucose_share=b_["per_kg"]["glucose"] / b_["msp_ccf"],
-                    route=ROUTE.get(spec_, spec_ + " route"))
+                    route=ROUTE.get(spec_, spec_ + " route"),
+                    # the price in one equation (report/common.typ, CORE): capital-related charges per kg =
+                    # (capital charge + maintenance + insurance fractions) x investment per m3 / kg per m3 per year
+                    y_ps=_params.v(q_, "strain.Y_ps_g_g"), X=_params.v(q_, "strain.X_prod_g_L"), cycle=d_["cycle_h"],
+                    glc_price=_params.v(q_, "utilities.glucose_usd_kg"), glc_usd=b_["per_kg"]["glucose"],
+                    cap_usd=b_["per_kg"]["capital charge"] + b_["per_kg"]["maintenance"] + b_["per_kg"]["insurance"],
+                    inv_m3=b_["tci"] / (d_["N_prod_int"] * _params.v(q_, "fermenter.volume_m3")),
+                    kg_m3=d_["n_batches"] * d_["target_per_batch_kg"] / (d_["N_prod_int"] * _params.v(q_, "fermenter.volume_m3")))
 OPT = {}
 for p_ in PRODS:
     o_ = R.get("options", {}).get(p_)
@@ -463,6 +470,7 @@ tr.mkt td { color: var(--ink-2); background: var(--accent-soft); }
 .notes b { color: var(--ink); font-weight: 600; }
 ol.walk { margin: 12px 0 0; padding-left: 22px; display: grid; gap: 8px; max-width: 86ch; }
 .steps { display: grid; gap: 6px; margin-top: 12px; max-width: 90ch; }
+.steps .core { margin: 0 0 6px; line-height: 1.5; }
 details.step { border-top: 1px solid var(--rule); padding: 8px 0 2px; }
 details.step > summary { color: var(--ink); font-size: 14.5px; list-style-position: outside; }
 details.step > summary b { font-weight: 600; }
@@ -516,8 +524,9 @@ fieldset[disabled] { opacity: .45; }
     <h1>Precision Fermentation Cost Explorer</h1>
     <p class="lede">What does it cost to make a milk or egg protein with an engineered yeast? Pick a protein, move the strain's
     performance, and see the price per kg, whether a real fermenter could run the design, and how the price compares with the
-    protein it would replace. The price is a production cost that includes a return on the money spent building the plant; it is
-    not a market price.</p>
+    protein it would replace. The price is a minimum selling price: the cost per kg including a capital charge that repays the
+    plant with interest, before any profit margin; it is not a market price. Most of it pays for the plant, and how much each
+    fermenter makes is set by how fast the cells secrete the protein.</p>
     <p class="lede">The model follows Humbird's (2021) cost model for cultivated meat. The yeast (<i>K.&nbsp;phaffii</i>) secretes the protein
     in fermenters of up to 200&nbsp;m&sup3;; the plant makes 10,000&nbsp;t a year (lactoferrin 250&nbsp;t, albumin and &alpha;-lactalbumin 1,000&nbsp;t).
     New to this? Start with one of the buttons below, then open "How the price is built" for the calculation step by step.
@@ -529,7 +538,7 @@ fieldset[disabled] { opacity: .45; }
     <div class="panel">
       <h2>Minimum selling price</h2>
       <div class="price"><span class="big num" id="msp">$0</span><span class="unit" id="msp-unit">per kg protein, 2025 dollars</span></div>
-      <p class="def">The price that pays every cost of the plant plus a 14.6% yearly return on what it cost to build. No profit margin, sales or transport.</p>
+      <p class="def">Every cost of the plant, including a capital charge of 14.6% of its investment a year (repaying it over 10 years at 7.5% interest). No profit margin, sales or transport.</p>
       <div class="chips" id="chips"></div>
       <p class="verdict" id="verdict" aria-live="polite"></p>
     </div>
@@ -548,9 +557,9 @@ fieldset[disabled] { opacity: .45; }
     <div class="start-row">
       <span class="start-k">Start from</span>
       <button type="button" class="pick" id="pre-best">The best published strain</button>
-      <button type="button" class="pick" id="pre-base">A published plant design</button>
-      <button type="button" class="pick" id="pre-ind">What companies assume</button>
-      <button type="button" class="pick" id="pre-lim">The fermenter's limit</button>
+      <button type="button" class="pick" id="pre-base">Base case (a published plant design)</button>
+      <button type="button" class="pick" id="pre-ind">Industry benchmark (42 g/L)</button>
+      <button type="button" class="pick" id="pre-lim">The fermenter's titer ceiling</button>
     </div>
     <p class="hint" id="pre-note">Each button sets the levers below to one well-known case for the chosen protein. Then move them yourself.</p>
   </section>
@@ -918,19 +927,25 @@ function drawWalk() {
   const ceil72 = (D.ceiling[prodKey()] || {})["72"];
   const step = (n, title, line, body, eq, vs) => `<details class="step"><summary><b>${n}. ${title}.</b> ${line}</summary><div class="body">` +
     body.map(x => `<p>${x}</p>`).join("") + (eq ? `<div class="eq">${eq}</div>` : "") + (vs ? `<p class="vs"><b>Humbird:</b> ${vs}</p>` : "") + `</div></details>`;
-  $("walk").innerHTML = [
+  const usd = x => "$" + (x >= 100 ? n0(x) : x.toFixed(1)), yr = w.cap_usd * w.kg_m3 / w.inv_m3;   // yearly charges / investment
+  $("walk").innerHTML = `<p class="core"><b>The price in one line.</b> Per kg of ${name}: sugar ${usd(w.glc_usd)} ` +
+    `(${n1(w.glucose)} kg at $${w.glc_price.toFixed(2)}), the plant ${usd(w.cap_usd)} and everything else ${usd(w.msp - w.cap_usd - w.glc_usd)}. ` +
+    `The plant costs $${n0(w.inv_m3)} per m³ of fermenter, and each m³ yields ${n0(w.kg_m3)} kg of finished protein a year; each year the plant costs ` +
+    `${(100 * yr).toFixed(1)}% of its investment (the capital charge plus maintenance and insurance), so its share is ${yr.toFixed(3)} × $${n0(w.inv_m3)} ÷ ${n0(w.kg_m3)} kg. ` +
+    `What each m³ makes is set by how fast the cells secrete (${w.qp.toFixed(1)} mg per g of cells per hour), how many cells each litre holds ` +
+    `(${n0(w.X)} g) and how much of each ${n0(w.cycle)}-hour cycle goes to making protein (${n0(w.t_prod)} hours). The eight steps below build each number.</p>` + [
     step(1, "The cell as a chemical reaction",
       `Making 1 kg of ${name} takes ${n1(w.glucose)} kg of glucose and ${n1(w.o2)} kg of oxygen in all.`,
       ["For costing, a cell is a black box: glucose, ammonia and oxygen go in; cells, protein, CO₂, water and heat come out.",
-       "Two conservation laws fix most of the flows. Carbon is conserved, and so are electrons: the electrons that leave glucose either stay in the protein or pass to oxygen.",
+       "Two conservation laws fix most of the flows. Carbon is conserved, and so are electrons: the electrons that leave glucose either stay in the cells and the protein or pass to oxygen.",
        "The model writes every species per carbon atom. The protein's formula comes from its amino-acid sequence."],
-      "per carbon atom of glucose:  4 = Y × γ + 4 × O₂\nY = carbon atoms of protein made; γ = the protein's spare electrons per carbon atom (C +4, H +1, O −2, N −3); O₂ = moles of oxygen used",
+      "protein-making reaction alone, per carbon atom of glucose:  4 = Y × γ + 4 × O₂\nY = carbon atoms of protein made; γ = the protein's spare electrons per carbon atom (C +4, H +1, O −2, N −3); O₂ = moles of oxygen used. Growth has the same balance with cells in place of protein.",
       "the same balance, with the cells as the product."),
     step(2, "Where the sugar goes",
       `Most of it builds and maintains the cells: ${n1(w.cells)} kg of yeast for every kg of ${name}. The overall yield is ${w.yield_.toFixed(3)} g/g.`,
       ["A cell spends sugar on three things: growing, staying alive (maintenance) and making the protein.",
-       "The protein-making reaction alone would give about 0.47 g of protein per g of sugar. The whole batch gives far less, because the cells must first be grown and then kept alive for days.",
-       "So sugar is not the expensive part: glucose is " + pc(w.glucose_share) + " of the price."],
+       `The protein-making reaction alone would give ${w.y_ps.toFixed(2)} g of protein per g of sugar. The whole batch gives far less, because the cells must first be grown and then kept alive for days.`,
+       `Even so, sugar is not the expensive part, because it is cheap: ${n1(w.glucose)} kg at $${w.glc_price.toFixed(2)} a kg is ${usd(w.glc_usd)}, ` + pc(w.glucose_share) + " of the price. Most of the price pays for the plant (steps 7 and 8)."],
       "sugar per g of cells per hour = growth rate ÷ cell yield + upkeep + secretion rate ÷ protein yield   (the Pirt equation)",
       "the same equation and correlations (Heijnen, Tijhuis). For cultivated meat the cells are the product, and the medium, not sugar, is the costly input."),
     step(3, "One batch through time",
@@ -972,7 +987,7 @@ function drawWalk() {
       `Running costs plus a capital charge give $${w.msp >= 100 ? n0(w.msp) : w.msp.toFixed(2)} per kg; paying for the plant is ${pc(w.capital)} of it.`,
       ["The capital charge is the yearly payment that repays the investment with a return: 7.5% over 10 years means 14.6% of the investment every year.",
        "Maintenance and insurance add 9% of the investment a year (Humbird). Running costs cover sugar, ammonia, energy, water, waste and staff.",
-       "The minimum selling price divides it all by the output. It includes a return on capital but no profit margin."],
+       "The minimum selling price divides it all by the output. It includes the capital charge but no profit margin."],
       "price = (running costs + fixed costs + 0.146 × investment) / kg made per year",
       "exactly the same money step."),
   ].join("");
@@ -1080,8 +1095,8 @@ function drawMethod() {
       `<p>The prices on this page come straight from the model in the report, run at every lever setting the sliders offer, so they match the report and can be reproduced from the repository. The titers needed to reach a price are estimated between those runs, and the starting-point buttons move to the nearest run.</p>
        <p>Every input has a range and a source: a measurement, a published plant design or patent, a company claim or survey, an analogy or engineering judgment, or a guess. Guesses are few and listed in the report.</p>
        <p>Market prices are trade statistics (UN Comtrade, Eurostat, USDA) for whey, egg white and casein, and reported prices for the scarce proteins.</p>`),
-    step("The scenarios", "Four cases, never mixed: the best published strain, the base design, what companies assume, and a best case.",
-      `<p><b>Best published strain:</b> the highest titer in peer-reviewed papers. <b>Base design:</b> Intelligen's published plant design (30 g/L in 72 hours). <b>What companies assume:</b> the 42 g/L average in companies' own cost models (GFI 2025). <b>Best case:</b> every assumed limit at its best at once, on a larger plant; not a floor, and far above any published strain. It needs a different plant from the one the levers describe, so it appears in the reference table, not on the levers.</p>`),
+    step("The scenarios", "Cases never mixed: the best published strain, the base case, the industry benchmark and the physical-limit best case.",
+      `<p><b>Best published strain:</b> the highest titer in peer-reviewed papers. <b>Base case:</b> Intelligen's published plant design (30 g/L in 72 hours). <b>Industry benchmark:</b> the 42 g/L average in companies' own cost models (GFI 2025). <b>Physical-limit best case:</b> every assumed limit at its best at once, on a larger plant; not a floor, and far above any published strain. It needs a different plant from the one the levers describe, so it appears in the reference table, not on the levers.</p>`),
     step("How the model was checked", `It reproduces the real cost of baker's yeast (${m(c.yeast[0])} against ${m(c.yeast[1])} per kg) and lands within ${Math.round(100 * Math.abs(c.intelligen[0] / c.intelligen[1] - 1))}% of a published PF design.`,
       `<div class="tablewrap"><table><thead><tr><th>Check</th><th class="r">This model</th><th class="r">Published</th></tr></thead><tbody>
        <tr><td>Baker's yeast, cost per kg (Humbird's model; market price less a 33% margin)</td><td class="r">${m(c.yeast[0])}</td><td class="r">${m(c.yeast[1])}</td></tr>
