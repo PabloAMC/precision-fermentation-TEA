@@ -1,16 +1,25 @@
 # Release (Phase G)
 
-Status (2026-09-27): the release files are ready and nothing is public. Making the repository
-public and posting the preprint both need Pablo's explicit go-ahead.
+Status (2026-10-30): v4.1 is on `main` and the release files are ready; nothing is public (the
+repository is private). Making the repository public and posting the preprint both need Pablo's
+explicit go-ahead.
 
-## Checked (2026-09-27)
+## Checked
 
-- A fresh clone of `audit-fixes` installs with the README commands and passes the tests (55).
-- The report compiles from that clone to the same text as the committed PDF.
-- The git history holds no third-party files except Humbird's SI workbook. It is CC BY (Europe
+2026-10-30, on `main` (v4.1):
+- The 195 tests pass.
+- The report, memo and preprint recompile from `results/analyses.json` to the same text as the
+  committed PDFs.
+- Not redone since 2026-09-27: a fresh-clone install and the history scan below. Redo both
+  before step 2.
+
+2026-09-27, on the `audit-fixes` branch (v2, since merged):
+- A fresh clone installed with the README commands and passed the tests (55 at the time).
+- The report compiled from that clone to the same text as the committed PDF.
+- The git history held no third-party files except Humbird's SI workbook. It is CC BY (Europe
   PMC, PMC8362201) and is redistributed unmodified with attribution
   (`references/papers/NOTICE.md`). Papers, patents and text dumps were never committed.
-- The history contains no keys or personal paths (the USDA URLs use the public `DEMO_KEY`).
+- The history contained no keys or personal paths (the USDA URLs use the public `DEMO_KEY`).
 - The pre-registered priors are scored (report section 7).
 
 ## Decisions for Pablo
@@ -28,15 +37,17 @@ public and posting the preprint both need Pablo's explicit go-ahead.
 
 Claude can do steps 1–2 on request. Steps 3–5 need Pablo's accounts.
 
-1. Merge `audit-fixes` into `main` through a pull request, and tag `v0.2.0`.
+1. Redo the fresh-clone install and the history scan on `main`, then tag `v0.4.1` (the version in
+   `CITATION.cff`).
 2. Make the repository public:
    `gh repo edit PabloAMC/pf-tea --visibility public --accept-visibility-change-consequences`.
 3. Optional: archive the tag on Zenodo for a DOI (GitHub integration).
-4. Submit `report/pf_tea_report.pdf` to engrXiv with:
+4. Submit `report/pf_tea_report.pdf` (or the short `report/preprint.pdf`) to engrXiv with:
    - the title;
    - the abstract (from the report's Summary);
-   - keywords: precision fermentation, techno-economic analysis, β-lactoglobulin, ovalbumin,
-     *Komagataella phaffii*;
+   - keywords: precision fermentation, techno-economic analysis, β-lactoglobulin, α-lactalbumin,
+     ovalbumin, ovomucoid, β-casein, lactoferrin, serum albumin, *Komagataella phaffii* (as in
+     `CITATION.cff`);
    - licence CC BY 4.0;
    - the repository link.
 5. Submit to GFI's fermentation TEA database (gfi.org/fermentation-tea, 'Submit a TEA'; an Airtable

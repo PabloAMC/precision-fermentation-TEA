@@ -140,3 +140,44 @@
 #let CEIL600 = R.titer_ceiling_feed600.blg.at(tpi(72))
 #let AER21 = yaml("../data/evidence/engineering.yaml").find(e => e.key == "aeration_power_humbird2021_fig13_200m3").value
 
+
+// ---------------------------------------------------------------- the price in one equation (report and preprint)
+// Every capital-related charge is a fixed fraction of the investment (TCI), so per kg of protein:
+//   capital-related cost = (CRF + maintenance + insurance) x (TCI per m3 of fermenter) / (kg sold per m3 per year)
+// exactly, in the base convention; and the kg each m3 makes is set by secretion rate x cell density x production share.
+#let CRF = { let i = pv("finance.ccf_rate"); i / (1 - calc.pow(1 + i, -pv("finance.ccf_life_y"))) }
+#let FIXED = pv("finance.maintenance_frac_tci") + pv("finance.insurance_tax_frac_tci")
+#let CORE = {
+  let d = blg.design
+  let m3 = d.N_prod_int * vol(blg)
+  let cap = blg.per_kg.at("capital charge") + blg.per_kg.maintenance + blg.per_kg.insurance
+  (
+    glc_kg: blg.physical.glucose_kg, glc_price: pv("utilities.glucose_usd_kg"), glc: blg.per_kg.glucose,
+    inv_m3: blg.tci / m3, kg_m3_yr: tpy(blg) * 1000 / m3, cap: cap,
+    rest: blg.msp_ccf - cap - blg.per_kg.glucose,
+    q: d.q_p_mg_g_h, X: pv("strain.X_prod_g_L"), t_prod: d.t_total_h - d.t_growth_h, cycle: d.cycle_h,
+  )
+}
+#let core-relation = [
+  *How the price works.* Per kg of protein, a plant pays for three things. Numbers are for the base BLG plant:
+  - *Sugar:* the glucose each kg needs times its price, #fx(CORE.glc_kg, d: 1) kg × #usd(CORE.glc_price, d: 2) =
+    #usd(CORE.glc) (#pct(CORE.glc / blg.msp_ccf)).
+  - *The plant:* each year it costs #pct(CRF + FIXED, d: 1) of its investment. That is #pct(CRF, d: 1) to repay
+    the investment over #pv("finance.ccf_life_y") years at #pct(pv("finance.ccf_rate"), d: 1) interest, the
+    _capital charge_, plus #pct(FIXED) for maintenance and insurance. The plant costs \$#thou(CORE.inv_m3)
+    per m³ of fermenter, and each m³ yields #thou(CORE.kg_m3_yr) kg of finished protein a year, so the plant costs
+    #fx(CRF + FIXED, d: 3) × \$#thou(CORE.inv_m3) ÷ #thou(CORE.kg_m3_yr) kg = #usd(CORE.cap) per kg
+    (#pct(CORE.cap / blg.msp_ccf)).
+  - *Everything else:* purification, energy, water, waste disposal and staff, #usd(CORE.rest).
+
+  The plant is the largest term, and its size per kg is set by how much each m³ of fermenter makes. That
+  in turn is set by how fast each gram of cells secretes protein, how many grams of cells each litre holds,
+  and what share of the time the fermenter spends making protein. In the base case cells secrete
+  #fx(CORE.q, d: 1) mg of protein per g of cells per hour, at #fx(CORE.X, d: 0) g of cells per litre, for
+  #fx(CORE.t_prod, d: 0) of every #fx(CORE.cycle, d: 0) hours; the rest of the cycle grows the cells, empties
+  and cleans the vessel. Faster secretion is what moves this term: the cells reach the titer sooner, so each
+  fermenter fits more batches a year. With today's plant, the cheapest design the model finds costs
+  #usd(BD(10).msp_ccf)/kg if cells secrete 10 mg/g/h, against #usd(blg.msp_ccf) at the base rate. A higher
+  titer reached only by running longer gains much less, because each batch then holds the fermenter longer.
+  Sugar cannot close the gap: even free glucose would take only #usd(CORE.glc) off the price.
+]
