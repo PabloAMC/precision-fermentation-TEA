@@ -27,6 +27,20 @@ binder. A last section compares the sugar a PF plant needs with the feed that an
 
 ## How it works
 
+A few words first. Precision fermentation grows an engineered microbe in a large tank (a *fermenter*) and
+has it release (*secrete*) one protein into the liquid, the *broth*. The *titer* is the grams of protein per
+litre of broth when the batch ends; the *secretion rate* is how many mg of protein each gram of cells
+releases per hour.
+
+**The price in one line.** Per kg of protein, a plant pays for sugar, for the plant itself, and for
+everything else (purification, energy, waste, staff). The plant is the largest part: each year it costs a
+fixed share of what it took to build (a *capital charge* that repays the investment with interest, plus
+maintenance and insurance), and that cost is spread over the protein each fermenter makes. How much each
+fermenter makes is set by how fast the cells secrete, how many cells each litre holds, and how much of the
+time the tank spends making protein rather than growing cells or being cleaned. That is why the strain's
+secretion rate matters more than the sugar price. The report and the explorer show this split with the
+model's numbers.
+
 The model follows Humbird's (2021) method for cultivated meat and applies it to a microbe that secretes
 a protein:
 
@@ -35,11 +49,14 @@ a protein:
    that breaks these limits.
 2. **Purification.** Membranes, precipitation or chromatography columns turn the broth into a dry powder.
 3. **Plant and money.** The model sizes the whole plant, prices the equipment, and adds labour, energy,
-   materials and a charge on the capital invested.
+   materials and the capital charge. The result is a *minimum selling price*: a cost per kg that repays the
+   plant, before any profit margin; not a market price.
 
-It reports four scenarios and never mixes them. *Academic* uses the best titers in published papers.
-*Industry* uses the average titer in companies' cost models. *Required* asks what titer would reach a
-target price. *Physical limit* sets every assumed limit at its best at once.
+It compares a *base case* (the design point of published plants, 30 g/L) with four scenarios and never
+mixes them. The *best published strain* (`academic`) uses the best titers in peer-reviewed papers. The
+*industry benchmark* (`industry`) uses the average titer in companies' cost models, 42 g/L. *Required* asks
+what titer would reach a target price. The *physical-limit best case* sets every assumed limit at its best
+at once.
 
 ## How it differs from published cost models
 
