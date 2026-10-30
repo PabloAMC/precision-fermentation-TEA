@@ -39,9 +39,15 @@
 
 #heading(level: 1, numbering: none)[Summary]
 
-Precision fermentation (PF) uses an engineered microbe to make one animal protein and release it into
-the broth. We estimate what seven food proteins cost to make this way, from public data only, and what
-it would take to match the prices of the proteins they replace.
+Precision fermentation (PF) uses an engineered microbe to make one animal protein and release (secrete)
+it into the liquid it grows in, the broth. We estimate what seven food proteins cost to make this way,
+from public data only, and what it would take to match the prices of the proteins they replace.
+
+*Terms.* _Titer_: grams of protein per litre of broth at harvest. _Secretion rate_: mg of protein that each
+gram of cells secretes per hour (mg/g/h). _Capital charge_: the yearly payment that repays the plant's
+investment over #pv("finance.ccf_life_y") years at #pct(pv("finance.ccf_rate"), d: 1) interest,
+#pct(CRF, d: 1) of the investment a year. _Minimum selling price_: the cost per kg including the capital
+charge, before any profit margin, sales or transport; a cost, not a market price.
 
 *Method.* We follow Humbird's (2021) cost model for cultivated meat and add a secreted product and its
 purification. The model balances every element and electron, checks that the fermenter can supply the
@@ -51,17 +57,18 @@ per kg), and ours lands within #sgn(calrel("intelligen2025_ova", "usd_per_kg_pow
 of a published PF design (Intelligen 2025). Every input has a source and a stated kind of evidence.
 
 *Results.* At the design titer of published PF plants (30 g/L; lactoferrin 10 g/L), the minimum
-selling price, which includes a 14.6% yearly return on capital, is *#plist(p => R.base.at(p).msp_ccf)*
-per kg of protein. The commodity proteins (whey, egg white, casein) then sit at or above the top of
-their market prices. They reach the middle of those prices only at the 42 g/L that companies' own cost
-models assume. Two scarce milk proteins are already competitive: lactoferrin costs #money(lfb.msp_ccf)/kg
+selling price is *#plist(p => R.base.at(p).msp_ccf)* per kg of protein. The commodity proteins (whey, egg
+white, casein) then sit at or above the top of their market prices. They reach the middle of those prices
+only at the industry benchmark, the 42 g/L that companies' own cost models assume. Two scarce milk proteins are already competitive: lactoferrin costs #money(lfb.msp_ccf)/kg
 against #money(MKT("lf").at(0))–#money(MKT("lf").at(1)) for the dairy product, and α-lactalbumin sits inside its
 price range. Serum albumin for cultivated-meat media does not: its purification columns cost too much.
 
-*What it would take.* The gap is the strain, not the sugar. Glucose is about a fifth of the cost and
-capital over half. Cheap commodity protein needs cells that secrete several times faster than the best
-published strains. If secretion falls as growth slows, as the published data suggest, a strain at the
+*What it would take.* Glucose is about a fifth of the price and the plant over half, and the plant's cost
+per kg is set by how fast the cells secrete (box below). So the gap lies in the strain, not the sugar:
+cheap commodity protein needs cells that secrete several times faster than the best published strains. If secretion falls as growth slows, as the published data suggest, a strain at the
 best measured rate makes β-lactoglobulin at about #money(O("blg").demonstrated.msp_ccf)/kg.
+
+#note[#core-relation]
 
 = Method in eight steps
 
@@ -95,35 +102,36 @@ docstrings (`src/pftea/`) and in the full report.
     hline,
     [Best published strain], ..PRODS.map(p => [#money(S("academic/" + p).msp_ccf)]),
     [Base case: design titer], ..PRODS.map(p => pair(R.base.at(p), R.base_light.at(p))),
-    [Titer in companies' cost models (42 g/L)], ..PRODS.map(p => pair(S("industry/" + p), S("industry/" + p + "/light"))),
-    [Best case at every assumed limit], ..PRODS.map(p => [#money(PL(p + "/humbird").msp_ccf)]),
+    [Industry benchmark (42 g/L)], ..PRODS.map(p => pair(S("industry/" + p), S("industry/" + p + "/light"))),
+    [Physical-limit best case], ..PRODS.map(p => [#money(PL(p + "/humbird").msp_ccf)]),
     hline,
     [Market price], ..PRODS.map(p => [#money(MKT(p).at(0))–#money(MKT(p).at(1))]),
     [Plant output, t/yr], ..PRODS.map(p => [#thou(tpy(R.base.at(p)))]),
   ),
-  caption: [Minimum selling price, 2025 dollars, US Midwest; in brackets with the lighter accounting
-  of NREL-style design reports. Market prices: trade values 2015–2025 for whey, dried egg white and
+  caption: [Minimum selling price, 2025 dollars, US Midwest; in brackets with design-report capital
+  (NREL-style: lighter installation factors and fixed costs under 2% a year). Market prices: trade values 2015–2025 for whey, dried egg white and
   casein; reported prices for lactoferrin, bulk serum albumin and α-lactalbumin (company or survey
   figures). The best case assumes secretion at 40 mg per g of cells per hour, far above any published
   strain.],
 ) <tab-key>
 
 #figure(image("../docs/figures/fig10_price_ladder.png", width: 100%),
-  caption: [Every case against its market, one panel per protein. Model figures are production costs
-  with a return on capital, not selling prices.]) <fig-ladder>
+  caption: [Every case against its market, one panel per protein. Model figures are minimum selling
+  prices: costs including the capital charge, so not market prices.]) <fig-ladder>
 
 Three findings stand out.
 
 - *Scarce proteins pay; commodity proteins do not yet.* Lactoferrin comes out below its market price and
   α-lactalbumin inside its price range, on modest plants. Whey, egg-white and casein proteins need titers near
   42 g/L to reach the middle of their price bands.
-- *Capital, not sugar, sets the price.* For β-lactoglobulin, glucose is
+- *The plant, not sugar, sets the price.* For β-lactoglobulin, glucose is
   #pct(blg.per_kg.glucose / blg.msp_ccf) of the cost; the capital charge, maintenance and insurance
   together are #pct(capshare(blg)). Halving the glucose price saves about
   #usd(blg.per_kg.glucose / 2)/kg.
-- *The fermenter caps the titer.* With a 500 g/L glucose feed and a 30% minimum starting fill, a
-  200 m³ vessel reaches about #fx(CEIL72, d: 0) g/L in a 72-hour production phase. Above that, the batch
-  would have to start too empty.
+- *The fermenter caps the titer.* Sugar arrives dissolved, so every gram of protein brings feed liquid
+  with it, and a batch can end at most 80% full; a higher titer needs a batch that starts emptier. With a
+  500 g/L glucose feed and a start at least 30% full, a 200 m³ vessel reaches about #fx(CEIL72, d: 0) g/L
+  in a 72-hour production phase.
 
 = What would change the answer
 
@@ -164,7 +172,7 @@ measured strain the titer falls to about #fx(O("blg").demonstrated.design.titer,
 rises several-fold for every protein except lactoferrin, which stays inside its market band.
 
 *Accounting.* Humbird's fixed costs (9% of investment a year) are heavy. NREL-style design reports
-charge under 2%; with their conventions the base β-lactoglobulin costs #money(R.base_light.blg.msp_ccf)/kg.
+charge under 2%; with design-report capital the base β-lactoglobulin costs #money(R.base_light.blg.msp_ccf)/kg.
 Aseptic, pharmaceutical-grade vessels would raise it to #money(R.base_aseptic.blg.msp_ccf).
 
 = How we checked it
@@ -193,7 +201,7 @@ Aseptic, pharmaceutical-grade vessels would raise it to #money(R.base_aseptic.bl
 
 = Limits
 
-- The price is a production cost with a return on capital for a mature plant. It leaves out R&D,
+- The price is a minimum selling price for a mature plant: a cost including the capital charge. It leaves out R&D,
   licensing, regulatory approval, sales, start-up, failed batches and the extra cost of a first plant.
 - Strain performance rests on design values and company-reported averages; few strain parameters are
   measured. Casein and lactoferrin titers are borrowed from other proteins or species.
