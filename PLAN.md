@@ -54,6 +54,25 @@ physical limits, and the performance needed for price parity.
 | **F. Review** | ~4, mostly waiting | Assumptions and figures sent to a GFI fermentation scientist, an enzyme-industry bioprocess engineer and a known sceptic (optionally Humbird); docs/REVIEW.md | Every comment answered or fixed |
 | **G. Release** | 2 | Report plus engrXiv preprint, SI (code, YAML, exported workbook), explorer (cultivated-meat pattern), one-page memo, scored priors | Public |
 
+**Status (2026-10-30).** v4.1 is on `main`: seven products on an equal footing, four notes (rennet-cheese
+casein, heme, transferrin, ovalbumin as a binder), the metabolic floor against the animals' feed bill, three
+optional physics switches (off in the base) and an explorer with a detailed mode. Phases B–E are built and
+the Phase G files are ready.
+- **Checked today:** the 195 tests pass on `main`; the report, memo and preprint recompile from
+  `results/analyses.json` to the same text as the committed PDFs.
+- **Evidence:** 94 of 134 titers.csv rows verified in full text; the 40 unverified rows feed no scenario
+  and no chart marker. `data/pf/base.yaml` holds 8 guesses (grade E). Five apply to every plant
+  (`dsp_area_factor`, `sterilizer_peak_factor`, `boiler_peak_factor`, `fermenters_per_continuous_crew`,
+  `compressor_building_m2_each`), so Phase B's exit criterion (fewer than 3 base-case guesses) is not met.
+  Only `dsp_area_factor` has a range; it moves the BLG tornado by about $0.6/kg. The other three are
+  route- or host-specific (CEX hardware, casein heat recovery, *T. reesei* μ_max).
+- **Audits:** AI audits R1–R17 (`docs/AUDIT.md`) and a simulated expert pre-review (`docs/REVIEW.md`).
+- **Open, all Pablo's:** the human review (Phase F proper); the release decisions and go-ahead
+  (`docs/RELEASE.md`; the repository is private); the SCOPE sign-off, Phase A reading and the audit of
+  verified quotes by exception, moved to the review of the finished draft (decision of 2026-09-26).
+
+Earlier status notes, kept for the record:
+
 **Status (2026-09-27, evening).** v2.1: the v2 draft was pre-reviewed by four simulated expert
 reviewers (AI; `docs/ai-review/`), every comment answered in `docs/REVIEW.md`, and the resulting
 changes made (`docs/AUDIT.md`, Phase F section), then checked against five further sources (decisions
@@ -296,7 +315,8 @@ Phase F (external review) has not started. Open items:
 ## What not to do
 
 - No point estimate without its titer, rate and yield stated next to it.
-- No more than two products in v1.
+- No more than two products in v1. *(Superseded: β-casein and lactoferrin joined on 2026-10-01, ovomucoid
+  the same night, serum albumin and α-lactalbumin on 2026-10-02; decisions log.)*
 - No BioSTEAM or SuperPro as the core model. BioSTEAM may cross-check capital costs; the
   SuperPro trial may only be used to read Intelligen's example file.
 - No claim that cannot be traced to a row in data/pf/base.yaml or data/evidence/.
