@@ -51,6 +51,37 @@
   behind it (Appendix A). @sec-limits lists the inputs that are guesses.
 ]
 
+#note[
+  *Terms used throughout.*
+  - _Precision fermentation_ (PF): an engineered microbe makes one animal protein and releases (secretes) it
+    into the liquid it grows in, the _broth_.
+  - _Fed-batch_: a batch that starts part-full and is fed concentrated sugar while it runs, so the feed rate
+    sets how fast the cells grow. Each batch first grows the cells (_growth phase_), then makes the protein
+    while the cells barely grow (_production phase_).
+  - _Titer_: grams of protein per litre of broth at harvest. _Cell density_: grams of dry cells per litre.
+    _Secretion rate_ (specific productivity): mg of protein secreted per g of cells per hour (mg/g/h).
+    _Yield_: grams of protein per gram of sugar.
+  - _Capital charge_: the yearly payment that repays the plant's investment over 10 years at 7.5% interest,
+    14.6% of the investment a year. _Minimum selling price_ (MSP): the cost per kg of protein including the
+    capital charge, before any profit margin, sales or transport. It is a cost, not a market price.
+  - _Price-anchored capital_ (the base): Humbird's installation factors and fixed costs (9% of the
+    investment a year), with which his model reproduces the cost of baker's yeast. _Design-report capital_:
+    the lighter factors and fixed costs (under 2% a year) of NREL-style design reports, shown in brackets.
+  - _Base case_: the design point of published PF plants, 30 g/L after a 72 h production phase. The four
+    scenarios, never merged, move away from it: the _best published strain_ (the best titer in a
+    peer-reviewed paper; `academic` in the code); the _industry benchmark_ (42 g/L, the average titer in
+    companies' own cost models; `industry`); _required_ (works backwards from a target price to the titer
+    it needs); and the _physical-limit best case_ (every assumed limit at its best at once).
+  - _DSP_ (downstream processing): everything after the fermenter, from cell removal to dried powder.
+    _UF/DF_: ultrafiltration and diafiltration, membranes that concentrate and wash the protein.
+    _CEX/AEX_: cation- and anion-exchange chromatography columns, which bind the protein by its charge.
+    _Isoelectric precipitation_: acidifying until the protein carries no net charge and comes out of solution.
+  - _k#sub[L]a_: how fast a fermenter transfers oxygen into the liquid. _kt/yr_: thousand tonnes a year.
+    _Nth plant_: a mature plant built with known technology, not the first of its kind. _Ex works_: at the
+    factory gate. _Evidence_: the kind of source behind each input, from measured to a guess (@tab-grades).
+    _P10–P90_: the range holding 80% of Monte Carlo outcomes.
+]
+
 // ---------------------------------------------------------------- abstract
 #heading(level: 1, numbering: none)[Summary]
 
@@ -87,11 +118,13 @@ Three proteins depart from this base:
 - α-Lac uses BLG's membrane route, purified to isolate grade, at 1 kt/yr, about 5% of the α-lac market.
 Small plants use smaller fermenters.
 
-*What they cost.* We charge 14.6% of the investment each year as the cost of capital. With that
-charge, the minimum selling price per kg of target protein is *#plist(p => R.base.at(p).msp_ccf)*.
-NREL-style design reports use lighter accounting; with it, the price is #plist(p => R.base_light.at(p).msp_ccf).
-Private companies' cost models assume an average titer of 42 g/L (GFI 2025, a survey average over
-unnamed proteins, with no fermentation time given). At that titer the price is
+#note[#core-relation]
+
+*What they cost.* With the capital charge of #pct(CRF, d: 1) of the investment a year, the minimum
+selling price per kg of target protein is *#plist(p => R.base.at(p).msp_ccf)*. With design-report capital
+(NREL-style) it is #plist(p => R.base_light.at(p).msp_ccf).
+The industry benchmark is the average titer in private companies' cost models, 42 g/L (GFI 2025, a survey
+average over unnamed proteins, with no fermentation time given). At that titer the price is
 #plist(p => S("industry/" + p).msp_ccf, ps: COMMODITY). To reach 42 g/L in our 72 h production phase,
 cells must secrete about #fx(S("industry/blg").design.q_p_mg_g_h, d: 0) mg of protein per g of cells per
 hour, about three times the best rate shown on glucose (2.1). At the best titers in the published
@@ -115,14 +148,15 @@ Nine findings stand out:
    today's biology and capital. The cheapest design the model then finds costs #usd(BD(40).msp_ccf)/kg.
    At 10 mg/g/h it costs #usd(BD(10).msp_ccf). No published *K. phaffii* process comes near either rate.
    The best rate shown in a public glucose fed-batch is 2.1 mg/g/h (Prielhofer et al. 2018). At that
-   rate the cheapest design costs #usd(BD(2.1).msp_ccf)/kg, and even the best case of finding 3 costs
-   #usd(QP(2.1).msp_ccf)/kg, which is #where(QP(2.1).msp_ccf, inc.whey.band) the whey price band. The
+   rate the cheapest design costs #usd(BD(2.1).msp_ccf)/kg. Even with every other assumed limit set at
+   its best (finding 3), it costs #usd(QP(2.1).msp_ccf)/kg, which is #where(QP(2.1).msp_ccf, inc.whey.band) the whey price band. The
    same holds for every protein here: none has a published secretion rate of its own.
-2. *The fermenter's design sets the titer ceiling.* Suppose the plant feeds Intelligen's 500 g/L
-   glucose and each batch must start at least 30% full. A 200 m³ fermenter at 107 g/L of cells then
-   reaches about #fx(CEIL72, d: 0) g/L in a 72 h production phase. A 600 g/L feed raises this to about
+2. *The fermenter sets a titer ceiling.* Sugar arrives dissolved, so every gram of protein brings feed
+   liquid with it, and a batch can end at most 80% full. A higher titer therefore needs a batch that starts
+   emptier. With Intelligen's 500 g/L glucose feed and a start at least 30% full, a 200 m³ fermenter at
+   107 g/L of cells reaches about #fx(CEIL72, d: 0) g/L in a 72 h production phase. A 600 g/L feed raises this to about
    #fx(CEIL600, d: 0) g/L.
-3. *This is a best case, not a floor.* We set every assumed limit at its best at once, with 400 m³
+3. *The physical-limit best case is a best case, not a floor.* We set every assumed limit at its best at once, with 400 m³
    vessels and 100 kt/yr. The cost per kg is then #plist(p => PL(p + "/humbird").msp_ccf, ps: COMMODITY)\;
    lactoferrin, capped at its largest market estimate, costs #usd(PL("lf/humbird").msp_ccf). This
    assumes secretion at #fx(PL("blg/humbird").design.q_p_mg_g_h, d: 0) mg/g/h. At 10 mg/g/h the BLG
@@ -214,9 +248,9 @@ No public study we found shows secretion at the design rate without growth.
     align: (left,) + PRODS.map(_ => right),
     table.header([*Scenario*], ..PRODS.map(p => [*#NAME.at(p)*])),
     hline,
-    [Best public academic strain], ..PRODS.map(p => pair(S("academic/" + p), S("academic/" + p + "/light"))),
+    [Best published strain], ..PRODS.map(p => pair(S("academic/" + p), S("academic/" + p + "/light"))),
     [Base case (72 h production; lactoferrin #fx(lfb.design.t_total_h - lfb.design.t_growth_h, d: 0) h)], ..PRODS.map(p => pair(R.base.at(p), R.base_light.at(p))),
-    [Industry benchmark (42 g/L, titer in private cost models)], ..PRODS.map(p => pair(S("industry/" + p), S("industry/" + p + "/light"))),
+    [Industry benchmark (42 g/L)], ..PRODS.map(p => pair(S("industry/" + p), S("industry/" + p + "/light"))),
     [Best case at the best demonstrated secretion (2.1 mg/g/h)], ..PRODS.map(p => pair(R.physical_limit.at(p + "/humbird/q_p_max_2.1", default: none), none)),
     [Physical-limit best case (secretion 40 mg/g/h)], ..PRODS.map(p => pair(PL(p + "/humbird"), PL(p + "/light"))),
     [Base case with aseptic cell-culture vessels], ..PRODS.map(p => pair(R.base_aseptic.at(p), none)),
@@ -247,26 +281,13 @@ No public study we found shows secretion at the design rate without growth.
 #figure(image("../docs/figures/fig10_price_ladder.png", width: 100%),
   caption: [Every case against its market, one panel per protein: filled dots use price-anchored
   capital (the base), hollow dots design-report capital; the shaded band is the incumbent's price
-  range in 2025 dollars. Model figures are production costs with a return on capital, not selling
-  prices.]) <fig-ladder>
+  range in 2025 dollars. Model figures are minimum selling prices: costs including the capital charge,
+  before margin, sales and transport, so not market prices.]) <fig-ladder>
 
 #outline(depth: 2, indent: 1.2em)
 #pagebreak()
 
 // ================================================================ 1
-#note[
-  *Terms used throughout.* _Titer_: grams of product per litre of fermentation broth at harvest. _Secretion rate_
-  (specific productivity): mg of product secreted per g of cells per hour. _Production phase_: the hours after the cells
-  have grown, when they make the product. _MSP_ (minimum selling price): the cost per kg including a return on the
-  capital invested (here a 14.6%/yr capital charge), but no margin, sales or transport. _Ex works_: at the factory
-  gate. _DSP_ (downstream processing): everything after the fermenter, from cell removal to the dried powder.
-  _UF/DF_: ultrafiltration and diafiltration, membranes that concentrate and wash the protein. _CEX/AEX_: cation-
-  and anion-exchange chromatography columns. _k#sub[L]a_: how fast a fermenter transfers oxygen into the liquid.
-  _Nth plant_: a mature plant built with known technology, not the first of its kind. _Evidence_: the kind of source
-  behind each input, from measured to a guess (@tab-grades). _P10–P90_: the range holding 80% of Monte
-  Carlo outcomes.
-]
-
 = Question and approach
 
 PF companies now sell BLG (Perfect Day, Remilk, Vivici), OVA (EVERY) and lactoferrin (TurtleTree,
@@ -354,6 +375,13 @@ downstream train, and the specifics of *K. phaffii* and *Trichoderma reesei*.
 // ================================================================ 2
 = Methods
 
+The model is a chain, and each step hands its result to the next. The stoichiometry (@sec-stoich) turns a
+strain's growth and secretion into the sugar, oxygen and heat of a batch. The fermenter model (@sec-ferm)
+checks that a real vessel can supply that oxygen and remove that heat, and finds how much protein each
+batch makes. Purification (@sec-dsp) turns the broth into powder and loses some protein on the way. The
+plant is then sized from the number of batches a year, priced (@sec-capital), and its running costs and
+capital charge are divided by its output to give the minimum selling price.
+
 == Plant, products and functional unit
 
 The functional unit is 1 kg of target protein in a spray-dried powder that meets the product
@@ -386,7 +414,7 @@ Money is 2025 US dollars. Excluded costs:
 R&D, strain licences, regulatory approval, sales and distribution, land, first-of-a-kind premiums
 (shown separately: @sec-capital),
 carbon pricing, start-up and commissioning, working capital (except in the discounted-cash-flow
-price), failed batches, per-lot release testing and packaging. A reviewer (AI) put the last four at
+price), failed batches, per-lot release testing and packaging. An unsourced estimate puts the last four at
 roughly \$1–2/kg together. @fig-flow shows the base-case plant.
 
 #figure(image("../docs/figures/fig0_flowsheet.png", width: 100%),
@@ -395,6 +423,14 @@ roughly \$1–2/kg together. @fig-flow shows the base-case plant.
   lactoferrin adds cation exchange before it and albumin cation then anion exchange (@sec-dsp, @fig-routes).]) <fig-flow>
 
 == Stoichiometry and energetics <sec-stoich>
+
+*The picture.* A cell spends sugar on three things: building new cells, staying alive (maintenance) and
+making the protein. Part of the sugar becomes cells or protein; the rest is burned with oxygen to CO#sub[2]
+to pay for that building and upkeep. The share that is burned sets how much oxygen the fermenter must
+supply and how much heat it must remove, and those two transport limits cap how fast a fermenter can work
+(@sec-ferm). Two conservation laws fix the flows once we know how much is built: every element is
+conserved, and so are electrons, which leave the sugar and either stay in the cells and protein or pass
+to oxygen. The equations below make this quantitative.
 
 Each metabolic process is one element-balanced "black-box" reaction on C, H, O and N:
 glucose + NH#sub[3] + O#sub[2] → biomass (or protein) + CO#sub[2] + H#sub[2]O. Electrons are
@@ -414,7 +450,7 @@ For glucose and our *K. phaffii* biomass formula (Carnicer et al. 2009) this giv
 yield of #fx(K.Yx_max, d: 2) g/g; the measured value is 0.50–0.56 g/g (`data/evidence/hosts.yaml`,
 measured). Biomass is counted as ash-free organic matter; ignoring the ~7% ash overstates the yield per g
 of dry cells, but the same convention understates maintenance per g, and the two nearly cancel in
-glucose per g of cells (audit R1-F3).
+glucose per g of cells.
 
 *Maintenance.* In the growth phase maintenance follows Tijhuis et al. (1993),
 $m_G = 4.5 exp[-69 000 \/ R (1\/T - 1\/298)]$ kJ per C-mol biomass per hour:
@@ -487,8 +523,8 @@ The model's production phase then runs at an effective yield of
 Intelligen's 0.28. The effective yield is an output: it rises with productivity, to
 #fx(S("industry/blg").design.effective_yield_production, d: 2) at 42 g/L and
 #fx(PL("blg/humbird").design.effective_yield_production, d: 2) in the physical-limit case, and neither
-is anchored to data. The v1 reading (0.28 as the reaction yield, plus maintenance and growth on top)
-is the low end of the yield range.
+is anchored to data. Reading Intelligen's 0.28 as the reaction yield, with maintenance and growth on top,
+gives the low end of the yield range.
 
 *Energetic ceiling.* Counting ATP gives an upper bound on $Y_(p s)$. Each residue costs the peptide
 bond (#pv("energetics.atp_per_peptide_bond") ATP; Martin et al. 2025), the net cost of making the
@@ -504,15 +540,20 @@ with P/O = #pv("hosts.kphaffii.po_ratio") for *K. phaffii* (a genome-scale-model
 #fx(K.energetic.cas.ceiling, d: 3) for β-casein, #fx(K.energetic.lf.ceiling, d: 3) for lactoferrin,
 #fx(K.energetic.alb.ceiling, d: 3) for albumin and #fx(K.energetic.alac.ceiling, d: 3) for α-lac
 (BLG #fx(K.energetic.blg.polymerisation_only, d: 3) and OVA #fx(K.energetic.ova.polymerisation_only, d: 3)
-counting peptide bonds alone, as in version 2). Membrane transport, secretion, folding and turnover
+counting peptide bonds alone). Membrane transport, secretion, folding and turnover
 are not counted, so it stays an upper bound. The base yield is #pct(blg.design.y_ps_over_ceiling) of
 it. A different estimate, which treats protein synthesis as if it dissipated energy like growth
 (Heijnen's correlation applied to the protein), gives #fx(K.heijnen_protein_yield.blg, d: 2) g/g for
 BLG; it is not a bound, but it suggests the real ceiling sits below the ATP count.
 
-*Methanol (version 4).* Many published titers come from strains induced with methanol (*AOX1*
-promoter), among them every recombinant albumin titer above about 1.5 g/L. Version 3 priced those
-production phases as glucose. The production phase can now run a fraction of its reactions on
+*Heat.* Heat release is computed from formation enthalpies of the dissolved species: about
+480–510 kJ per mol O#sub[2] for growth and maintenance and 520–570 for the product reaction. The
+fermenter uses its own computed heat when it slows growth to the heat-removal limit and when a
+design's peak heat is checked; the 460 kJ per mol O#sub[2] of Roels (1983, via Almeida Benalcázar et
+al. 2025; calorimetry gives 455 ± 15, Maskow et al. 2010) only screens the O#sub[2] limit.
+
+*Methanol-fed production (some best-published-strain cases).* Many published titers come from strains induced with methanol (*AOX1*
+promoter), among them every recombinant albumin titer above about 1.5 g/L. The production phase can run a fraction of its reactions on
 methanol (`strain.methanol_frac_prod`: 0 in every base case, 1 for the methanol-induced academic
 cases). Four pieces of physics change:
 - *Carbon.* Methanol carries more electrons per carbon (γ = 6) than protein or biomass (γ ≈ 4.1), so
@@ -547,12 +588,6 @@ cases). Four pieces of physics change:
 Element and electron balances close for any methanol fraction (`tests/test_model.py`). Ethanol, which
 one BLG strain is fed (Yao et al. 2026), is still priced as glucose. The flammable-solvent handling a
 methanol plant needs is inside the missing-equipment allowance, not costed separately.
-
-*Heat.* Heat release is computed from formation enthalpies of the dissolved species: about
-480–510 kJ per mol O#sub[2] for growth and maintenance and 520–570 for the product reaction. The
-fermenter uses its own computed heat when it slows growth to the heat-removal limit and when a
-design's peak heat is checked; the 460 kJ per mol O#sub[2] of Roels (1983, via Almeida Benalcázar et
-al. 2025; calorimetry gives 455 ± 15, Maskow et al. 2010) only screens the O#sub[2] limit.
 
 #check[The dissipation formula and its units; the conversion of $m_G$ to 0.0174 g/g/h; the $Y_(p s)$
 derivation (`tests/test_model.py::test_y_ps_reproduces_intelligen_eq2`); the ATP ceiling
@@ -589,25 +624,8 @@ heat-removal ceiling allows about #fx(K.otr_with_heat, d: 0). The design cap is 
 an air-sparged stirred tank, "an OTR approaching 200 mol O#sub[2]/m³-h is common", on his own basis,
 per m³ of cell-free liquid (his Eq. 4.2): #fx(K.cap_per_broth_107, d: 0) mol/m³/h per m³ of broth at the
 base cell density, #fx(K.cap_per_broth_80, d: 0) at 80 g/L and #fx(K.cap_per_broth_150, d: 0) at 150 g/L.
-Growth runs at it. (Version 2 used 150 per m³ of broth; 150 is Humbird's limit for bubble columns.)
-An industrial designer may plan on 100–120 per m³ of broth with air at these cell densities (review
-BE-7), and our aeration power is lower than NREL's and Intelligen's (@sec-cal).
-
-*Compressor, and a check on aeration power.* The compressor raises the air adiabatically to the
-bottom pressure at #pct(pv("fermenter.compressor_efficiency")) efficiency. Humbird's workbook formula puts
-$k = 1.4$ where $(k-1)\/k = 0.286$ belongs and gives about 1.6× that power; we keep it only in the port of
-his workbook, and in our model it would add #usd(BS.at("compressor power as in Humbird's workbook (k in place of (k-1)/k)") - blg.msp_ccf, d: 2)/kg
-(review H1). With his formula, our aeration reproduces his own 2021 aeration sheet:
-#fx(K.aeration_our150.humbird_a1, d: 2) kWh of compressor and agitator power per kg O#sub[2] at
-150 mol/m³/h in a 200 m³ vessel, against his #fx(AER21, d: 2)\; with the corrected formula,
-#fx(K.aeration_our150.adiabatic, d: 2). Humbird, Davis and McMillan's (2017) process simulations imply
-about twice his 2021 figure (their Fig. 3 total less the chilling of reaction heat, our reading of a
-chart); their model could not hold dissolved O#sub[2] down, as production plants do. Aeration
-electricity costs #usd(K.aeration_electricity_usd_per_kg, d: 2) per kg of protein in the base, so
-doubling it would add about as much; holding dissolved O#sub[2] at 50% of air saturation adds
-#usd(BS.at("dissolved O2 held at 50% of air saturation") - blg.msp_ccf, d: 2)/kg, and leaving out the
-temperature term of the k#sub[L]a correlation, as the 2017 paper does,
-#usd(BS.at("kLa without the temperature factor (Humbird 2017 Eq. 2)") - blg.msp_ccf, d: 2)/kg.
+Growth runs at it. An industrial designer may plan on 100–120 per m³ of broth with air at these cell
+densities, and our aeration power is lower than NREL's and Intelligen's (@sec-cal).
 
 *Other limits.* A design is *infeasible*, and never costed as if it worked, when it needs more O#sub[2]
 or cooling than above, starts below #pct(pv("fermenter.min_initial_fill")) of the vessel volume (the
@@ -627,10 +645,26 @@ phases lower the ceiling (#fx(R.titer_ceiling.blg.at(tpi(36)), d: 0) g/L at 36 h
 #fx(R.titer_ceiling.blg.at(tpi(120)), d: 0) g/L at 120 h), because maintenance keeps consuming feed.
 The ceiling depends on the design choices behind it (@sec-q3).
 
+*Compressor, and a check on aeration power.* The compressor raises the air adiabatically to the
+bottom pressure at #pct(pv("fermenter.compressor_efficiency")) efficiency. Humbird's workbook formula puts
+$k = 1.4$ where $(k-1)\/k = 0.286$ belongs and gives about 1.6× that power; we keep it only in the port of
+his workbook, and in our model it would add #usd(BS.at("compressor power as in Humbird's workbook (k in place of (k-1)/k)") - blg.msp_ccf, d: 2)/kg.
+With his formula, our aeration reproduces his own 2021 aeration sheet:
+#fx(K.aeration_our150.humbird_a1, d: 2) kWh of compressor and agitator power per kg O#sub[2] at
+150 mol/m³/h in a 200 m³ vessel, against his #fx(AER21, d: 2)\; with the corrected formula,
+#fx(K.aeration_our150.adiabatic, d: 2). Humbird, Davis and McMillan's (2017) process simulations imply
+about twice his 2021 figure (their Fig. 3 total less the chilling of reaction heat, our reading of a
+chart); their model could not hold dissolved O#sub[2] down, as production plants do. Aeration
+electricity costs #usd(K.aeration_electricity_usd_per_kg, d: 2) per kg of protein in the base, so
+doubling it would add about as much; holding dissolved O#sub[2] at 50% of air saturation adds
+#usd(BS.at("dissolved O2 held at 50% of air saturation") - blg.msp_ccf, d: 2)/kg, and leaving out the
+temperature term of the k#sub[L]a correlation, as the 2017 paper does,
+#usd(BS.at("kLa without the temperature factor (Humbird 2017 Eq. 2)") - blg.msp_ccf, d: 2)/kg.
+
 *What the fermenter model leaves out.* Broth viscosity and foam do not lower k#sub[L]a: the
 correlation is for water-like broths at every cell density and titer, while Humbird's own method
 stops a fed-batch at a viscosity (2 cP) his broth model reaches near 80 g/L cells. At the high cell
-densities and titers of the best cases the O#sub[2] limit is therefore generous (review FS-6, HM-4).
+densities and titers of the best cases the O#sub[2] limit is therefore generous.
 Specific productivity is constant through the production phase, whereas real secreting cultures
 often lose productivity after two or three days; and no product is made during growth, which is
 conservative for constitutive promoters.
@@ -714,7 +748,7 @@ sourced performance (`data/evidence/dsp.yaml`, `ovomucoid.yaml`, `casein.yaml`, 
   capture followed by an *anion-exchange polish*, loaded at 30 g/L with no loss (the patent reports
   about 110% monomer yield over it, as dimers revert), at the capture column's resin price, resin life and
   buffer volumes (a judgment); whether
-  two columns suffice is a judgment, and capture alone is shown as the optimistic case (audit R12). The
+  two columns suffice is a judgment, and capture alone is shown as the optimistic case. The
   acid for the pH step, the octanoate of the patent's recipe and protease losses while broth waits at
   pH 4.5 are not costed.
 - *Cleaning in place* (#fx(pv("dsp.cip_solution_kg_per_kg"), d: 1) kg solution per kg product,
@@ -746,8 +780,8 @@ quote: NREL 2011's 300 m³ stainless fermenter with internal cooling coils and a
 #musd(K.vendor_200m3_2025usd) per 200 m³ in 2025 dollars. It is an industrial enzyme-plant vessel, the
 closest public analogue of a food-grade PF fermenter. It is also at the vessel price level of
 Humbird's own baker's-yeast workbook, whose 200 m³ bubble column costs about \$0.8M (2018), and
-consistent with Intelligen's food-PF design (@sec-cal). Version 2 used Humbird's quote curve for the
-aseptic stirred tank he designed for cultured meat: 316L, full vacuum, built to the ASME bioprocessing
+consistent with Intelligen's food-PF design (@sec-cal). The alternative is Humbird's quote curve for
+the aseptic stirred tank he designed for cultured meat: 316L, full vacuum, built to the ASME bioprocessing
 standard. That vessel costs #musd(K.strferm_200m3_2025usd) per 200 m³ (2025 dollars),
 #fx(K.strferm_300m3_2007usd / K.nrel_fermenter_300m3_2007usd, d: 1)× the vendor quote. Humbird himself
 separates aseptic industrial fermentation, which tolerates a few foreign organisms, from aseptic
@@ -759,7 +793,7 @@ start every few hours) are priced on the same curve, scaled far below its quote.
 that size, are #fx(K.seed_acce_over_vendor, d: 1)× the curve there and would add
 #usd(BS.at("seed fermenters priced on Humbird's aseptic curve") - blg.msp_ccf, d: 2)/kg.
 
-*Vessel size (version 4).* Capital buys whole fermenters, so a small plant in large vessels pays for
+*Vessel size.* Capital buys whole fermenters, so a small plant in large vessels pays for
 idle volume. The designer therefore picks the cheapest feasible plant over
 #P.fermenter.size_choices_m3.value.map(str).join(", ", last: " and ") m³ vessels, at most #pv("fermenter.volume_cap_m3") m³
 (the base vessel; published food-PF designs use 100–150 m³), on each product's base case, and keeps
@@ -768,7 +802,7 @@ commodity plants at 10 kt/yr keep 200 m³ (larger vessels would be cheaper still
 sensitivity); lactoferrin's 250 t/yr plant takes #fx(vol(lfb), d: 0) m³ vessels, as in
 Intelligen's design, and the 1 kt/yr plants #fx(vol(alb), d: 0) m³ (albumin) and #fx(vol(alac), d: 0) m³ (α-lac).
 
-*Pioneer plants (version 4).* The base is an nth-of-a-kind plant. RAND's study of 44 pioneer process
+*Pioneer plants.* The base is an nth-of-a-kind plant. RAND's study of 44 pioneer process
 plants found that their estimates averaged 0.78 of the actual capital cost, excluding inflation and other
 external causes (106 estimates; Merrow et al. 1981), and that they produced 72% of
 design capacity in months 7–12 after start-up (94% for plants with no new process steps). We show a
@@ -828,7 +862,7 @@ rule (@sec-capital).
 
 *Headline metric.* MSP#sub[CCF]: annual operating cost plus a capital charge, divided by annual
 output. The charge is the capital recovery factor $i \/ (1 - (1+i)^(-n)) = 0.146$ per year at
-$i = 7.5%$ and $n = 10$ years (Humbird). It is a cost with a return on capital, not a market price.
+$i = 7.5%$ and $n = 10$ years (Humbird). It repays the investment with interest; the result is a cost, not a market price.
 We also compute the cost of production (COP: operating cost plus depreciation, no return) and an
 NREL-style discounted-cash-flow price MSP#sub[DCF] (10% IRR, 30 years, 21% tax, 7-year MACRS,
 construction over three years, working capital). For base BLG these are #usd(blg.cop) and
@@ -838,57 +872,61 @@ construction over three years, working capital). For base BLG these are #usd(blg
 
 Every parameter and evidence item records the kind of evidence behind it (@tab-grades). The four
 scenarios draw on different kinds of evidence and are never averaged:
-- *academic:* the best public strain performance, read in full text. BLG: 13.88 g/L in *K. phaffii*
-  (Yao et al. 2026), whose production phase runs on ethanol with glutamate feeding; the model has one
-  carbon source and prices it as glucose (per electron the two cost about the same), so this case is
-  flagged: ethanol is more reduced than glucose, so the O#sub[2] demand and heat per kg of product
-  are higher than modelled, and the feasibility check is not conservative for this case. The modelled
-  batch ends at #fx(S("academic/blg").design.X_end, d: 0) g/L cells against about 120 in Yao's run, because
-  the model's volume balance dilutes; it is a cost estimate for 13.88 g/L in 108 h, not a simulation of
-  that run. On glucose, Li et al. (2026) reach 5.14 g/L in 132 h. Their feed table (supplementary
-  Table S4) gives the only public check on a BLG yield on glucose: 1–2% overall, depending on whether
-  its feed rates refer to the starting or the current broth volume (our arithmetic; the volume profile
-  is not reported). Our model of that run gives
-  #pct(S("academic/blg_li2026").physical.overall_yield_g_g, d: 1)#if S("academic/blg_li2026").physical.overall_yield_g_g > 0.02 [, so it is, if
-  anything, optimistic on sugar there.] else [, inside that range.] OVA: 2 g/L in *T. reesei* (Aro et al. 2023),
-  with no growth in production. That is the sum of full-length and clipped OVA, and the purified
-  product was mostly the clipped 36 kDa form, so intact OVA was probably well under 2 g/L; a 1 g/L
-  variant is shown. The *T. reesei* production phase uses the yeast maintenance correlation, which is
-  a lower bound on its sugar use. Ovomucoid: the best peer-reviewed titer is 0.93 g/L in a 60 h
-  glycerol fed-batch without methanol, at 176 g/L of cells in a 2.5 L vessel (Kim et al. 2025). EVERY's patent example, 30.19 g/L at about 140 h
-  (B; vessel, cell density and feeding not stated), is shown as a variant; it is the only traceable
-  number above 1 g/L (a 3.2 g/L figure in a 2025 review has no traceable source). β-casein: no company
-  discloses a titer, and no secreted casein titer has been published for any yeast or fungus. In
-  *K. phaffii*, β-casein made with methanol reached 0.7–1.0 g/L inside the cells, with only 1/20,000 of
-  that secreted (Choi and Jiménez-Flores 1996), and a recent patent family found that *K. phaffii*
-  secretes β-casein only once a milk kinase (Fam20C) is co-expressed, without giving a titer
-  (NewMilkBuzz, EP 4 623 075). The academic case costs the #fx(S("academic/cas").design.titer, d: 1) g/L
-  as if secreted, an analogy. A patent example in which *E. coli* makes 3 g/L of β-casein inside its
-  cells (Standing Ovation, quantified by eye on a gel) is shown as a variant. Lactoferrin: 2.8 g/L of porcine lactoferrin in *K. phaffii* without
-  methanol (Yen et al. 2024), an analogy for bovine; 5.4 g/L of human lactoferrin with methanol,
-  measured by ELISA only (Lv et al. 2023), is a variant. Albumin: the highest recombinant-albumin titer
-  published, 17.47 g/L after 192 h of methanol induction in a 5 L vessel (Zhu et al. 2021), is per litre of
-  supernatant; the cells fill half the culture, and the paper's 21.84 g in 2.5 L gives 8.74 g/L of whole
-  broth, the model's basis. The same group's 8.86 g/L of supernatant in 96 h (Zhu et al. 2018), scaled by the same ratio to 4.4 g/L, is a variant, as is the best methanol-free titer, 1.5 g/L in an 8 m³
-  *S. cerevisiae* sucrose fed-batch (Delta's patent; costed as *K. phaffii* on glucose). Version 4
-  costs every methanol-induced academic case on methanol (albumin; lactoferrin, Lv et al.; β-casein, Choi
-  and Jiménez-Flores) instead of as glucose. α-Lactalbumin: the best titer in any host is 0.60 g/L of human
-  α-lac, His-tagged, in the supernatant of a *K. phaffii* culture in a 3 L bioreactor, fed ethanol for over 90 h at pH 3, which
-  suppressed proteases (Wang X et al. 2025); it is converted to whole broth with the model's cell volume at the base
-  cell density (×0.64, an analogy; only OD was reported) and costed on glucose. Their cells grew poorly at pH 3, so the
-  conversion probably over-discounts, while the authors say their assay underestimates the titer through
-  proteolysis, by an amount not given. Bovine α-lac, the dairy protein, has reached 2 mg/L in yeast (Viaene et al. 1991):
-  the protein unfolds and sticks to cells below pH 5.5, so solubility and protease control pull the culture pH
-  in opposite directions. Yield and maintenance keep the base values: no
-  measured product yield exists.
-- *industry:* 42 g/L, the average that Hawkwood computed over private companies' models of
+- *Best published strain* (`academic`): the best public strain performance, read in full text. Yield and
+  maintenance keep the base values, since no measured product yield exists. Every methanol-induced case is
+  costed on methanol. Per protein:
+  - *BLG:* 13.88 g/L in *K. phaffii* (Yao et al. 2026), whose production phase runs on ethanol with
+    glutamate feeding. The model has one carbon source and prices it as glucose (per electron the two cost
+    about the same), so this case is flagged: ethanol is more reduced than glucose, so the O#sub[2] demand
+    and heat per kg of product are higher than modelled, and the feasibility check is not conservative here.
+    The modelled batch ends at #fx(S("academic/blg").design.X_end, d: 0) g/L cells against about 120 in
+    Yao's run, because the model's volume balance dilutes; it is a cost estimate for 13.88 g/L in 108 h, not
+    a simulation of that run. On glucose, Li et al. (2026) reach 5.14 g/L in 132 h. Their feed table
+    (supplementary Table S4) gives the only public check on a BLG yield on glucose: 1–2% overall, depending
+    on whether its feed rates refer to the starting or the current broth volume (our arithmetic; the volume
+    profile is not reported). Our model of that run gives
+    #pct(S("academic/blg_li2026").physical.overall_yield_g_g, d: 1)#if S("academic/blg_li2026").physical.overall_yield_g_g > 0.02 [, so it is, if
+    anything, optimistic on sugar there.] else [, inside that range.]
+  - *OVA:* 2 g/L in *T. reesei* (Aro et al. 2023), with no growth in production. That is the sum of
+    full-length and clipped OVA, and the purified product was mostly the clipped 36 kDa form, so intact OVA
+    was probably well under 2 g/L; a 1 g/L variant is shown. The *T. reesei* production phase uses the yeast
+    maintenance correlation, which is a lower bound on its sugar use.
+  - *Ovomucoid:* the best peer-reviewed titer is 0.93 g/L in a 60 h glycerol fed-batch without methanol,
+    at 176 g/L of cells in a 2.5 L vessel (Kim et al. 2025). EVERY's patent example, 30.19 g/L at about
+    140 h (vessel, cell density and feeding not stated), is shown as a variant; it is the only traceable
+    number above 1 g/L (a 3.2 g/L figure in a 2025 review has no traceable source).
+  - *β-casein:* no company discloses a titer, and no secreted casein titer has been published for any yeast
+    or fungus. In *K. phaffii*, β-casein made with methanol reached 0.7–1.0 g/L inside the cells, with only
+    1/20,000 of that secreted (Choi and Jiménez-Flores 1996), and a recent patent family found that
+    *K. phaffii* secretes β-casein only once a milk kinase (Fam20C) is co-expressed, without giving a titer
+    (NewMilkBuzz, EP 4 623 075). This case costs the #fx(S("academic/cas").design.titer, d: 1) g/L as if
+    secreted, an analogy. A patent example in which *E. coli* makes 3 g/L of β-casein inside its cells
+    (Standing Ovation, quantified by eye on a gel) is shown as a variant.
+  - *Lactoferrin:* 2.8 g/L of porcine lactoferrin in *K. phaffii* without methanol (Yen et al. 2024), an
+    analogy for bovine; 5.4 g/L of human lactoferrin with methanol, measured by ELISA only (Lv et al.
+    2023), is a variant.
+  - *Albumin:* the highest recombinant-albumin titer published, 17.47 g/L after 192 h of methanol induction
+    in a 5 L vessel (Zhu et al. 2021), is per litre of supernatant; the cells fill half the culture, and the
+    paper's 21.84 g in 2.5 L gives 8.74 g/L of whole broth, the model's basis. The same group's 8.86 g/L of
+    supernatant in 96 h (Zhu et al. 2018), scaled by the same ratio to 4.4 g/L, is a variant, as is the
+    best methanol-free titer, 1.5 g/L in an 8 m³ *S. cerevisiae* sucrose fed-batch (Delta's patent; costed
+    as *K. phaffii* on glucose).
+  - *α-Lactalbumin:* the best titer in any host is 0.60 g/L of human α-lac, His-tagged, in the supernatant
+    of a *K. phaffii* culture in a 3 L bioreactor, fed ethanol for over 90 h at pH 3, which suppressed
+    proteases (Wang X et al. 2025). It is converted to whole broth with the model's cell volume at the base
+    cell density (×0.64, an analogy; only OD was reported) and costed on glucose. Their cells grew poorly at
+    pH 3, so the conversion probably over-discounts, while the authors say their assay underestimates the
+    titer through proteolysis, by an amount not given. Bovine α-lac, the dairy protein, has reached 2 mg/L
+    in yeast (Viaene et al. 1991): the protein unfolds and sticks to cells below pH 5.5, so solubility and
+    protease control pull the culture pH in opposite directions.
+- *Industry benchmark* (`industry`): 42 g/L, the average that Hawkwood computed over private companies' models of
   unspecified secreted proteins for GFI (2025) (company claim or survey), with everything else at each product's base
   case. It is not a measured titer for any of the seven, and least informative for casein, lactoferrin
   and α-lac, whose public titers are one to two orders of magnitude lower.
-- *required:* the inverse problem: the titer needed for \$10, \$20 and \$50/kg (lactoferrin \$100,
+- *Required:* the inverse problem: the titer needed for \$10, \$20 and \$50/kg (lactoferrin \$100,
   \$200 and \$400; albumin \$10, GFI's target, \$50, inside the bulk-albumin band, and \$100; α-lac \$25
   and \$130, the ends of its band per kg of α-lac (\$25–129) rounded, and \$60) at each production time.
-- *physical limit:* a best case at assumed limits, not a floor set by physics. Every lever moved
+- *Physical-limit best case* (`physical-limit`): a best case at assumed limits, not a floor set by physics. Every lever moved
   from the base: product yield #yaml("../data/pf/scenarios/physical_limit.yaml").common.at("strain.Y_ps_g_g") g/g (95% of
   BLG's energetic ceiling); the lowest measured maintenance in both phases; no growth in production; a
   600 g/L glucose feed (Shemesh and Fishman 2024; 730 g/L has been fed in a 2.6 L laboratory vessel, Heyland
@@ -927,8 +965,8 @@ scenarios draw on different kinds of evidence and are never averaged:
   report the feasible fraction, the limit each infeasible draw breaks, and percentiles over feasible
   plants and over all draws with a cost. Draws are independent: no data exist to set correlations,
   and the feasibility filter is the only coupling. Structural choices (conventions, vessel price
-  basis, minimum fill, secretion ceiling) are not sampled; they are shown one at a time. Version 4
-  adds the global counterpart of the tornado: the rank correlation (Spearman's ρ) of each sampled input
+  basis, minimum fill, secretion ceiling) are not sampled; they are shown one at a time. We also
+  report the global counterpart of the tornado: the rank correlation (Spearman's ρ) of each sampled input
   with the cost over the feasible draws. With independent inputs, ρ² approximates each input's share of
   the spread in the cost's ranks.
 
@@ -1144,7 +1182,7 @@ titer private cost models assume:
   design-report in brackets). The best public titers and their caveats are in @tab-key.],
 ) <tab-q1>
 
-- *Best public academic strains* leave each commodity protein at a multiple of its incumbent's band:
+- *The best published strains* leave each commodity protein at a multiple of its incumbent's band:
   #xband(p => S("academic/" + p).msp_ccf). The patent examples are far closer: EVERY's 30 g/L
   ovomucoid costs #money(S("academic/ovd_patent").msp_ccf)/kg
   (#fx(S("academic/ovd_patent").msp_ccf / MKT("ovd").at(1), d: 1)–#fx(S("academic/ovd_patent").msp_ccf / MKT("ovd").at(0), d: 1)×

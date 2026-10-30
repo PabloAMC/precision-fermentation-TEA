@@ -623,7 +623,7 @@ ax0 = np.atleast_1d(axes)[0]
 ax0.plot([], [], "o", color=INK2, label="price-anchored capital (base)")
 ax0.plot([], [], "o", mfc=SURF, mec=INK2, mew=1.6, label="design-report capital")
 ax0.legend(fontsize=7, loc="lower right", frameon=False)
-fig.text(0.01, 0.0, "Model figures are production costs with a 14.6%/yr capital charge (not selling prices); market figures are "
+fig.text(0.01, 0.0, "Model figures are minimum selling prices: costs with a 14.6%/yr capital charge, not market prices. Market figures are "
          "per kg protein, 2025 dollars, as in Fig. 1. Each product on its own base plant (" + SCALES + "); US Midwest.",
          fontsize=6.8, color=MUTED, wrap=True)
 save(fig, "fig10_price_ladder.png")
@@ -655,8 +655,8 @@ if ctx:
     ax.grid(axis="y", visible=False)
     ax.set_title("Protein ingredients, per kg of protein, against our modelled costs", fontsize=9.5, loc="left")
     fig.text(0.01, -0.02, "Bars: market prices. Export unit values are 2015-2025 in 2025 dollars (measured); GFI 2025 ranges are nominal, "
-             "about 2024-2025 (company or survey figures). Lines: this model's production costs (price-anchored capital, 10 kt/yr; best case at "
-             "100 kt/yr), which include a return on capital but no margin, sales or distribution. Lactoferrin and albumin, "
+             "about 2024-2025 (company or survey figures). Lines: this model's minimum selling prices (price-anchored capital, 10 kt/yr; physical-limit best case at "
+             "100 kt/yr), which include the capital charge but no margin, sales or distribution. Lactoferrin and albumin, "
              "which are not food-ingredient commodities, are in Figs 1 and 10.", fontsize=6.8, color=MUTED, wrap=True)
     save(fig, "fig11_protein_context.png")
 
