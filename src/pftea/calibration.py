@@ -103,6 +103,83 @@ def run(name: str, extra: dict | None = None) -> dict:
     return out
 
 
+def physiology_record(p: dict | None = None) -> list[dict]:
+    """Predictions of measured K. phaffii physiology from the model's first principles (none of these
+    measurements is an input). Recorded in docs/VALIDATION.md, 'Predictions of measured physiology'.
+
+    The growth model is thermo.GrowthModel (Heijnen dissipation, Tijhuis maintenance) on the host's biomass
+    formula at its temperature:
+        Y_max      = M_x / (-y_S M_S)                      biomass per substrate, growth reaction alone [g/g]
+        Y_XS(mu)   = mu M_x / (q_S(mu) M_S)                with maintenance (Herbert-Pirt), as a chemostat at D = mu
+        q_O2(mu)   = -q_O2 / M_x                           [mmol O2 / g DCW / h]
+        heat/O2    = -dH_growth / (O2 used by growth)      formation enthalpies [kJ/mol O2]
+        Y_fedbatch = cells grown / glucose used in the growth phase of the base batch (balances.batch_balances)
+    Measured values are read from data/evidence/hosts.yaml and engineering.yaml by key. 'band' is the
+    measured range (several studies, or a stated +/-); 'value' a single measurement. ok = inside the band,
+    or within the stated uncertainty of a single value."""
+    import numpy as np
+
+    from . import balances
+    from . import thermo as th
+    from .scenarios import base_params
+
+    p = p or base_params("blg")
+    host = plant._host(p)
+    bio = host.growth.bio
+    ev = {e["key"]: e for f in ("hosts", "engineering")
+          for e in yaml.safe_load((ROOT / f"data/evidence/{f}.yaml").read_text())}
+    MU = 0.1                                       # 1/h: the dilution rate of the chemostat measurements below
+    gm = {cs: th.GrowthModel(bio, th.get(cs), host.T_C) for cs in ("Glucose (s)", "Glycerol", "Methanol")}
+
+    def y_at(cs, mu):
+        return mu * bio.mw / (-gm[cs].q(cs, mu) * th.get(cs).mw)
+
+    def qo2_at(cs, mu):
+        return -gm[cs].q("O2 (aq)", mu) / bio.mw * 1000
+
+    g = gm["Glucose (s)"].growth
+    heat_o2 = -g.dH / -g.of("O2 (aq)")
+    b = plant.batch(p, keep_series=True)
+    t, F = np.array(b.series["t"]), np.array(b.series["X"]) * np.array(b.series["W"])
+    split = balances.batch_balances(p)["split"]["glucose_kg"]
+    y_fb = (float(np.interp(b.t_growth, t, F)) - F[0]) / (split["growing the cells"] + split["maintenance while growing"])
+    yk = ("kphaffii_yxs_glucose_chemostat_maurer2006", "kphaffii_yxs_max_glucose_rebnegger2016", "kphaffii_yxs_max_glucose_rebnegger2024")
+    oxy, cooney = ev["oxycaloric_equivalent"], ev["heat_per_o2_shuler_kargi_cooney"]
+    fb, gly, meoh, qo2 = (ev["kphaffii_yxs_glucose_fedbatch_shemesh2024"], ev["kphaffii_yxs_glycerol_chemostat_tomasgamisans2018"],
+                          ev["kphaffii_yxs_methanol_chemostat_tomasgamisans2018"], ev["kphaffii_qo2_methanol_vs_glycerol_tomasgamisans2018"])
+    rows = [
+        dict(key="yxs_glucose", name="Cell yield on glucose, upper limit", unit="g cells / g glucose", ours=gm["Glucose (s)"].max_yield,
+             band=[min(ev[k]["value"] for k in yk), max(ev[k]["value"] for k in yk)], sources=list(yk),
+             note="Three chemostat studies of producing and non-producing strains. Sets how much sugar growth takes."),
+        dict(key="heat_per_o2", name="Heat released per mol of O₂, growing cells", unit="kJ/mol O2", ours=heat_o2,
+             band=[-oxy["high"], cooney["value"] * 1000], sources=["oxycaloric_equivalent", "heat_per_o2_shuler_kargi_cooney"],
+             note="Measured on many organisms. Sets how hard the tank must be cooled."),
+        dict(key="yxs_fedbatch", name="Cell yield on glucose in a fed-batch", unit="g cells / g glucose", ours=y_fb,
+             band=[fb["low"], fb["high"]], sources=["kphaffii_yxs_glucose_fedbatch_shemesh2024"],
+             note="Three strains in fed-batch; theirs made some ethanol. The model's base batch, growth phase."),
+        dict(key="yxs_methanol", name="Cell yield on methanol (chemostat)", unit="g cells / g methanol", ours=y_at("Methanol", MU),
+             value=meoh["value"], sources=["kphaffii_yxs_methanol_chemostat_tomasgamisans2018"],
+             note="Used only in the methanol-fed published-strain cases (albumin, lactoferrin, casein variants)."),
+        dict(key="qo2_methanol", name="O₂ uptake on methanol at 0.1/h", unit="mmol O2 / g cells / h", ours=qo2_at("Methanol", MU),
+             value=qo2["value"], stated=qo2["value_sd"], sources=["kphaffii_qo2_methanol_vs_glycerol_tomasgamisans2018"],
+             note="Same cases. Lower O2 use means the model may understate cooling and O2 limits on methanol."),
+        dict(key="yxs_glycerol", name="Cell yield on glycerol (chemostat)", unit="g cells / g glycerol", ours=y_at("Glycerol", MU),
+             band=[gly["low"], gly["high"]], sources=["kphaffii_yxs_glycerol_chemostat_tomasgamisans2018"],
+             note="No case uses glycerol. The miss shows the Heijnen correlation does not carry over to every feed."),
+        dict(key="qo2_glycerol", name="O₂ uptake on glycerol at 0.1/h", unit="mmol O2 / g cells / h", ours=qo2_at("Glycerol", MU),
+             value=qo2["high"], stated=qo2["high_sd"], sources=["kphaffii_qo2_methanol_vs_glycerol_tomasgamisans2018"],
+             note="No case uses glycerol. The model's O2 use is about twice the measured."),
+    ]
+    for r in rows:
+        r["ours"] = float(r["ours"])
+        if "band" in r:
+            r["band"] = [float(x) for x in r["band"]]
+            r["ok"] = bool(r["band"][0] <= r["ours"] <= r["band"][1])
+        else:
+            r["ok"] = bool(abs(r["ours"] - r["value"]) <= r.get("stated", 0.0))
+    return rows
+
+
 def report(name: str) -> str:
     o = run(name)
     lines = [f"{name}: flags {o['result'].flags or 'none'}"]
