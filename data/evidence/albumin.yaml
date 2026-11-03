@@ -439,10 +439,18 @@
   grade: A
   source: "Mallem M, Warburton S, Li F, et al. Maximizing recombinant human serum albumin production in a Mut(s) Pichia pastoris strain. Biotechnol Prog 30:1488-1496 (2014)"
   doi_or_url: 10.1002/btpr.1990
-  locator: abstract
-  quote: "We observed higher specific productivities at higher induction cell densities (285 g/L) and at lower specific growth rates (0.0022-0.0024/h) during methanol induction phase, and achieved the broth titer of rHSA up to 10 g/L."
-  read: abstract
+  locator: "abstract; Results, accepted-manuscript p.14 (run F103031)"
+  quote: "Induction in F103031 fermentation was extended to 405 h, where the highest broth titer of 10 g/L rHSA was achieved with 478 g/L (WCW) closer to 50% solids."
+  read: fulltext
   note: >-
+    Full text read 2026-11-03 (accepted manuscript, pages are manuscript pages). Induction 405 h
+    (F103031, 6 L vessel at 40% fill); replicate F110631 10.2 g/L at 395 h; 15 L run F110611
+    9.8 g/L at 389 h. Whole-broth basis = 17-18 g/L of supernatant (pp.4, 17), ratio ~0.57,
+    consistent with the 0.50 used for Zhu 2021. Assay: Bradford total protein vs HSA standard,
+    checked by SDS-PAGE densitometry (not albumin-specific). 28 C in induction, pH 5.85, 0.7 vvm,
+    DO 20%, residual methanol 2-5 g/L by sensor; total methanol use not reported. WCW 285 g/L at
+    induction -> 478 g/L at the end. Broth productivity ~0.025 g/L/h vs ~0.045 for Zhu 2021
+    (mine). The abstract-based estimate below (~320-390 h) was close.
     METHANOL, Mut(s) (Merck/GlycoFi, US). Induction at 285 g/L WET cell weight (~70-80 g/L DCW at the
     usual 0.25-0.28 DCW/WCW; my conversion, check), mu ~0.0023/h (essentially non-growing; compare
     the model's mu_prod 0.0014/h), qp 0.0908 mg/(g WCW h) (= ~0.33-0.36 mg/g DCW/h, mine), 24->28 C
@@ -489,7 +497,11 @@
     AOX2 promoter + oleic acid "doubled the rHSA production level" (J Biosci Bioeng 89:479); optimal
     methanol feeding gave "18% increase in total rHSA production" (90:280); repeated fed-batch with
     264 h methanol feeding gave "a 47% increase in annual rHSA production" (Ohya 2005 Biotechnol
-    Bioeng 90:876). The commercial titer is not stated in any abstract read (gap).
+    Bioeng 90:876). The commercial titer is not stated in any abstract read (gap). Kobayashi 2006
+    full text read 2026-11-03: no titer, scale, run time or step recovery; only "several grams of
+    rHSA secretion into the culture broth seemed to be the minimum requirement for the starting
+    material to be purified" (sect. 2, p.56). Yeast-derived impurities below detection at
+    250 mg rHSA/mL with a 1 ng/mL limit (p.57). The 1.4 g/L stays abstract-only.
 
 - key: hsa_scerevisiae_delta_patent_fermentation
   value: 1.5
@@ -994,3 +1006,22 @@
     CV/h). The patent adds: "the eluate from the anion exchange resin still contains impurities and is then applied directly to
     the affinity matrix" - for its pharmaceutical (>=99.9%) grade; whether CEX + AEX reaches the 96% cell-culture grade is the
     model's judgment (D).
+
+- key: rhsa_titer_kphaffii_sun2026_review
+  value: 38.6
+  unit: g/L rHSA, K. phaffii (basis, scale and time not stated)
+  grade: C
+  source: "Sun et al. Recombinant human serum albumin - a paradigm shift: from laboratory to industry. Biotechnol Adv 90:108914 (2026)"
+  doi_or_url: 10.1016/j.biotechadv.2026.108914
+  locator: "Table 1, p.6"
+  quote: "Gram-scale and up to 38.6 g/L."
+  read: fulltext
+  note: >-
+    Read 2026-11-03. No single source is named for 38.6 (the cell cites Maity 2022, Xiang 2025,
+    Zhu 2021, Zhu 2018); Xiang 2025 is the authors' own Chinese patent (CN202411388675.8), the
+    likely origin (inference). All authors are tied to Tonghua Anrate (COI, p.15). Unverifiable,
+    so it does not replace Zhu 2021 (17.47 g/L supernatant, 8.74 g/L broth) as the best
+    verifiable titer, but "public best 17.47" must be qualified. No methanol-free rHSA titer is
+    given. Commercial yeast purification (Anrate, sect. 3.4.1.2, Table 3, p.11): expanded-bed AEX
+    on unclarified broth at pH 7-8, then HIC, ~60 C heat decolourisation, 10 kDa UF, macroporous
+    resin at pH 4.5, Sephadex G75, DEAE: seven steps to injectable grade.
