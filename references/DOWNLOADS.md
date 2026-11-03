@@ -1,5 +1,14 @@
 # Documents to download (for Pablo)
 
+**Status 2026-11-03.** Received, filed and read: 6 (Jin 2024), 9, 11, 12, 17, 22 (Yao 2026 SI, as
+`papers/Yao2026_blg_yeast_SI.docx`), 27, 28, 29, 31, 34, 35, 40, 41, 42, 49, 50 (Kobayashi 2006 only)
+and 51. What each changed is in the evidence entries (all now `read: fulltext`) and INDEX.md
+section 6. Corrections: item 11 (Takors 2012) contains no OTR requirement (the >120 mmol/L/h is
+Takors 2025); the Jin 2024 titer row now records the secreted 8 mg/L, not the 132 mg/L total.
+Still open: 44 (Balasubramanian 2025; casein.yaml already cites a full-text read), 50 Ohya 2005,
+the free items (7, 10, 13, 16, 18-20, 23, 24, 30, 39, 43, 45), books 33, 37, 38 (no library
+access) and P3. None of them is used by a base case or a headline scenario.
+
 **Status 2026-10-05 (titer check).** 43 of 134 rows in data/titers.csv are not verified in full text. No base case and
 no headline scenario uses any of them. Four uses do, so these three papers come first (all paywalled):
 **15** Liu 2026 (lactoferrin marker, report Figure 3), **32** Hu 2025 (lactoferrin marker, report Figure 3) and **48** Zhu 2018 (albumin
@@ -108,7 +117,7 @@ text we can check the quote, or replace the value. DOIs checked against Crossref
 | 8 | Humbird D, Davis R, McMillan JD. Aeration costs in stirred-tank and bubble column bioreactors. Biochem Eng J 127:161–166 (2017) | 10.1016/j.bej.2017.08.006 | `papers/Humbird2017_aeration_costs.pdf` | Basis of the O₂-transfer cap and aeration cost |
 | 9 | Garcia-Ochoa F, Gomez E. Bioreactor scale-up and oxygen transfer rate in microbial processes: an overview. Biotechnol Adv 27:153–176 (2009) | 10.1016/j.biotechadv.2008.10.006 | `papers/GarciaOchoa2009_otr_scaleup.pdf` | kLa correlations and typical OTRs |
 | 10 | Crater JS, Lievense JC. Scale-up of industrial microbial processes. FEMS Microbiol Lett 365:fny138 (2018). Open access | 10.1093/femsle/fny138 | `papers/Crater2018_scaleup.pdf` | Industrial vessel sizes, OTR and heat limits |
-| 11 | Takors R. Scale-up of microbial processes: impacts, tools and open questions. J Biotechnol 160:3–9 (2012) | 10.1016/j.jbiotec.2011.12.010 | `papers/Takors2012_scaleup.pdf` | Cited for the >120 mmol/L/h OTR requirement |
+| 11 | Takors R. Scale-up of microbial processes: impacts, tools and open questions. J Biotechnol 160:3–9 (2012) | 10.1016/j.jbiotec.2011.12.010 | `papers/Takors2012_scaleup.pdf` | **Received 2026-11-03.** No OTR number (the >120 mmol/L/h is Takors 2025); gives large-scale mixing times and head pressures |
 | 12 | Knoll A, Maier B, Tscherrig H, Büchs J. The oxygen mass transfer, carbon dioxide inhibition, heat removal, and the energy and cost efficiencies of high pressure fermentation. Adv Biochem Eng Biotechnol 92:77–99 (2005) | 10.1007/b98918 | `papers/Knoll2005_pressure_fermentation.pdf` | Heat removal as the limit under pressure |
 | 13 | Liu WC, Gong T, Wang QH, et al. Scaling-up fermentation of *Pichia pastoris* to demonstration-scale… Sci Rep 6:18439 (2016). Open access | 10.1038/srep18439 | `papers/Liu2016_pichia_pressure.pdf` | Head-pressure gain used by the physical-limit scenario |
 

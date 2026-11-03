@@ -188,27 +188,37 @@
   grade: A
   source: "Knoll A, Maier B, Tscherrig H, Büchs J. The oxygen mass transfer, carbon dioxide inhibition, heat removal, and the energy and cost efficiencies of high pressure fermentation. Adv Biochem Eng Biotechnol 92:77-99 (2005)"
   doi_or_url: 10.1007/b98918
-  locator: abstract
+  locator: "abstract pp.77-78; sect. 4.3 'Heat Generation' p.92; Eq. 24 p.87"
   quote: "the oxygen transfer capacities of stirred tank reactors can theoretically be increased to values above 1 kmol m(-3) h(-1), although the problem of heat removal limits that value to levels of 0.7 kmol m(-3) h(-1)."
-  read: abstract
+  read: fulltext
   note: >-
-    The quoted clause is preceded by "By applying reactor pressures up to 11 bar (10 bar
-    overpressure)". Example 5 m3 fermentor with P. putida sorption characteristics
-    (abstract). The single
-    clearest literature statement that heat removal, not O2 transfer, caps OTR once pressure is
-    used. 0.7 kmol/m3-h x 455 kJ/mol O2 = ~88 kW/m3 of metabolic heat (derived). Abstract via
-    Europe PMC; unit notation "m(-3) h(-1)" as in Europe PMC. Full chapter not read.
+    Full text read 2026-11-03. Sect. 4.3 p.92: "only around 94 kW m-3 of heat could be removed,
+    corresponding to an OTC of around 0.7 kmol m-3 h-1". A THEORETICAL 5 m3 STR (D 1.54 m,
+    H 2.68 m) scaled from 37 L measurements with P. putida CA-3; kLa = 0.32 (P/V)^0.74 uG^0.42
+    (Eq. 24); up to 11 bar, P/V up to 10 kW/m3, 5.5 Nm3/m3/min at 11 bar; cooling water,
+    U = 610 W/m2/K, dTm = 10 K, jacket ~10 m2 plus up to 75 m2 of tube bundles (~15 m2/m3);
+    heat yield 470 kJ/mol O2 (range 450-470, p.82). high = 1.0 is a floor ("greater than"),
+    not a maximum. 94 kW/m3 = 0.7 x 470 / 3.6 (~91, mine) + stirrer power. p.87 calls 5 m3
+    "an example of a typical production scale for heterologous protein expression". At
+    hundreds of m3, wall area per volume falls as V^-1/3 (~4x lower at 400 m3, mine), so this is
+    an upper analog (D at our scale) for heat_removal_max_kW_m3 (base 25, physical_limit 40).
 
 - key: pressure_cost_efficiency_optimum
   value: 5.6
+  low: 4.8
   unit: bar (reactor pressure up to which O2-transfer cost efficiency increases)
   grade: A
   source: "Knoll A, Maier B, Tscherrig H, Büchs J. Adv Biochem Eng Biotechnol 92:77-99 (2005)"
   doi_or_url: 10.1007/b98918
-  locator: abstract
+  locator: "abstract; sect. 4.5.3 'Running Costs' p.95 (Fig. 7)"
   quote: "The cost efficiency of the oxygen mass transfer [...] also increases with reactor pressure up to 5.6 bar."
-  read: abstract
+  read: fulltext
   note: >-
+    Full text read 2026-11-03: 5.6 appears only in the abstract. Body p.95: at fixed gas flow
+    (mode 1) the best cost efficiency is at "pressures of 9-11 bar"; in the optimised case
+    (Fig. 7A) the "reactor pressure is only increased to a maximum value of 4.8 bar" (= low);
+    with pCO2 capped at 0.2 bar the maximum OTC is 0.8 kmol/m3/h (Fig. 7B). Energy efficiency
+    peaks at 5.4 bar and 2.8 kW/m3 (sect. 4.4, p.92). Not used by the model.
     [...] = "defined as the ratio of the oxygen transfer capacity to the overall cost of the
     system (overall purchase cost divided by a project lifetime of ten years, plus total
     energy cost)". Same abstract: "It is shown that increasing reactor pressure enhances the energy
@@ -1251,20 +1261,39 @@
     van 't Riet non-coalescing constants and adds one FTE. The bubble-column equations of the
     2017 paper remain unverified. Fetch by hand (P1).
 
-- key: garcia_ochoa_gomez_2009_tables
+- key: garcia_ochoa_gomez_2009_kla_exponent_ranges
   value: null
-  unit: "typical kLa/OTR values and kLa correlations (review tables)"
+  unit: "exponents of kLa = C Vs^a (P/V)^b mu_a^c (stirred tank, Eq. 31)"
   grade: A
   source: "Garcia-Ochoa F, Gomez E. Bioreactor scale-up and oxygen transfer rate in microbial processes: an overview. Biotechnol Adv 27:153-176 (2009)"
   doi_or_url: 10.1016/j.biotechadv.2008.10.006
-  locator: "abstract only"
-  quote: null
-  read: abstract
+  locator: "sect. 4.1 p.162, Eq. 31; Table 2 p.161"
+  quote: "0.3 ≤ a ≤ 0.7; 0.4 ≤ b ≤ 1; −0.4 ≤ c ≤ −0.7. For non-viscous systems the most frequently used correlation is that from Van't Riet (1979)."
+  read: fulltext
   note: >-
-    Abstract (Europe PMC) contains no numbers. academia.edu copy 403, Semantic Scholar
-    figure page empty (JavaScript), UCM repository page lists metadata only; the Elsevier
-    page was not tried (all other ScienceDirect pages returned 403). Paywalled; get via
-    institutional access.
+    Full text read 2026-11-03 (replaces the abstract-only placeholder garcia_ochoa_gomez_2009_tables).
+    Here a is the superficial-gas-velocity exponent and b the P/V exponent. Table 2 lists only
+    van 't Riet's coalescing (water) row: P/V^0.4, Vs^0.5, 2-2600 L, any stirrer; no constant C.
+    The model's non-coalescing exponents (P/V 0.7, Vs 0.2, via Humbird) are not in this review:
+    0.7 is inside the b range, 0.2 is below the a range (flag, not a contradiction: the ranges
+    are for mixed literature). The review has no industrial-scale kLa or OTR, nothing on Pichia
+    and no heat-per-O2 value.
+
+- key: garcia_ochoa_gomez_2009_industrial_scale
+  value: null
+  low: 30
+  high: 1000
+  unit: m3 (range of 'large scale' fermenters)
+  grade: A
+  source: "Garcia-Ochoa F, Gomez E. Biotechnol Adv 27:153-176 (2009)"
+  doi_or_url: 10.1016/j.biotechadv.2008.10.006
+  locator: "sect. 8 p.169; sect. 8.2 pp.170-171"
+  quote: "a large scale system (where the scale is typically from 30 to1000 m3)"
+  read: fulltext
+  note: >-
+    Same section: pilot scale 50-300 L, scale-up ratio ~1:10. Scale-up criteria in industry
+    (citing Margaritis & Zajic 1978, p.171): constant P/V 30%, constant kLa 30%, constant tip
+    speed 20%, constant dissolved O2 20%.
 
 - key: van_t_riet_1979_constants_primary
   value: null
