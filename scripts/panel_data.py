@@ -149,6 +149,14 @@ def analyses_extract(product: str, a: dict) -> dict:
                       for t in a.get("tornado_by_product", {}).get(product, [])]
     out["monte_carlo"] = {s: {k: a["monte_carlo"][f"{s}/{product}"].get(k) for k in ("p10", "p50", "p90", "n")}
                           for s in ("academic", "industry") if f"{s}/{product}" in a.get("monte_carlo", {})}
+    light = a.get("base_light", {}).get(product)
+    if light:   # the model's own design-report (NREL-style) run of the base case, for the panel's accounting preset
+        eq = sum(x for k, x in light["capex"].items() if k.startswith(("ISBL:", "OSBL:")))
+        resin = light["capex"].get("CEX resin first fill", 0.0)
+        A = light["design"]["n_batches"] * light["design"]["target_per_batch_kg"]    # kg of protein a year
+        out["nrel"] = dict(msp=light["msp_ccf"], lang=(light["tci"] - resin) / eq,
+                           f_maint=light["per_kg"]["maintenance"] * A / light["tci"],
+                           f_ins=light["per_kg"]["insurance"] * A / light["tci"])
     req = a.get("required", {}).get(f"{product}/humbird")
     if req:
         out["required"] = dict(t_prods=a["required_t_prods"],
@@ -193,7 +201,8 @@ def reality_checks(a: dict) -> list[dict]:
                 co, ct = c[key]["TCI vs their FCI (EUR)"]
                 note = note.format(cap=f"{co / ct - 1:+.0%}")
             out.append(dict(name=name, kind="consistency", unit=unit, ours=ours, theirs=theirs, tolerance=tol,
-                            ok=abs(ours / theirs - 1) <= tol, note=note))
+                            ok=abs(ours / theirs - 1) <= tol, note=note,
+                            light=(c[key].get(f"{metric} [light convention]") or [None])[0]))   # with design-report accounting
     return out
 
 

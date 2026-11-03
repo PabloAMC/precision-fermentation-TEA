@@ -303,7 +303,7 @@ function inLink(path, text) {
 }
 
 // ------------------------------------------------------------------ state
-const S = { prod: PRODUCTS[0], kase: "base", k: 0, i: 0, j: 0, loc: "us", prices: {}, rate: null, life: null };
+const S = { prod: PRODUCTS[0], kase: "base", k: 0, i: 0, j: 0, loc: "us", prices: {}, rate: null, life: null, lang: null };
 function P() { return D.products[S.prod]; }
 function baseIdx(p) {
   const ax = p.axes, b = p.cases.base.inputs;
@@ -314,7 +314,7 @@ function isCustom() {
   const b = baseIdx(P());
   return S.kase === "custom" || (S.kase === "base" && (S.k !== b.k || S.i !== b.i || S.j !== b.j));
 }
-function pricesChanged() { return Object.keys(S.prices).length > 0 || S.rate !== null || S.life !== null || S.loc !== "us"; }
+function pricesChanged() { return Object.keys(S.prices).length > 0 || S.rate !== null || S.life !== null || S.lang !== null || S.loc !== "us"; }
 
 // ------------------------------------------------------------------ views: one exact model run
 function gridView(p, k, i, j) {
@@ -361,14 +361,20 @@ function locFactor(p, v) {
   if (S.prices["capital.location_factor"] !== undefined) return S.prices["capital.location_factor"];
   return S.loc === "eu" ? p.location_factor_eu : v.chain.location_factor;
 }
-function tciOf(p, v) {   // TCI = (TCI - resin first fill) f'/f + resin first fill (chain.py docstring)
-  const c = v.chain;
-  return (c.tci - c.resin_fill) * locFactor(p, v) / c.location_factor + c.resin_fill;
+function equipOf(v) {   // listed equipment, 2025$ (the capital table's process and utility equipment)
+  return Object.entries(v.capex).filter(([k]) => k.startsWith("ISBL:") || k.startsWith("OSBL:")).reduce((a, [, x]) => a + x, 0);
+}
+function langOf(v) { return (v.chain.tci - v.chain.resin_fill) / equipOf(v); }   // plant cost / listed equipment
+function tciOf(p, v) {
+  // TCI = (TCI - resin first fill) x f'/f x L'/L + resin first fill. f: location factor (chain.py docstring);
+  // L: plant cost over listed equipment. Changing L scales installation, buildings, engineering and fees together.
+  const c = v.chain, L0 = langOf(v), L = S.lang ?? L0;
+  return (c.tci - c.resin_fill) * locFactor(p, v) / c.location_factor * L / L0 + c.resin_fill;
 }
 function amountOf(p, v, t) {
   if (t.unit !== "$") return t.amount;
   const f = locFactor(p, v) / v.chain.location_factor;
-  return t.item === "plant investment (TCI)" ? tciOf(p, v) / v.chain.A : t.amount * f;
+  return t.item === "plant investment (TCI)" ? tciOf(p, v) / v.chain.A : t.amount * f * (S.lang ?? langOf(v)) / langOf(v);
 }
 function priced(p, v) {   // terms with current amounts and prices, line totals, groups, total
   const terms = v.terms.map(t => { const price = priceOf(p, v, t), amount = amountOf(p, v, t); return { ...t, price, amount, cost: price * amount }; });
@@ -426,7 +432,7 @@ function renderAnswer(p, v, m) {
     </div></div>
     ${boxes(p, v, m)}
     <div class="excl">Not in the cost: R&amp;D, strain licences and royalties, regulatory approval, sales and distribution, land,
-      a first plant's extra cost, and carbon pricing. Costs are 2025 US dollars, with Humbird's capital charge (${pct(S.rate ?? c.ccf_rate ?? 0, 1)} over ${sig(S.life ?? c.ccf_life)} years).</div>`;
+      a first plant's extra cost, and carbon pricing. Costs are 2025 US dollars. ${{ humbird: "Accounting: Humbird's method", nrel: "Accounting: NREL-style design report", own: "Accounting: your settings" }[acctMode(p)]}, with a capital charge of ${pct(S.rate ?? c.ccf_rate ?? 0, 1)} over ${sig(S.life ?? c.ccf_life)} years.</div>`;
   renderStrip(p, v, m);
 }
 
@@ -557,6 +563,7 @@ function renderReality() {
       const d = r.ours / r.theirs - 1;
       badge = r.ok ? `<span class="badge agree">AGREES</span> <span class="faint">${d >= 0 ? "+" : ""}${pct(d, 0)}</span>`
         : `<span class="badge differ">DIFFERS</span> <span class="faint">${d >= 0 ? "+" : ""}${pct(d, 0)}, allowed ±${pct(r.tolerance, 0)}</span>`;
+      if (r.light) { const dl = r.light / r.theirs - 1; badge += `<div class="faint" style="font-size:11.5px">with NREL-style accounting: ${dl >= 0 ? "+" : ""}${pct(dl, 0)}</div>`; }
     }
     h += `<tr><td><b>${esc(r.name)}</b> <span class="faint" style="font-size:11.5px">${r.kind === "reality" ? "reality check" : "consistency check"}</span>
       <div class="muted" style="font-size:12.5px">${esc(r.note)}</div></td><td class="n">${num(r.ours, r.unit)}<div class="faint" style="font-size:11.5px">${esc(r.unit)}</div></td>
@@ -701,7 +708,7 @@ function renderChain(p, v, m) {
   const rate = S.rate ?? c.ccf_rate, life = S.life ?? c.ccf_life, k9 = ccf(rate, life);
   const fm = S.prices["finance.maintenance_frac_tci"] ?? c.f_maint, fi = S.prices["finance.insurance_tax_frac_tci"] ?? c.f_ins;
   const tci = tciOf(p, v), pl9 = tci * (k9 + fm + fi) / c.A;
-  const loc9 = locFactor(p, v) !== c.location_factor ? ` (TCI rescaled for location: ${usd(tci, 4)})` : "";
+  const loc9 = (locFactor(p, v) !== c.location_factor || S.lang !== null) ? ` (TCI rescaled for ${[locFactor(p, v) !== c.location_factor ? "location" : "", S.lang !== null ? `plant cost ${sig(S.lang, 3)}× equipment` : ""].filter(Boolean).join(" and ")}: ${usd(tci, 4)})` : "";
   steps.push(step(9, "The plant, per kg", "Each year the plant must repay part of its cost with interest. This yearly share is the capital charge factor (CCF). Maintenance and insurance add more. The total is divided by the yearly output.",
     `CCF = r(1+r)^L / ((1+r)^L − 1) = ${sig(rate, 3)}·${sig(1 + rate, 4)}^${sig(life)} / (${sig(1 + rate, 4)}^${sig(life)} − 1) = ${sig(k9, 4)} per yr<br>` +
     `plant = TCI × (CCF + maintenance + insurance) / output = ${usd(tci, 4)} × (${sig(k9, 4)} + ${sig(fm, 3)} + ${sig(fi, 3)}) / ${sig(c.A, 4)} kg = ${usd(pl9, 4)}/kg${loc9}`,
@@ -742,6 +749,7 @@ function renderLevers(p, v) {
   h += `<div class="lever"><label><span>Location (prices, wages, construction)</span></label><div class="seg" id="locSeg">
     <button aria-pressed="${S.loc === "us"}" data-loc="us">US Midwest</button><button aria-pressed="${S.loc === "eu"}" data-loc="eu">North-west Europe</button></div>
     <div class="hint">The plant stays the same. Its prices, wages and building costs change.</div></div>`;
+  h += accountingLevers(p, v, rate, life);
   $("levers").innerHTML = h;
   if (!onGrid) $("levers").insertAdjacentHTML("afterbegin", `<p class="note" style="grid-column:1/-1">The ${esc(CASE_NAME[S.kase])} changes several inputs at once. It is not one of the runs below. Moving titer, time or size starts again from the base case.</p>`);
   const toGrid = () => { if (!onGrid) { Object.assign(S, baseIdx(p)); } S.kase = "custom"; };
@@ -751,7 +759,54 @@ function renderLevers(p, v) {
   $("lvG").oninput = (e) => { S.prices["utilities.glucose_usd_kg"] = +e.target.value; if (S.kase === "base") S.kase = "custom"; render(); };
   $("lvR").oninput = (e) => { S.rate = +e.target.value; if (S.kase === "base") S.kase = "custom"; render(); };
   $("locSeg").querySelectorAll("button").forEach(b => b.onclick = () => { S.loc = b.dataset.loc; render(); });
+  const mark = () => { if (S.kase === "base") S.kase = "custom"; };
+  $("lvL").oninput = (e) => { S.lang = +e.target.value; mark(); render(); };
+  $("lvM").oninput = (e) => { S.prices["finance.maintenance_frac_tci"] = +e.target.value; mark(); render(); };
+  $("lvI").oninput = (e) => { S.prices["finance.insurance_tax_frac_tci"] = +e.target.value; mark(); render(); };
+  $("lvY").oninput = (e) => { S.life = +e.target.value; mark(); render(); };
+  $("acctSeg").querySelectorAll("button").forEach(b => b.onclick = () => {
+    S.lang = null; S.rate = S.life = null; delete S.prices["finance.maintenance_frac_tci"]; delete S.prices["finance.insurance_tax_frac_tci"];
+    const n = p.analyses && p.analyses.nrel;
+    if (b.dataset.acct === "nrel" && n) { S.lang = n.lang; S.prices["finance.maintenance_frac_tci"] = n.f_maint; S.prices["finance.insurance_tax_frac_tci"] = n.f_ins; }
+    if (S.kase === "base" && b.dataset.acct === "nrel") S.kase = "custom";
+    render(); });
   if (!onGrid) { $("lvTV").textContent += " (base)"; }
+}
+
+// Accounting: how the plant's cost becomes a yearly charge. These change no equipment, batch or staff, so the
+// page recomputes them exactly on the same plant (like the prices).
+function acctMode(p) {
+  const n = p.analyses && p.analyses.nrel;
+  const none = S.lang === null && S.rate === null && S.life === null && S.prices["finance.maintenance_frac_tci"] === undefined && S.prices["finance.insurance_tax_frac_tci"] === undefined;
+  if (none) return "humbird";
+  if (n && S.rate === null && S.life === null && S.lang === n.lang && S.prices["finance.maintenance_frac_tci"] === n.f_maint && S.prices["finance.insurance_tax_frac_tci"] === n.f_ins) return "nrel";
+  return "own";
+}
+function accountingLevers(p, v, rate, life) {
+  if (v.error) return "";
+  const c = v.chain, L0 = langOf(v), L = S.lang ?? L0, n = p.analyses && p.analyses.nrel, mode = acctMode(p);
+  const fm = S.prices["finance.maintenance_frac_tci"] ?? c.f_maint, fi = S.prices["finance.insurance_tax_frac_tci"] ?? c.f_ins;
+  let h = `<div style="grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;margin-top:4px">
+    <b>Accounting</b> <span class="muted" style="font-size:13px">How the plant's cost becomes a yearly charge. These are conventions, not measurements.</span>
+    <div class="seg" id="acctSeg" style="margin-top:6px">
+      <button data-acct="humbird" aria-pressed="${mode === "humbird"}" title="Humbird's facility factors and fixed costs: the base">Humbird method (base)</button>
+      <button data-acct="nrel" aria-pressed="${mode === "nrel"}" ${n ? "" : "disabled"} title="The installation factors and fixed costs of NREL-style design reports">NREL-style design report</button>
+    </div></div>`;
+  h += lever("lvL", "Plant cost ÷ listed equipment", `${sig(L, 3)}×`, `installation, buildings, engineering and fees, scaled together (this plant: ${sig(L0, 3)}×)`, 2.5, 8, 0.05, L, "capital.facility_class");
+  h += lever("lvM", "Maintenance", `${pct(fm, 1)} of plant cost a year`, `base ${pct(c.f_maint, 1)}`, 0, 0.08, 0.001, fm, "finance.maintenance_frac_tci");
+  h += lever("lvI", "Insurance and local taxes", `${pct(fi, 1)} of plant cost a year`, `base ${pct(c.f_ins, 1)}`, 0, 0.08, 0.001, fi, "finance.insurance_tax_frac_tci");
+  h += lever("lvY", "Plant life for the capital charge", `${sig(life)} years`, `base ${sig(c.ccf_life)} years; the rate slider is above`, 5, 30, 1, life, "finance.ccf_life_y");
+  // check: the page's NREL-style price on the base plant against the model's own NREL-style run
+  if (n) {
+    const bv = caseView(p, "base"), save = { lang: S.lang, prices: S.prices, rate: S.rate, life: S.life, loc: S.loc };
+    S.lang = n.lang; S.prices = { "finance.maintenance_frac_tci": n.f_maint, "finance.insurance_tax_frac_tci": n.f_ins }; S.rate = S.life = null; S.loc = "us";
+    const pageN = priced(p, bv).total; Object.assign(S, save);
+    const d = pageN / n.msp - 1;
+    h += `<p class="note" style="grid-column:1/-1">Base case with NREL-style accounting: ${usd(pageN, 3)}/kg on this page, ${usd(n.msp, 3)}/kg in the model's own
+      design-report run (${d >= 0 ? "+" : ""}${pct(d, 1)}; that run also leaves out the warehouse and installs fermenters differently).
+      Humbird's method is the one tied to a real price: it puts baker's yeast on its market cost (see "Checks against reality").</p>`;
+  }
+  return h;
 }
 
 function cellClass(msp, band) {
@@ -1030,7 +1085,9 @@ function toHash() {
   if (isCustom()) { q.set("T", ax.titer[S.i]); q.set("t", ax.t_prod[S.j]); q.set("s", ax.scale[S.k]); }
   if (S.loc !== "us") q.set("loc", S.loc);
   if (S.rate !== null) q.set("r", S.rate);
-  for (const [k, x] of Object.entries(S.prices)) q.set("$" + k, x);
+  if (S.life !== null) q.set("life", S.life);
+  if (S.lang !== null) q.set("L", +S.lang.toPrecision(6));
+  for (const [k, x] of Object.entries(S.prices)) q.set("$" + k, +(+x).toPrecision(6));
   return "#" + q.toString();
 }
 function fromHash() {
@@ -1044,6 +1101,8 @@ function fromHash() {
   }
   if (q.get("loc") === "eu") S.loc = "eu";
   if (q.get("r")) S.rate = +q.get("r");
+  if (q.get("life")) S.life = +q.get("life");
+  if (q.get("L")) S.lang = +q.get("L");
   for (const [k, x] of q.entries()) if (k.startsWith("$")) S.prices[k.slice(1)] = +x;
 }
 function render() {
@@ -1070,7 +1129,7 @@ document.addEventListener("mousemove", (e) => {
   tip.style.left = x + "px"; tip.style.top = (y + tip.offsetHeight > innerHeight ? e.clientY - tip.offsetHeight - 10 : y) + "px";
 });
 ["inSearch", "inChanged", "inUnused"].forEach(id => $(id).addEventListener("input", () => renderInputs(P())));
-$("resetBtn").onclick = () => { S.prices = {}; S.rate = S.life = null; S.loc = "us"; setProduct(S.prod); render(); };
+$("resetBtn").onclick = () => { S.prices = {}; S.rate = S.life = S.lang = null; S.loc = "us"; setProduct(S.prod); render(); };
 $("linkBtn").onclick = () => {
   const url = location.href.split("#")[0] + toHash();
   (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => { $("linkBtn").textContent = "Copied"; setTimeout(() => $("linkBtn").textContent = "Copy link", 1500); },
