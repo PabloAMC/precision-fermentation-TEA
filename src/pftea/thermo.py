@@ -23,6 +23,11 @@ Gibbs energy dissipated per unit of biomass made, and Tijhuis et al. (1993) for 
    Maintenance is m_G / (-dG_cat) moles of the catabolic reaction per C-mol biomass per hour.
 8. Herbert-Pirt: the specific rate of species i is q_i = y_i mu + m_i (mol per C-mol biomass
    per h), with y_i the growth-reaction coefficient and m_i the maintenance coefficient.
+9. Where the host's yield on a carbon source has been measured, D is solved instead so that the model
+   reproduces it: Y_XS(mu_ref) = mu_ref M_x / (q_S(mu_ref) M_S) = Y_measured (dissipation_for_yield;
+   Y_XS falls monotonically as D rises, so bisection). Used for K. phaffii on methanol, where Heijnen's
+   correlation gives a 12% higher yield and a 21% lower O2 uptake than measured (docs/VALIDATION.md,
+   check 6); with the measured yield the O2 uptake, which is not fitted, comes within 7%.
 """
 from __future__ import annotations
 
@@ -157,6 +162,21 @@ def heijnen_dissipation(csource: Species) -> float:
     return 200 + 18 * (6 - c) ** 1.8 + np.exp(((3.8 - g / c) ** 2) ** 0.16 * (3.6 + 0.4 * c))
 
 
+def dissipation_for_yield(bio: Species, csource: Species, T_C: float, y_xs: float, mu: float) -> float:
+    """Gibbs energy dissipation D [kJ/C-mol] at which the growth model gives biomass yield y_xs [g/g] at
+    growth rate mu [1/h], maintenance included (module docstring, step 9)."""
+    def y(D):
+        g = GrowthModel(bio, csource, T_C, D)
+        return mu * bio.mw / (-g.q(csource.name, mu) * csource.mw)
+    lo, hi = 50.0, 5000.0
+    if not y(hi) <= y_xs <= y(lo):
+        raise ValueError(f"yield {y_xs} g/g at mu {mu} is outside what dissipation {lo}-{hi} kJ/C-mol can give")
+    for _ in range(80):
+        mid = 0.5 * (lo + hi)
+        lo, hi = (mid, hi) if y(mid) > y_xs else (lo, mid)
+    return 0.5 * (lo + hi)
+
+
 def maintenance_gibbs(T_C: float) -> float:
     """Maintenance Gibbs energy [kJ/(C-mol h)], Tijhuis et al. (1993)."""
     return 4.5 * np.exp(-69000 / R_GAS * (1 / (273 + T_C) - 1 / 298))
@@ -168,11 +188,12 @@ class GrowthModel:
     bio: Species
     csource: Species
     T_C: float = 30.0
+    dissipation_kJ: float | None = None   # measured-yield dissipation (step 9); None = Heijnen's correlation
 
     def __post_init__(self):
         self.anab = anabolic(self.bio, self.csource)
         self.cat = catabolic(self.csource)
-        self.dissipation = heijnen_dissipation(self.csource)
+        self.dissipation = self.dissipation_kJ if self.dissipation_kJ is not None else heijnen_dissipation(self.csource)
         self.lam = -(self.dissipation + self.anab.dG) / self.cat.dG
         self.growth = self.anab + self.cat.scaled(self.lam)
         self.m_G = maintenance_gibbs(self.T_C)

@@ -91,3 +91,43 @@ def test_voutilainen_cost_light_convention():
     """Their fixed costs (maintenance 1.5% of FCI) + NREL-style capital: +26.8% recorded (v2: +23.2%)."""
     o = cal.run("voutilainen2021_case", cal.voutilainen_conventions("nrel"))["compare"]
     assert rel(o["EUR_per_t_protein (their DCF)"]) == pytest.approx(0.268, abs=0.05)
+
+
+# --- Predictions of measured K. phaffii physiology (docs/VALIDATION.md, added 2026-11-03) ---
+# Recorded, not tuned: each pin is the relative difference model/measurement - 1 (against the band's
+# nearest edge for banded rows), +/- 0.05, so a change to the growth model shows up here.
+@pytest.fixture(scope="module")
+def physiology():
+    return {r["key"]: r for r in cal.physiology_record()}
+
+
+def _gap(r):
+    if "band" in r:
+        lo, hi = r["band"]
+        return 0.0 if lo <= r["ours"] <= hi else (r["ours"] / (hi if r["ours"] > hi else lo) - 1)
+    return r["ours"] / r["value"] - 1
+
+
+@pytest.mark.parametrize("key,gap", [
+    ("yxs_glucose", 0.0),        # inside the three chemostat values: pass
+    ("heat_per_o2", 0.012),      # just above Cooney's 500 kJ/mol O2: near miss
+    ("yxs_fedbatch", 0.014),     # just above Shemesh's best fed-batch strain: near miss
+    ("yxs_methanol", 0.0),       # an input since 2026-11-03 (Heijnen gave +12%)
+    ("qo2_methanol", -0.066),    # not fitted: -21% with Heijnen, -7% with the measured yield
+    ("yxs_glycerol", -0.26),     # Heijnen on glycerol: far low (no case uses glycerol)
+    ("qo2_glycerol", 1.03),      # and O2 uptake twice the measured
+])
+def test_physiology_record(physiology, key, gap):
+    assert _gap(physiology[key]) == pytest.approx(gap, abs=0.05)
+
+
+def test_blair_plant_check_recorded():
+    """VALIDATION check 7: the base BLG plant's capital per m3 sits about 15% below the Blair band (recorded, not tuned)."""
+    from pftea import benchmarks as bm
+    from pftea import params, plant
+    from pftea import scenarios as sc
+    p = sc.base_params("blg")
+    r = plant.evaluate(p)
+    o = bm.plant_cost_check(r.tci, r.design["N_prod_int"] * params.v(p, "fermenter.volume_m3"), params.v(p, "plant.annual_target_protein_t"))
+    lo = min(o["blair_scaled_per_m3"].values())
+    assert o["model_per_m3"] / lo - 1 == pytest.approx(-0.153, abs=0.05)

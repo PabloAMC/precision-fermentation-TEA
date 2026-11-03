@@ -85,8 +85,12 @@ Electricity is lower because our aeration is power-optimal (about 0.3–0.5 vvm,
 NREL's 800 hp agitators are sized for peak.
 
 **What this means.** We do not tune. NREL is a design report, not a price. NREL itself
-reports that Genencor and Novozymes quoted enzyme costs ~47% above its figure ($0.50 vs
-$0.34 per gallon of ethanol, i.e. ~$6.2/kg). Humbird's method is the one anchored to a real
+reports (p.40) that in February 2010 Genencor and Novozymes, announcing new cellulase products, "both cited an
+enzyme cost contribution of approximately $0.50/gal ethanol", against its own $0.34 ($4.24/kg protein): about
+$6.2/kg protein at NREL's loading (derived). NREL explains the gap (p.42): transport, a standalone plant's overheads
+and a higher return. *Verified in the OSTI copy of the report on 2026-11-03; data/calibration/nrel2011_cellulase.yaml.*
+Against that company figure our Humbird-convention cost is +25% and the design-report convention -3% (the panel
+shows it as a 'company figure' check). Humbird's method is the one anchored to a real
 price (anchor 1), although that anchor rests on one product and an assumed 33% margin.
 
 The gap shows that **accounting conventions alone move the cost of a crude secreted protein by
@@ -189,6 +193,96 @@ gas-fermentation Factory 02 (EUR 134M for 3.2 kt/yr of whole-cell protein, about
 lands near the model's $49,000 per t/yr, but it is a different process (hydrogen, no purification)
 and the match is a coincidence. Whole-cell biomass plants cost far less per t/yr: Quorn's brownfield expansion about $9,800, Angel
 Yeast's planned line about $6,800. They are a floor: they skip purification and sell wet or whole cells.
+
+## Check 6: predictions of measured physiology (added 2026-11-03)
+
+**What it is.** The growth model works out, from thermodynamics alone (Heijnen dissipation, Tijhuis maintenance,
+element and electron balances), how much sugar becomes cells, how much O2 cells use and how much heat they
+release. None of the measurements below is a model input, so each is a prediction. Code:
+`calibration.physiology_record`; pinned in `tests/test_calibration.py`; shown in the panel's "Checks against
+reality". Recorded before any change, as the protocol requires.
+
+| Prediction (K. phaffii, 30 C) | Model | Measured | Result |
+|---|---|---|---|
+| Cell yield on glucose, upper limit (g/g) | 0.571 | 0.544-0.584 (Maurer 2006; Rebnegger 2016, 2024) | **pass** |
+| Heat per mol O2, growing cells (kJ) | 506 | 430-480 (Gnaiger and Kemp, many organisms); 500 (Cooney) | near miss, +1% above the top |
+| Cell yield on glucose, base fed-batch growth phase (g/g) | 0.507 | 0.37-0.50 (Shemesh 2024, three strains) | near miss, +1% |
+| Cell yield on methanol, chemostat at 0.1/h (g/g) | 0.447 | 0.40 (Tomas-Gamisans 2018) | **miss, +12%** |
+| O2 uptake on methanol at 0.1/h (mmol/g/h) | 6.46 | 8.22 +/- 0.37 | **miss, -21%** |
+| Cell yield on glycerol, chemostat (g/g) | 0.466 | 0.63-0.71 | **miss, -26%** |
+| O2 uptake on glycerol at 0.1/h (mmol/g/h) | 4.14 | 2.04 +/- 0.11 | **miss, +103%** |
+
+**Diagnosis.**
+- *Glucose passes.* Every product case grows and produces on glucose, so the result that matters most is
+  inside the measured range. The heat per O2 is at the top of the measured spread, so the model's cooling
+  load is, if anything, a few per cent conservative; in the base it binds during growth (24.4 of 25 kW/m3).
+- *The fed-batch near miss* is expected: Shemesh's strains made ethanol (Crabtree effect), which lowers
+  their yield; the model makes none.
+- *Methanol missed by 12-21%* (as first recorded): Heijnen's dissipation gave a yield of 0.447 g/g and an O2
+  uptake of 6.46 mmol/g/h. The element and electron balances are not at fault: the miss is the energy
+  cost of growth, which the correlation sets. **Fixed the same day (Pablo: "take the best possible
+  decisions")**: the growth energetics on methanol now come from K. phaffii's measured yield
+  (base.yaml hosts.kphaffii.yx_methanol_g_g = 0.40; thermo step 9 solves the dissipation, 844 against
+  Heijnen's 698 kJ/C-mol). The yield row is then an input, not a test. The O2 uptake, which is not
+  fitted, moves from -21% to -7% (7.68 against 8.22 +/- 0.37): the fix is physical, not a curve fit.
+  Effect on results (methanol-fed cases only: academic albumin, lactoferrin Lv 2023, beta-casein, the
+  albumin and lactoferrin methanol variants, the two heme strains): +0.07% to +0.62% on the price, no
+  change in feasibility; O2 use in production stays near 30% of supply. Sections rerun: scenarios,
+  monte_carlo, equivalents, lactoferrin, casein, albumin, heme.
+- *Glycerol misses badly* (K. phaffii is known for unusually high yields on glycerol). No case uses
+  glycerol, so no result changes. It shows the Heijnen correlation does not carry over to every feed:
+  agreement on glucose is a measured match, not a property of the method. Not fixed, by decision: a glycerol
+  parameter would change no result (no artificial complexity). If a glycerol-fed case is ever added, set
+  its yield from the same paper (0.67 g/g) as for methanol.
+
+**Lactoferrin reconciliation as a consistency row.** The Intelligen lactoferrin comparison above (review L)
+now appears in the panel next to the other model-to-model checks: ours is 64% (membranes only) and 52% (ion
+exchange) below their cost of production with their design inputs. It has no tolerance of its own; the
+panel borrows the Intelligen ovalbumin anchor's +/-30% and says so.
+
+## Next checks that need new evidence
+
+Status after the research pass of 2026-11-03 (notes in references/leads/, unverified unless stated):
+1. **Food and feed enzyme prices per kg protein.** Done as far as public data allow (check 7): Lynd 2017, trade
+   unit values and EFSA's protein contents, all read in full. They bound the price only within ~7x, because the
+   product form behind a trade figure is unknown. Context, not a check.
+2. **Enzyme makers' cellulase cost in NREL 2011.** Done: verified (anchor 2 above; a panel check).
+3. **Recombinant chymosin.** Not usable: only small-pack distributor prices were found (about $20,000-30,000
+   per kg chymosin protein), which say nothing about production cost.
+4. **More real plant costs.** Done in part: Novozymes Blair (check 7). Amyris Barra Bonita: the cost is verified
+   in the 2023 court filing ($155M estimated total; plants.yaml), but the fermentation volume (reported as 1,440 m3)
+   is not, because Amyris's pages block automated readers; it becomes a check once the volume is read in a source.
+5. **Pilot-scale O2 and heat data for K. phaffii.** Not available to the project.
+6. **The pre-registered priors** (docs/SCOPE.md) are scored at release.
+
+## Check 7: a second real plant, and a market value for secreted enzymes (added 2026-11-03)
+
+**Novozymes Blair enzyme plant (2012).** The engineering contractor states "an investment of USD 200 million"
+and "1,600 m 3 of fermentation capacity" (plants.yaml plant_capex_novozymes_blair_2012). Escalated with CEPCI
+to 2023 (x1.365) and scaled to the model's 7,200 m3 as in check 5 (n = 0.5-0.7): $80,000-109,000 per m3. The
+model's base BLG plant: $68,000. **Miss: 15% below the band** (27% below its middle, n = 0.6). With the model's
+own first-plant factor (x1.28, a sensitivity) it is $87,000, inside. Cautions: Blair's cost grew during the
+project (early estimates were half; unverified lead), it may count gross volume, and it is one plant. But it
+makes liquid enzymes, with a lighter purification line than a food powder, so a food plant of the same volume
+should cost at least as much. Together with check 5 (Liberation Labs, likely a floor, puts the model mid-band),
+the two real plants say the model's capital is **not high, and may be low by up to about a quarter**. Not
+tuned: recorded here; the capital factors stay frozen (honesty rule 3). If more finished plants agree, the
+first-plant factor or the facility-class factors are the inputs to revisit, in a decision by Pablo.
+
+**A market value for secreted protein (context, not a check).** Three sources, all read in full on 2026-11-03
+(data/evidence/enzymes.yaml):
+- Lynd et al. 2017 (Curr Opin Biotechnol 45:202, p.204): "amylase enzymes produced via mature technology and
+  purchased in large amounts by the corn ethanol industry are valued at about $25/kg protein", citing Stephen et
+  al. 2012. Second-hand (C) and a price, not a cost.
+- Trade unit values for prepared enzymes (HS 3507.90, 2023, WITS): Denmark $13.4 per kg of product (mostly
+  Novonesis), Netherlands $10.6, Finland $6.1, China $5.0, United States $29.2.
+- EFSA batch tables give the protein in enzyme concentrates: liquid A. niger glucoamylases 8.4-9.6%, a dried
+  T. reesei xylanase 60.3-69.1%. Trade data do not record the form, so Denmark's $13.4 per kg of product is
+  $19-22 per kg protein if it were all dried and $140-160 if all liquid: too wide to test the model.
+What they do say: a mature, bulk secreted enzyme sells for tens of dollars per kg of protein, above every
+modelled on-site enzyme cost (NREL $4.24; ours $6.1-7.8) and at the level of our base food-protein cost ($21),
+which is consistent with a margin plus formulation and logistics. **No check is possible without the product mix
+behind a trade figure** (an annual report giving tonnes of enzyme protein sold would do).
 
 ## Summary: what the four anchors say
 

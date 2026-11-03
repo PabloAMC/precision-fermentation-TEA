@@ -11,6 +11,8 @@ target:
   o2_mol_per_kg: {value: 84, loc: "p.38: 8.4 kmol/h for 12,000 kg in 120 h online"}
   area400_installed_2007usd: {value: 18300000, loc: "Table 28 (printed p.62) Area 400 installed cost"}
   tolerance: 0.20
+  nrel_usd_per_gal: {value: 0.34, loc: "p.40: 'the predicted cost of enzymes to the ethanol plant is $0.34/gal of ethanol'"}
+  enzyme_makers_usd_per_gal: {value: 0.50, grade: C, loc: "p.40: 'in February 2010 the major enzyme manufacturers Genencor and Novozymes announced new commercial-grade cellulase enzyme preparations capable of higher performance at lower loadings. Both cited an enzyme cost contribution of approximately $0.50/gal ethanol [62, 63].' p.42: transport, a standalone plant's overheads and a higher return 'would bring the total enzyme cost contribution in line with the $0.50/gal level cited in the press.' Read in the OSTI copy (osti.gov/servlets/purl/1013269) on 2026-11-03. In $/kg protein: 4.24 x 0.50 / 0.34 = 6.24 (derived, same loading and flows; the press figures are nominal 2010$, NREL's 2007$)"}
 delivered_fraction: {value: 1.0, loc: "p.41: the $4.24/kg is per kg produced (0.34 $/gal x 61.0 MMgal / 4.24 / 8,410 h = ~580 kg/h, at or above the 539 kg/h made incl. the 10% sophorose slipstream); audit R4-3"}
 overrides:
   plant.product: cellulase
