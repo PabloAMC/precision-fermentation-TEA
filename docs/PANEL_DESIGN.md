@@ -140,3 +140,17 @@ from its stored optimum. `tests/test_panel.py` checks the same identities in Pyt
 Not checked by the page: the fermentation simulation itself (growth time, glucose, O2, heat). The page takes
 these as model outputs. They are checked by `tests/test_model.py` (element and carbon balances, the Intelligen
 inversion) and by the calibration anchors (`docs/VALIDATION.md`).
+
+## 9. Second version (2026-11-03): lessons from the cultivated-meat page
+
+After a side-by-side comparison with `PabloAMC/Cultivated_meat`'s `interactive.html`:
+- **All seven proteins at a glance** opens the page: five findings, computed from the stored cases, and one row per
+  protein with its cases against its own price to beat. The findings do not follow the levers.
+- **The price in one line:** four boxes in the answer (titer, output per m3 of fermenter, fermenters and plant
+  cost, price), each linked to its step in the chain.
+- **Checks against reality:** the calibration anchors (`docs/VALIDATION.md`), each labelled a reality check
+  (market price or real plant) or a consistency check (another model), with MATCHES, AGREES or DIFFERS. The
+  tolerances are the anchors' own (`data/calibration/*.yaml`).
+- **The kind of evidence beside each input:** a small tag on every lever and every source link.
+- **The levers sit right below the answer,** and the header shows the live price on wide screens.
+- The page title is the question: "Precision fermentation: what does each protein cost to make?"

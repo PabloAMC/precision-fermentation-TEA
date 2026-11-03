@@ -157,6 +157,46 @@ def analyses_extract(product: str, a: dict) -> dict:
     return out
 
 
+def reality_checks(a: dict) -> list[dict]:
+    """The calibration anchors and the real-plant check (docs/VALIDATION.md), for the panel's 'Checks against
+    reality' box. kind: 'reality' (a market price or a real plant) or 'consistency' (another model; agreement is
+    not validation, PLAN.md honesty rule 7). Tolerances are the anchors' own (data/calibration/*.yaml); the
+    baker's-yeast band is Humbird's market-implied cost under both readings of his 33% margin."""
+    c = a.get("calibration") or {}
+    cal = lambda name: yaml.safe_load((ROOT / f"data/calibration/{name}.yaml").read_text())   # noqa: E731
+    out = []
+    if "bakers_yeast" in c:
+        st = c["bakers_yeast_stacks"]
+        band = [min(st["market band, 33% margin on price"][0], st["market band, 33% margin on cost"][0]),
+                max(st["market band, 33% margin on price"][1], st["market band, 33% margin on cost"][1])]
+        ours = c["bakers_yeast"]["cop"]
+        out.append(dict(name="Baker's yeast, Humbird's method", kind="reality", unit="$/kg (2018)", ours=ours, band=band,
+                        ok=band[0] <= ours <= band[1],
+                        note="Market price less a profit margin. The margin is Humbird's assumption. Same method as this model, not the same product."))
+    pc = a.get("plant_cost_check")
+    if pc:
+        band = [min(pc["ll_scaled_per_m3"].values()), max(pc["ll_scaled_per_m3"].values())]
+        out.append(dict(name="Capital cost of a real plant (Liberation Labs)", kind="reality", unit="$ per m3 of fermenter",
+                        ours=pc["model_per_m3"], band=band, ok=band[0] <= pc["model_per_m3"] <= band[1],
+                        note="Company figures for an unfinished plant, scaled to the model's size. Likely a floor."))
+    rows = [("nrel2011_cellulase", "usd_per_kg_protein (DCF, NREL financing)", "NREL 2011 enzyme plant design", "$/kg (2007)",
+             "Same process, lighter accounting: lower fixed costs and installation factors."),
+            ("intelligen2025_ova", "usd_per_kg_powder (Humbird convention)", "Intelligen 2025 ovalbumin design", "$/kg powder",
+             "Partly agrees by construction: the base yield was derived from this design."),
+            ("voutilainen2021_case", "EUR_per_t_protein (their DCF)", "Voutilainen 2021 protein plant design", "€/t",
+             "Capital differs by {cap}. Their fixed costs and labour are lower.")]
+    for key, metric, name, unit, note in rows:
+        if key in c and metric in c[key]:
+            ours, theirs = c[key][metric]
+            tol = cal(key)["target"]["tolerance"]
+            if "{cap}" in note:
+                co, ct = c[key]["TCI vs their FCI (EUR)"]
+                note = note.format(cap=f"{co / ct - 1:+.0%}")
+            out.append(dict(name=name, kind="consistency", unit=unit, ours=ours, theirs=theirs, tolerance=tol,
+                            ok=abs(ours / theirs - 1) <= tol, note=note))
+    return out
+
+
 def case_changes(prod: str, a: dict) -> dict:
     """What each case changes from the product's base case: the scenario file's common and product blocks
     (physical limit: plus the optimum's cell density, production time and titer)."""
@@ -238,7 +278,7 @@ def write(products, sized, axes, sugar_jobs, grid, case_out, a, fast, t0):
     base_yaml = params.load()
     out = dict(generated=time.strftime("%Y-%m-%d %H:%M"), fast=fast,
                labels={"evidence": labels.EVIDENCE}, parameters=parameters(base_yaml),
-               analyses_generated=a.get("generated"), products={})
+               analyses_generated=a.get("generated"), reality_checks=reality_checks(a), products={})
     prod_names = yaml.safe_load((ROOT / "data/pf/products.yaml").read_text())
     for prod in products:
         ax = axes[prod]
