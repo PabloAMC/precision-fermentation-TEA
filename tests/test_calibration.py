@@ -119,3 +119,15 @@ def _gap(r):
 ])
 def test_physiology_record(physiology, key, gap):
     assert _gap(physiology[key]) == pytest.approx(gap, abs=0.05)
+
+
+def test_blair_plant_check_recorded():
+    """VALIDATION check 7: the base BLG plant's capital per m3 sits about 15% below the Blair band (recorded, not tuned)."""
+    from pftea import benchmarks as bm
+    from pftea import params, plant
+    from pftea import scenarios as sc
+    p = sc.base_params("blg")
+    r = plant.evaluate(p)
+    o = bm.plant_cost_check(r.tci, r.design["N_prod_int"] * params.v(p, "fermenter.volume_m3"), params.v(p, "plant.annual_target_protein_t"))
+    lo = min(o["blair_scaled_per_m3"].values())
+    assert o["model_per_m3"] / lo - 1 == pytest.approx(-0.153, abs=0.05)
