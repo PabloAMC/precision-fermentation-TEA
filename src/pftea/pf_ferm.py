@@ -41,7 +41,8 @@ Kinetics (per C-mol biomass per hour; thermo and product modules):
     reaction - growth at mu_prod, maintenance and product formation - runs on methanol, the rest on
     glucose. The reactions are linear in their extents, so the rates are the f-weighted sum of the
     all-glucose and all-methanol rates (element and electron balances hold for any f). On methanol:
-    the growth stoichiometry is Heijnen's for a C1 source; maintenance is the measured m_s on
+    the growth stoichiometry is Heijnen's for a C1 source, with the dissipation solved from K. phaffii's
+    measured yield on methanol where the host gives one (Host.yx_meoh; thermo step 9); maintenance is the measured m_s on
     methanol (Host.m_s_prod_meoh, g methanol/g DCW/h), which includes the energy alcohol oxidase
     wastes (CH3OH + O2 -> HCHO + H2O2 conserves none), so it is set from data, not from the Gibbs
     energy; the product reaction runs at the same fraction of its energetic ceiling as on glucose:
@@ -291,12 +292,16 @@ class Host:
     m_s_prod: float | None = None    # g glucose/g DCW/h in the production phase (measured, near-zero growth)
     m_s_prod_meoh: float | None = None   # g methanol/g DCW/h in a methanol production phase (measured)
     growth_yield_loss: float = 0.0   # large-tank loss L of the growth yield (module docstring, Options)
+    yx_meoh: float | None = None     # measured biomass yield on methanol [g/g] at yx_meoh_mu (thermo step 9)
+    yx_meoh_mu: float = 0.1          # 1/h, the growth rate of that measurement
 
     @property
     def growth(self) -> th.GrowthModel:
         return _growth_model(self.bio, self.T_C)
 
     def growth_on(self, cs: str) -> th.GrowthModel:
+        if cs == MEOH and self.yx_meoh is not None:
+            return _growth_model(self.bio, self.T_C, cs, _measured_dissipation(self.bio, self.T_C, cs, self.yx_meoh, self.yx_meoh_mu))
         return _growth_model(self.bio, self.T_C, cs)
 
     @property
@@ -318,8 +323,13 @@ class Host:
 
 
 @lru_cache(maxsize=16)
-def _growth_model(bio: th.Species, T_C: float, cs: str = GLC) -> th.GrowthModel:
-    return th.GrowthModel(bio, th.get(cs), T_C)
+def _growth_model(bio: th.Species, T_C: float, cs: str = GLC, dissipation: float | None = None) -> th.GrowthModel:
+    return th.GrowthModel(bio, th.get(cs), T_C, dissipation)
+
+
+@lru_cache(maxsize=16)
+def _measured_dissipation(bio: th.Species, T_C: float, cs: str, y_xs: float, mu: float) -> float:
+    return th.dissipation_for_yield(bio, th.get(cs), T_C, y_xs, mu)
 
 
 @dataclass

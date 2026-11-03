@@ -567,10 +567,15 @@ cases). Four pieces of physics change:
   #fx(K.atp_per_glucose / 6, d: 2) per carbon of glucose. The product yield on methanol is set at the same
   fraction of its energetic ceiling as the glucose yield (an assumption): albumin's ceiling on
   methanol is #fx(K.energetic.alb.ceiling_methanol, d: 3) g/g and its yield
-  #fx(K.energetic.alb.y_ps_methanol, d: 3) g/g. Without maintenance the biomass yield on methanol comes out
-  at #fx(K.Yx_max_methanol, d: 2) g/g, just above the 0.40 g/g measured in methanol chemostats
-  (Tomàs-Gamisans et al. 2018) and the 0.43 of a pilot fed-batch (Gao et al. 2023, via Shemesh and
-  Fishman 2024), which include maintenance; on glucose the model gives #fx(K.Yx_max, d: 2) against a measured 0.50–0.56.
+  #fx(K.energetic.alb.y_ps_methanol, d: 3) g/g. The biomass yield on methanol is set from measurement: the
+  model reproduces the #fx(K.physiology.yxs_methanol.value, d: 2) g/g of methanol chemostats at 0.1/h
+  (Tomàs-Gamisans et al. 2018; `hosts.kphaffii.yx_methanol_g_g`), #fx(K.Yx_max_methanol, d: 2) g/g without
+  maintenance; a pilot fed-batch gave 0.43 (Gao et al. 2023, via Shemesh and Fishman 2024). Heijnen's
+  correlation, which the model keeps for glucose, would give #fx(K.methanol_heijnen.y_xs, d: 2) g/g and an
+  O#sub[2] uptake of #fx(K.methanol_heijnen.qo2_mmol_g_h, d: 1) mmol/g/h against the measured
+  #fx(K.physiology.qo2_methanol.value, d: 1); with the measured yield the O#sub[2] uptake, which is not fitted,
+  is #fx(K.physiology.qo2_methanol.ours, d: 1) (`docs/VALIDATION.md`, check 6). On glucose the correlation
+  gives #fx(K.Yx_max, d: 2) against a measured 0.50–0.56, a match.
 - *Maintenance* is measured, not derived, because the alcohol-oxidase loss is invisible to a
   Gibbs-energy correlation: 0.016 g methanol per g cells per hour in a methanol fed-batch (Dietzsch et al.
   2011), scaled by the same threefold fall at near-zero growth that the glucose value carries (Rebnegger

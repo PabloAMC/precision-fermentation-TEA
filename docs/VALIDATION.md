@@ -86,7 +86,9 @@ NREL's 800 hp agitators are sized for peak.
 
 **What this means.** We do not tune. NREL is a design report, not a price. NREL itself
 reports that Genencor and Novozymes quoted enzyme costs ~47% above its figure ($0.50 vs
-$0.34 per gallon of ethanol, i.e. ~$6.2/kg). Humbird's method is the one anchored to a real
+$0.34 per gallon of ethanol, i.e. ~$6.2/kg). *Unverified (2026-11-03): a search of secondary sources found
+no trace of this comparison, and the NREL PDF could not be opened from the build environment. Do not cite
+it until the quote and page are checked in the PDF.* Humbird's method is the one anchored to a real
 price (anchor 1), although that anchor rests on one product and an assumed 33% margin.
 
 The gap shows that **accounting conventions alone move the cost of a crude secreted protein by
@@ -214,16 +216,22 @@ reality". Recorded before any change, as the protocol requires.
   load is, if anything, a few per cent conservative; in the base it binds during growth (24.4 of 25 kW/m3).
 - *The fed-batch near miss* is expected: Shemesh's strains made ethanol (Crabtree effect), which lowers
   their yield; the model makes none.
-- *Methanol misses by 12-21%.* For a substrate more reduced than cells, the model builds every cell carbon
-  from the substrate and sends the spare electrons to O2 (thermo.anabolic; review G1). With Heijnen's
-  dissipation this gives too high a yield and too low an O2 use on methanol. It touches only the
-  methanol-fed published-strain variants (albumin academic, lactoferrin Lv 2023, beta-casein), whose
-  production phase mostly uses the measured methanol maintenance instead (hosts.kphaffii.m_s_prod_methanol);
-  their O2 and heat limits may be understated. Not fixed: a fix would change published-strain results, so it
-  waits for Pablo's decision.
+- *Methanol missed by 12-21%* (as first recorded): Heijnen's dissipation gave a yield of 0.447 g/g and an O2
+  uptake of 6.46 mmol/g/h. The element and electron balances are not at fault: the miss is the energy
+  cost of growth, which the correlation sets. **Fixed the same day (Pablo: "take the best possible
+  decisions")**: the growth energetics on methanol now come from K. phaffii's measured yield
+  (base.yaml hosts.kphaffii.yx_methanol_g_g = 0.40; thermo step 9 solves the dissipation, 844 against
+  Heijnen's 698 kJ/C-mol). The yield row is then an input, not a test. The O2 uptake, which is not
+  fitted, moves from -21% to -7% (7.68 against 8.22 +/- 0.37): the fix is physical, not a curve fit.
+  Effect on results (methanol-fed cases only: academic albumin, lactoferrin Lv 2023, beta-casein, the
+  albumin and lactoferrin methanol variants, the two heme strains): +0.07% to +0.62% on the price, no
+  change in feasibility; O2 use in production stays near 30% of supply. Sections rerun: scenarios,
+  monte_carlo, equivalents, lactoferrin, casein, albumin, heme.
 - *Glycerol misses badly* (K. phaffii is known for unusually high yields on glycerol). No case uses
   glycerol, so no result changes. It shows the Heijnen correlation does not carry over to every feed:
-  agreement on glucose is a measured match, not a property of the method.
+  agreement on glucose is a measured match, not a property of the method. Not fixed, by decision: a glycerol
+  parameter would change no result (no artificial complexity). If a glycerol-fed case is ever added, set
+  its yield from the same paper (0.67 g/g) as for methanol.
 
 **Lactoferrin reconciliation as a consistency row.** The Intelligen lactoferrin comparison above (review L)
 now appears in the panel next to the other model-to-model checks: ours is 64% (membranes only) and 52% (ion
@@ -238,8 +246,10 @@ Ranked by how much each would add to trust. None is on disk; each needs a source
    $12-25/kg (albumin.yaml, gfi2023_albumin_cost_target), but per kg of product, with no protein content.
    Needed: a price with the product's protein (or activity-to-protein) content.
 2. **Enzyme makers' cellulase quotes in NREL 2011** (about $0.50 per gallon of ethanol against NREL's $0.34,
-   roughly $6/kg protein; cited in anchor 2 above, but in no evidence file with a quote). Needed: the quote
-   and page from the PDF. It would turn anchor 2 into a reality check.
+   roughly $6/kg protein; cited in anchor 2 above, in no evidence file, and not found by a search on
+   2026-11-03, so possibly misremembered). Needed: the quote and page from the PDF (nrel.gov is blocked from
+   the build environment; Pablo can check it in references/). If it exists, it turns anchor 2 into a reality
+   check; if not, the sentence in anchor 2 must go.
 3. **Recombinant chymosin.** Made by fermentation since 1990 and most of the world's rennet: a mature,
    secreted, food-grade protein with a market price.
 4. **More real plant costs.** Liberation Labs is the only purpose-built PF plant with cost, volume and output

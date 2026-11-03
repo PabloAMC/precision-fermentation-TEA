@@ -126,7 +126,8 @@ def _host(p) -> pf.Host:
     return pf.Host(bio=th.biomass(f["C"], f["H"], f["O"], f["N"]), mu_max=v(p, f"{h}.mu_max_per_h"),
                    T_C=v(p, f"{h}.temperature_C"), maint_factor=v(p, f"{h}.maint_factor"),
                    m_s_prod=_opt(p, f"{h}.m_s_prod_g_g_h"), m_s_prod_meoh=_opt(p, f"{h}.m_s_prod_methanol_g_g_h"),
-                   growth_yield_loss=_opt(p, "fermenter.growth_yield_loss", 0.0))
+                   growth_yield_loss=_opt(p, "fermenter.growth_yield_loss", 0.0),
+                   yx_meoh=_opt(p, f"{h}.yx_methanol_g_g"), yx_meoh_mu=_opt(p, f"{h}.yx_methanol_mu_per_h", 0.1))
 
 
 def _vessel(p, volume=None) -> pf.STR:

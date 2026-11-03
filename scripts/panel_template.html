@@ -569,7 +569,8 @@ function renderReality() {
       let d = 0;
       if (r.band) { ref = `${num(r.band[0], r.unit)}–${num(r.band[1], r.unit)}`; d = r.ours > r.band[1] ? r.ours / r.band[1] - 1 : r.ours < r.band[0] ? r.ours / r.band[0] - 1 : 0; }
       else { ref = num(r.value, r.unit) + (r.stated ? ` ± ${fixedSig(r.stated, 2)}` : ""); d = r.ours / r.value - 1; }
-      badge = r.ok ? `<span class="badge match">MATCHES</span>` : `<span class="badge miss">MISSES</span> <span class="faint">${sgn(d)}${r.band ? " outside the range" : ""}</span>`;
+      badge = r.by_construction ? `<span class="badge agree">INPUT</span> <span class="faint">set from this measurement</span>`
+        : r.ok ? `<span class="badge match">MATCHES</span>` : `<span class="badge miss">MISSES</span> <span class="faint">${sgn(d)}${r.band ? " outside the range" : ""}</span>`;
     }
     return `<tr><td><b>${esc(r.name)}</b> <span class="faint" style="font-size:11.5px">${kind}</span>
       <div class="muted" style="font-size:12.5px">${esc(r.note)}</div></td><td class="n">${num(r.ours, r.unit)}<div class="faint" style="font-size:11.5px">${esc(r.unit)}</div></td>
@@ -583,7 +584,7 @@ function renderReality() {
     None of the measurements below is a model input.</p>
     <div class="scroll"><table>${head}<tbody>${bio.map(row).join("")}</tbody></table></div>`;
   h += `<p class="muted" style="font-size:12.5px"><b>MATCHES</b>: inside a range set by a market price, a real plant or measurements (or within a measurement's stated error).
-    <b>AGREES</b>: within the allowed gap of another model. <b>DIFFERS</b> and <b>MISSES</b>: outside it; docs/VALIDATION.md explains each one.
+    <b>AGREES</b>: within the allowed gap of another model. <b>DIFFERS</b> and <b>MISSES</b>: outside it; docs/VALIDATION.md explains each one. <b>INPUT</b>: the measurement is now a model input, so it is no longer a test.
     No model input was tuned to any of these. No precision-fermentation protein has a public production cost, so none can be checked directly.</p>
     <p class="muted" style="font-size:12.5px">✓ Arithmetic check: on every view the page redoes the price in 11 steps and compares each with the Python model (section "Why").</p>`;
   $("realityBody").innerHTML = h;
