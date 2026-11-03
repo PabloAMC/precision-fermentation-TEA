@@ -54,26 +54,26 @@ def _f(x, sig: int = 6):
 
 def limits(p: dict, r: plant.Result) -> list[dict]:
     d = r.design
-    out = [dict(key="o2", name="O2 demand in production / O2 the tank can supply", value=d["o2_use_prod"], limit=1.0,
+    out = [dict(key="o2", name="Oxygen", value=d["o2_use_prod"], limit=1.0,
                 unit="", kind="max", path="fermenter.otr_cap_mol_m3_h"),
-           dict(key="heat", name="peak heat / heat the tank can remove", value=d["heat_peak_kW_m3"],
+           dict(key="heat", name="Heat", value=d["heat_peak_kW_m3"],
                 limit=v(p, "fermenter.heat_removal_max_kW_m3"), unit="kW/m3", kind="max",
                 path="fermenter.heat_removal_max_kW_m3")]
     qmax = plant._opt(p, "strain.q_p_max_mg_g_h")
     if qmax:
-        out.append(dict(key="qp", name="secretion rate / assumed ceiling", value=d["q_p_mg_g_h"], limit=qmax,
+        out.append(dict(key="qp", name="Secretion rate", value=d["q_p_mg_g_h"], limit=qmax,
                         unit="mg/g/h", kind="max", path="strain.q_p_max_mg_g_h"))
-    out.append(dict(key="yield", name="product yield / energetic ceiling", value=v(p, "strain.Y_ps_g_g"),
+    out.append(dict(key="yield", name="Yield on glucose", value=v(p, "strain.Y_ps_g_g"),
                     limit=d["energetic_ceiling"], unit="g/g", kind="max", path="strain.Y_ps_g_g"))
     mf = plant._opt(p, "fermenter.min_initial_fill")
     if mf:
-        out.append(dict(key="fill", name="initial fill / minimum working fill", value=d["W0_frac"], limit=mf,
+        out.append(dict(key="fill", name="Starting fill", value=d["W0_frac"], limit=mf,
                         unit="", kind="min", path="fermenter.min_initial_fill"))
-    out.append(dict(key="cells", name="cells at harvest / maximum density", value=d["X_end"],
+    out.append(dict(key="cells", name="Cell density", value=d["X_end"],
                     limit=v(p, "strain.X_max_g_L"), unit="g/L", kind="cap", path="strain.X_max_g_L"))
     sol = (pr.load(v(p, "plant.product")).get("solubility_practical_g_L") or {}).get("value")
     if sol:
-        out.append(dict(key="sol", name="titer / practical solubility", value=v(p, "strain.titer_g_L"), limit=sol,
+        out.append(dict(key="sol", name="Solubility", value=v(p, "strain.titer_g_L"), limit=sol,
                         unit="g/L", kind="max", path="plant.product"))
     for x in out:
         x["value"], x["limit"] = _f(x["value"]), _f(x["limit"])
