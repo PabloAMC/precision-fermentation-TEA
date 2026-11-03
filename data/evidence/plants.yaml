@@ -86,3 +86,20 @@
     estimates USD 80-100M; references/leads/2026-11-03_plants.md, unverified), so it carries first-plant cost growth.
     Whether 1,600 m3 is gross or working volume is not stated. No output stated. values below are for the check.
   values: {fermentation_m3: 1600, money_year: 2012}
+
+- key: plant_capex_amyris_barra_bonita
+  value: 155000000
+  unit: USD (company estimate of total construction cost, 2023; greenfield, five lines)
+  grade: B
+  source: "Amyris, Inc., Declaration in support of Chapter 11 petitions, US Bankruptcy Court, District of Delaware, Case 23-11131, Doc 18, filed 08/10/23"
+  doi_or_url: references/reports (PDF supplied by Pablo, 2026-11-03)
+  locator: "para. 31, pp.13-14"
+  quote: "Amyris funded the construction costs of the project in the aggregate amount of approximately $128 million, with approximately $7 million of purchase commitments for construction-related costs as of March 31, 2023. The Company estimates the total construction costs of the Barra Bonita Plant to be approximately $155 million."
+  read: fulltext
+  note: >-
+    Precision-fermentation plant in Barra Bonita, Brazil (yeast; small molecules such as Reb M and squalane, not
+    protein). A sworn court declaration, hence B for the cost. The fermentation volume is NOT verified: Amyris's
+    April 2022 release is reported as "1,440 cubic meters of production fermentation capacity" in five lines
+    (references/leads/2026-11-03_plants.md), but the release pages block automated readers. Not used in a check
+    until the volume is read in a source. Brazilian construction costs; small-molecule purification.
+  values: {money_year: 2023}
