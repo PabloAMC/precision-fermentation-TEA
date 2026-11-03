@@ -59,6 +59,8 @@ Two phases:
     The initial fill W0 is solved so the broth ends exactly at fill_max. In titer mode q_p is
     solved so the final titer equals the target. A design whose W0 is below the minimum
     working fill is flagged.
+    Reported for checking: o2_use_prod = max over the production phase of OUR / OTR_max(X), the
+    share of the O2 supply that production uses at its peak (growth is slowed to stay at or below 1).
 Options (all off by default, so the base model is unchanged):
     Secretion law (Strain.secretion). "constant": q_p is one number in production and zero in
     growth (the base). "growth_coupled": secretion follows the growth rate in both phases,
@@ -381,6 +383,7 @@ class Batch:
     methanol_kg: float = 0.0
     q_p_peak: float = float("nan")   # highest secretion rate reached [g/g/h] (= q_p if constant)
     W_switch: float = float("nan")   # m3 broth at the switch to production
+    o2_use_prod: float = float("nan")   # highest production-phase OUR / OTR_max (1 = at the limit)
     series: dict = field(default_factory=dict)
     profile: dict = field(default_factory=dict)   # step start t [h], heat [kW] and air [kmol/h], always kept
 
@@ -453,6 +456,7 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
     t_end_prod = None
     ok, reason = True, ""
     qpk = 0.0                                          # highest secretion rate reached
+    o2u = 0.0                                          # highest production-phase OUR / OTR_max
     W_sw = float("nan")
     D = continuous[0] if continuous else 0.0
     harv = dict(vol=0.0, cells=0.0, prod=0.0)          # chemostat outflow (continuous only)
@@ -572,6 +576,8 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
         acc["heat"] += heat_total * dt
         acc["ref"] += (-r["O2 (aq)"]) * v.heat_per_o2_kJ * 1000 / 3600 * dt
         our_peak = max(our_peak, our)
+        if phase == 2 and omax > 0:
+            o2u = max(o2u, our / omax)
         heat_peak = max(heat_peak, heat_total / W)
         heat_peak_kW = max(heat_peak_kW, heat_total)
         comp_peak = max(comp_peak, comp)
@@ -603,7 +609,7 @@ def simulate(v: STR, c: Conditions, host: Host, strain: Strain, W0: float, X0: f
                  feed_water_kg=acc["feedw"], comp_kWh=acc["comp"], agit_kWh=acc["agit"],
                  heat_kWh=acc["heat"], heat_ref_kWh=acc["ref"], our_max=our_peak,
                  heat_max_kW_m3=heat_peak, heat_max_kW=heat_peak_kW, comp_max_kW=comp_peak,
-                 air_max_kmol_h=air_peak, methanol_kg=acc["meoh"], q_p_peak=qpk, W_switch=W_sw,
+                 air_max_kmol_h=air_peak, methanol_kg=acc["meoh"], q_p_peak=qpk, W_switch=W_sw, o2_use_prod=o2u,
                  series=ser, profile=prof)
 
 

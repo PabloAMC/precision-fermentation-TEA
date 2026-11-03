@@ -68,6 +68,10 @@ Blocks (data in data/pf/base.yaml; equations in each block's comments):
    attention model with supervisors at 1.4x salary); maintenance and insurance by convention.
 8. Money: COP (operating + straight-line depreciation), MSP_CCF (capital charge),
    MSP_DCF (NREL-style DCF). Reported per kg target protein and per kg powder.
+   Every cost line is a sum of terms, amount per year x unit price (Result.ledger): kg of glucose x
+   $/kg, kWh by use x $/kWh, loaded salary-years x salary, TCI x (capital charge factor, maintenance or
+   insurance fraction). The lines are summed from these terms, so the ledger reproduces the price exactly.
+   Capital charge factor CCF = r (1+r)^n / ((1+r)^n - 1) (finance.ccf).
 """
 from __future__ import annotations
 
@@ -99,6 +103,7 @@ class Result:
     physical: dict                    # intensities per kg target protein
     design: dict                      # sizes and counts
     batch: pf.Batch = field(repr=False, default=None)
+    ledger: list = field(repr=False, default_factory=list)   # cost terms: amount/yr x unit price (block 8)
 
 
 def _opt(p, path, default=None):
@@ -359,6 +364,18 @@ def evaluate(p, keep_series=False) -> Result:
         target *= v(p, "dsp.dryer_recovery")
         powder = target / purity / (1 - v(p, "dsp.powder_moisture"))
     R_total = target / P_in
+    rec = {"cell removal": R_cell, "microfiltration": R_mf}     # step recoveries; their product is R_total
+    if spec == "cex":
+        rec["cation-exchange capture"] = v(p, "dsp.cex_recovery")
+        if int(_opt(p, "dsp.polish_columns", 0)):
+            rec["polish column"] = v(p, "dsp.polish_recovery") ** int(_opt(p, "dsp.polish_columns", 0))
+    rec["ultrafiltration"] = R_uf
+    if spec == "isolate":
+        rec["precipitation"] = v(p, "dsp.precip_recovery")
+    if spec == "acid":
+        rec["acid precipitation"] = v(p, "dsp.acid_precip_recovery")
+    if not crude:
+        rec["spray drying"] = v(p, "dsp.dryer_recovery")
     cip_kg = v(p, "dsp.cip_solution_kg_per_kg") * target  # kg CIP solution per batch
 
     # ---------------------------------------------------------------- 3. scale
@@ -514,9 +531,6 @@ def evaluate(p, keep_series=False) -> Result:
     supervisors = operators / v(p, f"{L}.employees_per_supervisor")
     per_shift = operators + supervisors
     fte = per_shift * v(p, f"{L}.shifts_per_position")
-    salary = v(p, f"{L}.operator_salary_usd")
-    labour_usd = (operators + supervisors * v(p, f"{L}.supervisor_factor")) * v(p, f"{L}.shifts_per_position") \
-        * salary * (1 + v(p, f"{L}.burden"))
     areas["office"] = (v(p, "capital.office_m2_per_employee") * per_shift, 1, "office")
     areas["compressor building"] = (v(p, "capital.compressor_building_m2_each") * n_ac, 2, "compressor")
     total_area = sum(a for a, _, _ in areas.values())
@@ -540,54 +554,77 @@ def evaluate(p, keep_series=False) -> Result:
              "CEX resin first fill": resin_fill}
 
     # ---------------------------------------------------------------- 8. operating costs ($/yr)
+    # Each cost line is a sum of terms, amount per year x unit price (Result.ledger), so the ledger and
+    # the totals cannot disagree. Term: (line, item, amount, unit, price, price path).
     U = "utilities"
     glc_kg = n_batches * (b.glucose_kg + seed_glc)
-    elec_kWh = n_batches * (b.comp_kWh + b.agit_kWh + b.heat_kWh * c.rt_refrig + seed_kWh)
+    elec = {"aeration compressors": n_batches * b.comp_kWh, "agitators": n_batches * b.agit_kWh,
+            "chillers": n_batches * b.heat_kWh * c.rt_refrig, "seed train": n_batches * seed_kWh}
     if not crude:
-        elec_kWh += n_batches * (v(p, "dsp.centrifuge_kWh_m3") * (V1 * n_st + (V_ret + v(p, "dsp.acid_wash_stages") * wash_m3
-                                                                  if spec == "acid" else 0.0))
-                                 + v(p, "dsp.membrane_kWh_m3_permeate") * (permeate + V_clar)
-                                 + v(p, "dsp.dryer_fan_kWh_kg_water") * water_evap)
-    elec_kWh += total_area * v(p, f"{U}.building_W_m2") / 1000 * H
+        elec["centrifuges and decanters"] = n_batches * v(p, "dsp.centrifuge_kWh_m3") * (
+            V1 * n_st + (V_ret + v(p, "dsp.acid_wash_stages") * wash_m3 if spec == "acid" else 0.0))
+        elec["membrane pumps"] = n_batches * v(p, "dsp.membrane_kWh_m3_permeate") * (permeate + V_clar)
+        elec["spray-dryer fans"] = n_batches * v(p, "dsp.dryer_fan_kWh_kg_water") * water_evap
+    elec["buildings (light, HVAC)"] = total_area * v(p, f"{U}.building_W_m2") / 1000 * H
+    elec_kWh = sum(elec.values())
     gas_GJ = n_batches * water_evap * v(p, "dsp.dryer_MJ_per_kg_water") / 1000
     steam_t = n_batches * steam_kg_batch / 1000
-    steam_price = _opt(p, f"{U}.steam_usd_t") or v(p, f"{U}.natural_gas_usd_GJ") * v(p, f"{U}.steam_gas_GJ_per_t")
     cw_makeup_m3 = (heat_avg_kW * (1 + c.rt_refrig) * H * 3600 / 2400 / 1000) * 1.3
     water_m3 = n_batches * proc_water_m3_batch + cw_makeup_m3
     ww_m3 = n_batches * (permeate + wash_m3 + cip_m3 + buffer_m3 + whey_m3 - (V_uf if spec == "cex" else 0.0))
     # membrane permeates, cake wash, CIP and the column buffers other than the eluate (which goes to UF)
     cells_t = 0.0 if crude else n_batches * b.cells_kg / 1000   # crude broth keeps its cells (used on site)
-    nb_maint = (isbl_tdc * idx * nb["maintenance_frac_isbl"] + tci * nb.get("maintenance_frac_fci", 0.0))
     rule = _opt(p, "finance.fixed_cost_rule") or ("nrel" if basis == "nrel" else "humbird")   # maintenance + insurance
     cip_chem = 0.0 if (rule == "humbird" and _opt(p, "finance.maintenance_includes_cip_chemicals", False)) else 1.0
-    annual = {
-        "glucose": glc_kg * v(p, f"{U}.glucose_usd_kg"),
-        "ammonia": n_batches * b.nh3_kg * v(p, f"{U}.ammonia_usd_kg"),
-        "salts & other media": n_batches * (v(p, "media.salts_kg_per_m3") * W * v(p, "media.salts_price_usd_kg")
-                                            + v(p, "media.h3po4_kg_per_kg_cells") * b.cells_kg * v(p, "media.h3po4_price_usd_kg")
-                                            + v(p, "media.antifoam_kg_per_m3") * W * v(p, "media.antifoam_price_usd_kg")
-                                            + (b.methanol_kg + _opt(p, "media.methanol_inducer_kg_per_kg_product", 0.0) * P_in)
-                                            * v(p, "media.methanol_price_usd_kg")),
-        "DSP chemicals": n_batches * (AS_kg * v(p, "dsp.ammonium_sulfate_usd_kg") + cip_chem * cip_kg * v(p, "dsp.cip_price_usd_kg")
-                                      + nacl_kg * v(p, "dsp.nacl_usd_kg") + naoh_kg * v(p, "dsp.naoh_usd_kg")
-                                      + etoh_kg * v(p, "dsp.ethanol_usd_kg") + acid_kg * v(p, "media.h3po4_price_usd_kg")),
-        "chromatography resin": (n_batches * resin_cyc / v(p, "dsp.cex_resin_life_cycles") * 1000
-                                 * v(p, "dsp.cex_resin_usd_L")) if spec == "cex" else 0.0,
-        "membranes": (mf_m2 + uf_m2) * v(p, "dsp.membrane_price_usd_m2") / v(p, "dsp.membrane_life_y"),
-        "electricity": elec_kWh * v(p, f"{U}.electricity_usd_kWh"),
-        "natural gas & steam": gas_GJ * v(p, f"{U}.natural_gas_usd_GJ") + steam_t * steam_price,
-        "water & wastewater": water_m3 * v(p, f"{U}.water_usd_m3") + ww_m3 * v(p, f"{U}.wastewater_usd_m3"),
-        "biomass disposal": cells_t * v(p, f"{U}.biomass_disposal_usd_t_dry"),
-        "labour": labour_usd,
-        "maintenance": (nb_maint if rule == "nrel" else tci * v(p, "finance.maintenance_frac_tci")),
-        "insurance": (tci * nb["insurance_frac_fci"] if rule == "nrel"
-                      else tci * v(p, "finance.insurance_tax_frac_tci")),
-    }
-    variable = sum(val for k, val in annual.items() if k not in ("labour", "maintenance", "insurance"))
+    salary_years = ((operators + supervisors * v(p, f"{L}.supervisor_factor")) * v(p, f"{L}.shifts_per_position")
+                    * (1 + v(p, f"{L}.burden")))     # loaded operator-salary equivalents per year
+    ccf = fin.ccf(v(p, "finance.ccf_rate"), v(p, "finance.ccf_life_y"))
+
+    def at(path):
+        return (v(p, path), path)
+    terms = [
+        ("glucose", "glucose (fermentation and seed)", glc_kg, "kg", *at(f"{U}.glucose_usd_kg")),
+        ("ammonia", "ammonia", n_batches * b.nh3_kg, "kg", *at(f"{U}.ammonia_usd_kg")),
+        ("salts & other media", "salts", n_batches * v(p, "media.salts_kg_per_m3") * W, "kg", *at("media.salts_price_usd_kg")),
+        ("salts & other media", "phosphoric acid", n_batches * v(p, "media.h3po4_kg_per_kg_cells") * b.cells_kg, "kg",
+         *at("media.h3po4_price_usd_kg")),
+        ("salts & other media", "antifoam", n_batches * v(p, "media.antifoam_kg_per_m3") * W, "kg", *at("media.antifoam_price_usd_kg")),
+        ("salts & other media", "methanol", n_batches * (b.methanol_kg + _opt(p, "media.methanol_inducer_kg_per_kg_product", 0.0) * P_in),
+         "kg", *at("media.methanol_price_usd_kg")),
+        ("DSP chemicals", "ammonium sulfate", n_batches * AS_kg, "kg", *at("dsp.ammonium_sulfate_usd_kg")),
+        ("DSP chemicals", "cleaning-in-place solution", n_batches * cip_chem * cip_kg, "kg", *at("dsp.cip_price_usd_kg")),
+        ("DSP chemicals", "sodium chloride", n_batches * nacl_kg, "kg", *at("dsp.nacl_usd_kg")),
+        ("DSP chemicals", "sodium hydroxide", n_batches * naoh_kg, "kg", *at("dsp.naoh_usd_kg")),
+        ("DSP chemicals", "ethanol", n_batches * etoh_kg, "kg", *at("dsp.ethanol_usd_kg")),
+        ("DSP chemicals", "phosphoric acid (precipitation)", n_batches * acid_kg, "kg", *at("media.h3po4_price_usd_kg")),
+        ("membranes", "membrane replaced", (mf_m2 + uf_m2) / v(p, "dsp.membrane_life_y"), "m2", *at("dsp.membrane_price_usd_m2")),
+        *[("electricity", k, kwh, "kWh", *at(f"{U}.electricity_usd_kWh")) for k, kwh in elec.items()],
+        ("natural gas & steam", "spray-dryer gas", gas_GJ, "GJ", *at(f"{U}.natural_gas_usd_GJ")),
+        (("natural gas & steam", "steam", steam_t, "t", *at(f"{U}.steam_usd_t")) if _opt(p, f"{U}.steam_usd_t") else
+         ("natural gas & steam", "steam (gas burned)", steam_t * v(p, f"{U}.steam_gas_GJ_per_t"), "GJ", *at(f"{U}.natural_gas_usd_GJ"))),
+        ("water & wastewater", "water (process and cooling make-up)", water_m3, "m3", *at(f"{U}.water_usd_m3")),
+        ("water & wastewater", "wastewater", ww_m3, "m3", *at(f"{U}.wastewater_usd_m3")),
+        ("biomass disposal", "spent cells (dry)", cells_t, "t", *at(f"{U}.biomass_disposal_usd_t_dry")),
+        ("labour", "operators and supervisors (loaded salaries)", salary_years, "salary-yr", *at(f"{L}.operator_salary_usd")),
+    ]
+    if spec == "cex":
+        terms.append(("chromatography resin", "resin replaced", n_batches * resin_cyc / v(p, "dsp.cex_resin_life_cycles") * 1000,
+                      "L", *at("dsp.cex_resin_usd_L")))
+    if rule == "nrel":
+        terms += [("maintenance", "installed ISBL", isbl_tdc * idx, "$", nb["maintenance_frac_isbl"], "capital.nrel_basis.maintenance_frac_isbl"),
+                  ("maintenance", "plant investment (TCI)", tci, "$", nb.get("maintenance_frac_fci", 0.0), "capital.nrel_basis.maintenance_frac_fci"),
+                  ("insurance", "plant investment (TCI)", tci, "$", nb["insurance_frac_fci"], "capital.nrel_basis.insurance_frac_fci")]
+    else:
+        terms += [("maintenance", "plant investment (TCI)", tci, "$", *at("finance.maintenance_frac_tci")),
+                  ("insurance", "plant investment (TCI)", tci, "$", *at("finance.insurance_tax_frac_tci"))]
+    terms.append(("capital charge", "plant investment (TCI)", tci, "$", ccf, "finance.ccf_rate, finance.ccf_life_y"))
+    lines = ("glucose", "ammonia", "salts & other media", "DSP chemicals", "chromatography resin", "membranes", "electricity",
+             "natural gas & steam", "water & wastewater", "biomass disposal", "labour", "maintenance", "insurance", "capital charge")
+    ledger = [dict(line=ln, item=it, amount=float(q), unit=u, price=float(pr_), path=pa) for ln, it, q, u, pr_, pa in terms]
+    annual = {ln: sum(t["amount"] * t["price"] for t in ledger if t["line"] == ln) for ln in lines}
+    variable = sum(val for k, val in annual.items() if k not in ("labour", "maintenance", "insurance", "capital charge"))
     # (maintenance and insurance are charged on TCI including the resin first fill)
     fixed = annual["labour"] + annual["maintenance"] + annual["insurance"]
-    ccf = fin.ccf(v(p, "finance.ccf_rate"), v(p, "finance.ccf_life_y"))
-    annual["capital charge"] = tci * ccf
     per_kg = {k: val / annual_target_kg for k, val in annual.items()}
     msp_ccf = sum(per_kg.values())
     cop = (variable + fixed + tci / v(p, "finance.ccf_life_y")) / annual_target_kg
@@ -621,7 +658,12 @@ def evaluate(p, keep_series=False) -> Result:
                   fte=fte, area_m2=total_area, lang_effective=tci / (idx * (isbl_pec + osbl_pec)),
                   y_ps_over_ceiling=v(p, "strain.Y_ps_g_g") / ceiling, energetic_ceiling=ceiling,
                   effective_yield_production=(b.product_kg / b.glucose_prod_kg if b.glucose_prod_kg > 0 else float("nan")),
-                  building_to_pec=buildings / (isbl_pec + osbl_pec))
+                  building_to_pec=buildings / (isbl_pec + osbl_pec),
+                  recovery_steps=rec, o2_use_prod=b.o2_use_prod, operating_h=H, turnaround_h=v(p, "fermenter.turnaround_h"),
+                  volume_m3=vessel.volume_m3, fermenter_unit_cost=isbl["production fermenters"] * idx / N_int,
+                  cost_index=idx, location_factor=v(p, "capital.location_factor"), resin_fill=resin_fill, ccf=ccf,
+                  salary_years=salary_years, glucose_seed_kg_batch=seed_glc, glucose_kg_batch=b.glucose_kg,
+                  W0_frac=b.W0 / vessel.volume_m3)
     return Result(ok=not flags, flags=flags, per_kg=per_kg, cop=cop, msp_ccf=msp_ccf, msp_dcf=msp_dcf,
                   per_kg_powder=msp_ccf * powder_frac, tci=tci, capex=capex, annual=annual,
-                  physical=physical, design=design, batch=b)
+                  physical=physical, design=design, batch=b, ledger=ledger)
