@@ -247,7 +247,7 @@ Status after the research pass of 2026-11-03 (notes in references/leads/, unveri
    (check 7, context). Trade unit values for HS 3507.90 (about $10-13/kg of product from Denmark and the
    Netherlands, 2023) need the products' protein content, which EFSA's enzyme opinions give per batch (liquids
    about 8-16% protein, dried about 60-69%); the EFSA pages block automated readers, so Pablo would download
-   three opinions (references/DOWNLOADS.md, P6).
+   three opinions (references/DOWNLOADS.md, P8).
 2. **Enzyme makers' cellulase cost in NREL 2011.** Done: verified (anchor 2 above; a panel check).
 3. **Recombinant chymosin.** Not usable: only small-pack distributor prices were found (about $20,000-30,000
    per kg chymosin protein), which say nothing about production cost.
