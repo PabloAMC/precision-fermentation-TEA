@@ -370,10 +370,10 @@
   grade: "A"
   source: "Huntington JA, Stein PE. Structure and properties of ovalbumin. J Chromatogr B 756(1-2):189-198 (2001)"
   doi_or_url: "10.1016/S0378-4347(01)00108-6"
-  locator: "introduction (not read)"
-  quote: null
-  read: "abstract"
-  note: "NOT USABLE AS IS: the '60–65% of egg-white protein' figure is my recollection of this paper; the abstract (read via Europe PMC) gives no percentage. Listed because it would widen the OVA-share range upward; verify from the full text before use."
+  locator: "sect. 8 'Conclusion', p.196"
+  quote: "Although ovalbumin comprises 60–65% of the total protein in egg white, its function remains unknown."
+  read: "fulltext"
+  note: "Full text read 2026-11-03: the recalled 60-65% is confirmed, but the paper gives no citation for it (an uncited review statement; B would be defensible). Other DSP-relevant data: Mr 45,000, 386 residues, one disulfide (Cys74-Cys121) (sect. 3, p.191); one glycan at Asn293, phosphoserines 69 and 345, di/mono/non-phosphorylated forms ~8:2:1, separable by ion exchange (sect. 4, p.192); Tm 78 C rising to 86 C on conversion to S-ovalbumin (sect. 7, pp.195-196). No pI or solubility given. Not used by the model (PRIMER's 54% is Intelligen's)."
 
 
 # ---------------- 3. Price context: milk ----------------

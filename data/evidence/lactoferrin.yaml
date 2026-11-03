@@ -274,10 +274,16 @@
   grade: A
   source: "Ward PP, Piddington CS, Cunningham GA, Zhou X, Wyatt RD, Conneely OM. A system for production of commercial quantities of human lactoferrin: a broad spectrum natural antibiotic. Nature Biotechnology 13:498-503 (1995)"
   doi_or_url: 10.1038/nbt0595-498
-  locator: abstract
-  quote: "we report a modification of this production system combined with a classical strain improvement program that has enabled production of levels of recombinant human lactoferrin in excess of 2 g/l."
-  read: abstract
+  locator: "abstract p.498; Results p.498; Discussion p.501; Methods p.501 (culture conditions)"
+  quote: "initial rounds of mutagenesis have resulted in the generation of transformants secreting in excess of 2 g/l of intact recombinant lactoferrin into the growth medium"
+  read: fulltext
   note: >-
+    Full text read 2026-11-03 (OCR prints "g/1"). SECRETED, intact, ELISA on Miracloth-filtered
+    medium. The only cultivation described is shake flasks (30 mL CSM in 250 mL flasks, 30 C,
+    6 days, p.501); no fermenter is mentioned, so the 2 g/L is most likely a shake-flask value
+    (inference: the paper does not say). Discussion: from "~20 mg/l to >2 g/l". One-step
+    CM-Sepharose CEX recovery ">85%" (lab, p.499). The authors' projection of 10-20 g/L at
+    "~5-10 cents per gram" (p.501) is a company claim (C), context only.
     Glucoamylase fusion processed by an endogenous KEX-2 peptidase. The 1992 precursor in
     A. oryzae reached "levels up to 25 mg/l" (10.1038/nbt0792-784). These two are the only
     filamentous-fungal lactoferrin data points of any size; both are >30 years old and paywalled.
@@ -398,15 +404,19 @@
   grade: A
   source: "Wang et al. Comparative study of cation-exchange resins for high-efficiency preparation of bovine lactoferrin and its N-glycomic analysis by HILIC-MS/MS. J Agric Food Chem 74(7):6488-6504 (2026)"
   doi_or_url: 10.1021/acs.jafc.5c12835
-  locator: abstract
+  locator: "abstract; sect. 3.3 p.6499 (prices in Table S1, not on disk)"
   quote: "Notably, the price of 732 resin is only one-18th that of DoWex, representing a significant reduction in production costs and making it promising in future large-scale manufacturing."
-  read: abstract
+  read: fulltext
   note: >-
-    Eight resins compared for bLF capture from milk; "Yields reached 4.46% for DoWex and 5.25% for
-    732, with purities exceeding 85% for both resins" (yields are % of the milk protein, not step
-    recoveries). Supports treating resin unit price as a 1-2 order-of-magnitude design choice:
-    styrene-divinylbenzene strong-acid resin ("732" is the Chinese industrial grade) vs an
-    agarose/polymeric protein resin. No absolute $/L is given. Paywalled (ACS).
+    Full text read 2026-11-03. Both resins are sulfonated styrene-divinylbenzene strong-acid
+    resins (DoWex 50WX8, Sigma; 732, Aladdin): the 18x is a LAB-CATALOGUE price ratio between two
+    resins of the same chemistry, not agarose vs polymer. Body p.6499: "preparing approximately
+    10 mg of bLf with 732 resin was nearly 18-fold less expensive than with DoWex". Purity 96%
+    (DoWex) vs ~86% (732). Preparative yields 8.92 and 10.5 mg bLf from 2 g whey powder on 100 g
+    resin (~0.5% of the load, mine; the abstract's 4.46%/5.25% basis is unclear). Static
+    recovery ~66% for both. Load ~0.1 mg bLf per g resin (mine), far below process loadings, so
+    nothing here bears on cex_dbc_g_L or cex_resin_life_cycles; reuse was not measured ("remain
+    to be investigated", p.6501). Elution 1.5 M NaCl in 20 mM phosphate pH 7.5.
 
 - key: lf_ufdf_only_purity_claim
   value: 0.90
