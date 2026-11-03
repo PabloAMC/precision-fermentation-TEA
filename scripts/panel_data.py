@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import pickle
 import sys
 import time
 from multiprocessing import Pool
@@ -38,8 +39,6 @@ TITERS = [1, 2, 3, 5, 7, 10, 15, 20, 30, 42, 60, 80, 100]          # g/L; 42 = t
 T_PRODS = [24, 36, 48, 72, 96, 120, 168]                            # h of production
 SCALES = [0.1, 0.3, 1, 3, 10]                                       # x the product's base plant
 CHAIN_KEYS = None                                                    # set from the first record
-INCUMBENT = {"blg": "whey", "ova": "egg", "ovd": "egg", "cas": "casein", "lf": "lactoferrin", "alb": "albumin",
-             "alac": "alac"}
 
 
 def _sized(args):
@@ -103,15 +102,17 @@ def compact(rec: dict, s: dict) -> list:
 
 
 def price_to_beat(product: str) -> dict:
-    name = INCUMBENT[product]
-    inc = benchmarks.incumbents()
-    if name in inc:
-        d = inc[name]
-        return dict(label=d["label"], band=list(d["band"]), when=f"{d['years'][0]}-{d['years'][1]} trade unit values, "
-                    f"{d['money_year']} US$ per kg protein", grade="A", spot=d["spot"])
-    d = benchmarks.reported_prices()[name]
-    return dict(label=d["label"], band=list(d["band"]), when="reported prices, 2025 US$ per kg protein",
-                grade=d["grade"], spot=[])
+    """The incumbent the product is compared with (benchmarks.yaml compare_to): trade series, else reported prices."""
+    for d in benchmarks.incumbents().values():
+        if product in d["compare_to"]:
+            return dict(label=d["label"], band=list(d["band"]), when=f"{d['years'][0]}-{d['years'][1]} trade unit values, "
+                        f"{d['money_year']} US$ per kg protein", grade="A", spot=d["spot"])
+    for d in benchmarks.reported_prices().values():
+        cmp = d["compare_to"]
+        if product == cmp or product in (cmp if isinstance(cmp, list) else []):
+            return dict(label=d["label"], band=list(d["band"]), when="reported prices, 2025 US$ per kg protein",
+                        grade=d["grade"], spot=[])
+    raise KeyError(f"no price to beat for {product}")
 
 
 def parameters(base: dict) -> list[dict]:
@@ -176,13 +177,27 @@ def main():
     ap.add_argument("--fast", action="store_true", help="coarse grid, for a quick check")
     ap.add_argument("--products", default=",".join(sc.PRODUCTS))
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--cache", help="pickle of the runs: reused if present, written after the runs (a crash in the "
+                    "write step then costs no rerun)")
     args = ap.parse_args()
     products = args.products.split(",")
     titers, t_prods, scales = (TITERS, T_PRODS, SCALES) if not args.fast else ([3, 10, 30, 60], [48, 72, 120], [0.1, 1, 10])
     t0 = time.time()
     a_path = ROOT / "results/analyses.json"
     a = json.loads(a_path.read_text()) if a_path.exists() else {}
-    with Pool(args.workers) as pool:
+    cache = Path(args.cache) if args.cache else None
+    if cache and cache.exists():
+        sized, axes, sugar_jobs, grid, case_out = pickle.loads(cache.read_bytes())
+        print(f"runs read from {cache}", flush=True)
+    else:
+        sized, axes, sugar_jobs, grid, case_out = run_all(products, titers, t_prods, scales, a, args.workers, t0)
+        if cache:
+            cache.write_bytes(pickle.dumps((sized, axes, sugar_jobs, grid, case_out)))
+    write(products, sized, axes, sugar_jobs, grid, case_out, a, args.fast, t0)
+
+
+def run_all(products, titers, t_prods, scales, a, workers, t0):
+    with Pool(workers) as pool:
         sized = {(prod, s): p for prod, s, p in pool.map(_sized, [(prod, s) for prod in products for s in scales])}
         print(f"sized {len(sized)} plants in {time.time() - t0:.0f} s", flush=True)
         axes, jobs, sugar_jobs = {}, [], {}
@@ -216,8 +231,12 @@ def main():
         print(f"grid done at {time.time() - t0:.0f} s", flush=True)
         case_out = dict(pool.imap_unordered(_case, cases))
     print(f"all runs done at {time.time() - t0:.0f} s", flush=True)
+    return sized, axes, sugar_jobs, grid, case_out
+
+
+def write(products, sized, axes, sugar_jobs, grid, case_out, a, fast, t0):
     base_yaml = params.load()
-    out = dict(generated=time.strftime("%Y-%m-%d %H:%M"), fast=args.fast,
+    out = dict(generated=time.strftime("%Y-%m-%d %H:%M"), fast=fast,
                labels={"evidence": labels.EVIDENCE}, parameters=parameters(base_yaml),
                analyses_generated=a.get("generated"), products={})
     prod_names = yaml.safe_load((ROOT / "data/pf/products.yaml").read_text())
