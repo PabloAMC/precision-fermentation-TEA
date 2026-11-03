@@ -25,7 +25,7 @@ the filename given. Both folders are git-ignored, so nothing copyrighted is publ
 were checked against Crossref on 2026-09-26. Supplementary files: save next to the paper
 with the suffix `_SI`.
 
-## P6 — new checks against reality (2026-11-03)
+## P8 — new checks against reality (2026-11-03)
 
 Leads from references/leads/ (unverified). Each would add a check to docs/VALIDATION.md; none changes a model input.
 | # | Document | Where | Why |
