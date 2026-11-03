@@ -50,13 +50,13 @@ gives no absolute titer or yield.
 Most defensible: **2 g/L in T. reesei** (Aro2023, now read in full: a 1 L glucose
 fed-batch bioreactor, with a protease inhibitor added at 72 h). The 2 g/L is two SDS-PAGE
 bands combined by densitometry: full-length OVA at 42 kDa and a C-terminally clipped form
-at 36 kDa. Intact OVA is therefore below 2 g/L. Chicken OVA in yeast is stuck at 5 to
-132 mg/L (Jin2024, Yoon2026), mostly intracellular. The 5.45 g/L quail-OVA shake-flask
+at 36 kDa. Intact OVA is therefore below 2 g/L. Secreted chicken OVA in yeast is stuck at
+5.7-8 mg/L (Yoon2026, Jin2024); Jin2024's 132 mg/L is total OVA, 94% of it intracellular. The 5.45 g/L quail-OVA shake-flask
 figure (Yang2009) is a ~1000x outlier and should not be used as a prior. OVA is roughly an
 order of magnitude harder than BLG in yeast. Trichoderma is not the only host with a
 bioreactor number: Beck2025 (review, citing Liu et al. 2024) gives 3.7 g/L in E. coli EcN
-in a 3 L fed-batch, intracellular, and Jin2024 (abstract) 132 mg/L of total OVA in an
-S. cerevisiae glucose-limited fed-batch.
+in a 3 L fed-batch, intracellular, and Jin2024 (full text) 132 mg/L of total OVA (8 mg/L
+secreted) in an S. cerevisiae glucose-limited fed-batch.
 
 ## 5. Patents (19 on disk)
 **No company patent example discloses a numeric BLG titer.** Perfect Day, Remilk and

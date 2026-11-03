@@ -292,13 +292,31 @@
   grade: A
   source: "Garnica-Garcia F, Lal N, Marcellin E. Primary challenges in the upcycling of genetically modified spent microbial biomass. New Biotechnol 94:172-183 (2026)"
   doi_or_url: 10.1016/j.nbt.2026.05.008
-  locator: "abstract (PubMed 42178043)"
+  locator: "abstract; Fig. 2 caption p.174; sect. 2.1-2.2 p.177"
   quote: "At present, the dominant industrial practice is to sterilise and dispose of this biomass in landfills. This approach incurs significant costs associated with sterilisation, transport, and waste management"
-  read: abstract
+  read: fulltext
   note: >-
-    Review focused on precision fermentation. The full text (ScienceDirect, bot check) was not
-    readable; it may contain cost numbers. The base case of zero cost is inconsistent with
-    this statement: GM biomass is a cost today unless a feed or fertiliser outlet is approved.
+    Full text read 2026-11-03. Fig. 2: "Residual GMSMB is typically sterilised by autoclaving ...
+    then transported to a landfill". Inactivation by autoclaving (industrial autoclave or in the
+    fermenter); Australia's OGTR also allows incineration or chemical decontamination. EU
+    Directive 2001/18/EC defines an organism by its capacity to replicate, so inactivated biomass
+    falls outside it (sect. 2.1). Composition "~40-60% protein" (p.173); no solids figure. Paying
+    for landfill or incineration "generally appears to be cheaper in the short term" (p.179).
+    Cost: see gm_spent_biomass_disposal_cost_garnica2026.
+
+- key: gm_spent_biomass_disposal_cost_garnica2026
+  value: 50
+  unit: USD per metric tonne of GM spent microbial biomass (wet or dry basis not stated), Australia
+  grade: C
+  source: "Garnica-Garcia F, Lal N, Marcellin E. New Biotechnol 94:172-183 (2026), Table 5, citing a waste-removal company web page (their ref. 75)"
+  doi_or_url: 10.1016/j.nbt.2026.05.008
+  locator: "Table 5, p.175"
+  quote: "Average cost of GMSMB disposal 50 USD/MT"
+  read: fulltext
+  note: >-
+    Same table: freight 0.067 USD/t/km, storage 500 USD/t/yr. Grade C (the primary is a
+    commercial web page). If wet basis at the model's 15% dry solids: ~$333/t DM (mine), between
+    biomass_disposal_usd_t_dry eu_nw 211 and us_midwest 458, so no change to base.yaml.
 
 - key: land_application_cost_biosolids_epa2000
   value: 175
@@ -607,15 +625,23 @@
 
 - key: egg_white_uf_11_5_to_23pct_solids_tsai1977
   value: 23
-  low: 11.5
-  unit: "% solids of liquid egg white after (value) and before (low) industrial ultrafiltration"
+  low: 20.8
+  high: 26.6
+  unit: "% solids of liquid egg white after industrial ultrafiltration (feed 11.5%)"
   grade: A
   source: "Tsai LS, Ijichi K, Harris MW. Concentration of egg white by ultrafiltration. J Food Prot 40(7):449-455 (1977)"
   doi_or_url: 10.4315/0362-028X-40.7.449
-  locator: "abstract (PubMed 30731618)"
+  locator: "abstract p.449; Table 1 p.451; flux p.453; Table 3 p.454"
   quote: "The estimated cost of concentrating egg white from 11.5 to 23% solid and at a volume of 10,000 lb. per day or 2,500,000 lb. per year, was $0.0295 per pound of concentrate."
-  read: abstract
+  read: fulltext
   note: >-
+    Full text read 2026-11-03. 11.5 -> 23% is the costing design case ("50% of the original water
+    was removed", Table 3). Measured: feed 10.4-12.0% solids, 46-59% of the water removed
+    (Table 1), i.e. 20.8-26.6% solids after (low/high, mine). Concentration stopped on flux, not
+    solubility: "Further concentration was found impractical due to the rapid decrease of
+    permeation rate" (p.451); flux 7.3 LMH at 12% and 3.2 LMH at 23% solids (4.3 and 1.9
+    gal/ft2/day, mine). Cellulose-acetate membrane at ~28 bar (RO-like pressure), egg white
+    brought to pH 7, 6-28 C; "no functional damage" (p.453); protein loss not measured.
     24 plant batches of 5,000 lb in an egg-products plant (SANOVO unit). Derived: egg-white
     protein is ~10.5% of liquid white and ovalbumin ~54% of it, so 23% solids is about 110 g/L
     ovalbumin in solution (native pH ~9, with other egg proteins). Industrial evidence that
@@ -638,19 +664,23 @@
     "practical solubility limit" of 50 g/L; Wang et al. (2025) dissolved this same product at
     200 mg/mL. A search snippet claimed the older Sigma data sheet said 50 mg/mL; not verified.
 
-- key: egg_white_uf_froning1987_unverified
-  value: null
-  unit: "% solids of egg white after UF"
+- key: egg_white_uf_froning1987
+  value: 23.24
+  low: 22.56
+  unit: "% solids of egg white after UF (low = after RO)"
   grade: A
   source: "Froning GW, Wehling RL, Ball HR, Hill RM. Effect of ultrafiltration and reverse osmosis on the composition and functional properties of egg white. Poultry Sci 66:1168-1173 (1987)"
   doi_or_url: 10.3382/ps.0661168
-  locator: null
-  quote: null
-  read: abstract
+  locator: "abstract p.1168; Tables 1, 3-5 pp.1169-1171; Tables 8-9"
+  quote: "UF treatment of egg white significantly (P< .05) increased solids from 11.40 to 23.24% ... No protein was lost into the permeate."
+  read: fulltext
   note: >-
-    NOT VERIFIED: abstract not in PubMed or Crossref. A search snippet says UF raised solids
-    "from 11.40 to 23.24%" with no protein lost to the permeate. Poultry Science back issues
-    are open access on the publisher site (blocked to scripts here).
+    Full text read 2026-11-03 (key renamed from egg_white_uf_froning1987_unverified). Table 3
+    gives 11.69 -> 23.2% (abstract 11.40 -> 23.24); RO 11.15 -> 22.56% (Table 4). UF: tubular
+    polysulfone, 25 kDa cutoff, 0.9 m2, 150 psi, 12 -> 27 C; flux 180 -> 250 -> 90 mL/min, i.e.
+    ~12, 17 and 6 LMH (mine). Permeate crude protein 0.015% (~0.1% of feed protein, mine).
+    Angel-cake volume unchanged; gel strength of the undiluted concentrate 75 vs 13 kPa. Supports
+    dryer_feed_solids_ova 0.23 and the final-flux range of df_flux_LMH (3-7).
 
 # =========================================================================================
 # 9. Spray dryer capital cost vs water-evaporation capacity
