@@ -112,8 +112,8 @@ def _gap(r):
     ("yxs_glucose", 0.0),        # inside the three chemostat values: pass
     ("heat_per_o2", 0.012),      # just above Cooney's 500 kJ/mol O2: near miss
     ("yxs_fedbatch", 0.014),     # just above Shemesh's best fed-batch strain: near miss
-    ("yxs_methanol", 0.117),     # Heijnen on methanol: 12% high (methanol cases only)
-    ("qo2_methanol", -0.215),    # and O2 uptake 21% low
+    ("yxs_methanol", 0.0),       # an input since 2026-11-03 (Heijnen gave +12%)
+    ("qo2_methanol", -0.066),    # not fitted: -21% with Heijnen, -7% with the measured yield
     ("yxs_glycerol", -0.26),     # Heijnen on glycerol: far low (no case uses glycerol)
     ("qo2_glycerol", 1.03),      # and O2 uptake twice the measured
 ])

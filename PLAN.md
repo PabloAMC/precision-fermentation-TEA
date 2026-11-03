@@ -97,6 +97,17 @@ Phase F (external review) has not started. Open items:
 
 ## Decisions log
 
+- **2026-11-03, physiology checks and the methanol fix (Pablo: "consider if there are other data that we can
+  successfully predict"; then "take the best possible decisions"; Claude, for Pablo's review):**
+  - New check 6 in docs/VALIDATION.md: the growth model's predictions of measured K. phaffii physiology. Glucose
+    yield passes; heat per O2 and fed-batch yield are near misses at the edge of the measured spread; methanol
+    missed by 12-21%; glycerol misses badly (unused).
+  - Methanol fixed with the measured yield (base.yaml hosts.kphaffii.yx_methanol_g_g, grade A; thermo step 9). The
+    O2 uptake, not fitted, moves from -21% to -7%. Methanol-fed results move by under 1%.
+  - Not changed: glycerol (no case uses it), heat per O2 (inside the spread of Cooney's measurement), the fed-batch
+    yield (the measured strains made ethanol).
+  - Research for new checks started: enzyme prices, chymosin, NREL's enzyme-maker quotes, more plant costs.
+
 - **2026-11-03, model panel redesign (Pablo: "redesign the interactive panel to more easily convey the key information
   and make it easy to understand and verify the model", planned from first principles without the current explorer;
   Claude built it, for Pablo's review):**

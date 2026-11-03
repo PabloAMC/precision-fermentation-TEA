@@ -113,6 +113,8 @@ def physiology_record(p: dict | None = None) -> list[dict]:
         Y_XS(mu)   = mu M_x / (q_S(mu) M_S)                with maintenance (Herbert-Pirt), as a chemostat at D = mu
         q_O2(mu)   = -q_O2 / M_x                           [mmol O2 / g DCW / h]
         heat/O2    = -dH_growth / (O2 used by growth)      formation enthalpies [kJ/mol O2]
+    Growth models are the host's (Host.growth_on): on methanol the dissipation comes from the measured yield
+    (thermo step 9, since 2026-11-03), so that row is an input and the methanol O2 uptake is the test.
         Y_fedbatch = cells grown / glucose used in the growth phase of the base batch (balances.batch_balances)
     Measured values are read from data/evidence/hosts.yaml and engineering.yaml by key. 'band' is the
     measured range (several studies, or a stated +/-); 'value' a single measurement. ok = inside the band,
@@ -129,7 +131,7 @@ def physiology_record(p: dict | None = None) -> list[dict]:
     ev = {e["key"]: e for f in ("hosts", "engineering")
           for e in yaml.safe_load((ROOT / f"data/evidence/{f}.yaml").read_text())}
     MU = 0.1                                       # 1/h: the dilution rate of the chemostat measurements below
-    gm = {cs: th.GrowthModel(bio, th.get(cs), host.T_C) for cs in ("Glucose (s)", "Glycerol", "Methanol")}
+    gm = {cs: host.growth_on(cs) for cs in ("Glucose (s)", "Glycerol", "Methanol")}   # as the model uses them
 
     def y_at(cs, mu):
         return mu * bio.mw / (-gm[cs].q(cs, mu) * th.get(cs).mw)
@@ -158,11 +160,11 @@ def physiology_record(p: dict | None = None) -> list[dict]:
              band=[fb["low"], fb["high"]], sources=["kphaffii_yxs_glucose_fedbatch_shemesh2024"],
              note="Three strains in fed-batch; theirs made some ethanol. The model's base batch, growth phase."),
         dict(key="yxs_methanol", name="Cell yield on methanol (chemostat)", unit="g cells / g methanol", ours=y_at("Methanol", MU),
-             value=meoh["value"], sources=["kphaffii_yxs_methanol_chemostat_tomasgamisans2018"],
-             note="Used only in the methanol-fed published-strain cases (albumin, lactoferrin, casein variants)."),
+             value=meoh["value"], sources=["kphaffii_yxs_methanol_chemostat_tomasgamisans2018"], by_construction=True,
+             note="A model input since 2026-11-03 (Heijnen's correlation gave 0.447). The O2 uptake below is the test."),
         dict(key="qo2_methanol", name="O₂ uptake on methanol at 0.1/h", unit="mmol O2 / g cells / h", ours=qo2_at("Methanol", MU),
              value=qo2["value"], stated=qo2["value_sd"], sources=["kphaffii_qo2_methanol_vs_glycerol_tomasgamisans2018"],
-             note="Same cases. Lower O2 use means the model may understate cooling and O2 limits on methanol."),
+             note="Not fitted. Was 21% low with Heijnen's correlation; the measured yield brings it within 7%. Methanol-fed cases only."),
         dict(key="yxs_glycerol", name="Cell yield on glycerol (chemostat)", unit="g cells / g glycerol", ours=y_at("Glycerol", MU),
              band=[gly["low"], gly["high"]], sources=["kphaffii_yxs_glycerol_chemostat_tomasgamisans2018"],
              note="No case uses glycerol. The miss shows the Heijnen correlation does not carry over to every feed."),

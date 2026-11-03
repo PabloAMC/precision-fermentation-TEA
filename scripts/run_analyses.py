@@ -115,6 +115,17 @@ def s_base(res):
     res["constants"] = constants()
 
 
+def _methanol_heijnen() -> dict:
+    """K. phaffii on methanol at 0.1/h with Heijnen's dissipation (the model before 2026-11-03): yield and O2 uptake."""
+    from pftea import thermo as th
+    host = plant._host(BASE)
+    g = th.GrowthModel(host.bio, th.get("Methanol"), host.T_C)
+    mu = 0.1
+    return dict(y_xs=mu * host.bio.mw / (-g.q("Methanol", mu) * th.get("Methanol").mw),
+                qo2_mmol_g_h=-g.q("O2 (aq)", mu) / host.bio.mw * 1000, dissipation=g.dissipation,
+                dissipation_measured=host.growth_on("Methanol").dissipation)
+
+
 def constants() -> dict:
     """Model-derived constants quoted in the report text (so none is typed there)."""
     import dataclasses
@@ -169,6 +180,8 @@ def constants() -> dict:
     return dict(
         ms_prod_max_at_ceiling=ms_max, aeration_our150=aer150,
         Yx_max_methanol=plant._host(BASE).growth_on("Methanol").max_yield,
+        physiology={r["key"]: r for r in cal.physiology_record()},   # docs/VALIDATION.md check 6
+        methanol_heijnen=_methanol_heijnen(),                               # the same checks before the 2026-11-03 fix
         aeration_kWh_per_kg_o2=aer(r), aeration_kWh_per_kg_o2_workbook_compressor=aer(r_wb),
         aeration_kWh_per_kg_o2_do50=aer(r_do),
         compressor_share_of_aeration=r.batch.comp_kWh / (r.batch.comp_kWh + r.batch.agit_kWh),

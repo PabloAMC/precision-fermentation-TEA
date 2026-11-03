@@ -245,6 +245,7 @@ def main():
     ap.add_argument("--fast", action="store_true", help="coarse grid, for a quick check")
     ap.add_argument("--products", default=",".join(sc.PRODUCTS))
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--refresh-cases", action="store_true", help="with --cache: rerun the cases, keep the cached grid")
     ap.add_argument("--cache", help="pickle of the runs: reused if present, written after the runs (a crash in the "
                     "write step then costs no rerun)")
     args = ap.parse_args()
@@ -257,11 +258,32 @@ def main():
     if cache and cache.exists():
         sized, axes, sugar_jobs, grid, case_out = pickle.loads(cache.read_bytes())
         print(f"runs read from {cache}", flush=True)
+        if args.refresh_cases:   # rerun only the cases (e.g. after a change that touches no glucose-fed grid run)
+            with Pool(args.workers) as pool:
+                case_out = dict(pool.imap_unordered(_case, case_jobs(products, sized, a)))
+            cache.write_bytes(pickle.dumps((sized, axes, sugar_jobs, grid, case_out)))
+            print(f"cases rerun at {time.time() - t0:.0f} s", flush=True)
     else:
         sized, axes, sugar_jobs, grid, case_out = run_all(products, titers, t_prods, scales, a, args.workers, t0)
         if cache:
             cache.write_bytes(pickle.dumps((sized, axes, sugar_jobs, grid, case_out)))
     write(products, sized, axes, sugar_jobs, grid, case_out, a, args.fast, t0)
+
+
+def case_jobs(products, sized, a):
+    """The cases: base, academic, industry, the model's own EU base and the physical-limit optimum."""
+    cases = []
+    for prod in products:
+        cases += [((prod, "base"), sized[(prod, 1)]),
+                  ((prod, "academic"), sc.scenario_params("academic", prod)),
+                  ((prod, "industry"), sc.scenario_params("industry", prod)),
+                  ((prod, "eu_model"), sc.base_params(prod, {"plant.location": "eu_nw"}))]
+        pl = a.get("physical_limit", {}).get(f"{prod}/humbird")
+        if pl and pl.get("feasible"):
+            q = params.override(sc.scenario_params("physical_limit", prod),
+                                {"strain.X_prod_g_L": pl["X_prod"], "strain.t_prod_h": pl["t_prod"], "strain.titer_g_L": pl["titer"]})
+            cases.append(((prod, "physical_limit"), q))
+    return cases
 
 
 def run_all(products, titers, t_prods, scales, a, workers, t0):
@@ -283,17 +305,7 @@ def run_all(products, titers, t_prods, scales, a, workers, t0):
                         batch_key = (prod, v(q, "fermenter.volume_m3"), i, j)
                         jobs.append(((prod, k, i, j), q, batch_key not in sugar_jobs))
                         sugar_jobs.setdefault(batch_key, (prod, k, i, j))
-        cases = []
-        for prod in products:
-            cases += [((prod, "base"), sized[(prod, 1)]),
-                      ((prod, "academic"), sc.scenario_params("academic", prod)),
-                      ((prod, "industry"), sc.scenario_params("industry", prod)),
-                      ((prod, "eu_model"), sc.base_params(prod, {"plant.location": "eu_nw"}))]
-            pl = a.get("physical_limit", {}).get(f"{prod}/humbird")
-            if pl and pl.get("feasible"):
-                q = params.override(sc.scenario_params("physical_limit", prod),
-                                    {"strain.X_prod_g_L": pl["X_prod"], "strain.t_prod_h": pl["t_prod"], "strain.titer_g_L": pl["titer"]})
-                cases.append(((prod, "physical_limit"), q))
+        cases = case_jobs(products, sized, a)
         print(f"{len(jobs)} grid runs, {len(sugar_jobs)} sugar balances, {len(cases)} cases", flush=True)
         grid = dict(pool.imap_unordered(_run, jobs, chunksize=4))
         print(f"grid done at {time.time() - t0:.0f} s", flush=True)
