@@ -403,7 +403,7 @@ function renderStrip(p, v, m) {   // the cases on one log price axis, with the p
     if (d.mc && d.mc.p10) s += `<line x1="${X(d.mc.p10)}" x2="${X(d.mc.p90)}" y1="${y}" y2="${y}" stroke="var(--muted)" stroke-width="1.5"><title>Monte Carlo p10–p90: $${sig(d.mc.p10)}–${sig(d.mc.p90)}</title></line>`;
     s += `<circle cx="${X(d.x)}" cy="${y}" r="${sel ? 5.5 : 4}" fill="${sel ? "var(--accent)" : "var(--panel)"}" stroke="var(--accent)" stroke-width="1.5"><title>${esc(d.name)}: $${sig(d.x)}</title></circle>`;
     const right = X(d.x) < W * 0.62;
-    s += `<text x="${X(d.x) + (right ? 8 : -8)}" y="${y + 4}" text-anchor="${right ? "start" : "end"}" style="font-size:10.5px">${esc(d.name)} $${sig(d.x, 2)}</text>`;
+    s += `<text x="${X(d.x) + (right ? 8 : -8)}" y="${y + 4}" text-anchor="${right ? "start" : "end"}" style="font-size:10.5px;paint-order:stroke;stroke:var(--panel);stroke-width:4px">${esc(d.name)} $${sig(d.x, 2)}</text>`;
   });
   if (cur && isCustom()) s += `<path d="M${X(cur)} 80 l5 -9 h-10 z" fill="var(--warn)"><title>Your settings: $${sig(cur)}</title></path>`;
   s += `<text x="${W - R}" y="${H - 2}" text-anchor="end" class="muted" style="font-size:10px">$ per kg protein, log scale; lines: Monte Carlo p10–p90</text></svg>`;
