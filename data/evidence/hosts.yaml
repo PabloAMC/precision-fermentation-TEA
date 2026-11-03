@@ -262,6 +262,8 @@
 - key: kphaffii_qo2_methanol_vs_glycerol_tomasgamisans2018
   value: 8.22
   high: 2.04
+  value_sd: 0.37        # the stated +/- of the methanol cell (quote); added 2026-11-03 for calibration.physiology_record
+  high_sd: 0.11         # the stated +/- of the glycerol cell (note)
   unit: mmol O2/g DCW/h
   grade: A
   host: kphaffii

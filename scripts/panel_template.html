@@ -481,6 +481,11 @@ function renderStrip(p, v, m) {   // the cases on one log price axis, with the p
 }
 
 // ------------------------------------------------------------------ overview of all proteins
+const CASE_MARK = {
+  base: (x, y) => `<circle cx="${x}" cy="${y}" r="5.5" fill="var(--accent)"/>`,
+  ind: (x, y) => `<rect x="${x - 4.5}" y="${y - 4.5}" width="9" height="9" transform="rotate(45 ${x} ${y})" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.8"/>`,
+  ac: (x, y) => `<circle cx="${x}" cy="${y}" r="5" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.8"/>`,
+  pl: (x, y) => `<path d="M${x} ${y - 6} l5.5 9.5 h-11 z" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.8"/>` };
 function titerNeeded(p) {   // grid titers around the price to beat, at the base time and plant size (exact runs, US prices)
   const ax = p.axes, b = baseIdx(p), top = p.price_to_beat.band[1];
   for (let i = 0; i < ax.titer.length; i++) {
@@ -522,10 +527,7 @@ function renderOverview() {
   const all = R.flatMap(r => [r.lo, r.hi, r.base, r.ac, r.ind, r.pl].filter(x => x));
   const lo = Math.min(...all) / 1.3, hi = Math.max(...all) * 1.3, W = 720, L = 132, Rr = 16, rowH = 30, T = 8, H = T + R.length * rowH + 40;
   const X = (x) => L + (Math.log(x) - Math.log(lo)) / (Math.log(hi) - Math.log(lo)) * (W - L - Rr);
-  const mark = { base: (x, y) => `<circle cx="${x}" cy="${y}" r="5.5" fill="var(--accent)"/>`,
-    ind: (x, y) => `<rect x="${x - 4.5}" y="${y - 4.5}" width="9" height="9" transform="rotate(45 ${x} ${y})" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.6"/>`,
-    ac: (x, y) => `<circle cx="${x}" cy="${y}" r="5" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.6"/>`,
-    pl: (x, y) => `<path d="M${x} ${y - 6} l5.5 9.5 h-11 z" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.6"/>` };
+  const mark = CASE_MARK;
   const names = { base: "Base case", ind: "Industry benchmark", ac: "Best published strain", pl: "Physical-limit best case" };
   let s = `<svg viewBox="0 0 ${W} ${H}" id="ovSvg" role="img" aria-label="Cost of each protein against its price to beat">`;
   const ticks = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000].filter(t => t >= lo && t <= hi);
@@ -552,27 +554,37 @@ function renderReality() {
   const rows = D.reality_checks || [];
   if (!rows.length) { $("realityBody").innerHTML = `<p class="muted">No calibration results on file (run scripts/run_analyses.py).</p>`; return; }
   const num = (x, unit) => unit.startsWith("€") ? "€" + fixedSig(x, 3) : unit.startsWith("$") ? usd(x, 3) : fixedSig(x, 3);
-  let h = `<div class="scroll"><table><thead><tr><th>Check</th><th class="n">This model</th><th class="n">Compared with</th><th>Result</th></tr></thead><tbody>`;
-  for (const r of rows) {
-    let ref, badge;
-    if (r.kind === "reality") {
-      ref = `${num(r.band[0], r.unit)}–${num(r.band[1], r.unit)}`;
-      badge = r.ok ? `<span class="badge match">MATCHES</span>` : `<span class="badge miss">MISSES</span>`;
-    } else {
+  const sgn = (d) => (d >= 0 ? "+" : "") + pct(d, 0);
+  const row = (r) => {
+    let ref, badge, kind;
+    if (r.kind === "consistency") {
+      kind = "consistency check";
       ref = num(r.theirs, r.unit);
       const d = r.ours / r.theirs - 1;
-      badge = r.ok ? `<span class="badge agree">AGREES</span> <span class="faint">${d >= 0 ? "+" : ""}${pct(d, 0)}</span>`
-        : `<span class="badge differ">DIFFERS</span> <span class="faint">${d >= 0 ? "+" : ""}${pct(d, 0)}, allowed ±${pct(r.tolerance, 0)}</span>`;
-      if (r.light) { const dl = r.light / r.theirs - 1; badge += `<div class="faint" style="font-size:11.5px">with NREL-style accounting: ${dl >= 0 ? "+" : ""}${pct(dl, 0)}</div>`; }
+      badge = r.ok ? `<span class="badge agree">AGREES</span> <span class="faint">${sgn(d)}</span>`
+        : `<span class="badge differ">DIFFERS</span> <span class="faint">${sgn(d)}, allowed ±${pct(r.tolerance, 0)}${r.borrowed_tolerance ? " (the Intelligen ovalbumin anchor's)" : ""}</span>`;
+      if (r.light) { const dl = r.light / r.theirs - 1; badge += `<div class="faint" style="font-size:11.5px">with NREL-style accounting: ${sgn(dl)}</div>`; }
+    } else {
+      kind = r.kind === "measurement" ? "measured" : "reality check";
+      let d = 0;
+      if (r.band) { ref = `${num(r.band[0], r.unit)}–${num(r.band[1], r.unit)}`; d = r.ours > r.band[1] ? r.ours / r.band[1] - 1 : r.ours < r.band[0] ? r.ours / r.band[0] - 1 : 0; }
+      else { ref = num(r.value, r.unit) + (r.stated ? ` ± ${fixedSig(r.stated, 2)}` : ""); d = r.ours / r.value - 1; }
+      badge = r.ok ? `<span class="badge match">MATCHES</span>` : `<span class="badge miss">MISSES</span> <span class="faint">${sgn(d)}${r.band ? " outside the range" : ""}</span>`;
     }
-    h += `<tr><td><b>${esc(r.name)}</b> <span class="faint" style="font-size:11.5px">${r.kind === "reality" ? "reality check" : "consistency check"}</span>
+    return `<tr><td><b>${esc(r.name)}</b> <span class="faint" style="font-size:11.5px">${kind}</span>
       <div class="muted" style="font-size:12.5px">${esc(r.note)}</div></td><td class="n">${num(r.ours, r.unit)}<div class="faint" style="font-size:11.5px">${esc(r.unit)}</div></td>
       <td class="n">${ref}</td><td>${badge}</td></tr>`;
-  }
-  h += `</tbody></table></div>
-    <p class="muted" style="font-size:12.5px"><b>MATCHES</b>: inside a range set by a market price or a real plant. <b>AGREES</b>: within the allowed gap of another model.
-    <b>DIFFERS</b>: outside it; docs/VALIDATION.md explains each gap. No model input was tuned to any of these.
-    No precision-fermentation protein has a public production cost, so none can be checked directly.</p>
+  };
+  const head = `<thead><tr><th>Check</th><th class="n">This model</th><th class="n">Compared with</th><th>Result</th></tr></thead>`;
+  const costs = rows.filter(r => r.group !== "biology"), bio = rows.filter(r => r.group === "biology");
+  let h = `<h3>Costs and plants</h3><div class="scroll"><table>${head}<tbody>${costs.map(row).join("")}</tbody></table></div>`;
+  if (bio.length) h += `<h3>Biology and physics, predicted from first principles</h3>
+    <p class="muted" style="font-size:13px">The model works these out from thermodynamics: how much sugar becomes cells, how much O₂ cells use, how much heat they release.
+    None of the measurements below is a model input.</p>
+    <div class="scroll"><table>${head}<tbody>${bio.map(row).join("")}</tbody></table></div>`;
+  h += `<p class="muted" style="font-size:12.5px"><b>MATCHES</b>: inside a range set by a market price, a real plant or measurements (or within a measurement's stated error).
+    <b>AGREES</b>: within the allowed gap of another model. <b>DIFFERS</b> and <b>MISSES</b>: outside it; docs/VALIDATION.md explains each one.
+    No model input was tuned to any of these. No precision-fermentation protein has a public production cost, so none can be checked directly.</p>
     <p class="muted" style="font-size:12.5px">✓ Arithmetic check: on every view the page redoes the price in 11 steps and compares each with the Python model (section "Why").</p>`;
   $("realityBody").innerHTML = h;
 }
@@ -839,6 +851,13 @@ function renderMap(p, v) {
     if (x <= a[0]) return Y(0) + Math.min(ch / 2, (Math.log(a[0]) - Math.log(Math.max(x, 1e-3))) * ch); if (x >= a[nT - 1]) return Y(nT - 1);
     for (let i = 0; i < nT - 1; i++) if (x <= a[i + 1]) return Y(i + (Math.log(x) - Math.log(a[i])) / (Math.log(a[i + 1]) - Math.log(a[i])));
   };
+  const MK = { industry: "ind", academic: "ac", physical_limit: "pl" }, caseMarks = [];
+  for (const key of ["academic", "industry", "physical_limit"]) {
+    const r = p.cases[key]; if (!r || !r.inputs) continue;
+    const x = xOf(r.inputs.t_prod), y = yOf(r.inputs.titer);
+    if (y >= T && y <= H - B) caseMarks.push({ key, x, y, r });
+  }
+  const markIn = (x0, y0) => caseMarks.some(m => m.x >= x0 && m.x <= x0 + cw && m.y >= y0 && m.y <= y0 + ch);
   let s = `<svg viewBox="0 0 ${W} ${H}" id="mapSvg" role="img" aria-label="Cost by titer and production time">
     <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="var(--cinf)"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--faint)" stroke-width="1.2"/></pattern></defs>`;
   for (let i = 0; i < nT; i++) for (let j = 0; j < nt; j++) {
@@ -850,7 +869,9 @@ function renderMap(p, v) {
     } else tipT = `${sig(ax.titer[i])} g/L in ${sig(ax.t_prod[j])} h: not feasible (${limitWord(gv.flags)})`;
     const sel = (S.kase === "base" || S.kase === "custom") && i === S.i && j === S.j;
     s += `<rect x="${x + 0.5}" y="${y + 0.5}" width="${cw - 1}" height="${ch - 1}" fill="${fill}" data-i="${i}" data-j="${j}" data-tip="${esc(tipT)}" style="cursor:pointer" ${sel ? 'stroke="var(--ink)" stroke-width="2.5"' : ""}/>`;
-    if (txt && cw > 44 && ch > 18) s += `<text x="${x + cw / 2}" y="${y + ch / 2 + 4}" text-anchor="middle" style="font-size:10.5px;pointer-events:none">${txt}</text>`;
+    if (txt && cw > 44 && ch > 18) s += markIn(x, y)
+      ? `<text x="${x + 4}" y="${y + ch - 4}" style="font-size:9.5px;pointer-events:none">${txt}</text>`
+      : `<text x="${x + cw / 2}" y="${y + ch / 2 + 4}" text-anchor="middle" style="font-size:10.5px;pointer-events:none">${txt}</text>`;
   }
   for (let i = 0; i < nT; i++) s += `<text x="${L - 6}" y="${H - B - (i + 0.5) * ch + 4}" text-anchor="end" class="muted">${sig(ax.titer[i])}</text>`;
   for (let j = 0; j < nt; j++) s += `<text x="${L + (j + 0.5) * cw}" y="${H - B + 16}" text-anchor="middle" class="muted">${sig(ax.t_prod[j])}</text>`;
@@ -875,11 +896,11 @@ function renderMap(p, v) {
     });
   }
   // cases off the grid
-  for (const key of ["academic", "industry", "physical_limit"]) {
-    const r = p.cases[key]; if (!r || !r.inputs) continue;
-    const x = xOf(r.inputs.t_prod), y = yOf(r.inputs.titer);
-    if (y < T || y > H - B) continue;
-    s += `<g data-tip="${esc(CASE_NAME[key])}: ${sig(r.inputs.titer)} g/L in ${sig(r.inputs.t_prod)} h (other inputs differ too)"><circle cx="${x}" cy="${y}" r="5" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="${x + 7}" y="${y - 6}" style="font-size:10px;fill:var(--accent)">${esc(CASE_NAME[key].split(" ")[0])}</text></g>`;
+  for (const { key, x, y, r } of caseMarks) {
+    const halo = "paint-order:stroke;stroke:var(--panel);stroke-width:3.5px;stroke-linejoin:round";
+    s += `<g data-tip="${esc(CASE_NAME[key])}: ${sig(r.inputs.titer)} g/L in ${sig(r.inputs.t_prod)} h (other inputs differ too)">
+      <g style="filter:drop-shadow(0 0 1.5px var(--panel))">${CASE_MARK[MK[key]](x, y)}</g>
+      <text x="${x + 9}" y="${y - 7}" style="font-size:10.5px;font-weight:600;fill:var(--accent);${halo}">${esc(CASE_NAME[key].split(" ")[0])}</text></g>`;
   }
   s += `</svg>`;
   const leg = [["var(--c0)", "below the price to beat"], ["var(--c1)", "inside the band"], ["var(--c2)", "up to 2x its top"], ["var(--c3)", "2–4x"], ["var(--c4)", "over 4x"]];
@@ -887,7 +908,7 @@ function renderMap(p, v) {
     <span><span class="sw" style="background:url(#hatch);background:repeating-linear-gradient(45deg,var(--cinf),var(--cinf) 3px,var(--faint) 3px,var(--faint) 4px)"></span>breaks a physical limit (point at it to see which)</span></div>
     <p class="muted" style="font-size:12.5px">Cost per kg at ${sig(ax.annual_t[S.k])} t/yr and the current prices. Each cell is one model run. Click a cell to select it.
     ${req && atBase ? "Dashed lines show the titer needed for each target price. The model searched for these exactly." : req ? "The target-price lines show only at the base plant size and prices." : ""}
-    Circles mark the other cases. They also change other inputs. Ticks on the right mark published titers.</p>`;
+    ◆ industry benchmark, ○ best published strain, ▲ physical-limit best case: they also change other inputs. Ticks on the right mark published titers.</p>`;
   $("mapBody").innerHTML = `<div class="scroll">${s}</div>${lg}`;
   $("mapSvg").querySelectorAll("rect[data-i]").forEach(r => r.addEventListener("click", () => {
     if (S.kase !== "base" && S.kase !== "custom") Object.assign(S, baseIdx(p));

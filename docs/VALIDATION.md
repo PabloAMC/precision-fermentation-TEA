@@ -190,6 +190,65 @@ lands near the model's $49,000 per t/yr, but it is a different process (hydrogen
 and the match is a coincidence. Whole-cell biomass plants cost far less per t/yr: Quorn's brownfield expansion about $9,800, Angel
 Yeast's planned line about $6,800. They are a floor: they skip purification and sell wet or whole cells.
 
+## Check 6: predictions of measured physiology (added 2026-11-03)
+
+**What it is.** The growth model works out, from thermodynamics alone (Heijnen dissipation, Tijhuis maintenance,
+element and electron balances), how much sugar becomes cells, how much O2 cells use and how much heat they
+release. None of the measurements below is a model input, so each is a prediction. Code:
+`calibration.physiology_record`; pinned in `tests/test_calibration.py`; shown in the panel's "Checks against
+reality". Recorded before any change, as the protocol requires.
+
+| Prediction (K. phaffii, 30 C) | Model | Measured | Result |
+|---|---|---|---|
+| Cell yield on glucose, upper limit (g/g) | 0.571 | 0.544-0.584 (Maurer 2006; Rebnegger 2016, 2024) | **pass** |
+| Heat per mol O2, growing cells (kJ) | 506 | 430-480 (Gnaiger and Kemp, many organisms); 500 (Cooney) | near miss, +1% above the top |
+| Cell yield on glucose, base fed-batch growth phase (g/g) | 0.507 | 0.37-0.50 (Shemesh 2024, three strains) | near miss, +1% |
+| Cell yield on methanol, chemostat at 0.1/h (g/g) | 0.447 | 0.40 (Tomas-Gamisans 2018) | **miss, +12%** |
+| O2 uptake on methanol at 0.1/h (mmol/g/h) | 6.46 | 8.22 +/- 0.37 | **miss, -21%** |
+| Cell yield on glycerol, chemostat (g/g) | 0.466 | 0.63-0.71 | **miss, -26%** |
+| O2 uptake on glycerol at 0.1/h (mmol/g/h) | 4.14 | 2.04 +/- 0.11 | **miss, +103%** |
+
+**Diagnosis.**
+- *Glucose passes.* Every product case grows and produces on glucose, so the result that matters most is
+  inside the measured range. The heat per O2 is at the top of the measured spread, so the model's cooling
+  load is, if anything, a few per cent conservative; in the base it binds during growth (24.4 of 25 kW/m3).
+- *The fed-batch near miss* is expected: Shemesh's strains made ethanol (Crabtree effect), which lowers
+  their yield; the model makes none.
+- *Methanol misses by 12-21%.* For a substrate more reduced than cells, the model builds every cell carbon
+  from the substrate and sends the spare electrons to O2 (thermo.anabolic; review G1). With Heijnen's
+  dissipation this gives too high a yield and too low an O2 use on methanol. It touches only the
+  methanol-fed published-strain variants (albumin academic, lactoferrin Lv 2023, beta-casein), whose
+  production phase mostly uses the measured methanol maintenance instead (hosts.kphaffii.m_s_prod_methanol);
+  their O2 and heat limits may be understated. Not fixed: a fix would change published-strain results, so it
+  waits for Pablo's decision.
+- *Glycerol misses badly* (K. phaffii is known for unusually high yields on glycerol). No case uses
+  glycerol, so no result changes. It shows the Heijnen correlation does not carry over to every feed:
+  agreement on glucose is a measured match, not a property of the method.
+
+**Lactoferrin reconciliation as a consistency row.** The Intelligen lactoferrin comparison above (review L)
+now appears in the panel next to the other model-to-model checks: ours is 64% (membranes only) and 52% (ion
+exchange) below their cost of production with their design inputs. It has no tolerance of its own; the
+panel borrows the Intelligen ovalbumin anchor's +/-30% and says so.
+
+## Next checks that need new evidence (not yet run)
+
+Ranked by how much each would add to trust. None is on disk; each needs a source with a quote first.
+1. **Food and feed enzyme prices.** Secreted enzymes from *T. reesei* and *A. niger* are the one market that
+   already sells fermentation-made, secreted protein at scale. GFI 2023 quotes Novozymes bulk food enzymes at
+   $12-25/kg (albumin.yaml, gfi2023_albumin_cost_target), but per kg of product, with no protein content.
+   Needed: a price with the product's protein (or activity-to-protein) content.
+2. **Enzyme makers' cellulase quotes in NREL 2011** (about $0.50 per gallon of ethanol against NREL's $0.34,
+   roughly $6/kg protein; cited in anchor 2 above, but in no evidence file with a quote). Needed: the quote
+   and page from the PDF. It would turn anchor 2 into a reality check.
+3. **Recombinant chymosin.** Made by fermentation since 1990 and most of the world's rennet: a mature,
+   secreted, food-grade protein with a market price.
+4. **More real plant costs.** Liberation Labs is the only purpose-built PF plant with cost, volume and output
+   on disk. Announced plants (and enzyme-plant expansions with stated capacity) would test the capital method
+   more than once.
+5. **Pilot-scale O2 and heat data for K. phaffii** at 1-100 m3, to test the O2 transfer and cooling limits,
+   which set the feasible region and today rest on design values.
+6. **The pre-registered priors** (docs/SCOPE.md) are scored at release.
+
 ## Summary: what the four anchors say
 
 1. **The port is exact; the PF extension is Humbird-style.** The port reproduces his baker's-yeast

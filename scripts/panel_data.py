@@ -31,6 +31,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from pftea import benchmarks, chain, labels, params, plant  # noqa: E402
+from pftea import calibration as cal_mod  # noqa: E402
 from pftea import scenarios as sc  # noqa: E402
 from pftea.params import v  # noqa: E402
 
@@ -203,6 +204,24 @@ def reality_checks(a: dict) -> list[dict]:
             out.append(dict(name=name, kind="consistency", unit=unit, ours=ours, theirs=theirs, tolerance=tol,
                             ok=abs(ours / theirs - 1) <= tol, note=note,
                             light=(c[key].get(f"{metric} [light convention]") or [None])[0]))   # with design-report accounting
+    # Intelligen's lactoferrin model: cost of production (no return on capital) against ours run with their design inputs
+    # (scenarios/lactoferrin.yaml lf_intelligen_a/_b; report, lactoferrin reconciliation). It has no tolerance of its own:
+    # the Intelligen ovalbumin anchor's is used, and the page says so.
+    rec = (a.get("lactoferrin") or {}).get("reconciliation") or {}
+    lfe = {e["key"]: e for e in yaml.safe_load((ROOT / "data/evidence/lactoferrin.yaml").read_text())}
+    tol_i = cal("intelligen2025_ova")["target"]["tolerance"]
+    for case, key, route in (("lf_intelligen_a", "lf_cost_intelligen2026_case_a_ufdf", "membranes only"),
+                             ("lf_intelligen_b", "lf_cost_intelligen2026_case_b_cex", "ion exchange")):
+        if case in rec and key in lfe:
+            ours, theirs = rec[case]["cop"], lfe[key]["value"]
+            out.append(dict(name=f"Intelligen 2026 lactoferrin design, {route}", kind="consistency", unit="$/kg lactoferrin, cost of production",
+                            ours=ours, theirs=theirs, tolerance=tol_i, ok=abs(ours / theirs - 1) <= tol_i, borrowed_tolerance=True,
+                            note="Run with their stated design. Their raw materials and plant cost are higher, and they cost quality control, which this model leaves out."))
+    for r in out:
+        r["group"] = "costs"
+    # predictions of measured physiology (calibration.physiology_record; docs/VALIDATION.md)
+    for r in cal_mod.physiology_record():
+        out.append(dict(r, kind="measurement", group="biology"))
     return out
 
 
