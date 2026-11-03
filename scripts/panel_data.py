@@ -389,7 +389,10 @@ def pr_info(prod: str) -> dict:
 
 
 def clean(x):
-    """NaN and infinities -> None, recursively (strict JSON)."""
+    """NaN and infinities -> None, NumPy scalars -> Python ones, recursively (strict JSON)."""
+    import numpy as np
+    if isinstance(x, np.generic):
+        x = x.item()
     if isinstance(x, float):
         return x if math.isfinite(x) else None
     if isinstance(x, dict):

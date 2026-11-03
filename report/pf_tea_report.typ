@@ -573,7 +573,7 @@ cases). Four pieces of physics change:
   maintenance; a pilot fed-batch gave 0.43 (Gao et al. 2023, via Shemesh and Fishman 2024). Heijnen's
   correlation, which the model keeps for glucose, would give #fx(K.methanol_heijnen.y_xs, d: 2) g/g and an
   O#sub[2] uptake of #fx(K.methanol_heijnen.qo2_mmol_g_h, d: 1) mmol/g/h against the measured
-  #fx(K.physiology.qo2_methanol.value, d: 1); with the measured yield the O#sub[2] uptake, which is not fitted,
+  #fx(K.physiology.qo2_methanol.value, d: 1)\; with the measured yield the O#sub[2] uptake, which is not fitted,
   is #fx(K.physiology.qo2_methanol.ours, d: 1) (`docs/VALIDATION.md`, check 6). On glucose the correlation
   gives #fx(K.Yx_max, d: 2) against a measured 0.50–0.56, a match.
 - *Maintenance* is measured, not derived, because the alcohol-oxidase loss is invisible to a

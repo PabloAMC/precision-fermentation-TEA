@@ -106,7 +106,12 @@ Phase F (external review) has not started. Open items:
     O2 uptake, not fitted, moves from -21% to -7%. Methanol-fed results move by under 1%.
   - Not changed: glycerol (no case uses it), heat per O2 (inside the spread of Cooney's measurement), the fed-batch
     yield (the measured strains made ethanol).
-  - Research for new checks started: enzyme prices, chymosin, NREL's enzyme-maker quotes, more plant costs.
+  - Research for new checks (VALIDATION checks 6-7): NREL's enzyme-maker figure verified; Novozymes Blair says the
+    model's capital per m3 may be low by 15-27% (recorded, not tuned); enzyme prices are context only; chymosin unusable.
+  - Results rerun for the methanol-touching sections only (scenarios, Monte Carlo of the two methanol-fed cases,
+    equivalents, lactoferrin, casein, albumin, heme) and checked: no glucose-fed number changed. Figures, SI, GFI entry
+    and PDFs rebuilt; the PDFs with typst 0.15.0 (Python package; the committed ones were 0.15.1), same page counts,
+    text differs only in the methanol-fed numbers and the rewritten methanol paragraph.
 
 - **2026-11-03, model panel redesign (Pablo: "redesign the interactive panel to more easily convey the key information
   and make it easy to understand and verify the model", planned from first principles without the current explorer;
