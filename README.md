@@ -108,6 +108,7 @@ The scenario `data/pf/scenarios/detailed.yaml` switches them on together. A four
 | Full report (preprint draft) | `report/pf_tea_report.pdf` (source `report/pf_tea_report.typ`) |
 | Workbook with every parameter and result | `report/pf_tea_SI.xlsx` |
 | Interactive explorer (no install) | `docs/explorer.html` |
+| Model panel: the price step by step, with checks (no install; draft redesign) | `docs/panel.html` (design: `docs/PANEL_DESIGN.md`) |
 | Figures | `docs/figures/*.png` |
 | Checks against published models | `docs/VALIDATION.md` |
 | Audit log and AI reviews | `docs/AUDIT.md`, `docs/REVIEW.md`, `docs/ai-review/` |
@@ -156,12 +157,15 @@ src/pftea/scenarios.py      scenarios, cost maps, bridge, required titer, tornad
 src/pftea/benchmarks.py     incumbent prices per kg protein, titer markers, claims, real-plant capital check
 src/pftea/floor.py          metabolic floor: least sugar, O2 and heat per kg of protein; productivity bound
 src/pftea/balances.py       one batch's sugar and O2 split by use, for checking by hand
+src/pftea/chain.py          one run as the model panel's record: cost ledger, step-by-step chain, limits, sugar
 src/pftea/params.py         loads base.yaml, applies scenario overrides, samples ranges
 src/pftea/labels.py         readable names for parameter paths (text only)
 scripts/run_analyses.py     every result -> results/analyses.json (--only to rerun sections)
 scripts/make_figures.py     docs/figures/*.png
 scripts/explorer_grid.py    results/explorer_grid.json (parallel)
 scripts/build_explorer.py   docs/explorer.html
+scripts/panel_data.py       results/panel_data.json: run grid and cases for the model panel (parallel)
+scripts/build_panel.py      docs/panel.html (template scripts/panel_template.html)
 scripts/build_si_workbook.py report/pf_tea_SI.xlsx
 scripts/gfi_submission.py   docs/GFI_SUBMISSION.md, one row per protein for GFI's database
 scripts/extract_humbird_si.py constants and reference values from Humbird's SI workbook
@@ -180,6 +184,7 @@ uv venv --python 3.12 .venv && uv pip install -p .venv/bin/python -e ".[dev]"
 .venv/bin/python scripts/run_analyses.py        # a few hours; --fast for a quick pass
 .venv/bin/python scripts/make_figures.py
 .venv/bin/python scripts/explorer_grid.py && .venv/bin/python scripts/build_explorer.py
+.venv/bin/python scripts/panel_data.py && .venv/bin/python scripts/build_panel.py   # about 30 min on 4 cores
 .venv/bin/python scripts/build_si_workbook.py
 typst compile --root . report/pf_tea_report.typ && typst compile --root . report/memo.typ && typst compile --root . report/preprint.typ
 ```

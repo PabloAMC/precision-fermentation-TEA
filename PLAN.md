@@ -97,6 +97,16 @@ Phase F (external review) has not started. Open items:
 
 ## Decisions log
 
+- **2026-11-03, model panel redesign (Pablo: "redesign the interactive panel to more easily convey the key information
+  and make it easy to understand and verify the model", planned from first principles without the current explorer;
+  Claude built it, for Pablo's review):**
+  - Design in `docs/PANEL_DESIGN.md`: the answer first, then the cost as amount x price, then the price as eleven
+    numbered steps that the page recomputes and checks against the model. Levers step between exact model runs.
+  - `plant.evaluate` now builds every cost line from terms (amount x unit price, `Result.ledger`); results unchanged
+    (largest relative difference 4e-16 on 18 cases). The batch reports its peak production O2 use (`o2_use_prod`).
+  - New: `src/pftea/chain.py`, `scripts/panel_data.py` (3,250 runs, ~30 min on 4 cores), `scripts/build_panel.py`,
+    `docs/panel.html`, `tests/test_panel.py`. The old explorer stays until Pablo chooses.
+
 - **2026-10-25, optional physics, plain-language evidence labels and a short preprint (Pablo: "implement them, and
   add the option to keep it simple or more complex"; "grade is internal slang"; "focus on the cleanups"; Claude built
   it, for Pablo's review):**
