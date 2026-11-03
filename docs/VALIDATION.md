@@ -85,10 +85,12 @@ Electricity is lower because our aeration is power-optimal (about 0.3–0.5 vvm,
 NREL's 800 hp agitators are sized for peak.
 
 **What this means.** We do not tune. NREL is a design report, not a price. NREL itself
-reports that Genencor and Novozymes quoted enzyme costs ~47% above its figure ($0.50 vs
-$0.34 per gallon of ethanol, i.e. ~$6.2/kg). *Unverified (2026-11-03): a search of secondary sources found
-no trace of this comparison, and the NREL PDF could not be opened from the build environment. Do not cite
-it until the quote and page are checked in the PDF.* Humbird's method is the one anchored to a real
+reports (p.40) that in February 2010 Genencor and Novozymes, announcing new cellulase products, "both cited an
+enzyme cost contribution of approximately $0.50/gal ethanol", against its own $0.34 ($4.24/kg protein): about
+$6.2/kg protein at NREL's loading (derived). NREL explains the gap (p.42): transport, a standalone plant's overheads
+and a higher return. *Verified in the OSTI copy of the report on 2026-11-03; data/calibration/nrel2011_cellulase.yaml.*
+Against that company figure our Humbird-convention cost is +25% and the design-report convention -3% (the panel
+shows it as a 'company figure' check). Humbird's method is the one anchored to a real
 price (anchor 1), although that anchor rests on one product and an assumed 33% margin.
 
 The gap shows that **accounting conventions alone move the cost of a crude secreted protein by
@@ -238,26 +240,41 @@ now appears in the panel next to the other model-to-model checks: ours is 64% (m
 exchange) below their cost of production with their design inputs. It has no tolerance of its own; the
 panel borrows the Intelligen ovalbumin anchor's +/-30% and says so.
 
-## Next checks that need new evidence (not yet run)
+## Next checks that need new evidence
 
-Ranked by how much each would add to trust. None is on disk; each needs a source with a quote first.
-1. **Food and feed enzyme prices.** Secreted enzymes from *T. reesei* and *A. niger* are the one market that
-   already sells fermentation-made, secreted protein at scale. GFI 2023 quotes Novozymes bulk food enzymes at
-   $12-25/kg (albumin.yaml, gfi2023_albumin_cost_target), but per kg of product, with no protein content.
-   Needed: a price with the product's protein (or activity-to-protein) content.
-2. **Enzyme makers' cellulase quotes in NREL 2011** (about $0.50 per gallon of ethanol against NREL's $0.34,
-   roughly $6/kg protein; cited in anchor 2 above, in no evidence file, and not found by a search on
-   2026-11-03, so possibly misremembered). Needed: the quote and page from the PDF (nrel.gov is blocked from
-   the build environment; Pablo can check it in references/). If it exists, it turns anchor 2 into a reality
-   check; if not, the sentence in anchor 2 must go.
-3. **Recombinant chymosin.** Made by fermentation since 1990 and most of the world's rennet: a mature,
-   secreted, food-grade protein with a market price.
-4. **More real plant costs.** Liberation Labs is the only purpose-built PF plant with cost, volume and output
-   on disk. Announced plants (and enzyme-plant expansions with stated capacity) would test the capital method
-   more than once.
-5. **Pilot-scale O2 and heat data for K. phaffii** at 1-100 m3, to test the O2 transfer and cooling limits,
-   which set the feasible region and today rest on design values.
+Status after the research pass of 2026-11-03 (notes in references/leads/, unverified unless stated):
+1. **Food and feed enzyme prices per kg protein.** Done in part: Lynd 2017's $25/kg protein for bulk amylase
+   (check 7, context). Trade unit values for HS 3507.90 (about $10-13/kg of product from Denmark and the
+   Netherlands, 2023) need the products' protein content, which EFSA's enzyme opinions give per batch (liquids
+   about 8-16% protein, dried about 60-69%); the EFSA pages block automated readers, so Pablo would download
+   three opinions (references/DOWNLOADS.md, P6).
+2. **Enzyme makers' cellulase cost in NREL 2011.** Done: verified (anchor 2 above; a panel check).
+3. **Recombinant chymosin.** Not usable: only small-pack distributor prices were found (about $20,000-30,000
+   per kg chymosin protein), which say nothing about production cost.
+4. **More real plant costs.** Done in part: Novozymes Blair (check 7). Amyris Barra Bonita (about $155M for
+   1,440 m3, a 2023 court filing) is the next best; its pages block automated readers.
+5. **Pilot-scale O2 and heat data for K. phaffii.** Not available to the project.
 6. **The pre-registered priors** (docs/SCOPE.md) are scored at release.
+
+## Check 7: a second real plant, and a market value for secreted enzymes (added 2026-11-03)
+
+**Novozymes Blair enzyme plant (2012).** The engineering contractor states "an investment of USD 200 million"
+and "1,600 m 3 of fermentation capacity" (plants.yaml plant_capex_novozymes_blair_2012). Escalated with CEPCI
+to 2023 (x1.365) and scaled to the model's 7,200 m3 as in check 5 (n = 0.5-0.7): $80,000-109,000 per m3. The
+model's base BLG plant: $68,000. **Miss: 15% below the band** (27% below its middle, n = 0.6). With the model's
+own first-plant factor (x1.28, a sensitivity) it is $87,000, inside. Cautions: Blair's cost grew during the
+project (early estimates were half; unverified lead), it may count gross volume, and it is one plant. But it
+makes liquid enzymes, with a lighter purification line than a food powder, so a food plant of the same volume
+should cost at least as much. Together with check 5 (Liberation Labs, likely a floor, puts the model mid-band),
+the two real plants say the model's capital is **not high, and may be low by up to about a quarter**. Not
+tuned: recorded here; the capital factors stay frozen (honesty rule 3). If more finished plants agree, the
+first-plant factor or the facility-class factors are the inputs to revisit, in a decision by Pablo.
+
+**A market value for secreted protein.** Lynd et al. 2017 (Curr Opin Biotechnol; OSTI author manuscript p.7,
+read 2026-11-03): "amylase enzymes produced via mature technology and purchased in large amounts by the corn
+ethanol industry are valued at about $25/kg protein", citing Stephen et al. 2012. Second-hand (grade C/D) and
+a price, not a cost; context only. It sits above every modelled on-site enzyme cost (NREL $4.24, ours
+$6.1-7.8) and near our base food-protein cost ($21), consistent with a margin plus formulation and logistics.
 
 ## Summary: what the four anchors say
 

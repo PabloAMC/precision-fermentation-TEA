@@ -557,8 +557,8 @@ function renderReality() {
   const sgn = (d) => (d >= 0 ? "+" : "") + pct(d, 0);
   const row = (r) => {
     let ref, badge, kind;
-    if (r.kind === "consistency") {
-      kind = "consistency check";
+    if (r.kind === "consistency" || r.kind === "claim") {
+      kind = r.kind === "claim" ? "company figure" : "consistency check";
       ref = num(r.theirs, r.unit);
       const d = r.ours / r.theirs - 1;
       badge = r.ok ? `<span class="badge agree">AGREES</span> <span class="faint">${sgn(d)}</span>`

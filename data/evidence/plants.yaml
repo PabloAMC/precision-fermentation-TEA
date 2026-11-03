@@ -68,3 +68,21 @@
     Read through a filing-summary site, not the exchange filing itself (re-check against SSE
     600298). Whole-cell yeast protein; a floor, not comparable. About USD 137M at 7.1 CNY/USD.
   values: {output_t: 20000, cny_usd: 7.1}
+
+- key: plant_capex_novozymes_blair_2012
+  value: 200000000
+  unit: USD (nominal, at completion 2012; greenfield, whole site)
+  grade: C
+  source: "NNE (the engineering contractor), project page 'Building the world's most advanced enzyme plant for biofuel'"
+  doi_or_url: https://nne.com/projects/building-the-worlds-most-advanced-enzyme-plant-for-biofuel/
+  locator: project page body (read 2026-11-03)
+  quote: "With an investment of USD 200 million and nine buildings with a floor space of 12,700 m 2 , the facility is the largest enzyme plant dedicated to biofuel in North America. ... increases Novozymes' global production capacity with 1,600 m 3 of fermentation capacity."
+  read: html
+  note: >-
+    Novozymes (now Novonesis) enzyme plant, Blair, Nebraska, opened 30 May 2012 (the $200M also in
+    governorsbiofuelscoalition.org and bionity.com coverage, read 2026-11-03). Liquid enzymes for corn ethanol:
+    a secreted-protein plant with a lighter purification line than a food-grade powder (no spray dryer), so a PF
+    food-protein plant of the same volume should cost at least as much. Cost grew during the project (early
+    estimates USD 80-100M; references/leads/2026-11-03_plants.md, unverified), so it carries first-plant cost growth.
+    Whether 1,600 m3 is gross or working volume is not stated. No output stated. values below are for the check.
+  values: {fermentation_m3: 1600, money_year: 2012}

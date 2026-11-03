@@ -188,6 +188,26 @@ def reality_checks(a: dict) -> list[dict]:
         out.append(dict(name="Capital cost of a real plant (Liberation Labs)", kind="reality", unit="$ per m3 of fermenter",
                         ours=pc["model_per_m3"], band=band, ok=band[0] <= pc["model_per_m3"] <= band[1],
                         note="Company figures for an unfinished plant, scaled to the model's size. Likely a floor."))
+    # Novozymes Blair enzyme plant (2012): capital per m3 against the base BLG plant's (benchmarks.plant_cost_check)
+    pb = sc.base_params("blg")
+    rb = plant.evaluate(pb)
+    chk = benchmarks.plant_cost_check(rb.tci, rb.design["N_prod_int"] * v(pb, "fermenter.volume_m3"), v(pb, "plant.annual_target_protein_t"))
+    if "blair_scaled_per_m3" in chk:
+        band = [min(chk["blair_scaled_per_m3"].values()), max(chk["blair_scaled_per_m3"].values())]
+        out.append(dict(name="Capital cost of a real enzyme plant (Novozymes Blair, 2012)", kind="reality", unit="$ per m3 of fermenter",
+                        ours=chk["model_per_m3"], band=band, ok=band[0] <= chk["model_per_m3"] <= band[1],
+                        note=f"Contractor's figures, escalated to {chk['blair_escalation']['to_year']} and scaled to the model's size. "
+                             "A liquid-enzyme plant, with simpler purification than a food powder, so a food plant should cost at least as much."))
+    # the enzyme makers' cellulase cost contribution cited by NREL (2010 press; data/calibration/nrel2011_cellulase.yaml)
+    if "nrel2011_cellulase" in c:
+        tg = cal("nrel2011_cellulase")["target"]
+        theirs = tg["usd_per_kg_protein"]["value"] * tg["enzyme_makers_usd_per_gal"]["value"] / tg["nrel_usd_per_gal"]["value"]
+        ours = c["nrel2011_cellulase"]["usd_per_kg_protein (DCF, NREL financing)"][0]
+        out.append(dict(name="Enzyme makers' cellulase cost (Genencor, Novozymes, 2010)", kind="claim", unit="$/kg protein",
+                        ours=ours, theirs=theirs, tolerance=tg["tolerance"], ok=abs(ours / theirs - 1) <= tg["tolerance"],
+                        light=c["nrel2011_cellulase"].get("usd_per_kg_protein (DCF, NREL financing) [light convention]", [None])[0],
+                        note="Cost the two companies announced for their cellulase, as cited by NREL (p.40). It includes transport and a "
+                             "standalone plant, which the model's on-site case leaves out (NREL p.42)."))
     rows = [("nrel2011_cellulase", "usd_per_kg_protein (DCF, NREL financing)", "NREL 2011 enzyme plant design", "$/kg (2007)",
              "Same process, lighter accounting: lower fixed costs and installation factors."),
             ("intelligen2025_ova", "usd_per_kg_powder (Humbird convention)", "Intelligen 2025 ovalbumin design", "$/kg powder",
