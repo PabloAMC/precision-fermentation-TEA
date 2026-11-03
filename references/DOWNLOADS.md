@@ -34,6 +34,22 @@ the filename given. Both folders are git-ignored, so nothing copyrighted is publ
 were checked against Crossref on 2026-09-26. Supplementary files: save next to the paper
 with the suffix `_SI`.
 
+## P8 — new checks against reality (2026-11-03)
+
+**Status 2026-11-03 (evening).** Received from Pablo and read: the three EFSA opinions, Lynd 2017, the Amyris court
+filing, and the Yao 2026 supplementary data (P1c 22). Fetched directly: NREL 2011 (OSTI copy). What each gave is in
+docs/VALIDATION.md, checks 7 and next checks. **P1c 22 is closed without the hoped-for data:** the supplementary file
+has no feed amounts (Fig. S7 is an SDS-PAGE gel; Fig. S10 shows wet cell weight and titer of four other strains on
+ethanol), so no measured BLG yield on sugar can be derived from it.
+
+Leads from references/leads/ (unverified). Each would add a check to docs/VALIDATION.md; none changes a model input.
+| # | Document | Where | Why |
+|---|---|---|---|
+| 60 | NREL 2011 design report (Humbird et al., NREL/TP-5100-47764) | nrel.gov/docs/fy11osti/47764.pdf | find (or rule out) the enzyme makers' cellulase cost quote cited in VALIDATION anchor 2 |
+| 61 | Lynd et al. 2017, Curr Opin Biotechnol | osti.gov/servlets/purl/1364156 | bulk amylase "about $25/kg protein": the only direct market value per kg of secreted protein found |
+| 62 | EFSA enzyme opinions with batch tables (e.g. 10.2903/j.efsa.2018.5450, 2021.6563, 2020.5974) | efsa.onlinelibrary.wiley.com | protein content of commercial enzyme products, to turn trade prices per kg product into per kg protein |
+| 63 | Amyris Barra Bonita plant cost (bankruptcy filing) and Novozymes Blair (cost and volume) | see references/leads/2026-11-03_plants.md | two more real plants for the capital check (VALIDATION check 5) |
+
 ## P1 — changes or verifies model inputs
 
 | # | Document | DOI / where | Save as | Why |

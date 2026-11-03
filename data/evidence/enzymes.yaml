@@ -1,0 +1,73 @@
+# Industrial enzymes: the one mature market for secreted, fermentation-made protein (added 2026-11-03).
+# Context for docs/VALIDATION.md check 7, not model inputs. Each entry was read in the source itself on 2026-11-03
+# (PDFs supplied by Pablo or fetched from the open web); research notes in references/leads/.
+
+- key: amylase_value_per_kg_protein_lynd2017
+  value: 25
+  unit: USD/kg enzyme protein (bulk amylase for corn ethanol)
+  grade: C
+  source: "Lynd LR, Liang X, Biddy MJ, et al. Cellulosic ethanol: status and innovation. Curr Opin Biotechnol 45:202-211 (2017)"
+  doi_or_url: 10.1016/j.copbio.2017.03.008
+  locator: "p.204, left column (published version); OSTI author manuscript p.7"
+  quote: "amylase enzymes produced via mature technology and purchased in large amounts by the corn ethanol industry are valued at about $25/kg protein [11]"
+  read: fulltext
+  note: >-
+    Second-hand: the value cites Stephen, Mabee and Saddler (2012, Biofuels Bioprod Bioref 6:159), not read. A value
+    (price) per kg of protein, not a cost; year not stated (about 2012-2017). The only direct market figure per kg of
+    secreted protein found.
+
+- key: enzyme_trade_unit_value_hs350790_2023
+  value: 13.39
+  low: 5.02
+  high: 29.17
+  unit: USD/kg of product (export unit value = value / quantity, 2023)
+  grade: A
+  source: "World Bank WITS, UN Comtrade data, HS 350790 'Enzymes; prepared enzymes (not elsewhere specified)', exports to World, 2023"
+  doi_or_url: https://wits.worldbank.org/trade/comtrade/en/country/ALL/year/2023/tradeflow/Exports/partner/WLD/product/350790
+  locator: "table rows Denmark, Netherlands, Finland, China, United States (read 2026-11-03)"
+  quote: "Denmark Export 350790 ... 2023 World 1,342,445.20 [1000 USD] 100,268,000 Kg; Netherlands 749,210.18 / 70,521,000 Kg; China 527,964.65 / 105,179,000 Kg; Finland 309,534.57 / 50,571,200 Kg; United States 1,561,447.37 / 53,533,400 Kg"
+  read: html
+  note: >-
+    Derived unit values (USD/kg product): Denmark 13.39 (value; mostly Novonesis), Netherlands 10.62, Finland 6.12,
+    China 5.02 (low), United States 29.17 (high). Per kg of formulated product of every form (liquid, granulate,
+    powder): converting to per kg protein needs the form, which trade data do not record (see the EFSA entries:
+    ~9% protein in liquid concentrates, ~65% in dried ones, a ~7x span).
+
+- key: enzyme_protein_liquid_glucoamylase_efsa2018
+  value: 9.3
+  low: 8.9
+  high: 9.6
+  unit: "% protein (w/w) in the food enzyme batches for commercialisation (liquid concentrate)"
+  grade: A
+  source: "EFSA CEP Panel. Safety of the food enzyme glucoamylase from a genetically modified Aspergillus niger (strain NZYM-BF). EFSA Journal 2018;16(10):5450"
+  doi_or_url: 10.2903/j.efsa.2018.5450
+  locator: "Section 3.2, Table 1 (PDF p.8)"
+  quote: "Protein % 9.3 9.6 8.9 8.9 ... Water % 87.7 87.5 88.0 86.7 ... Total organic solids (TOS) % 12.0 12.2 11.4 13.0"
+  read: fulltext
+  note: "Batches 1-3 for commercialisation (batch 4 for toxicology). The food enzyme before formulation; a sold product is diluted further with stabilisers, so its protein share is at most this."
+
+- key: enzyme_protein_liquid_glucoamylase_amylase_efsa2021
+  value: 8.9
+  low: 8.4
+  high: 9.4
+  unit: "% protein (w/w) in the food enzyme batches for commercialisation (liquid concentrate)"
+  grade: A
+  source: "EFSA CEP Panel. Safety evaluation of a food enzyme with glucan 1,4-alpha-glucosidase and alpha-amylase activities from the genetically modified Aspergillus niger strain NZYM-BX. EFSA Journal 2021;19(5):6563"
+  doi_or_url: 10.2903/j.efsa.2021.6563
+  locator: "Section 3.2, Table 1 (PDF p.8)"
+  quote: "Protein % 9.4 8.9 8.4 8.4 ... Water % 86.5 86.9 88.3 88.4 ... Total organic solids (TOS)(d) % 12.8 12.4 11.1 11.0"
+  read: fulltext
+  note: "Batches 1-3 for commercialisation."
+
+- key: enzyme_protein_dried_xylanase_efsa2020
+  value: 65.4
+  low: 60.3
+  high: 69.1
+  unit: "% protein (w/w) in the food enzyme batches for commercialisation (dried)"
+  grade: A
+  source: "EFSA CEP Panel. Safety evaluation of the food enzyme xylanase from the genetically modified Trichoderma reesei strain RF5703. EFSA Journal 2020;18(1):5974"
+  doi_or_url: 10.2903/j.efsa.2020.5974
+  locator: "Section 3.2, Table 1 (PDF p.7)"
+  quote: "Protein % 66.7 69.1 60.3 66.8 ... Water % 6.9 7.1 6.2 6.5 ... Total Organic Solids (TOS)(c) % 91.6 91.6 91.0 92.3"
+  read: fulltext
+  note: "Batches 1-3 for commercialisation; value = their mean. A dried concentrate before formulation."

@@ -239,7 +239,9 @@ def plant_cost_check(tci_usd: float, fermentation_m3: float, output_t: float, ex
     """The model's capital against disclosed plant costs (data/evidence/plants.yaml; option 4).
 
     Liberation Labs (600 m3, 600-1,200 t/yr, $115M) is the one purpose-built PF plant with cost,
-    volume and output disclosed. It is scaled to the model plant's fermentation volume with the
+    volume and output disclosed. Novozymes' Blair enzyme plant (1,600 m3, $200M in 2012) is a second check
+    on cost per m3, escalated with CEPCI to its last final year:
+        per m3 = cost x CEPCI(last) / CEPCI(2012) / V, scaled as below. It is scaled to the model plant's fermentation volume with the
     six-tenths rule, cost ~ volume^n: per m3, cost/m3 x (V_model / V_plant)^(n - 1); n = 0.5-0.7
     gives the band. Nominal money (a 2024 estimate against 2025 dollars; the index gap of a few
     percent is inside the band). Returns $/m3 and $/(t/yr) for the model and the scaled plant."""
@@ -255,6 +257,18 @@ def plant_cost_check(tci_usd: float, fermentation_m3: float, output_t: float, ex
                                            cost / ll["values"]["output_t_low"] * scale(n)) for n in (0.5, exponent, 0.7)})
     sf = ev["plant_capex_solar_foods_factory02_phase1"]
     out["solar_foods_per_tpy_product"] = float(sf["value"]) * sf["values"]["eur_usd"] / sf["values"]["output_t"]
+    # Novozymes Blair (2012 enzyme plant, 1,600 m3): escalated with CEPCI to its last final year (2023; the 2024
+    # and 2025 values are not public, prices.yaml cepci_annual), then scaled to the model volume as above.
+    bl = ev["plant_capex_novozymes_blair_2012"]
+    cepci = {int(y): float(x) for y, x in {e["key"]: e for e in yaml.safe_load((ROOT / "data/evidence/prices.yaml").read_text())}["cepci_annual"]["values"].items()}
+    y_last = max(cepci)
+    esc = cepci[y_last] / cepci[bl["values"]["money_year"]]
+    Vb = bl["values"]["fermentation_m3"]
+    per_m3_b = float(bl["value"]) * esc / Vb
+    out["blair_per_m3"] = per_m3_b
+    out["blair_escalation"] = dict(factor=esc, to_year=y_last)
+    out["blair_scaled_per_m3"] = {str(n): per_m3_b * (fermentation_m3 / Vb) ** (n - 1) for n in (0.5, exponent, 0.7)}
+    out["model_fermentation_m3"] = fermentation_m3
     return out
 
 
