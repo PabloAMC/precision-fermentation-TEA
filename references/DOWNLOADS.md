@@ -27,6 +27,12 @@ with the suffix `_SI`.
 
 ## P8 — new checks against reality (2026-11-03)
 
+**Status 2026-11-03 (evening).** Received from Pablo and read: the three EFSA opinions, Lynd 2017, the Amyris court
+filing, and the Yao 2026 supplementary data (P1c 22). Fetched directly: NREL 2011 (OSTI copy). What each gave is in
+docs/VALIDATION.md, checks 7 and next checks. **P1c 22 is closed without the hoped-for data:** the supplementary file
+has no feed amounts (Fig. S7 is an SDS-PAGE gel; Fig. S10 shows wet cell weight and titer of four other strains on
+ethanol), so no measured BLG yield on sugar can be derived from it.
+
 Leads from references/leads/ (unverified). Each would add a check to docs/VALIDATION.md; none changes a model input.
 | # | Document | Where | Why |
 |---|---|---|---|

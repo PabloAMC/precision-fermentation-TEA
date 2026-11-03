@@ -243,16 +243,15 @@ panel borrows the Intelligen ovalbumin anchor's +/-30% and says so.
 ## Next checks that need new evidence
 
 Status after the research pass of 2026-11-03 (notes in references/leads/, unverified unless stated):
-1. **Food and feed enzyme prices per kg protein.** Done in part: Lynd 2017's $25/kg protein for bulk amylase
-   (check 7, context). Trade unit values for HS 3507.90 (about $10-13/kg of product from Denmark and the
-   Netherlands, 2023) need the products' protein content, which EFSA's enzyme opinions give per batch (liquids
-   about 8-16% protein, dried about 60-69%); the EFSA pages block automated readers, so Pablo would download
-   three opinions (references/DOWNLOADS.md, P8).
+1. **Food and feed enzyme prices per kg protein.** Done as far as public data allow (check 7): Lynd 2017, trade
+   unit values and EFSA's protein contents, all read in full. They bound the price only within ~7x, because the
+   product form behind a trade figure is unknown. Context, not a check.
 2. **Enzyme makers' cellulase cost in NREL 2011.** Done: verified (anchor 2 above; a panel check).
 3. **Recombinant chymosin.** Not usable: only small-pack distributor prices were found (about $20,000-30,000
    per kg chymosin protein), which say nothing about production cost.
-4. **More real plant costs.** Done in part: Novozymes Blair (check 7). Amyris Barra Bonita (about $155M for
-   1,440 m3, a 2023 court filing) is the next best; its pages block automated readers.
+4. **More real plant costs.** Done in part: Novozymes Blair (check 7). Amyris Barra Bonita: the cost is verified
+   in the 2023 court filing ($155M estimated total; plants.yaml), but the fermentation volume (reported as 1,440 m3)
+   is not, because Amyris's pages block automated readers; it becomes a check once the volume is read in a source.
 5. **Pilot-scale O2 and heat data for K. phaffii.** Not available to the project.
 6. **The pre-registered priors** (docs/SCOPE.md) are scored at release.
 
@@ -270,11 +269,20 @@ the two real plants say the model's capital is **not high, and may be low by up 
 tuned: recorded here; the capital factors stay frozen (honesty rule 3). If more finished plants agree, the
 first-plant factor or the facility-class factors are the inputs to revisit, in a decision by Pablo.
 
-**A market value for secreted protein.** Lynd et al. 2017 (Curr Opin Biotechnol; OSTI author manuscript p.7,
-read 2026-11-03): "amylase enzymes produced via mature technology and purchased in large amounts by the corn
-ethanol industry are valued at about $25/kg protein", citing Stephen et al. 2012. Second-hand (grade C/D) and
-a price, not a cost; context only. It sits above every modelled on-site enzyme cost (NREL $4.24, ours
-$6.1-7.8) and near our base food-protein cost ($21), consistent with a margin plus formulation and logistics.
+**A market value for secreted protein (context, not a check).** Three sources, all read in full on 2026-11-03
+(data/evidence/enzymes.yaml):
+- Lynd et al. 2017 (Curr Opin Biotechnol 45:202, p.204): "amylase enzymes produced via mature technology and
+  purchased in large amounts by the corn ethanol industry are valued at about $25/kg protein", citing Stephen et
+  al. 2012. Second-hand (C) and a price, not a cost.
+- Trade unit values for prepared enzymes (HS 3507.90, 2023, WITS): Denmark $13.4 per kg of product (mostly
+  Novonesis), Netherlands $10.6, Finland $6.1, China $5.0, United States $29.2.
+- EFSA batch tables give the protein in enzyme concentrates: liquid A. niger glucoamylases 8.4-9.6%, a dried
+  T. reesei xylanase 60.3-69.1%. Trade data do not record the form, so Denmark's $13.4 per kg of product is
+  $19-22 per kg protein if it were all dried and $140-160 if all liquid: too wide to test the model.
+What they do say: a mature, bulk secreted enzyme sells for tens of dollars per kg of protein, above every
+modelled on-site enzyme cost (NREL $4.24; ours $6.1-7.8) and at the level of our base food-protein cost ($21),
+which is consistent with a margin plus formulation and logistics. **No check is possible without the product mix
+behind a trade figure** (an annual report giving tonnes of enzyme protein sold would do).
 
 ## Summary: what the four anchors say
 
