@@ -179,3 +179,12 @@ published paper, companies' own figures, best case. Proteins carry their full na
 everywhere ("lactoferrin, rare milk protein"). Abbreviations inside model labels are spelled out on display.
 The display names live in `scripts/panel_data.py` (`DISPLAY`); `scripts/build_panel.py` applies them, so a
 wording change does not need the grid rerun. The numbers and checks are unchanged.
+
+**The map's markers (2026-11-04).** A starting point is drawn on the map only if it is a true point of it: it
+changes nothing but protein per litre and hours, sits at the map's plant size, and falls inside the axes. The
+others are listed under the map with their cost and what else they change. Before this rule, the best case
+(about 140 g/L, with larger, better-aerated tanks) sat pinned to the top row, in cells hatched as impossible
+for the map's own plant. Labels are placed where they overlap least. A cell price under a label or marker is
+hidden; its tooltip keeps it. The published results on the right are spaced at least 12 px apart, with a
+thin line to their tick. Which markers appear depends on the protein: today only companies' own figures for
+every protein, plus the best published strain for lactoferrin.
