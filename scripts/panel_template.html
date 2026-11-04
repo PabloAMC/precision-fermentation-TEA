@@ -283,11 +283,11 @@ const PRODUCTS = Object.keys(D.products);
 const CASES = [
   ["base", "Today's published designs", "The protein per litre and batch time that published plant designs assume. For most proteins this is Intelligen's design."],
   ["academic", "Best strain in a published paper", "The most protein per litre reported in a peer-reviewed paper, on the same plant."],
-  ["industry", "Companies' own figures", "The average protein per litre in companies' own cost models (GFI 2025). This is a company claim."],
+  ["industry", "Companies' cost models (GFI 2025)", "42 g/L: the average protein per litre assumed in private companies' cost models, gathered by Hawkwood Biotech for the Good Food Institute (2025). The models' proteins and microbes are not named. This is a company claim, not a measurement."],
   ["physical_limit", "Best case: every limit reached", "Every assumed limit at its best at once, in a very large plant. A ceiling, not a forecast."],
   ["custom", "Your settings", "Today's published design with your changes."],
 ];
-const CASE_SHORT = { base: "Today", academic: "Best paper", industry: "Companies", physical_limit: "Best case" };
+const CASE_SHORT = { base: "Today", academic: "Best paper", industry: "Company models", physical_limit: "Best case" };
 const CASE_NAME = Object.fromEntries(CASES.map(c => [c[0], c[1]]));
 const EVID = D.labels.evidence;
 const KIND_COLOR = { A: "var(--kA)", B: "var(--kB)", C: "var(--kC)", D: "var(--kD)", E: "var(--kE)", structural: "var(--kS)" };
@@ -488,7 +488,14 @@ function renderAnswer(p, v, m) {
     <li><b>Against the animal version.</b> ${usd(m.total, 3)} ÷ $${sig(ptb.band[1], 3)} = <b>${ratioTxt(r)} the animal price</b>.</li>
   </ol><p class="muted" style="font-size:12.5px;margin:6px 0 0">The page redoes this arithmetic in more detail and checks it against the Python model:
     <span class="pill ${CHAIN.nOk === CHAIN.nChk ? "ok" : "bad"}">${CHAIN.nOk} of ${CHAIN.nChk} checks agree</span> (<a href="#step-1">the 11 checked steps</a>).</p></div>`;
-  el.innerHTML = top + tiles + walk + `<div class="excl">The cost leaves out research, strain licences, regulatory approval, sales, land, a first plant's extra cost and carbon pricing.
+  let note = "";
+  if (S.kase === "industry" && !isCustom()) {
+    const ac = p.cases.academic, acT = ac && ac.inputs ? ac.inputs.titer : null;
+    note = `<p class="note"><b>Where 42 g/L comes from.</b> It is the average protein per litre in private companies' cost models,
+      gathered by the consultancy Hawkwood Biotech for the Good Food Institute's 2025 cost report (its Table 2). The same table puts published
+      cost models at 24 g/L on average. The report does not name the proteins or microbes behind the 42. It is not a titer measured for ${esc(p.name)}.${acT ? ` For comparison, the best strain in a published paper makes ${sig(acT, 3)} g/L.` : ""}</p>`;
+  }
+  el.innerHTML = top + tiles + walk + note + `<div class="excl">The cost leaves out research, strain licences, regulatory approval, sales, land, a first plant's extra cost and carbon pricing.
     It is the lowest price that repays the plant with interest, before profit. Costs are 2025 US dollars.
     ${{ humbird: "Accounting: Humbird's method", nrel: "Accounting: NREL-style design report", own: "Accounting: your settings" }[acctMode(p)]}, with ${pct(S.rate ?? c.ccf_rate ?? 0, 1)} interest over ${sig(S.life ?? c.ccf_life)} years.</div>`;
 }
@@ -889,7 +896,7 @@ function limitWord(flags) {
   const f = flags.join("; ");
   if (/OUR|O2/.test(f)) return "not enough oxygen";
   if (/heat/.test(f)) return "too much heat to remove";
-  if (/initial fill/.test(f)) return "minimum fill";
+  if (/initial fill/.test(f)) return "the tank would have to start too empty";
   if (/specific productivity/.test(f)) return "secretion ceiling";
   if (/solubility/.test(f)) return "solubility";
   if (/reach/.test(f)) return "the cells cannot reach this much protein";
@@ -1037,7 +1044,7 @@ const LIMIT_WORDS = {
   heat: "Living cells release heat. The cooling system removes only so much per m³. The model slows growth to stay within it.",
   qp: "How fast each gram of cells releases protein. The ceiling is a judgment. It sits well above the best rate ever measured.",
   yield: "Cells cannot turn more glucose into protein than the energy in the glucose allows.",
-  fill: "The batch must start with enough broth to cover the stirrer.",
+  fill: "A batch starts part-full and fills up as sugar solution is fed in. The more feed a batch needs, the emptier it must start. The model asks for a start at least as full as the emptiest start in a published design (Intelligen's ovalbumin plant, 30%). No design states a hard physical minimum. The concern is that the stirrer and air inlets must sit under the broth.",
   cells: "Growth stops at the highest cell density that yeast tanks reach. Reaching it is allowed.",
   sol: "The protein must stay dissolved in the broth.",
 };
@@ -1112,7 +1119,7 @@ function renderUnc(p, v, m) {
   s += `</svg>`;
   const kinds = [...new Set(tor.map(t => t.grade))];
   let h = `<h3>Which assumptions matter most</h3><p class="muted" style="font-size:13px">Each bar moves one input from the low to the high end of its plausible range. The colour shows the kind of evidence behind it.
-    If an end breaks a physical limit, the bar stops at the limit. These runs start from companies' own figures ($${sig(base, 3)}/kg, US).</p>
+    If an end breaks a physical limit, the bar stops at the limit. These runs start from companies' cost models ($${sig(base, 3)}/kg, US).</p>
     <div class="scroll">${s}</div><div class="legend">${kinds.map(k => `<span><span class="sw" style="background:${KIND_COLOR[k] || "var(--kS)"}"></span>${esc(EVID[k] || k)}</span>`).join("")}</div>`;
   const mc = a.monte_carlo || {};
   if (Object.keys(mc).length) {
