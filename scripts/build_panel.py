@@ -6,6 +6,8 @@ Design: docs/PANEL_DESIGN.md. The data come from scripts/panel_data.py.
 from __future__ import annotations
 
 import argparse
+import importlib.util
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,7 +15,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def build(data: Path, out: Path) -> int:
     tpl = (ROOT / "scripts/panel_template.html").read_text()
-    js = data.read_text().replace("</", "<\\/")          # keep the JSON from closing its <script> element
+    d = json.loads(data.read_text())
+    spec = importlib.util.spec_from_file_location("panel_data", ROOT / "scripts/panel_data.py")
+    pd = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(pd)
+    for prod, x in d["products"].items():                # display names: edited without rerunning the grid
+        x.pop("short", None)
+        x.update(pd.pr_info(prod))
+    js = json.dumps(d, separators=(",", ":"), allow_nan=False, ensure_ascii=False)
+    js = js.replace("</", "<\\/")                        # keep the JSON from closing its <script> element
     assert tpl.count("/*DATA*/") == 1
     html = tpl.replace("/*DATA*/", js)
     out.write_text(html)

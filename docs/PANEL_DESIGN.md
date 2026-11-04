@@ -154,3 +154,28 @@ After a side-by-side comparison with `PabloAMC/Cultivated_meat`'s `interactive.h
 - **The kind of evidence beside each input:** a small tag on every lever and every source link.
 - **The levers sit right below the answer,** and the header shows the live price on wide screens.
 - The page title is the question: "Precision fermentation: what does each protein cost to make?"
+
+## 10. Third version (2026-11-04): presented for a newcomer
+
+Pablo's review: the page assumed too much knowledge and used abbreviations (LF, BLG). It did not centre on the
+numbers a newcomer understands and cares about. The cultivated-meat page does this better. The presentation
+was rethought around a newcomer's questions, in this order:
+1. **Is it cheaper than the animal version?** The headline unit is now "times the animal price": the cost
+   divided by the top of the 2015-2025 price range of the same protein from cows or hens. The title asks the
+   question. One paragraph says what precision fermentation is. Five findings ("The short answer") follow, then
+   one chart of every protein's cost as a multiple of its animal price, with a line at 1×.
+2. **Why does it cost that?** For the chosen protein: four tiles (cost, times the animal price, protein per
+   litre with the amount needed to match, plant cost). Then four plain steps: one tank and one batch, the
+   plant, cost per kg, against the animal version. The 11 checked steps stay, at the end.
+3. **What would make it cheaper?** The map of protein per litre against hours, coloured by multiple of the
+   animal price.
+4. **Where the money goes; how sure; does the model get known things right?** The same content as before, in
+   plain words. The reality checks open with a count of tests passed.
+5. **Check the model in detail:** the 11 steps, physical limits, sugar balance, inputs and reproduction, closed.
+
+The controls moved to a side panel, as on the cultivated-meat page, with plain names ("protein per litre of
+broth", not "titer"). The scenarios became starting points: today's published designs, best strain in a
+published paper, companies' own figures, best case. Proteins carry their full name and an everyday name
+everywhere ("lactoferrin, rare milk protein"). Abbreviations inside model labels are spelled out on display.
+The display names live in `scripts/panel_data.py` (`DISPLAY`); `scripts/build_panel.py` applies them, so a
+wording change does not need the grid rerun. The numbers and checks are unchanged.
