@@ -93,6 +93,8 @@ details.card[open] > summary h2::before { content: "▾ "; }
 .conds { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 6px; }
 .conds li { font-size: 13px; background: var(--accent-soft); border-radius: 5px; padding: 1px 7px; }
 .excl { font-size: 12.5px; color: var(--muted); margin-top: 10px; }
+.disc { font-size: 13px; color: var(--muted); border-left: 3px solid var(--warn); padding: 2px 10px; margin: 10px 0 0; max-width: 860px; }
+#about p { font-size: 14px; }
 svg { display: block; max-width: 100%; }
 svg text { fill: var(--ink); font: 11.5px system-ui, sans-serif; }
 svg .muted { fill: var(--muted); }
@@ -179,6 +181,8 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; 
   <p class="lead">Precision fermentation puts the gene for one animal protein into a yeast or a fungus. The microbes grow on sugar
     in large steel tanks and release the protein. The protein is then purified and dried to a powder. This model estimates what
     that costs for seven proteins. It compares each cost with the price of the same protein from animals.</p>
+  <p class="disc">These are estimates from an open model built on public data. No human expert has reviewed it yet.
+    They are not any company's real costs, and not investment or business advice. <a href="#about">About this page</a>.</p>
   <div class="summary" id="summary"></div>
 </header>
 
@@ -267,6 +271,20 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; 
     <summary><h3>Reproduce and check</h3></summary>
     <div id="reproBody"></div>
   </details>
+</section>
+<section class="card" id="about">
+  <h2>About this page</h2>
+  <p><b>Status.</b> No human expert has reviewed this analysis yet. The author built the model, its evidence base and this page
+    with an AI assistant (Claude, Anthropic). Independent AI reviewers then audited each version, and each finding had to rest on a
+    computation, a quote or a line of code. <code>docs/AUDIT.md</code> and <code>docs/REVIEW.md</code> in the repository log every finding and fix.</p>
+  <p><b>What the numbers are.</b> Every number is a model result or exact arithmetic on one. The model costs a plant from published
+    designs and public prices. It is not the cost of any real company or plant: no precision-fermentation company publishes one.
+    Figures labelled “company claim” are what companies say, not measurements. The best case is a ceiling, not a forecast.</p>
+  <p><b>Not advice.</b> This page is for research and discussion. It is not investment, business, regulatory or safety advice.
+</p>
+  <p><b>Use and credit.</b> Code: MIT licence. Data, text and figures: CC BY 4.0 (proposed licences, to be confirmed at release).
+    Please cite: Moreno Casares, P. A., <i>pf-tea: an open techno-economic model for precision-fermented food proteins</i>
+    (repository <code>pf-tea</code>; see <code>CITATION.cff</code>).</p>
 </section>
 <p class="faint" id="foot"></p>
 </main>
