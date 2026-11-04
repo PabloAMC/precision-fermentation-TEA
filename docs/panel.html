@@ -895,10 +895,52 @@ function limitWord(flags) {
   if (/reach/.test(f)) return "the cells cannot reach this much protein";
   return "infeasible";
 }
+// Labels on the map. A starting point is drawn only if it is a true point of this map: it changes nothing but
+// protein per litre and hours, sits at the map's plant size, and falls inside the axes. Labels are placed where
+// they collide least; a cell price under a label or marker is hidden (its tooltip keeps it).
+const MAP_AXES = new Set(["strain.titer_g_L", "strain.t_prod_h"]);
+const CHANGE_WORDS = { "strain.X_prod_g_L": "cell density", "strain.mu_prod_per_h": "growth while making protein", "strain.host": "the microbe",
+  "strain.methanol_frac_prod": "feeding methanol", "plant.annual_target_protein_t": "plant size", "strain.Y_ps_g_g": "yield on sugar",
+  "fermenter.volume_m3": "tank size", "fermenter.otr_cap_mol_m3_h": "oxygen supply", "fermenter.heat_removal_max_kW_m3": "cooling",
+  "hosts.kphaffii.maint_factor": "upkeep of the cells", "utilities.glucose_usd_kg": "sugar price", "fermenter.turnaround_h": "cleaning time" };
+const boxHit = (a, b) => Math.max(0, Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1)) * Math.max(0, Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1));
+const textBox = (x, y, t, anchor, size = 10.5) => {   // y is the baseline
+  const w = t.length * size * 0.6, x1 = anchor === "middle" ? x - w / 2 : anchor === "end" ? x - w : x;
+  return { x1: x1 - 2, x2: x1 + w + 2, y1: y - size, y2: y + 3 };
+};
+function placeLabel(mx, my, t, obstacles, bounds) {   // the candidate around a marker with the least overlap
+  const c = [[mx + 9, my + 4, "start"], [mx, my - 10, "middle"], [mx - 9, my + 4, "end"], [mx, my + 17, "middle"],
+             [mx + 8, my - 8, "start"], [mx - 8, my - 8, "end"], [mx + 8, my + 15, "start"], [mx - 8, my + 15, "end"]];
+  let best = null;
+  for (const [x, y, an] of c) {
+    const bx = textBox(x, y, t, an);
+    let cost = obstacles.reduce((sum, o) => sum + boxHit(bx, o) * (o.w || 1), 0);
+    const out = Math.max(0, bounds.x1 - bx.x1) + Math.max(0, bx.x2 - bounds.x2) + Math.max(0, bounds.y1 - bx.y1) + Math.max(0, bx.y2 - bounds.y2);
+    cost += out * 1000;
+    if (!best || cost < best.cost) best = { x, y, an, bx, cost };
+  }
+  return best;
+}
+function offMapReason(p, key) {   // why a starting point is not on this map, in plain words; null if it is on it
+  const r = p.cases[key], ch = p.case_changes[key] || {}, ax = p.axes;
+  if (!r || !r.inputs) return "no run";
+  const other = Object.keys(ch).filter(k => !MAP_AXES.has(k));
+  if (other.length) {
+    const words = [...new Set(other.map(k => CHANGE_WORDS[k]).filter(Boolean))];
+    const named = words.slice(0, 4), rest = other.length - named.length;
+    return `it also changes ${named.length ? named.join(", ") : ""}${rest > 0 ? `${named.length ? " and " : ""}${rest} other input${rest > 1 ? "s" : ""}` : ""}`;
+  }
+  if (S.k !== ax.scale.indexOf(1)) return "it uses the base plant size";
+  const T = r.inputs.titer, t = r.inputs.t_prod;
+  if (T < ax.titer[0] || T > ax.titer[ax.titer.length - 1]) return `its ${sig(T, 3)} g/L is outside this map`;
+  if (t < ax.t_prod[0] || t > ax.t_prod[ax.t_prod.length - 1]) return `its ${sig(t)} h is outside this map`;
+  return null;
+}
 function renderMap(p, v) {
   const ax = p.axes, band = p.price_to_beat.band, nT = ax.titer.length, nt = ax.t_prod.length;
-  const W = 720, H = 400, L = 58, B = 46, T = 12, R = 150;
+  const W = 720, H = 400, L = 58, B = 46, T = 12, R = 160;
   const cw = (W - L - R) / nt, ch = (H - T - B) / nT;
+  const plot = { x1: L, x2: W - R, y1: T, y2: H - B };
   const xOf = (t) => {   // continuous column position (interpolated between grid columns)
     const a = ax.t_prod; if (t <= a[0]) return L + cw / 2; if (t >= a[nt - 1]) return L + cw * (nt - 0.5);
     for (let j = 0; j < nt - 1; j++) if (t <= a[j + 1]) return L + cw * (j + 0.5 + (t - a[j]) / (a[j + 1] - a[j]));
@@ -908,70 +950,84 @@ function renderMap(p, v) {
     if (x <= a[0]) return Y(0) + Math.min(ch / 2, (Math.log(a[0]) - Math.log(Math.max(x, 1e-3))) * ch); if (x >= a[nT - 1]) return Y(nT - 1);
     for (let i = 0; i < nT - 1; i++) if (x <= a[i + 1]) return Y(i + (Math.log(x) - Math.log(a[i])) / (Math.log(a[i + 1]) - Math.log(a[i])));
   };
-  const MK = { industry: "ind", academic: "ac", physical_limit: "pl" }, caseMarks = [];
+  const MK = { industry: "ind", academic: "ac", physical_limit: "pl" }, onMap = [], offMap = [];
   for (const key of ["academic", "industry", "physical_limit"]) {
-    const r = p.cases[key]; if (!r || !r.inputs) continue;
-    const x = xOf(r.inputs.t_prod), y = yOf(r.inputs.titer);
-    if (y >= T && y <= H - B) caseMarks.push({ key, x, y, r });
+    const r = p.cases[key]; if (!r || !r.feasible) continue;
+    const why = offMapReason(p, key);
+    if (why === null) onMap.push({ key, r, x: xOf(r.inputs.t_prod), y: yOf(r.inputs.titer) }); else offMap.push({ key, r, why });
   }
-  const markIn = (x0, y0) => caseMarks.some(m => m.x >= x0 && m.x <= x0 + cw && m.y >= y0 && m.y <= y0 + ch);
-  let s = `<svg viewBox="0 0 ${W} ${H}" id="mapSvg" role="img" aria-label="Cost by protein per litre and hours making protein">
-    <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="var(--cinf)"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--faint)" stroke-width="1.2"/></pattern></defs>`;
-  for (let i = 0; i < nT; i++) for (let j = 0; j < nt; j++) {
-    const gv = gridView(p, S.k, i, j), x = L + j * cw, y = H - B - (i + 1) * ch;
-    let fill = "url(#hatch)", txt = "", tipT;
-    if (!gv.error && gv.feasible) {
-      const mm = priced(p, gv); const [col, word] = cellClass(mm.total, band); fill = col; txt = "$" + sig(mm.total, 2);
-      tipT = `${sig(ax.titer[i])} g/L in ${sig(ax.t_prod[j])} h: $${sig(mm.total, 3)}/kg (${word})`;
-    } else tipT = `${sig(ax.titer[i])} g/L in ${sig(ax.t_prod[j])} h: not feasible (${limitWord(gv.flags)})`;
-    const sel = (S.kase === "base" || S.kase === "custom") && i === S.i && j === S.j;
-    s += `<rect x="${x + 0.5}" y="${y + 0.5}" width="${cw - 1}" height="${ch - 1}" fill="${fill}" data-i="${i}" data-j="${j}" data-tip="${esc(tipT)}" style="cursor:pointer" ${sel ? 'stroke="var(--ink)" stroke-width="2.5"' : ""}/>`;
-    if (txt && cw > 44 && ch > 18) s += markIn(x, y)
-      ? `<text x="${x + 4}" y="${y + ch - 4}" style="font-size:9.5px;pointer-events:none">${txt}</text>`
-      : `<text x="${x + cw / 2}" y="${y + ch / 2 + 4}" text-anchor="middle" style="font-size:10.5px;pointer-events:none">${txt}</text>`;
-  }
-  for (let i = 0; i < nT; i++) s += `<text x="${L - 6}" y="${H - B - (i + 0.5) * ch + 4}" text-anchor="end" class="muted">${sig(ax.titer[i])}</text>`;
-  for (let j = 0; j < nt; j++) s += `<text x="${L + (j + 0.5) * cw}" y="${H - B + 16}" text-anchor="middle" class="muted">${sig(ax.t_prod[j])}</text>`;
-  s += `<text x="${L + (W - L - R) / 2}" y="${H - 8}" text-anchor="middle">hours making protein per batch</text>`;
-  s += `<text transform="translate(14 ${T + (H - T - B) / 2}) rotate(-90)" text-anchor="middle">protein per litre of broth (g/L)</text>`;
-  // published titers on the right edge
-  const mk = (p.markers || []).filter(x => x.titer >= ax.titer[0] * 0.5);
-  mk.forEach(x => {
-    const y = yOf(x.titer);
-    s += `<line x1="${W - R}" x2="${W - R + 8}" y1="${y}" y2="${y}" stroke="var(--ink)" stroke-width="1.5"/><text x="${W - R + 11}" y="${y + 4}" style="font-size:10px" data-tip="${esc(plainLabel(x.label))}: ${sig(x.titer)} g/L">${esc(trunc(plainLabel(x.label), 26))}</text>`;
-  });
-  // required titers (exact model inverse, base scale and prices)
+  // obstacles: markers first, then the target-cost line labels, then the starting-point labels
+  const obstacles = onMap.map(m => ({ x1: m.x - 7, x2: m.x + 7, y1: m.y - 7, y2: m.y + 7, w: 5 }));
+  let over = "", lines = "";
   const req = p.analyses && p.analyses.required, atBase = S.k === ax.scale.indexOf(1) && !pricesChanged();
   if (req && atBase) {
     const dash = { 0: "2 3", 1: "6 3", 2: "10 3 2 3" };
     Object.entries(req.targets).forEach(([tgt, ts], n) => {
       const pts = req.t_prods.map((t, q) => ts[q] ? [xOf(t), yOf(ts[q])] : null).filter(Boolean);
       if (pts.length > 1) {
-        s += `<polyline points="${pts.map(q => q.join(",")).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="${dash[n] || "4 3"}" data-tip="Protein per litre needed for $${tgt}/kg (exact model search)"/>`;
-        const lp = pts[pts.length - 1]; s += `<text x="${lp[0] + 4}" y="${lp[1] - 3}" style="font-size:10.5px;font-weight:600;paint-order:stroke;stroke:var(--panel);stroke-width:3px">$${tgt}</text>`;
+        lines += `<polyline points="${pts.map(q => q.join(",")).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="${dash[n] || "4 3"}" data-tip="Protein per litre needed for $${tgt}/kg (exact model search)" style="pointer-events:stroke"/>`;
+        const lp = pts[pts.length - 1], t = `$${tgt}`, pl = placeLabel(lp[0], lp[1], t, obstacles, plot);
+        obstacles.push({ ...pl.bx, w: 3 });
+        over += `<text x="${pl.x}" y="${pl.y}" text-anchor="${pl.an}" style="font-size:10.5px;font-weight:700;paint-order:stroke;stroke:var(--panel);stroke-width:3px;pointer-events:none">${t}</text>`;
       }
     });
   }
-  // cases off the grid
-  for (const { key, x, y, r } of caseMarks) {
-    const halo = "paint-order:stroke;stroke:var(--panel);stroke-width:3.5px;stroke-linejoin:round";
-    s += `<g data-tip="${esc(CASE_NAME[key])}: ${sig(r.inputs.titer)} g/L in ${sig(r.inputs.t_prod)} h (other inputs differ too)">
-      <g style="filter:drop-shadow(0 0 1.5px var(--panel))">${CASE_MARK[MK[key]](x, y)}</g>
-      <text x="${x + 9}" y="${y - 7}" style="font-size:10.5px;font-weight:600;fill:var(--accent);${halo}">${esc(CASE_SHORT[key])}</text></g>`;
+  const halo = "paint-order:stroke;stroke:var(--panel);stroke-width:3.5px;stroke-linejoin:round";
+  for (const m of onMap) {
+    const t = CASE_SHORT[m.key], pl = placeLabel(m.x, m.y, t, obstacles, plot);
+    obstacles.push({ ...pl.bx, w: 3 });
+    over += `<g data-tip="${esc(CASE_NAME[m.key])}: ${sig(m.r.inputs.titer)} g/L in ${sig(m.r.inputs.t_prod)} h, $${sig(m.r.msp, 3)}/kg">
+      <g style="filter:drop-shadow(0 0 1.5px var(--panel))">${CASE_MARK[MK[m.key]](m.x, m.y)}</g>
+      <text x="${pl.x}" y="${pl.y}" text-anchor="${pl.an}" style="font-size:10.5px;font-weight:600;fill:var(--accent);${halo}">${esc(t)}</text></g>`;
   }
-  s += `</svg>`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" id="mapSvg" role="img" aria-label="Cost by protein per litre and hours making protein">
+    <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="var(--cinf)"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--faint)" stroke-width="1.2"/></pattern></defs>`;
+  let prices = "";
+  for (let i = 0; i < nT; i++) for (let j = 0; j < nt; j++) {
+    const gv = gridView(p, S.k, i, j), x = L + j * cw, y = H - B - (i + 1) * ch;
+    let fill = "url(#hatch)", txt = "", tipT;
+    if (!gv.error && gv.feasible) {
+      const mm = priced(p, gv); const [col, word] = cellClass(mm.total, band); fill = col; txt = "$" + sig(mm.total, 2);
+      tipT = `${sig(ax.titer[i])} g/L in ${sig(ax.t_prod[j])} h: $${sig(mm.total, 3)}/kg (${word})`;
+    } else tipT = `${sig(ax.titer[i])} g/L in ${sig(ax.t_prod[j])} h: not possible (${limitWord(gv.flags)})`;
+    const sel = (S.kase === "base" || S.kase === "custom") && i === S.i && j === S.j;
+    s += `<rect x="${x + 0.5}" y="${y + 0.5}" width="${cw - 1}" height="${ch - 1}" fill="${fill}" data-i="${i}" data-j="${j}" data-tip="${esc(tipT)}" style="cursor:pointer" ${sel ? 'stroke="var(--ink)" stroke-width="2.5"' : ""}/>`;
+    const tx = x + cw / 2, ty = y + ch / 2 + 4;
+    if (txt && cw > 44 && ch > 18 && !obstacles.some(o => boxHit(textBox(tx, ty, txt, "middle"), o) > 0))
+      prices += `<text x="${tx}" y="${ty}" text-anchor="middle" style="font-size:10.5px;pointer-events:none;paint-order:stroke;stroke:${fill};stroke-width:3px">${txt}</text>`;
+  }
+  s += lines + prices;
+  for (let i = 0; i < nT; i++) s += `<text x="${L - 6}" y="${H - B - (i + 0.5) * ch + 4}" text-anchor="end" class="muted">${sig(ax.titer[i])}</text>`;
+  for (let j = 0; j < nt; j++) s += `<text x="${L + (j + 0.5) * cw}" y="${H - B + 16}" text-anchor="middle" class="muted">${sig(ax.t_prod[j])}</text>`;
+  s += `<text x="${L + (W - L - R) / 2}" y="${H - 8}" text-anchor="middle">hours making protein per batch</text>`;
+  s += `<text transform="translate(14 ${T + (H - T - B) / 2}) rotate(-90)" text-anchor="middle">protein per litre of broth (g/L)</text>`;
+  // published results on the right edge: ticks at their value, labels spaced at least 12 px apart
+  const mk = (p.markers || []).filter(x => x.titer >= ax.titer[0] * 0.5 && x.titer <= ax.titer[nT - 1]).map(x => ({ ...x, y: yOf(x.titer) })).sort((a, b) => a.y - b.y);
+  const gap = 12;
+  mk.forEach((x, n) => { x.ly = Math.max(x.y, n ? mk[n - 1].ly + gap : T + 6); });
+  const overflow = mk.length ? mk[mk.length - 1].ly - (H - B + 4) : 0;
+  if (overflow > 0) for (let n = mk.length - 1; n >= 0; n--) mk[n].ly = Math.min(mk[n].ly - overflow, n < mk.length - 1 ? mk[n + 1].ly - gap : Infinity);
+  mk.forEach(x => {
+    s += `<line x1="${W - R}" x2="${W - R + 6}" y1="${x.y}" y2="${x.y}" stroke="var(--ink)" stroke-width="1.5"/>
+      <polyline points="${W - R + 6},${x.y} ${W - R + 12},${x.ly - 4} ${W - R + 14},${x.ly - 4}" fill="none" stroke="var(--faint)"/>
+      <text x="${W - R + 16}" y="${x.ly}" style="font-size:10px" data-tip="${esc(plainLabel(x.label))}: ${sig(x.titer)} g/L">${esc(trunc(plainLabel(x.label), 27))}</text>`;
+  });
+  s += over + `</svg>`;
   const leg = [["var(--c0)", "cheaper than the animal version"], ["var(--c1)", "within its price range"], ["var(--c2)", "up to 2× the animal price"], ["var(--c3)", "2–4×"], ["var(--c4)", "over 4×"]];
+  const off = offMap.length ? `<p class="muted" style="font-size:12.5px">Not on this map: ${offMap.map(o =>
+      `${CASE_MARK_TXT[o.key]} <b>${esc(CASE_NAME[o.key])}</b>, ${sig(o.r.inputs.titer, 3)} g/L in ${sig(o.r.inputs.t_prod)} h, costs $${sig(o.r.msp, 3)}/kg (${o.why})`).join("; ")}.</p>` : "";
   const lg = `<div class="legend" style="margin-top:6px">${leg.map(([c, t]) => `<span><span class="sw" style="background:${c}"></span>${t}</span>`).join("")}
     <span><span class="sw" style="background:repeating-linear-gradient(45deg,var(--cinf),var(--cinf) 3px,var(--faint) 3px,var(--faint) 4px)"></span>physically impossible (point at it to see why)</span></div>
     <p class="muted" style="font-size:12.5px">Cost per kg for a plant making ${sig(ax.annual_t[S.k])} tonnes a year, at the current prices. The black frame is your selection.
     ${req && atBase ? "Dashed lines show how much protein per litre each target cost needs. The model searched for these exactly." : req ? "The target-cost lines show only at the base plant size and prices." : ""}
-    ○ best strain in a published paper, ◆ companies' own figures, ▲ best case: these also change other inputs. The labels on the right mark published results.</p>`;
+    The labels on the right mark published results. A price hidden under a label shows when you point at its cell.</p>${off}`;
   $("mapBody").innerHTML = `<div class="scroll">${s}</div>${lg}`;
   $("mapSvg").querySelectorAll("rect[data-i]").forEach(r => r.addEventListener("click", () => {
     if (S.kase !== "base" && S.kase !== "custom") Object.assign(S, baseIdx(p));
     S.i = +r.dataset.i; S.j = +r.dataset.j; S.kase = "custom"; render();
   }));
 }
+const CASE_MARK_TXT = { academic: "○", industry: "◆", physical_limit: "▲" };
 
 // ------------------------------------------------------------------ section 5: limits
 const LIMIT_TITLE = { o2: "Oxygen", heat: "Heat", qp: "Secretion rate", yield: "Yield on glucose", fill: "Starting fill",
