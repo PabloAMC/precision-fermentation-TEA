@@ -989,14 +989,18 @@ function renderMap(p, v) {
   }
   let s = `<svg viewBox="0 0 ${W} ${H}" id="mapSvg" role="img" aria-label="Cost by protein per litre and hours making protein">
     <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="var(--cinf)"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--faint)" stroke-width="1.2"/></pattern></defs>`;
-  let prices = "";
+  let prices = "", nBad = 0, nFill = 0;
   for (let i = 0; i < nT; i++) for (let j = 0; j < nt; j++) {
     const gv = gridView(p, S.k, i, j), x = L + j * cw, y = H - B - (i + 1) * ch;
     let fill = "url(#hatch)", txt = "", tipT;
     if (!gv.error && gv.feasible) {
       const mm = priced(p, gv); const [col, word] = cellClass(mm.total, band); fill = col; txt = "$" + sig(mm.total, 2);
       tipT = `${sig(ax.titer[i])} g/L in ${sig(ax.t_prod[j])} h: $${sig(mm.total, 3)}/kg (${word})`;
-    } else tipT = `${sig(ax.titer[i])} g/L in ${sig(ax.t_prod[j])} h: not possible (${limitWord(gv.flags)})`;
+    } else {
+      tipT = `${sig(ax.titer[i])} g/L in ${sig(ax.t_prod[j])} h: not possible (${limitWord(gv.flags)})`;
+      nBad++; const fl = gv.flags.join("; ");
+      if (/initial fill/.test(fl) && !/OUR|O2|heat|specific productivity|reach|solubility/.test(fl)) nFill++;
+    }
     const sel = (S.kase === "base" || S.kase === "custom") && i === S.i && j === S.j;
     s += `<rect x="${x + 0.5}" y="${y + 0.5}" width="${cw - 1}" height="${ch - 1}" fill="${fill}" data-i="${i}" data-j="${j}" data-tip="${esc(tipT)}" style="cursor:pointer" ${sel ? 'stroke="var(--ink)" stroke-width="2.5"' : ""}/>`;
     const tx = x + cw / 2, ty = y + ch / 2 + 4;
@@ -1027,7 +1031,10 @@ function renderMap(p, v) {
     <span><span class="sw" style="background:repeating-linear-gradient(45deg,var(--cinf),var(--cinf) 3px,var(--faint) 3px,var(--faint) 4px)"></span>physically impossible (point at it to see why)</span></div>
     <p class="muted" style="font-size:12.5px">Cost per kg for a plant making ${sig(ax.annual_t[S.k])} tonnes a year, at the current prices. The black frame is your selection.
     ${req && atBase ? "Dashed lines show how much protein per litre each target cost needs. The model searched for these exactly." : req ? "The target-cost lines show only at the base plant size and prices." : ""}
-    The labels on the right mark published results. A price hidden under a label shows when you point at its cell.</p>${off}`;
+    The labels on the right mark published results. A price hidden under a label shows when you point at its cell.</p>
+    ${nFill ? `<p class="muted" style="font-size:12.5px"><b>Why the top is hatched.</b> ${nFill} of the ${nBad} impossible cells fail only one rule: the tank would have to start less than 30% full.
+      That 30% is the emptiest start in a published design, not a physical law. Equipment makers rate pilot fermenters down to 12–16% full.
+      So some of these cells may be possible in practice (see “Physical limits”).</p>` : ""}${off}`;
   $("mapBody").innerHTML = `<div class="scroll">${s}</div>${lg}`;
   $("mapSvg").querySelectorAll("rect[data-i]").forEach(r => r.addEventListener("click", () => {
     if (S.kase !== "base" && S.kase !== "custom") Object.assign(S, baseIdx(p));
@@ -1044,7 +1051,7 @@ const LIMIT_WORDS = {
   heat: "Living cells release heat. The cooling system removes only so much per m³. The model slows growth to stay within it.",
   qp: "How fast each gram of cells releases protein. The ceiling is a judgment. It sits well above the best rate ever measured.",
   yield: "Cells cannot turn more glucose into protein than the energy in the glucose allows.",
-  fill: "A batch starts part-full and fills up as sugar solution is fed in. The more feed a batch needs, the emptier it must start. The model asks for a start at least as full as the emptiest start in a published design (Intelligen's ovalbumin plant, 30%). No design states a hard physical minimum. The concern is that the stirrer and air inlets must sit under the broth.",
+  fill: "A batch starts part-full and fills to 80% as sugar solution is fed in. More protein per litre needs more feed, so the tank must start emptier. The model requires a start at least 30% full, the emptiest start in a published design. This is a design rule, not physics: makers rate pilot fermenters down to 12–16% full. Above about 60–70 g/L, this rule is what makes a design impossible.",
   cells: "Growth stops at the highest cell density that yeast tanks reach. Reaching it is allowed.",
   sol: "The protein must stay dissolved in the broth.",
 };

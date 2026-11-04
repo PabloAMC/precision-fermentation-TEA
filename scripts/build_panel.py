@@ -19,6 +19,7 @@ def build(data: Path, out: Path) -> int:
     spec = importlib.util.spec_from_file_location("panel_data", ROOT / "scripts/panel_data.py")
     pd = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(pd)
+    d["parameters"] = pd.parameters(pd.params.load())      # inputs table: base.yaml as it is now (no grid rerun)
     for prod, x in d["products"].items():                # display names: edited without rerunning the grid
         x.pop("short", None)
         x.update(pd.pr_info(prod))

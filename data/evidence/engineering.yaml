@@ -1501,3 +1501,42 @@
     feed point reached about 400 times the mean, and acetate formed at large scale. Used as the
     upper end of the option's range. Abstract read through a search tool's rendering (the
     publisher elides it from APIs): re-check the quote against the source.
+
+# ---------------------------------------------------------------------------------------
+# 9. Minimum working volume (the lowest fill a stirred tank can run at). Added 2026-11-04.
+#    Read: the vendor PDFs, downloaded to the session scratchpad and dumped with pdftotext
+#    (not kept in references/). Fractions of TOTAL vessel volume are derived here.
+# ---------------------------------------------------------------------------------------
+
+- key: min_working_volume_thermo_suf_300L
+  value: 60
+  unit: L (minimum liquid working volume; total reactor volume 435 L)
+  grade: C
+  source: "Thermo Fisher Scientific. HyPerforma Single-Use Fermentor (S.U.F.) 300 L data sheet"
+  doi_or_url: https://documents.thermofisher.com/TFS-Assets/BPD/brochures/single-use-fermentor-300l-data-sheet.pdf
+  locator: "Table 2, 300 L HyPerforma S.U.F. hardware specifications (continued), and its footnote **"
+  quote: "Rated liquid working volume 300 L | Minimum liquid working volume* 60 L | Total reactor volume (liquid and gas) 435 L | ** If stirred at 200 rpm or greater, or if all probe ports are completely submerged (60 L)."
+  read: fulltext
+  note: >-
+    Derived: 60 / 435 = 0.138 of total vessel volume (0.20 of the rated working volume; the
+    data sheet states a 5:1 turndown). A microbial fermentor ("Engineered to meet demanding
+    microbial fermentation needs"), H:D 3:1 vessel, top-driven impeller. The footnote ties the
+    floor to probe submergence and stirring, not to a batch-process rule. Pilot scale: using
+    it for 100-400 m3 tanks is an extrapolation (judgment).
+
+- key: min_working_volume_infors_techfors
+  value: 12
+  low: 11.6
+  high: 16.0
+  unit: "% of total vessel volume (derived; 75-750 L vessels)"
+  grade: C
+  source: "INFORS HT. Techfors product data sheet, publication D045 v3, 09.02.2026"
+  doi_or_url: https://infors-ht.com/getmedia/65602baf-53df-4119-b284-3ca03c91ad46/Produktdatenblatt-Techfors-3-en-GB
+  locator: "Vessel: Vessel sizes and dimensions table"
+  quote: "Total volume (TV), L 75 150 300 750 | Max. working volume, L 50 100 200 500 | Min. working volume, L 12 20 35 87"
+  read: fulltext
+  note: >-
+    Derived: 12/75 = 0.160, 20/150 = 0.133, 35/300 = 0.117, 87/750 = 0.116 of total volume;
+    value is the larger vessels' figure, rounded. A stainless pilot-scale bioreactor ("for
+    bioprocesses on a production scale"); the data sheet does not say microbial or cell
+    culture. Pilot scale, so the same extrapolation caveat applies.
