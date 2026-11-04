@@ -30,11 +30,41 @@
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-main { max-width: 1040px; margin: 0 auto; padding: 0 16px 64px; }
-header.top { z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
-header.top .in { max-width: 1040px; margin: 0 auto; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
-h1 { font-size: 17px; margin: 0; font-weight: 650; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 64px; }
+header.intro { padding: 22px 0 4px; }
+h1 { font-size: 26px; line-height: 1.25; margin: 0 0 8px; font-weight: 700; letter-spacing: -0.3px; }
 h2 { font-size: 19px; margin: 0 0 4px; font-weight: 650; }
+.summary { background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 8px; padding: 12px 18px; margin: 12px 0 0; max-width: 860px; }
+.summary h2 { font-size: 16px; margin: 0 0 4px; }
+.summary ol { margin: 4px 0 0; padding-left: 20px; }
+.summary li { margin: 4px 0; }
+.layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.layout > * { min-width: 0; }
+aside.side { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin: 16px 0; }
+@media (min-width: 861px) { aside.side { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; } }
+.side-in { padding: 14px 16px; }
+.side-h { display: block; font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); margin: 14px 0 6px; }
+.side-in > .side-h:first-child { margin-top: 0; }
+.side select { width: 100%; max-width: 100%; min-width: 0; font: inherit; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+.seg.col { flex-direction: column; } .seg.col button { text-align: left; }
+.side .lever { margin-bottom: 12px; }
+.side-btns { display: flex; gap: 8px; margin-top: 14px; } .side-btns .btn { flex: 1; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 10px 0 4px; }
+.tile { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--bg); }
+.tile b { display: block; font-size: 28px; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--accent); }
+.tile b.ok { color: var(--ok); } .tile b.bad { color: var(--bad); }
+.tile span { font-size: 13px; color: var(--muted); }
+.walk { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin-top: 12px; }
+.walk h3 { margin-top: 0; }
+.walk ol { margin: 0; padding-left: 20px; }
+.walk li { margin: 6px 0; }
+.walk .eq { white-space: normal; }
+section.detail { margin-top: 28px; }
+section.detail > h2 { font-size: 21px; }
+details.card > summary h3 { display: inline; font-size: 16px; }
+details.card > summary h3::before { content: "▸ "; color: var(--faint); }
+details.card[open] > summary h3::before { content: "▾ "; }
 h3 { font-size: 15px; margin: 14px 0 6px; font-weight: 650; }
 p { margin: 6px 0; }
 small, .muted { color: var(--muted); }
@@ -73,6 +103,7 @@ td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space:
 tr.group td { font-weight: 600; background: var(--accent-soft); }
 tr.total td { font-weight: 700; border-top: 2px solid var(--ink); }
 .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media (max-width: 640px) { .scroll > svg { min-width: 600px; } }
 input[type=number] { width: 84px; font: inherit; font-size: 13px; padding: 1px 4px; border: 1px solid var(--line); border-radius: 4px;
   background: var(--bg); color: var(--ink); text-align: right; }
 input[type=number].edited { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, var(--bg)); }
@@ -93,7 +124,6 @@ ol.findings li { margin: 4px 0; }
 .badge.miss { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
 .badge.agree { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
 .badge.differ { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--warn); }
-#hdrPrice { font-size: 13.5px; font-variant-numeric: tabular-nums; }
 .split { display: flex; height: 26px; border-radius: 5px; overflow: hidden; margin: 8px 0 4px; }
 .split div { height: 100%; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; }
@@ -113,8 +143,8 @@ ol.chain > li.bad { border-left-color: var(--bad); }
 .ins a, .ins span.src { overflow-wrap: anywhere; }
 .tick { font-weight: 700; }
 .tick.ok { color: var(--ok); } .tick.bad { color: var(--bad); }
-.levers { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px 20px; margin-bottom: 10px; }
-.lever label { display: flex; justify-content: space-between; font-size: 13.5px; }
+.lever label { display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; }
+.lever label b { white-space: nowrap; }
 .lever label b { font-variant-numeric: tabular-nums; }
 .lever input[type=range] { width: 100%; accent-color: var(--accent); }
 .lever .hint { font-size: 12px; color: var(--faint); }
@@ -135,7 +165,6 @@ tr.flash { animation: flash 1.6s; }
 dfn { font-style: normal; border-bottom: 1px dotted var(--faint); cursor: help; }
 code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; }
 pre { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
-@media (min-width: 900px) { header.top { position: sticky; top: 0; } }
 .tip { position: fixed; z-index: 20; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12.5px; padding: 5px 8px; border-radius: 5px; max-width: 280px; display: none; }
 .checks li { font-size: 13.5px; margin: 2px 0; }
 .checks { padding-left: 18px; }
@@ -144,86 +173,105 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; 
 </style>
 </head>
 <body>
-<header class="top"><div class="in">
-  <h1>Precision fermentation: what does each protein cost to make?</h1>
-  <div class="seg" id="prodSeg" role="group" aria-label="Protein"></div>
-  <div class="seg" id="caseSeg" role="group" aria-label="Case"></div>
-  <span id="hdrPrice"></span>
-  <button class="btn" id="resetBtn" title="Back to this protein's base case, with the base prices">Reset</button>
-  <button class="btn" id="linkBtn" title="Copy a link to this exact view">Copy link</button>
-</div></header>
-<main>
+<div class="wrap">
+<header class="intro">
+  <h1>Can microbes make milk and egg proteins as cheaply as cows and hens?</h1>
+  <p class="lead">Precision fermentation puts the gene for one animal protein into a yeast or a fungus. The microbes grow on sugar
+    in large steel tanks and release the protein. The protein is then purified and dried to a powder. This model estimates what
+    that costs for seven proteins. It compares each cost with the price of the same protein from animals.</p>
+  <div class="summary" id="summary"></div>
+</header>
 
 <section class="card" id="overview">
-  <h2>All seven proteins at a glance</h2>
+  <h2>Each protein against its animal version</h2>
+  <p class="lead">How many times the animal price each protein costs to make. Left of the line, fermentation is cheaper.
+    Click a protein to see how its cost builds up.</p>
   <div id="overviewBody"></div>
 </section>
 
+<div class="layout">
+<aside class="side" id="side">
+  <div class="side-in">
+    <label class="side-h" for="prodSel">Protein</label>
+    <select id="prodSel"></select>
+    <div id="sideNow" style="margin-top:6px"></div>
+    <div class="side-h">Start from</div>
+    <div class="seg col" id="caseSeg" role="group" aria-label="Starting point"></div>
+    <div class="side-h">Key assumptions</div>
+    <div id="levers"></div>
+    <details id="acctBox"><summary class="side-h" style="cursor:pointer">Accounting (advanced)</summary><div id="acctLevers"></div></details>
+    <div class="side-btns"><button class="btn" id="resetBtn" title="Back to this protein's published design, with the base prices">Reset</button>
+      <button class="btn" id="linkBtn" title="Copy a link to this exact view">Copy link</button></div>
+  </div>
+</aside>
+
+<main>
 <section class="card" id="answer"></section>
 
-<details class="card" id="whatif" open>
-  <summary><h2>What if</h2></summary>
-  <p class="lead">Titer, production time and plant size move between full model runs. Every value shown is a real run.
-    Prices, the capital charge and the location do not change the plant. The page recomputes the cost of the same plant.</p>
-  <div class="levers" id="levers"></div>
+<section class="card" id="mapCard">
+  <h2>What would make it cheaper?</h2>
+  <p class="lead">The most important number is how much protein each litre of broth holds when the tank is emptied.
+    More protein per litre means fewer tanks, a smaller plant and a lower cost. Each cell below is one model run.
+    Click a cell to select it.</p>
   <div id="mapBody"></div>
-</details>
+</section>
 
 <section class="card" id="money">
   <h2>Where the money goes</h2>
-  <p class="lead">Each cost is an amount per kg of protein times a unit price. You can change any price.</p>
+  <p class="lead">Every cost is an amount per kg of protein times a unit price.</p>
   <div id="moneyBody"></div>
 </section>
 
-<section class="card" id="chainCard">
-  <h2>Why: from titer to price, step by step</h2>
-  <p class="lead">The page redoes each step with the numbers shown. It then compares its result with the model's.
-    A tick means they agree. Each link opens the source of that input.</p>
-  <div id="chainBody"></div>
+<section class="card" id="uncCard">
+  <h2>How sure is this?</h2>
+  <div id="uncBody"></div>
 </section>
 
 <section class="card" id="realityCard">
-  <h2>Checks against reality</h2>
-  <p class="lead">Before saying anything new, the model was run on cases with a known answer.
-    A reality check compares it with a market price or a real plant. A consistency check compares it with another model.
-    Agreeing with another model is not proof that either is right.</p>
+  <h2>Does the model get known things right?</h2>
+  <p class="lead">No company publishes what its fermentation protein costs to make. So the model was tested on cases with a known answer
+    before it was used here. A reality check compares it with a market price or a real plant. A consistency check compares it with
+    another model. Agreeing with another model is not proof that either is right. No input was tuned to pass these tests.</p>
   <div id="realityBody"></div>
 </section>
 
-<details class="card" id="limitsCard">
-  <summary><h2>Physical limits</h2></summary>
-  <p class="lead">How close this design comes to each physical limit. The model never prices a design that breaks one.</p>
-  <div id="limitsBody" class="limits"></div>
-</details>
-
-<details class="card" id="sugarCard">
-  <summary><h2>Where the sugar goes</h2></summary>
-  <p class="lead">Where the glucose goes, per kg of protein sold. Below it, a check that no carbon is lost.</p>
-  <div id="sugarBody"></div>
-</details>
-
-<details class="card" id="uncCard">
-  <summary><h2>How sure: uncertainty</h2></summary>
-  <div id="uncBody"></div>
-</details>
-
-<details class="card" id="inputsCard">
-  <summary><h2>Inputs and sources</h2></summary>
-  <p class="lead">Every parameter in <code>data/pf/base.yaml</code>, with its range, kind of evidence and source.
-    An orange edge marks a value this protein changes (<code>data/pf/products.yaml</code>).</p>
-  <p><input type="search" id="inSearch" placeholder="Search parameters or sources">
-    <label class="muted"><input type="checkbox" id="inChanged"> only this protein's changes</label>
-    <label class="muted"><input type="checkbox" id="inUnused"> show inputs this route does not use</label></p>
-  <div class="scroll"><table id="inTable"></table></div>
-</details>
-
-<details class="card" id="reproCard">
-  <summary><h2>Reproduce and check</h2></summary>
-  <div id="reproBody"></div>
-</details>
-
+<section class="detail" id="detail">
+  <h2>Check the model in detail</h2>
+  <p class="lead">For readers who want to verify each number. Each part opens on click.</p>
+  <details class="card" id="chainCard">
+    <summary><h3>The cost in 11 checked steps</h3></summary>
+    <p class="lead">The page redoes each step with the numbers shown. It then compares its result with the Python model's.
+      A tick means they agree. Each link opens the source of that input.</p>
+    <div id="chainBody"></div>
+  </details>
+  <details class="card" id="limitsCard">
+    <summary><h3>Physical limits</h3></summary>
+    <p class="lead">How close this design comes to each physical limit. The model never prices a design that breaks one.</p>
+    <div id="limitsBody" class="limits"></div>
+  </details>
+  <details class="card" id="sugarCard">
+    <summary><h3>Where the sugar goes</h3></summary>
+    <p class="lead">Where the glucose goes, per kg of protein sold. Below it, a check that no carbon is lost.</p>
+    <div id="sugarBody"></div>
+  </details>
+  <details class="card" id="inputsCard">
+    <summary><h3>Inputs and sources</h3></summary>
+    <p class="lead">Every parameter in <code>data/pf/base.yaml</code>, with its range, kind of evidence and source.
+      An orange edge marks a value this protein changes (<code>data/pf/products.yaml</code>).</p>
+    <p><input type="search" id="inSearch" placeholder="Search parameters or sources">
+      <label class="muted"><input type="checkbox" id="inChanged"> only this protein's changes</label>
+      <label class="muted"><input type="checkbox" id="inUnused"> show inputs this route does not use</label></p>
+    <div class="scroll"><table id="inTable"></table></div>
+  </details>
+  <details class="card" id="reproCard">
+    <summary><h3>Reproduce and check</h3></summary>
+    <div id="reproBody"></div>
+  </details>
+</section>
 <p class="faint" id="foot"></p>
 </main>
+</div>
+</div>
 <div class="tip" id="tip"></div>
 
 <script id="panel-data" type="application/json">/*DATA*/</script>
@@ -233,12 +281,13 @@ const D = JSON.parse(document.getElementById("panel-data").textContent);
 const $ = (id) => document.getElementById(id);
 const PRODUCTS = Object.keys(D.products);
 const CASES = [
-  ["base", "Base case", "The titer and time that published plant designs assume. For most proteins this is Intelligen's design."],
-  ["academic", "Best published strain", "The best titer in a peer-reviewed full text, on the base plant."],
-  ["industry", "Industry benchmark", "The average titer in companies' own cost models (GFI 2025). This is a company claim."],
-  ["physical_limit", "Physical-limit best case", "Every assumed limit at its best at once, in a very large plant. This is a best case, not a forecast."],
-  ["custom", "Your settings", "The base case with your changes."],
+  ["base", "Today's published designs", "The protein per litre and batch time that published plant designs assume. For most proteins this is Intelligen's design."],
+  ["academic", "Best strain in a published paper", "The most protein per litre reported in a peer-reviewed paper, on the same plant."],
+  ["industry", "Companies' own figures", "The average protein per litre in companies' own cost models (GFI 2025). This is a company claim."],
+  ["physical_limit", "Best case: every limit reached", "Every assumed limit at its best at once, in a very large plant. A ceiling, not a forecast."],
+  ["custom", "Your settings", "Today's published design with your changes."],
 ];
+const CASE_SHORT = { base: "Today", academic: "Best paper", industry: "Companies", physical_limit: "Best case" };
 const CASE_NAME = Object.fromEntries(CASES.map(c => [c[0], c[1]]));
 const EVID = D.labels.evidence;
 const KIND_COLOR = { A: "var(--kA)", B: "var(--kB)", C: "var(--kC)", D: "var(--kD)", E: "var(--kE)", structural: "var(--kS)" };
@@ -256,6 +305,11 @@ const SHOW = {   // display names for the model's labels
   "slow growth during production": "slow growth while making protein", "seed train": "seed tanks (growing the starter cells)", "operators and supervisors (loaded salaries)": "pay, payroll taxes and benefits",
 };
 const show = (k) => SHOW[k] || k;
+const ABBR = [[/\bBLG\b/g, "β-lactoglobulin"], [/\bOVA\b/g, "ovalbumin"], [/\bOVD\b/g, "ovomucoid"], [/\bLF\b/g, "lactoferrin"],
+  [/\brHSA\b/g, "recombinant human albumin"], [/\bBSA\b/g, "bovine serum albumin"], [/\balpha-lac\b/g, "α-lactalbumin"],
+  [/\bWPC80\/WPI\b/g, "concentrate and isolate"], [/^titer \(g\/L\)/, "protein per litre of broth (g/L)"],
+  [/^production phase \(h\)/, "hours making protein (h)"]];
+const plainLabel = (t) => ABBR.reduce((x, [re, w]) => x.replace(re, w), String(t || ""));   // spell out protein abbreviations
 const REC_PATH = { "cell removal": "dsp.paste_extracellular_frac", "microfiltration": "dsp.mf_recovery",
   "cation-exchange capture": "dsp.cex_recovery", "polish column": "dsp.polish_recovery", "ultrafiltration": "dsp.uf_rejection",
   "precipitation": "dsp.precip_recovery", "acid precipitation": "dsp.acid_precip_recovery", "spray drying": "dsp.dryer_recovery" };
@@ -388,66 +442,55 @@ function priced(p, v) {   // terms with current amounts and prices, line totals,
 }
 
 // ------------------------------------------------------------------ section 1: the answer
+const ratioOf = (msp, band) => msp / band[1];   // times the animal price (top of its 2015-2025 range)
 function verdict(msp, band) {
   const [lo, hi] = band;
-  if (msp <= lo) return ["ok", `below the price to beat (its low end is ${sig(lo / msp, 2)} times higher)`];
-  if (msp <= hi) return ["ok", "inside the price to beat"];
-  return ["bad", `${sig(msp / hi, 2)} times the top of the price to beat`];
+  if (msp < lo) return ["ok", "cheaper than the animal version at any price since 2015"];
+  if (msp <= hi) return ["ok", "within the animal version's price range"];
+  return ["bad", `${ratioTxt(msp / hi)} the animal price`];
 }
+const ratioTxt = (r) => `${fixedSig(r, r > 0.95 && r < 1.1 ? 3 : 2)}×`;   // 1.02x, not 1.0x, just above the line
+const cap = (t) => /^[a-z]/.test(t) ? t.charAt(0).toUpperCase() + t.slice(1) : t;   // leaves β-, α- names alone
+const yearsOf = (ptb) => { const y = (ptb.when.match(/\d{4}[-–]\d{4}/) || [])[0]; return y ? `in ${y.replace("-", "–")}` : "in recent reported prices"; };
+const trunc = (t, n) => t.length > n ? t.slice(0, n - 1) + "…" : t;
+function needTxt(p) {
+  const n = titerNeeded(p);
+  return n.below ? `already cheaper at ${sig(n.below)} g/L, the lowest value tried` : n.none ? `not reached even at ${sig(p.axes.titer[p.axes.titer.length - 1])} g/L`
+    : `${sig(n.lo)}–${sig(n.hi)} g/L`;
+}
+let CHAIN = { nOk: 0, nChk: 0 };
 function renderAnswer(p, v, m) {
-  const ptb = p.price_to_beat, el = $("answer");
-  const c = v.chain || {}, inp = v.inputs || {};
+  const ptb = p.price_to_beat, el = $("answer"), c = v.chain || {}, inp = v.inputs || {};
   const caseLine = CASES.find(x => x[0] === (isCustom() ? "custom" : S.kase));
-  let head;
+  const top = `<div class="muted" style="font-size:13px">${esc(caseLine[1])}${pricesChanged() ? ", with your prices" : ""}</div>
+    <h2 style="font-size:22px">${esc(cap(p.name))} <span class="muted" style="font-weight:400">(${esc(p.plain)})</span></h2>
+    <p class="muted" style="margin:2px 0 0">${esc(cap(p.what))}. It competes with ${esc(p.animal)}.</p>`;
   if (v.error || !v.feasible) {
-    head = `<div class="big" style="color:var(--bad)">Not feasible</div>
-      <div class="warnbox">This design breaks a physical limit, so it has no price.<br>${(v.flags || []).map(esc).join("<br>")}</div>`;
-  } else {
-    const [cls, txt] = verdict(m.total, ptb.band);
-    head = `<div class="big">${usd(m.total, 3)} <small>per kg of protein</small></div>
-      <div class="verdict"><span class="pill ${cls}">${esc(txt)}</span></div>
-      <p class="muted" style="margin-top:8px"><dfn title="The cost per kg that pays for operation and repays the plant with interest, before any profit margin. Not a market price.">Minimum selling price</dfn>
-      of ${esc(p.name)}, ${esc(p.what)}.${pricesChanged() ? ` At the model's prices: ${usd(m.modelTotal)}.` : ""}</p>`;
+    el.innerHTML = top + `<div class="warnbox">This design breaks a physical limit, so it has no cost. Change a setting on the left.<br>${(v.flags || []).map(esc).join("<br>")}</div>`;
+    return;
   }
-  const conds = [];
-  if (inp.host) conds.push(HOST[inp.host] || inp.host);
-  if (c.titer) conds.push(`titer ${sig(c.titer)} g/L`);
-  if (c.t_prod) conds.push(`${sig(c.t_prod)} h production (batch ${sig(c.t_growth + c.t_prod)} h)`);
-  if (c.Y_ps) conds.push(`product yield ${sig(c.Y_ps, 2)} g/g glucose`);
-  if (c.X_prod) conds.push(`${sig(c.X_prod)} g/L cells`);
-  if (c.A) conds.push(`${sig(c.A / 1000)} t/yr`);
-  if (c.V) conds.push(`${sig(c.V)} m³ fermenters`);
-  conds.push(S.loc === "eu" ? "north-west Europe prices" : (inp.location === "eu_nw" ? "north-west Europe" : "US Midwest"));
-  if (inp.spec) conds.push(SPEC[inp.spec] || inp.spec);
-  if (inp.methanol) conds.push("methanol-fed production");
-  el.innerHTML = `<div class="answer"><div>
-      <div class="muted" style="font-size:13px">${esc(p.name)} · ${esc(caseLine[1])}</div>
-      ${head}
-      <ul class="conds">${conds.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
-    </div><div>
-      <div style="font-size:14px"><b>Price to beat:</b> $${sig(ptb.band[0], 3)}–${sig(ptb.band[1], 3)} per kg of protein
-        <div class="muted" style="font-size:13px">${esc(ptb.label)}; ${esc(ptb.when)}.</div></div>
-      <div id="strip"></div>
-      <div class="muted" style="font-size:12.5px">${esc(caseLine[2])}</div>
-    </div></div>
-    ${boxes(p, v, m)}
-    <div class="excl">Not in the cost: R&amp;D, strain licences and royalties, regulatory approval, sales and distribution, land,
-      a first plant's extra cost, and carbon pricing. Costs are 2025 US dollars. ${{ humbird: "Accounting: Humbird's method", nrel: "Accounting: NREL-style design report", own: "Accounting: your settings" }[acctMode(p)]}, with a capital charge of ${pct(S.rate ?? c.ccf_rate ?? 0, 1)} over ${sig(S.life ?? c.ccf_life)} years.</div>`;
-  renderStrip(p, v, m);
-}
-
-function boxes(p, v, m) {   // the price in one row: titer -> fermenter output -> plant -> price
-  if (v.error || !v.feasible) return "";
-  const c = v.chain, y = c.S / (c.cycle * c.V) * 1000;
-  const box = (big, small, step) => `<div class="box"><b>${big}</b><span>${small}</span><br><a href="#step-${step}">step ${step}</a></div>`;
-  const arrow = `<div class="arrow" aria-hidden="true">→</div>`;
-  return `<div class="boxes">
-    ${box(`${sig(c.titer)} g/L`, `titer after ${sig(c.t_prod)} h of production`, 1)}${arrow}
-    ${box(`${sig(y, 3)} g`, `sold per m³ of fermenter per hour`, 4)}${arrow}
-    ${box(`${c.N_bought} × ${sig(c.V)} m³`, `fermenters; the plant costs ${usd(tciOf(p, v), 3)}`, 8)}${arrow}
-    ${box(`${usd(m.total, 3)}/kg`, `plant ${usd(m.group.plant, 2)} + sugar ${usd(m.group.sugar, 2)} + other ${usd(m.group.rest, 2)}`, 11)}
-  </div><p class="muted" style="font-size:12.5px;margin-top:6px">The price in one line. A higher titer or a shorter batch means more protein per fermenter.
-    That means fewer fermenters, a cheaper plant and a lower price.</p>`;
+  const [cls] = verdict(m.total, ptb.band), r = ratioOf(m.total, ptb.band);
+  const tile = (big, small, k = "") => `<div class="tile"><b class="${k}">${big}</b><span>${small}</span></div>`;
+  const tiles = `<div class="tiles">
+    ${tile(`${usd(m.total, 3)}`, `to make 1 kg of the protein, including repaying the plant`)}
+    ${tile(ratioTxt(r), `the animal price: $${sig(ptb.band[1], 3)}/kg, the top price of ${esc(p.animal)} ${yearsOf(ptb)} (low: $${sig(ptb.band[0], 3)})`, cls)}
+    ${tile(`${sig(c.titer)} g/L`, `protein in each litre of broth. To match the animal price: ${needTxt(p)}.`)}
+    ${tile(usd(tciOf(p, v), 3), `to build a plant that makes ${sig(c.A / 1000)} tonnes a year`)}
+  </div>`;
+  const R = c.S / c.P, loc = S.loc === "eu" ? "north-west Europe" : (inp.location === "eu_nw" ? "north-west Europe" : "the US Midwest");
+  const walk = `<div class="walk"><h3>How the cost builds up</h3><ol>
+    <li><b>One tank, one batch.</b> A ${sig(c.V)} m³ tank ends with ${sig(c.W_end, 3)} m³ of broth. Each litre holds ${sig(c.titer)} g of protein, so the batch makes ${sig(c.P, 3)} kg.
+      Purification keeps ${pct(R, 0)} of it: ${sig(c.S, 3)} kg is sold. A batch takes ${sig(c.cycle, 3)} hours: ${sig(c.t_growth, 2)} growing the cells, ${sig(c.t_prod, 3)} making protein, ${sig(c.t_turn, 2)} emptying and cleaning.</li>
+    <li><b>The plant.</b> ${sig(c.A / 1000)} tonnes a year takes ${sig(c.n, 3)} batches. That keeps ${c.N_bought} tanks busy all year.
+      With the purification line, utilities and buildings, the plant costs ${usd(tciOf(p, v), 3)} to build in ${loc}.</li>
+    <li><b>Cost per kg.</b> Repaying and maintaining the plant: ${usd(m.group.plant, 3)}. Sugar for the microbes: ${usd(m.group.sugar, 3)}.
+      Everything else (nutrients, purification, energy, staff, waste): ${usd(m.group.rest, 3)}. Total: <b>${usd(m.total, 3)} per kg</b>.</li>
+    <li><b>Against the animal version.</b> ${usd(m.total, 3)} ÷ $${sig(ptb.band[1], 3)} = <b>${ratioTxt(r)} the animal price</b>.</li>
+  </ol><p class="muted" style="font-size:12.5px;margin:6px 0 0">The page redoes this arithmetic in more detail and checks it against the Python model:
+    <span class="pill ${CHAIN.nOk === CHAIN.nChk ? "ok" : "bad"}">${CHAIN.nOk} of ${CHAIN.nChk} checks agree</span> (<a href="#step-1">the 11 checked steps</a>).</p></div>`;
+  el.innerHTML = top + tiles + walk + `<div class="excl">The cost leaves out research, strain licences, regulatory approval, sales, land, a first plant's extra cost and carbon pricing.
+    It is the lowest price that repays the plant with interest, before profit. Costs are 2025 US dollars.
+    ${{ humbird: "Accounting: Humbird's method", nrel: "Accounting: NREL-style design report", own: "Accounting: your settings" }[acctMode(p)]}, with ${pct(S.rate ?? c.ccf_rate ?? 0, 1)} interest over ${sig(S.life ?? c.ccf_life)} years.</div>`;
 }
 
 function renderStrip(p, v, m) {   // the cases on one log price axis, with the price-to-beat band
@@ -460,11 +503,11 @@ function renderStrip(p, v, m) {   // the cases on one log price axis, with the p
   const cur = (!v.error && v.feasible) ? m.total : null;
   const xs = pts.map(d => d.x).concat(ptb.band, cur ? [cur] : []).concat(...pts.filter(d => d.mc).map(d => [d.mc.p10, d.mc.p90]));
   const lo = Math.min(...xs) / 1.4, hi = Math.max(...xs) * 1.4;
-  const W = 460, H = 118, L = 10, R = 10;
+  const W = 720, H = 118, L = 10, R = 10;
   const X = (x) => L + (Math.log(x) - Math.log(lo)) / (Math.log(hi) - Math.log(lo)) * (W - L - R);
-  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="The four cases against the price to beat">`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="The four starting points against the animal price">`;
   s += `<rect x="${X(ptb.band[0])}" y="8" width="${X(ptb.band[1]) - X(ptb.band[0])}" height="70" fill="var(--band)" stroke="var(--band-line)" stroke-dasharray="3 3"/>`;
-  s += `<text x="${(X(ptb.band[0]) + X(ptb.band[1])) / 2}" y="20" text-anchor="middle" class="muted" style="font-size:10.5px">price to beat</text>`;
+  s += `<text x="${(X(ptb.band[0]) + X(ptb.band[1])) / 2}" y="20" text-anchor="middle" class="muted" style="font-size:10.5px">animal price</text>`;
   const ticks = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000].filter(t => t >= lo && t <= hi);
   s += `<line x1="${L}" x2="${W - R}" y1="86" y2="86" stroke="var(--line)"/>`;
   for (const t of ticks) s += `<line x1="${X(t)}" x2="${X(t)}" y1="86" y2="90" stroke="var(--faint)"/><text x="${X(t)}" y="102" text-anchor="middle" class="muted">$${t}</text>`;
@@ -476,7 +519,7 @@ function renderStrip(p, v, m) {   // the cases on one log price axis, with the p
     s += `<text x="${X(d.x) + (right ? 8 : -8)}" y="${y + 4}" text-anchor="${right ? "start" : "end"}" style="font-size:10.5px;paint-order:stroke;stroke:var(--panel);stroke-width:4px">${esc(d.name)} $${sig(d.x, 2)}</text>`;
   });
   if (cur && isCustom()) s += `<path d="M${X(cur)} 80 l5 -9 h-10 z" fill="var(--warn)"><title>Your settings: $${sig(cur)}</title></path>`;
-  s += `<text x="${W - R}" y="${H - 2}" text-anchor="end" class="muted" style="font-size:10px">$ per kg protein (each step multiplies). Lines: the middle 80% of the uncertainty runs.</text></svg>`;
+  s += `<text x="${W - R}" y="${H - 2}" text-anchor="end" class="muted" style="font-size:10px">$ per kg of protein (each step multiplies). Lines: the middle 8 in 10 uncertainty runs.</text></svg>`;
   $("strip").innerHTML = s;
 }
 
@@ -495,7 +538,8 @@ function titerNeeded(p) {   // grid titers around the price to beat, at the base
   return { none: true };
 }
 const range = (xs, f) => { const a = Math.min(...xs), b = Math.max(...xs); return f(a) === f(b) ? f(a) : `${f(a)}–${f(b)}`; };
-const listNames = (ks) => ks.map(k => D.products[k].short).join(", ");
+const listNames = (ks) => ks.map(k => D.products[k].name).join(", ");
+const listRatios = (rs, key) => rs.map(r => `${r.p.name} ${ratioTxt(r[key] / r.hi)}`).join(", ");
 function renderOverview() {
   const R = PRODUCTS.map(k => {
     const p = D.products[k], b = p.cases.base, [lo, hi] = p.price_to_beat.band, pk = b.per_kg;
@@ -504,49 +548,56 @@ function renderOverview() {
     return { k, p, lo, hi, base: b.msp, plant, sugar, rest: 1 - plant - sugar, ac: ac && ac.feasible ? ac.msp : null,
       ind: ind && ind.feasible ? ind.msp : null, pl: pl && pl.feasible ? pl.msp : null, need: titerNeeded(p) };
   });
-  const under = R.filter(r => r.base <= r.hi), over = R.filter(r => r.base > r.hi);
+  const rr = (r) => r.base / r.hi, byR = (x, y) => rr(x) - rr(y);
+  const over = R.filter(r => rr(r) > 1.02).sort(byR), even = R.filter(r => rr(r) >= 0.98 && rr(r) <= 1.02), under = R.filter(r => rr(r) < 0.98).sort(byR);
   const f = [];
-  f.push(`<b>Today's design.</b> At the titer and batch time of published plant designs, ${under.length ? `${under.length} of ${R.length} proteins cost no more than the top of their price to beat (${listNames(under.map(r => r.k))})` : "no protein costs less than the top of its price to beat"}.` +
-    (over.length ? ` ${over.length === R.length ? "All" : "The other " + over.length} cost ${range(over.map(r => r.base / r.hi), x => fixedSig(x, 2))} times that top.` : ""));
-  const plantBiggest = R.filter(r => r.plant > r.sugar && r.plant > r.rest);
-  f.push(`<b>The plant is the biggest cost.</b> For ${plantBiggest.length === R.length ? "every protein" : `${plantBiggest.length} of ${R.length} proteins`}, repaying and running the plant is ${range(R.map(r => r.plant), x => pct(x, 0))} of the price. Sugar is ${range(R.map(r => r.sugar), x => pct(x, 0))}.
-    So the strain matters most through how much protein each fermenter makes.`);
-  const needTxt = R.map(r => `${r.p.short} ${r.need.below ? `even at ${sig(r.need.below)} g/L, the lowest run` : r.need.none ? `not reached by ${sig(r.p.axes.titer[r.p.axes.titer.length - 1])} g/L` : `${sig(r.need.lo)}–${sig(r.need.hi)} g/L`}`);
-  f.push(`<b>Titer needed.</b> To reach the top of the price to beat at each protein's base batch time and plant size: ${needTxt.join(" · ")}.`);
+  let t1 = `<b>Today:</b> with the designs published so far, `;
+  t1 += over.length ? `${over.length} of ${R.length} proteins cost more than the animal version: ${listRatios(over, "base")}.` : "no protein costs more than the animal version.";
+  if (even.length) t1 += ` ${cap(listNames(even.map(r => r.k)))} ${even.length === 1 ? "costs" : "cost"} about the same as the top animal price.`;
+  if (under.length) t1 += ` ${cap(listNames(under.map(r => r.k)))} ${under.length === 1 ? "costs" : "cost"} less: ${under.length === 1 ? "its animal version is" : "their animal versions are"} scarce and sell at high prices.`;
+  f.push(t1);
+  f.push(`<b>Biggest cost:</b> the plant, not the sugar. Repaying and running the plant is ${range(R.map(r => r.plant), x => pct(x, 0))} of the cost. Sugar is ${range(R.map(r => r.sugar), x => pct(x, 0))}.
+    So what matters most is how much protein each tank makes.`);
+  const needs = R.filter(r => rr(r) >= 0.98 && !r.need.below).map(r => `${r.p.name} ${r.need.none ? `more than ${sig(r.p.axes.titer[r.p.axes.titer.length - 1])} g/L` : `${sig(r.need.lo)}–${sig(r.need.hi)} g/L`} (today ${sig(r.p.cases.base.chain.titer)})`);
+  f.push(`<b>What it takes:</b> more protein in each litre of broth. Grams per litre needed to match the animal price: ${needs.join(", ")}. This keeps today's batch time and plant size.`);
   const acR = R.filter(r => r.ac !== null);
   if (acR.length) {
-    const acUnder = acR.filter(r => r.ac <= r.hi);
-    f.push(`<b>Best published strains.</b> With the best titer in a peer-reviewed paper, ${acUnder.length ? `${listNames(acUnder.map(r => r.k))} ${acUnder.length === 1 ? "reaches" : "reach"} the price to beat. The others cost` : "every protein costs"} ${range(acR.filter(r => r.ac > r.hi).map(r => r.ac / r.hi), x => fixedSig(x, 2))} times its top.`);
+    const acUnder = acR.filter(r => r.ac <= r.hi), acOver = acR.filter(r => r.ac > r.hi);
+    f.push(`<b>Best published strains:</b> they do not close the gap. With them, ${acUnder.length ? `${listNames(acUnder.map(r => r.k))} ${acUnder.length === 1 ? "matches" : "match"} the animal price. The others cost` : "every protein costs"} ${range(acOver.map(r => r.ac / r.hi), x => fixedSig(x, 2))} times the animal price.
+      Their strains make less protein per litre, or make it more slowly.`);
   }
   const plR = R.filter(r => r.pl !== null);
   if (plR.length) {
-    const plUnder = plR.filter(r => r.pl <= r.lo);
-    f.push(`<b>Physical limits.</b> If every assumed limit is reached at once, ${plUnder.length === plR.length ? "every protein" : `${plUnder.length} of ${plR.length} proteins`} cost${plUnder.length === 1 ? "s" : ""} less than the low end of the price to beat${plUnder.length < plR.length ? ` (not ${listNames(plR.filter(r => r.pl > r.lo).map(r => r.k))})` : ""}. This is a best case, not a forecast.`);
+    const plUnder = plR.filter(r => r.pl <= r.hi);
+    f.push(`<b>Physical ceiling:</b> much lower costs are possible. If every physical limit were reached at once in a very large plant, ${plUnder.length === plR.length ? "every protein" : `${plUnder.length} of ${plR.length} proteins`} would cost no more than the animal price${plUnder.length < plR.length ? ` (not ${listNames(plR.filter(r => r.pl > r.hi).map(r => r.k))})` : ""}. This is a ceiling, not a forecast.`);
   }
-  // chart: one row per protein, log price axis
-  const all = R.flatMap(r => [r.lo, r.hi, r.base, r.ac, r.ind, r.pl].filter(x => x));
-  const lo = Math.min(...all) / 1.3, hi = Math.max(...all) * 1.3, W = 720, L = 132, Rr = 16, rowH = 30, T = 8, H = T + R.length * rowH + 40;
+  $("summary").innerHTML = `<h2>The short answer</h2><ol>${f.map(x => `<li>${x}</li>`).join("")}</ol>
+    <p class="muted" style="font-size:12.5px;margin:6px 0 0">"The animal price" is what the same protein from cows or hens sold for, per kg of protein, from 2015 to 2025. The comparison uses the top of that range.
+    These points use each protein's stored runs. They do not follow your settings.</p>`;
+  // chart: one row per protein, cost / animal price on a log axis
+  const all = R.flatMap(r => [r.lo, r.base, r.ac, r.ind, r.pl].filter(x => x).map(x => x / r.hi)).concat([1]);
+  const lo = Math.min(...all) / 1.3, hi = Math.max(...all) * 1.3, W = 760, L = 230, Rr = 16, rowH = 38, T = 22, H = T + R.length * rowH + 40;
   const X = (x) => L + (Math.log(x) - Math.log(lo)) / (Math.log(hi) - Math.log(lo)) * (W - L - Rr);
-  const mark = CASE_MARK;
-  const names = { base: "Base case", ind: "Industry benchmark", ac: "Best published strain", pl: "Physical-limit best case" };
-  let s = `<svg viewBox="0 0 ${W} ${H}" id="ovSvg" role="img" aria-label="Cost of each protein against its price to beat">`;
-  const ticks = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000].filter(t => t >= lo && t <= hi);
-  for (const t of ticks) s += `<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${T + R.length * rowH}" stroke="var(--line)"/><text x="${X(t)}" y="${T + R.length * rowH + 14}" text-anchor="middle" class="muted">$${t}</text>`;
+  const mark = CASE_MARK, names = { base: CASES[0][1], ind: CASES[2][1], ac: CASES[1][1], pl: CASES[3][1] };
+  let s = `<svg viewBox="0 0 ${W} ${H}" id="ovSvg" role="img" aria-label="Cost of each protein as a multiple of its animal price">`;
+  const ticks = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100].filter(t => t >= lo && t <= hi);
+  for (const t of ticks) s += `<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${T + R.length * rowH}" stroke="${t === 1 ? "var(--ink)" : "var(--line)"}" stroke-width="${t === 1 ? 1.5 : 1}"/><text x="${X(t)}" y="${T + R.length * rowH + 14}" text-anchor="middle" class="muted">${t}×</text>`;
+  s += `<text x="${X(1) - 6}" y="${T - 8}" text-anchor="end" style="font-size:11px;fill:var(--ok);font-weight:600">← cheaper than the animal version</text>
+    <text x="${X(1) + 6}" y="${T - 8}" style="font-size:11px;fill:var(--bad);font-weight:600">dearer →</text>`;
   R.forEach((r, n) => {
     const y = T + n * rowH + rowH / 2, sel = r.k === S.prod;
-    s += `<g data-p="${r.k}" style="cursor:pointer">${sel ? `<rect x="0" y="${y - rowH / 2}" width="${W}" height="${rowH}" fill="var(--accent-soft)"/>` : `<rect x="0" y="${y - rowH / 2}" width="${W}" height="${rowH}" fill="transparent"/>`}
-      <text x="${L - 10}" y="${y + 4}" text-anchor="end" style="font-weight:${sel ? 700 : 500}">${esc(r.p.name)}</text>
-      <rect x="${X(r.lo)}" y="${y - 10}" width="${X(r.hi) - X(r.lo)}" height="20" fill="var(--band)" stroke="var(--band-line)" stroke-dasharray="3 3"
-        data-tip="Price to beat for ${esc(r.p.name)}: $${sig(r.lo, 3)}–${sig(r.hi, 3)}/kg protein"/>`;
-    for (const key of ["pl", "ac", "ind", "base"]) if (r[key]) s += `<g data-tip="${esc(names[key])}: $${sig(r[key], 3)}/kg">${mark[key](X(r[key]), y)}</g>`;
-    s += `</g>`;
+    s += `<g data-p="${r.k}" style="cursor:pointer"><rect x="0" y="${y - rowH / 2}" width="${W}" height="${rowH}" fill="${sel ? "var(--accent-soft)" : "transparent"}"/>
+      <text x="${L - 10}" y="${y - 1}" text-anchor="end" style="font-weight:${sel ? 700 : 600}">${esc(cap(r.p.name))}</text>
+      <text x="${L - 10}" y="${y + 12}" text-anchor="end" class="muted" style="font-size:10.5px">${esc(r.p.plain)}</text>
+      <rect x="${X(r.lo / r.hi)}" y="${y - 10}" width="${X(1) - X(r.lo / r.hi)}" height="20" fill="var(--band)" stroke="var(--band-line)" stroke-dasharray="3 3"
+        data-tip="${esc(cap(r.p.animal))}: $${sig(r.lo, 3)}–${sig(r.hi, 3)} per kg of protein"/>`;
+    for (const key of ["pl", "ac", "ind", "base"]) if (r[key]) s += `<g data-tip="${esc(names[key])}: $${sig(r[key], 3)}/kg, ${ratioTxt(r[key] / r.hi)} the animal price">${mark[key](X(r[key] / r.hi), y)}</g>`;
+    const bx = X(r.base / r.hi);
+    s += `<text x="${bx}" y="${y - 9}" text-anchor="middle" style="font-size:10.5px;font-weight:700;paint-order:stroke;stroke:var(--panel);stroke-width:3px">${ratioTxt(r.base / r.hi)}</text></g>`;
   });
-  s += `<text x="${W - Rr}" y="${H - 4}" text-anchor="end" class="muted" style="font-size:10.5px">$ per kg of protein (each step multiplies). Green band: the price to beat. Click a protein to open it.</text></svg>`;
-  const legend = `<div class="legend">${["base", "ind", "ac", "pl"].map(k => `<span><svg width="14" height="14" viewBox="-7 -7 14 14" style="display:inline;vertical-align:-2px">${mark[k](0, 0)}</svg> ${names[k]}</span>`).join("")}</div>`;
-  $("overviewBody").innerHTML = `<ol class="findings">${f.map(x => `<li>${x}</li>`).join("")}</ol>
-    <div class="scroll">${s}</div>${legend}
-    <p class="muted" style="font-size:12.5px">These findings use each protein's stored cases at the model's prices. They do not follow your settings below.
-    Each protein has its own price to beat, its own plant size and, for some, its own purification route.</p>`;
+  s += `<text x="${W - Rr}" y="${H - 4}" text-anchor="end" class="muted" style="font-size:10.5px">cost ÷ animal price (each step multiplies). Green band: the animal price range.</text></svg>`;
+  const legend = `<div class="legend">${["base", "ac", "ind", "pl"].map(k => `<span><svg width="14" height="14" viewBox="-7 -7 14 14" style="display:inline;vertical-align:-2px">${mark[k](0, 0)}</svg> ${names[k]}</span>`).join("")}</div>`;
+  $("overviewBody").innerHTML = `<div class="scroll">${s}</div>${legend}`;
   $("ovSvg").querySelectorAll("g[data-p]").forEach(g => g.addEventListener("click", () => { setProduct(g.dataset.p); render(); $("answer").scrollIntoView({ behavior: "smooth" }); }));
 }
 
@@ -572,13 +623,15 @@ function renderReality() {
       badge = r.by_construction ? `<span class="badge agree">INPUT</span> <span class="faint">set from this measurement</span>`
         : r.ok ? `<span class="badge match">MATCHES</span>` : `<span class="badge miss">MISSES</span> <span class="faint">${sgn(d)}${r.band ? " outside the range" : ""}</span>`;
     }
-    return `<tr><td><b>${esc(r.name)}</b> <span class="faint" style="font-size:11.5px">${kind}</span>
-      <div class="muted" style="font-size:12.5px">${esc(r.note)}</div></td><td class="n">${num(r.ours, r.unit)}<div class="faint" style="font-size:11.5px">${esc(r.unit)}</div></td>
+    return `<tr><td><b>${esc(plainLabel(r.name))}</b> <span class="faint" style="font-size:11.5px">${kind}</span>
+      <div class="muted" style="font-size:12.5px">${esc(plainLabel(r.note))}</div></td><td class="n">${num(r.ours, r.unit)}<div class="faint" style="font-size:11.5px">${esc(r.unit)}</div></td>
       <td class="n">${ref}</td><td>${badge}</td></tr>`;
   };
   const head = `<thead><tr><th>Check</th><th class="n">This model</th><th class="n">Compared with</th><th>Result</th></tr></thead>`;
   const costs = rows.filter(r => r.group !== "biology"), bio = rows.filter(r => r.group === "biology");
-  let h = `<h3>Costs and plants</h3><div class="scroll"><table>${head}<tbody>${costs.map(row).join("")}</tbody></table></div>`;
+  const tests = rows.filter(r => !r.by_construction), pass = tests.filter(r => r.ok).length;
+  let h = `<p><b>${pass} of ${tests.length} tests pass.</b> The ${tests.length - pass} that do not are explained in docs/VALIDATION.md. None was fixed by tuning an input.</p>
+    <h3>Costs and plants</h3><div class="scroll"><table>${head}<tbody>${costs.map(row).join("")}</tbody></table></div>`;
   if (bio.length) h += `<h3>Biology and physics, predicted from first principles</h3>
     <p class="muted" style="font-size:13px">The model works these out from thermodynamics: how much sugar becomes cells, how much O₂ cells use, how much heat they release.
     None of the measurements below is a model input.</p>
@@ -586,15 +639,15 @@ function renderReality() {
   h += `<p class="muted" style="font-size:12.5px"><b>MATCHES</b>: inside a range set by a market price, a real plant or measurements (or within a measurement's stated error).
     <b>AGREES</b>: within the allowed gap of another model. <b>DIFFERS</b> and <b>MISSES</b>: outside it; docs/VALIDATION.md explains each one. <b>INPUT</b>: the measurement is now a model input, so it is no longer a test.
     No model input was tuned to any of these. No precision-fermentation protein has a public production cost, so none can be checked directly.</p>
-    <p class="muted" style="font-size:12.5px">✓ Arithmetic check: on every view the page redoes the price in 11 steps and compares each with the Python model (section "Why").</p>`;
+    <p class="muted" style="font-size:12.5px">✓ Arithmetic check: on every view the page redoes the price in 11 steps and compares each with the Python model (“The cost in 11 checked steps”, at the end).</p>`;
   $("realityBody").innerHTML = h;
 }
 
-function renderHeaderPrice(p, v, m) {
-  const el = $("hdrPrice");
-  if (v.error || !v.feasible) { el.innerHTML = `<span class="pill bad">${esc(p.short)}: not feasible</span>`; return; }
+function renderSideNow(p, v, m) {
+  const el = $("sideNow");
+  if (v.error || !v.feasible) { el.innerHTML = `<span class="pill bad">breaks a physical limit</span>`; return; }
   const [cls] = verdict(m.total, p.price_to_beat.band);
-  el.innerHTML = `<span class="pill ${cls}">${esc(p.short)} ${usd(m.total, 3)}/kg · price to beat $${sig(p.price_to_beat.band[0], 2)}–${sig(p.price_to_beat.band[1], 2)}</span>`;
+  el.innerHTML = `<span class="pill ${cls}">${usd(m.total, 3)}/kg · ${ratioTxt(ratioOf(m.total, p.price_to_beat.band))} the animal price</span>`;
 }
 
 // ------------------------------------------------------------------ section 2: the money
@@ -604,17 +657,19 @@ const LINE_WORDS = {
   "biomass disposal": "spent cells", "electricity": "air compressors, agitators, chillers, downstream, buildings",
 };
 const OPEN_LINES = new Set();
+let MONEY_OPEN = false;
 function renderMoney(p, v, m) {
   const el = $("moneyBody");
   if (v.error) { el.innerHTML = `<p class="muted">The model could not build this batch: ${esc(v.flags.join("; "))}</p>`; return; }
   const g = m.group, tot = m.total;
   const parts = [["plant", "The plant", "var(--plant)", "capital charge, maintenance and insurance: all a share of what the plant cost to build"],
-                 ["sugar", "Sugar", "var(--sugar)", "glucose"], ["rest", "Everything else", "var(--rest)", "media, purification, energy, water, waste, staff"]];
+                 ["sugar", "Sugar", "var(--sugar)", "glucose"], ["rest", "Everything else", "var(--rest)", "nutrients, purification, energy, water, waste, staff"]];
   let h = v.feasible ? "" : `<div class="warnbox">The model costs this design, but it breaks a physical limit, so this is not a price.</div>`;
   h += `<div class="split">${parts.map(([k, , c]) => `<div style="width:${g[k] / tot * 100}%;background:${c}" title="${k}"></div>`).join("")}</div>`;
   h += `<div class="legend">${parts.map(([k, n, c, w]) => `<span><span class="sw" style="background:${c}"></span><b>${n}</b> ${usd(g[k])}/kg (${pct(g[k] / tot, 0)}) <span class="faint">${w}</span></span>`).join("")}</div>`;
   const order = Object.keys(m.lines).sort((a, b) => m.lines[b] - m.lines[a]);
-  h += `<div class="scroll" style="margin-top:12px"><table><thead><tr><th>Cost line</th><th class="n">Amount per kg protein</th><th class="n">Unit price</th><th class="n">$ per kg</th></tr></thead><tbody>`;
+  h += `<details id="moneyTable" ${MONEY_OPEN ? "open" : ""} style="margin-top:10px"><summary class="muted" style="cursor:pointer">Every cost line, with prices you can change</summary>
+    <div class="scroll" style="margin-top:6px"><table><thead><tr><th>Cost line</th><th class="n">Amount per kg protein</th><th class="n">Unit price</th><th class="n">$ per kg</th></tr></thead><tbody>`;
   const cells = (t) => {
     let priceCell;
     if (t.path === CCF_PATH) priceCell = `${sig(t.price, 4)} of it each year <span class="faint">(step 9)</span>`;
@@ -645,8 +700,9 @@ function renderMoney(p, v, m) {
   h += `<p class="muted" style="font-size:12.5px">The plant costs ${usd(tciOf(p, v))} to build. It makes ${sig(v.chain.A / 1000)} t of protein a year.
     So each kg made per year carries ${usd(tciOf(p, v) / v.chain.A, 3)} of plant cost. The three plant lines each take a share of it every year.
     Staff are counted in operator salaries. Supervisors count at their higher pay. Payroll taxes and benefits are included.
-    Prices you change are outlined in orange.</p>`;
+    Prices you change are outlined in orange.</p></details>`;
   el.innerHTML = h;
+  $("moneyTable").addEventListener("toggle", (e) => { MONEY_OPEN = e.target.open; });
   el.querySelectorAll("tr[data-line]").forEach(tr => tr.onclick = () => {
     const l = tr.dataset.line; OPEN_LINES.has(l) ? OPEN_LINES.delete(l) : OPEN_LINES.add(l); renderMoney(p, v, m); });
   el.querySelectorAll("input[data-path]").forEach(inp => inp.addEventListener("change", () => {
@@ -668,7 +724,7 @@ function step(n, title, why, eq, result, unit, model, ins, extra = "") {
 }
 function renderChain(p, v, m) {
   const el = $("chainBody");
-  if (v.error) { el.innerHTML = `<p class="muted">No batch: ${esc(v.flags.join("; "))}</p>`; return; }
+  if (v.error) { el.innerHTML = `<p class="muted">No batch: ${esc(v.flags.join("; "))}</p>`; CHAIN = { nOk: 0, nChk: 0 }; return; }
   const c = v.chain, steps = [];
   const sim = (t) => `<span class="src" title="An output of the fermentation simulation (src/pftea/pf_ferm.py)">${t}: simulation</span>`;
   const fill = PARAM["fermenter.fill_max"] ? PARAM["fermenter.fill_max"].value : null;
@@ -738,33 +794,32 @@ function renderChain(p, v, m) {
     `price = ${usd(m.group.plant, 4)} + ${usd(m.group.sugar, 4)} + ${usd(m.group.rest, 4)} = ${usd(t11, 4)}/kg`, t11, "$",
     pricesChanged() ? m.total : v.msp, [`<span class="src">everything else: the cost table above</span>`]));
   const nOk = steps.filter(s => s.ok === true).length, nChk = steps.filter(s => s.ok !== null).length;
+  CHAIN = { nOk, nChk };
   el.innerHTML = `<p><span class="pill ${nOk === nChk ? "ok" : "bad"}">${nOk} of ${nChk} checks agree</span>
     ${v.feasible ? "" : ` <span class="pill bad">breaks a physical limit: not a price</span>`}</p><ol class="chain">${steps.map(s => s.html).join("")}</ol>`;
 }
 
 // ------------------------------------------------------------------ section 4: what if
 function lever(id, label, value, hint, min, max, stepv, idx, path) {
-  return `<div class="lever"><label for="${id}"><span>${label}${path ? evTag(path) : ""}</span><b id="${id}V">${value}</b></label>
-    <input type="range" id="${id}" min="${min}" max="${max}" step="${stepv}" value="${idx}"><div class="hint">${hint}</div></div>`;
+  return `<div class="lever"><label for="${id}"><span>${label}</span><b id="${id}V">${value}</b></label>
+    <input type="range" id="${id}" min="${min}" max="${max}" step="${stepv}" value="${idx}"><div class="hint">${hint}${path ? evTag(path) : ""}</div></div>`;
 }
 function renderLevers(p, v) {
   const ax = p.axes, onGrid = S.kase === "base" || S.kase === "custom";
-  const ti = onGrid ? S.i : -1;
   const glcBase = p.cases.base.prices["utilities.glucose_usd_kg"];
   const glc = S.prices["utilities.glucose_usd_kg"] ?? (S.loc === "eu" ? p.prices_eu["utilities.glucose_usd_kg"] : glcBase);
   const rate = S.rate ?? p.cases.base.chain.ccf_rate, life = S.life ?? p.cases.base.chain.ccf_life;
-  let h = "";
-  h += lever("lvT", "Titer", `${sig(ax.titer[S.i])} g/L`, "grams of protein per litre of broth at harvest", 0, ax.titer.length - 1, 1, S.i, "strain.titer_g_L");
-  h += lever("lvt", "Production time", `${sig(ax.t_prod[S.j])} h`, "hours the cells make protein, after growing", 0, ax.t_prod.length - 1, 1, S.j, "strain.t_prod_h");
-  h += lever("lvS", "Plant size", `${sig(ax.annual_t[S.k])} t/yr · ${sig(ax.volume[S.k])} m³`, "tonnes made a year; the model picks the cheapest vessel size for it", 0, ax.scale.length - 1, 1, S.k, "plant.annual_target_protein_t");
-  h += lever("lvG", "Glucose price", `$${sig(glc, 3)}/kg`, `base $${sig(glcBase, 3)} (US) · $${sig(p.prices_eu["utilities.glucose_usd_kg"], 3)} (EU)`, 0.1, 1.2, 0.01, glc, "utilities.glucose_usd_kg");
-  h += lever("lvR", "Capital charge rate", `${pct(rate, 1)} over ${sig(life)} yr`, `the interest the plant must earn (base ${pct(p.cases.base.chain.ccf_rate, 1)})`, 0.02, 0.15, 0.005, rate, "finance.ccf_rate");
-  h += `<div class="lever"><label><span>Location (prices, wages, construction)</span></label><div class="seg" id="locSeg">
+  let h = onGrid ? "" : `<p class="note">${esc(CASE_NAME[S.kase])} changes several inputs at once. Moving one of the first three sliders starts again from today's published design.</p>`;
+  h += lever("lvT", "Protein per litre of broth", `${sig(ax.titer[S.i])} g/L`, "when the tank is emptied (the “titer”)", 0, ax.titer.length - 1, 1, S.i, "strain.titer_g_L");
+  h += lever("lvt", "Hours making protein", `${sig(ax.t_prod[S.j])} h`, "per batch, after the cells have grown", 0, ax.t_prod.length - 1, 1, S.j, "strain.t_prod_h");
+  h += lever("lvS", "Plant size", `${sig(ax.annual_t[S.k])} t/yr`, `tonnes of protein a year; tanks of ${sig(ax.volume[S.k])} m³`, 0, ax.scale.length - 1, 1, S.k, "plant.annual_target_protein_t");
+  h += lever("lvG", "Sugar price", `$${sig(glc, 3)}/kg`, `glucose; base $${sig(glcBase, 3)} (US), $${sig(p.prices_eu["utilities.glucose_usd_kg"], 3)} (Europe)`, 0.1, 1.2, 0.01, glc, "utilities.glucose_usd_kg");
+  h += lever("lvR", "Interest on the plant's cost", `${pct(rate, 1)}`, `the return the money to build it must earn, over ${sig(life)} years (base ${pct(p.cases.base.chain.ccf_rate, 1)})`, 0.02, 0.15, 0.005, rate, "finance.ccf_rate");
+  h += `<div class="lever"><label><span>Where the plant is</span></label><div class="seg" id="locSeg">
     <button aria-pressed="${S.loc === "us"}" data-loc="us">US Midwest</button><button aria-pressed="${S.loc === "eu"}" data-loc="eu">North-west Europe</button></div>
-    <div class="hint">The plant stays the same. Its prices, wages and building costs change.</div></div>`;
-  h += accountingLevers(p, v, rate, life);
+    <div class="hint">Same plant; local prices, wages and building costs.</div></div>`;
   $("levers").innerHTML = h;
-  if (!onGrid) $("levers").insertAdjacentHTML("afterbegin", `<p class="note" style="grid-column:1/-1">The ${esc(CASE_NAME[S.kase])} changes several inputs at once. It is not one of the runs below. Moving titer, time or size starts again from the base case.</p>`);
+  $("acctLevers").innerHTML = accountingLevers(p, v, rate, life);
   const toGrid = () => { if (!onGrid) { Object.assign(S, baseIdx(p)); } S.kase = "custom"; };
   $("lvT").oninput = (e) => { toGrid(); S.i = +e.target.value; render(); };
   $("lvt").oninput = (e) => { toGrid(); S.j = +e.target.value; render(); };
@@ -772,6 +827,7 @@ function renderLevers(p, v) {
   $("lvG").oninput = (e) => { S.prices["utilities.glucose_usd_kg"] = +e.target.value; if (S.kase === "base") S.kase = "custom"; render(); };
   $("lvR").oninput = (e) => { S.rate = +e.target.value; if (S.kase === "base") S.kase = "custom"; render(); };
   $("locSeg").querySelectorAll("button").forEach(b => b.onclick = () => { S.loc = b.dataset.loc; render(); });
+  if (v.error) return;
   const mark = () => { if (S.kase === "base") S.kase = "custom"; };
   $("lvL").oninput = (e) => { S.lang = +e.target.value; mark(); render(); };
   $("lvM").oninput = (e) => { S.prices["finance.maintenance_frac_tci"] = +e.target.value; mark(); render(); };
@@ -783,7 +839,7 @@ function renderLevers(p, v) {
     if (b.dataset.acct === "nrel" && n) { S.lang = n.lang; S.prices["finance.maintenance_frac_tci"] = n.f_maint; S.prices["finance.insurance_tax_frac_tci"] = n.f_ins; }
     if (S.kase === "base" && b.dataset.acct === "nrel") S.kase = "custom";
     render(); });
-  if (!onGrid) { $("lvTV").textContent += " (base)"; }
+  if (!onGrid) { $("lvTV").textContent += " (start)"; }
 }
 
 // Accounting: how the plant's cost becomes a yearly charge. These change no equipment, batch or staff, so the
@@ -799,8 +855,8 @@ function accountingLevers(p, v, rate, life) {
   if (v.error) return "";
   const c = v.chain, L0 = langOf(v), L = S.lang ?? L0, n = p.analyses && p.analyses.nrel, mode = acctMode(p);
   const fm = S.prices["finance.maintenance_frac_tci"] ?? c.f_maint, fi = S.prices["finance.insurance_tax_frac_tci"] ?? c.f_ins;
-  let h = `<div style="grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;margin-top:4px">
-    <b>Accounting</b> <span class="muted" style="font-size:13px">How the plant's cost becomes a yearly charge. These are conventions, not measurements.</span>
+  let h = `<div style="margin-bottom:10px">
+    <span class="muted" style="font-size:13px">How the plant's cost becomes a yearly charge. These are conventions, not measurements.</span>
     <div class="seg" id="acctSeg" style="margin-top:6px">
       <button data-acct="humbird" aria-pressed="${mode === "humbird"}" title="Humbird's facility factors and fixed costs: the base">Humbird method (base)</button>
       <button data-acct="nrel" aria-pressed="${mode === "nrel"}" ${n ? "" : "disabled"} title="The installation factors and fixed costs of NREL-style design reports">NREL-style design report</button>
@@ -808,14 +864,14 @@ function accountingLevers(p, v, rate, life) {
   h += lever("lvL", "Plant cost ÷ listed equipment", `${sig(L, 3)}×`, `installation, buildings, engineering and fees, scaled together (this plant: ${sig(L0, 3)}×)`, 2.5, 8, 0.05, L, "capital.facility_class");
   h += lever("lvM", "Maintenance", `${pct(fm, 1)} of plant cost a year`, `base ${pct(c.f_maint, 1)}`, 0, 0.08, 0.001, fm, "finance.maintenance_frac_tci");
   h += lever("lvI", "Insurance and local taxes", `${pct(fi, 1)} of plant cost a year`, `base ${pct(c.f_ins, 1)}`, 0, 0.08, 0.001, fi, "finance.insurance_tax_frac_tci");
-  h += lever("lvY", "Plant life for the capital charge", `${sig(life)} years`, `base ${sig(c.ccf_life)} years; the rate slider is above`, 5, 30, 1, life, "finance.ccf_life_y");
+  h += lever("lvY", "Plant life for the capital charge", `${sig(life)} years`, `base ${sig(c.ccf_life)} years; the interest rate is under Key assumptions`, 5, 30, 1, life, "finance.ccf_life_y");
   // check: the page's NREL-style price on the base plant against the model's own NREL-style run
   if (n) {
     const bv = caseView(p, "base"), save = { lang: S.lang, prices: S.prices, rate: S.rate, life: S.life, loc: S.loc };
     S.lang = n.lang; S.prices = { "finance.maintenance_frac_tci": n.f_maint, "finance.insurance_tax_frac_tci": n.f_ins }; S.rate = S.life = null; S.loc = "us";
     const pageN = priced(p, bv).total; Object.assign(S, save);
     const d = pageN / n.msp - 1;
-    h += `<p class="note" style="grid-column:1/-1">Base case with NREL-style accounting: ${usd(pageN, 3)}/kg on this page, ${usd(n.msp, 3)}/kg in the model's own
+    h += `<p class="note">Today's design with NREL-style accounting: ${usd(pageN, 3)}/kg on this page, ${usd(n.msp, 3)}/kg in the model's own
       design-report run (${d >= 0 ? "+" : ""}${pct(d, 1)}; that run also leaves out the warehouse and installs fermenters differently).
       Humbird's method is the one tied to a real price: it puts baker's yeast on its market cost (see "Checks against reality").</p>`;
   }
@@ -823,20 +879,20 @@ function accountingLevers(p, v, rate, life) {
 }
 
 function cellClass(msp, band) {
-  if (msp <= band[0]) return ["var(--c0)", "below the band"];
-  if (msp <= band[1]) return ["var(--c1)", "inside the band"];
-  if (msp <= 2 * band[1]) return ["var(--c2)", "up to 2x the top"];
-  if (msp <= 4 * band[1]) return ["var(--c3)", "2-4x the top"];
-  return ["var(--c4)", "over 4x the top"];
+  if (msp < band[0]) return ["var(--c0)", "cheaper than the animal version"];
+  if (msp <= band[1]) return ["var(--c1)", "within the animal price range"];
+  if (msp <= 2 * band[1]) return ["var(--c2)", "up to 2× the animal price"];
+  if (msp <= 4 * band[1]) return ["var(--c3)", "2–4× the animal price"];
+  return ["var(--c4)", "over 4× the animal price"];
 }
 function limitWord(flags) {
   const f = flags.join("; ");
-  if (/OUR|O2/.test(f)) return "O2 supply";
-  if (/heat/.test(f)) return "heat removal";
+  if (/OUR|O2/.test(f)) return "not enough oxygen";
+  if (/heat/.test(f)) return "too much heat to remove";
   if (/initial fill/.test(f)) return "minimum fill";
   if (/specific productivity/.test(f)) return "secretion ceiling";
   if (/solubility/.test(f)) return "solubility";
-  if (/reach/.test(f)) return "titer not reachable";
+  if (/reach/.test(f)) return "the cells cannot reach this much protein";
   return "infeasible";
 }
 function renderMap(p, v) {
@@ -859,7 +915,7 @@ function renderMap(p, v) {
     if (y >= T && y <= H - B) caseMarks.push({ key, x, y, r });
   }
   const markIn = (x0, y0) => caseMarks.some(m => m.x >= x0 && m.x <= x0 + cw && m.y >= y0 && m.y <= y0 + ch);
-  let s = `<svg viewBox="0 0 ${W} ${H}" id="mapSvg" role="img" aria-label="Cost by titer and production time">
+  let s = `<svg viewBox="0 0 ${W} ${H}" id="mapSvg" role="img" aria-label="Cost by protein per litre and hours making protein">
     <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="var(--cinf)"/><line x1="0" y1="0" x2="0" y2="6" stroke="var(--faint)" stroke-width="1.2"/></pattern></defs>`;
   for (let i = 0; i < nT; i++) for (let j = 0; j < nt; j++) {
     const gv = gridView(p, S.k, i, j), x = L + j * cw, y = H - B - (i + 1) * ch;
@@ -876,13 +932,13 @@ function renderMap(p, v) {
   }
   for (let i = 0; i < nT; i++) s += `<text x="${L - 6}" y="${H - B - (i + 0.5) * ch + 4}" text-anchor="end" class="muted">${sig(ax.titer[i])}</text>`;
   for (let j = 0; j < nt; j++) s += `<text x="${L + (j + 0.5) * cw}" y="${H - B + 16}" text-anchor="middle" class="muted">${sig(ax.t_prod[j])}</text>`;
-  s += `<text x="${L + (W - L - R) / 2}" y="${H - 8}" text-anchor="middle">production time (h)</text>`;
-  s += `<text transform="translate(14 ${T + (H - T - B) / 2}) rotate(-90)" text-anchor="middle">titer (g/L)</text>`;
+  s += `<text x="${L + (W - L - R) / 2}" y="${H - 8}" text-anchor="middle">hours making protein per batch</text>`;
+  s += `<text transform="translate(14 ${T + (H - T - B) / 2}) rotate(-90)" text-anchor="middle">protein per litre of broth (g/L)</text>`;
   // published titers on the right edge
   const mk = (p.markers || []).filter(x => x.titer >= ax.titer[0] * 0.5);
   mk.forEach(x => {
     const y = yOf(x.titer);
-    s += `<line x1="${W - R}" x2="${W - R + 8}" y1="${y}" y2="${y}" stroke="var(--ink)" stroke-width="1.5"/><text x="${W - R + 11}" y="${y + 4}" style="font-size:10px" data-tip="${esc(x.label)}: ${sig(x.titer)} g/L">${esc(x.label.length > 24 ? x.label.slice(0, 23) + "…" : x.label)}</text>`;
+    s += `<line x1="${W - R}" x2="${W - R + 8}" y1="${y}" y2="${y}" stroke="var(--ink)" stroke-width="1.5"/><text x="${W - R + 11}" y="${y + 4}" style="font-size:10px" data-tip="${esc(plainLabel(x.label))}: ${sig(x.titer)} g/L">${esc(trunc(plainLabel(x.label), 26))}</text>`;
   });
   // required titers (exact model inverse, base scale and prices)
   const req = p.analyses && p.analyses.required, atBase = S.k === ax.scale.indexOf(1) && !pricesChanged();
@@ -891,7 +947,7 @@ function renderMap(p, v) {
     Object.entries(req.targets).forEach(([tgt, ts], n) => {
       const pts = req.t_prods.map((t, q) => ts[q] ? [xOf(t), yOf(ts[q])] : null).filter(Boolean);
       if (pts.length > 1) {
-        s += `<polyline points="${pts.map(q => q.join(",")).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="${dash[n] || "4 3"}" data-tip="Titer the model needs for $${tgt}/kg (exact search)"/>`;
+        s += `<polyline points="${pts.map(q => q.join(",")).join(" ")}" fill="none" stroke="var(--ink)" stroke-width="1.4" stroke-dasharray="${dash[n] || "4 3"}" data-tip="Protein per litre needed for $${tgt}/kg (exact model search)"/>`;
         const lp = pts[pts.length - 1]; s += `<text x="${lp[0] + 4}" y="${lp[1] - 3}" style="font-size:10.5px;font-weight:600;paint-order:stroke;stroke:var(--panel);stroke-width:3px">$${tgt}</text>`;
       }
     });
@@ -901,15 +957,15 @@ function renderMap(p, v) {
     const halo = "paint-order:stroke;stroke:var(--panel);stroke-width:3.5px;stroke-linejoin:round";
     s += `<g data-tip="${esc(CASE_NAME[key])}: ${sig(r.inputs.titer)} g/L in ${sig(r.inputs.t_prod)} h (other inputs differ too)">
       <g style="filter:drop-shadow(0 0 1.5px var(--panel))">${CASE_MARK[MK[key]](x, y)}</g>
-      <text x="${x + 9}" y="${y - 7}" style="font-size:10.5px;font-weight:600;fill:var(--accent);${halo}">${esc(CASE_NAME[key].split(" ")[0])}</text></g>`;
+      <text x="${x + 9}" y="${y - 7}" style="font-size:10.5px;font-weight:600;fill:var(--accent);${halo}">${esc(CASE_SHORT[key])}</text></g>`;
   }
   s += `</svg>`;
-  const leg = [["var(--c0)", "below the price to beat"], ["var(--c1)", "inside the band"], ["var(--c2)", "up to 2x its top"], ["var(--c3)", "2–4x"], ["var(--c4)", "over 4x"]];
+  const leg = [["var(--c0)", "cheaper than the animal version"], ["var(--c1)", "within its price range"], ["var(--c2)", "up to 2× the animal price"], ["var(--c3)", "2–4×"], ["var(--c4)", "over 4×"]];
   const lg = `<div class="legend" style="margin-top:6px">${leg.map(([c, t]) => `<span><span class="sw" style="background:${c}"></span>${t}</span>`).join("")}
-    <span><span class="sw" style="background:url(#hatch);background:repeating-linear-gradient(45deg,var(--cinf),var(--cinf) 3px,var(--faint) 3px,var(--faint) 4px)"></span>breaks a physical limit (point at it to see which)</span></div>
-    <p class="muted" style="font-size:12.5px">Cost per kg at ${sig(ax.annual_t[S.k])} t/yr and the current prices. Each cell is one model run. Click a cell to select it.
-    ${req && atBase ? "Dashed lines show the titer needed for each target price. The model searched for these exactly." : req ? "The target-price lines show only at the base plant size and prices." : ""}
-    ◆ industry benchmark, ○ best published strain, ▲ physical-limit best case: they also change other inputs. Ticks on the right mark published titers.</p>`;
+    <span><span class="sw" style="background:repeating-linear-gradient(45deg,var(--cinf),var(--cinf) 3px,var(--faint) 3px,var(--faint) 4px)"></span>physically impossible (point at it to see why)</span></div>
+    <p class="muted" style="font-size:12.5px">Cost per kg for a plant making ${sig(ax.annual_t[S.k])} tonnes a year, at the current prices. The black frame is your selection.
+    ${req && atBase ? "Dashed lines show how much protein per litre each target cost needs. The model searched for these exactly." : req ? "The target-cost lines show only at the base plant size and prices." : ""}
+    ○ best strain in a published paper, ◆ companies' own figures, ▲ best case: these also change other inputs. The labels on the right mark published results.</p>`;
   $("mapBody").innerHTML = `<div class="scroll">${s}</div>${lg}`;
   $("mapSvg").querySelectorAll("rect[data-i]").forEach(r => r.addEventListener("click", () => {
     if (S.kase !== "base" && S.kase !== "custom") Object.assign(S, baseIdx(p));
@@ -969,16 +1025,18 @@ function renderSugar(p, v) {
     <li><span class="tick ${Math.abs(s.carbon_gap) < 0.005 ? "ok" : "bad"}">${Math.abs(s.carbon_gap) < 0.005 ? "✓" : "✗"}</span> Carbon going in (glucose, starter cells) and coming out (cells, protein, CO₂) differ by ${pct(s.carbon_gap, 4)}.</li></ul>`;
   const make = u["making the protein sold"], grow = u["growing the cells"] + u["slow growth during production"];
   h += `<p>Only ${sig(make, 2)} of ${sig(sum, 2)} kg of glucose (${pct(make / sum, 0)}) goes into making the protein that is sold. Growing the cells takes ${sig(grow, 2)} kg.
-    Keeping the cells alive takes most of the rest. A higher titer spreads the cells' glucose over more protein.</p>
+    Keeping the cells alive takes most of the rest. More protein per litre spreads the cells' glucose over more protein.</p>
     <p class="muted" style="font-size:12.5px">"Making the protein" includes the glucose that cells burn for the energy to build it. That is why it is more than the protein's own weight.
     The split comes from src/pftea/balances.py.</p>`;
   el.innerHTML = h;
 }
 
 // ------------------------------------------------------------------ section 7: uncertainty
-function renderUnc(p) {
+function renderUnc(p, v, m) {
   const el = $("uncBody"), a = p.analyses || {};
-  if (!a.tornado || !a.tornado.length) { el.innerHTML = `<p class="muted">No uncertainty results on file (run scripts/run_analyses.py).</p>`; return; }
+  const intro = `<p class="lead">Two things are uncertain: how good the microbes will get, and the inputs the model assumes.
+    The chart shows four starting points. Each line spans the middle 8 in 10 runs with random input values.</p><div id="strip"></div>`;
+  if (!a.tornado || !a.tornado.length) { el.innerHTML = intro + `<p class="muted">No uncertainty results on file (run scripts/run_analyses.py).</p>`; renderStrip(p, v, m); return; }
   const tor = a.tornado.slice().sort((x, y) => Math.abs(y.msp_high - y.msp_low) - Math.abs(x.msp_high - x.msp_low)).slice(0, 12);
   const base = tor[0].base, all = tor.flatMap(t => [t.msp_low, t.msp_high, base]);
   const lo = Math.min(...all) * 0.95, hi = Math.max(...all) * 1.05;
@@ -988,26 +1046,27 @@ function renderUnc(p) {
   tor.forEach((t, n) => {
     const y = 6 + n * rowH, a1 = Math.min(t.msp_low, t.msp_high), a2 = Math.max(t.msp_low, t.msp_high);
     const fmtEnd = (e) => typeof e === "number" ? sig(e, 3) : e;
-    s += `<text x="${L - 8}" y="${y + 13}" text-anchor="end">${esc(t.label.length > 40 ? t.label.slice(0, 39) + "…" : t.label)}</text>`;
+    s += `<text x="${L - 8}" y="${y + 13}" text-anchor="end">${esc(trunc(plainLabel(t.label), 40))}</text>`;
     s += `<rect x="${X(a1)}" y="${y + 3}" width="${Math.max(X(a2) - X(a1), 1)}" height="${rowH - 7}" fill="${KIND_COLOR[t.grade] || "var(--kS)"}" opacity="0.85"
-      data-tip="${esc(t.label)} (${esc(t.kind)}): ${esc(fmtEnd(t.low))} → $${sig(t.msp_low, 3)}, ${esc(fmtEnd(t.high))} → $${sig(t.msp_high, 3)}"/>`;
+      data-tip="${esc(plainLabel(t.label))} (${esc(t.kind)}): ${esc(fmtEnd(t.low))} → $${sig(t.msp_low, 3)}, ${esc(fmtEnd(t.high))} → $${sig(t.msp_high, 3)}"/>`;
   });
   s += `<line x1="${X(base)}" x2="${X(base)}" y1="2" y2="${H - 28}" stroke="var(--ink)"/>`;
   const ticks = []; const st = Math.pow(10, Math.floor(Math.log10((hi - lo) / 4))); for (let t = Math.ceil(lo / st) * st; t <= hi; t += st * (((hi - lo) / st) > 8 ? 2 : 1)) ticks.push(t);
   for (const t of ticks) s += `<text x="${X(t)}" y="${H - 12}" text-anchor="middle" class="muted">$${sig(t, 3)}</text>`;
   s += `</svg>`;
   const kinds = [...new Set(tor.map(t => t.grade))];
-  let h = `<h3>What moves the industry-benchmark price most</h3><p class="muted" style="font-size:13px">Each bar moves one input from the low to the high end of its range. The colour shows the kind of evidence behind it.
-    If an end breaks a physical limit, the bar stops at the limit. These runs use the industry benchmark case ($${sig(base, 3)}/kg, US) and its ranges.</p>
+  let h = `<h3>Which assumptions matter most</h3><p class="muted" style="font-size:13px">Each bar moves one input from the low to the high end of its plausible range. The colour shows the kind of evidence behind it.
+    If an end breaks a physical limit, the bar stops at the limit. These runs start from companies' own figures ($${sig(base, 3)}/kg, US).</p>
     <div class="scroll">${s}</div><div class="legend">${kinds.map(k => `<span><span class="sw" style="background:${KIND_COLOR[k] || "var(--kS)"}"></span>${esc(EVID[k] || k)}</span>`).join("")}</div>`;
   const mc = a.monte_carlo || {};
   if (Object.keys(mc).length) {
-    h += `<h3>All uncertain inputs at once</h3><p class="muted" style="font-size:13px">The model ran hundreds of times with random input values. 1 run in 10 cost less than the low value. 1 in 10 cost more than the high value.</p><table><thead><tr><th>Case</th><th class="n">low</th><th class="n">middle</th><th class="n">high</th><th class="n">runs</th></tr></thead><tbody>
+    h += `<h3>All uncertain inputs at once</h3><p class="muted" style="font-size:13px">The model ran hundreds of times with random input values. 1 run in 10 cost less than the low value. 1 in 10 cost more than the high value.</p><table><thead><tr><th>Starting point</th><th class="n">low</th><th class="n">middle</th><th class="n">high</th><th class="n">runs</th></tr></thead><tbody>
       ${Object.entries(mc).map(([k, x]) => `<tr><td>${esc(CASE_NAME[k] || k)}</td><td class="n">$${sig(x.p10, 3)}</td><td class="n">$${sig(x.p50, 3)}</td><td class="n">$${sig(x.p90, 3)}</td><td class="n">${x.n}</td></tr>`).join("")}</tbody></table>
       <p class="muted" style="font-size:12.5px">Only runs that pass every physical limit count. Each input is drawn on its own from its range (report, "Uncertainty").</p>`;
   }
   h += `<p class="faint" style="font-size:12px">From results/analyses.json, generated ${esc(a.generated || "?")}.</p>`;
-  el.innerHTML = h;
+  el.innerHTML = intro + h;
+  renderStrip(p, v, m);
 }
 
 // ------------------------------------------------------------------ section 8: inputs
@@ -1030,7 +1089,7 @@ function renderInputs(p) {
     if (q && !(r.path + " " + r.label + " " + r.source).toLowerCase().includes(q)) continue;
     n++;
     const range = r.low !== undefined && r.low !== null ? `${fmtVal(r.low)} – ${fmtVal(r.high)}` : "";
-    h += `<tr id="in-${r.path.replace(/[^\w]/g, "_")}" class="${ov ? "changed" : ""} ${un ? "unused" : ""}"><td><b>${esc(r.label)}</b><div class="faint" style="font-size:11.5px">${esc(r.path)}</div></td>
+    h += `<tr id="in-${r.path.replace(/[^\w]/g, "_")}" class="${ov ? "changed" : ""} ${un ? "unused" : ""}"><td><b>${esc(plainLabel(r.label))}</b><div class="faint" style="font-size:11.5px">${esc(r.path)}</div></td>
       <td class="n">${fmtVal(r.value)}</td><td class="n">${range}</td><td class="muted">${esc(r.unit || "")}</td>
       <td>${r.grade ? `<span class="sw" style="background:${KIND_COLOR[r.grade] || "var(--kS)"}"></span>${esc(EVID[r.grade] || r.grade)}` : ""}</td>
       <td><div class="src-text clamp" title="Click to expand">${esc(r.source || "")}</div></td></tr>`;
@@ -1091,11 +1150,11 @@ function renderRepro(p, v, m) {
 
 // ------------------------------------------------------------------ top bar, URL state, render
 function renderBar() {
-  $("prodSeg").innerHTML = PRODUCTS.map(k => `<button aria-pressed="${k === S.prod}" data-p="${k}" title="${esc(D.products[k].name)}: ${esc(D.products[k].what)}">${esc(D.products[k].short)}</button>`).join("");
+  $("prodSel").innerHTML = PRODUCTS.map(k => `<option value="${k}" ${k === S.prod ? "selected" : ""}>${esc(cap(D.products[k].name))} (${esc(D.products[k].plain)})</option>`).join("");
   const p = P();
   $("caseSeg").innerHTML = CASES.filter(c => c[0] !== "custom" || isCustom()).map(([k, n, w]) =>
     `<button aria-pressed="${(k === "custom" && isCustom()) || (k === S.kase && !isCustom())}" data-c="${k}" title="${esc(w)}" ${k !== "custom" && k !== "base" && !(p.cases[k] && p.cases[k].feasible) ? "disabled" : ""}>${esc(n)}</button>`).join("");
-  $("prodSeg").querySelectorAll("button").forEach(b => b.onclick = () => { setProduct(b.dataset.p); render(); });
+  $("prodSel").onchange = (e) => { setProduct(e.target.value); render(); };
   $("caseSeg").querySelectorAll("button").forEach(b => b.onclick = () => {
     const c = b.dataset.c; if (c === "custom") return;
     S.kase = c; if (c === "base") Object.assign(S, baseIdx(p)); render();
@@ -1130,9 +1189,10 @@ function fromHash() {
 function render() {
   const p = P(), v = currentView(), m = v.error ? null : priced(p, v);
   if (S.kase === "custom" && !isCustom()) S.kase = "base";
-  renderBar(); renderOverview(); renderAnswer(p, v, m || { total: NaN, modelTotal: NaN, group: {} }); renderMoney(p, v, m); renderChain(p, v, m);
-  renderReality(); renderHeaderPrice(p, v, m || { total: NaN, group: {} });
-  renderLevers(p, v); renderMap(p, v); renderLimits(p, v); renderSugar(p, v); renderUnc(p); renderInputs(p); renderRepro(p, v, m);
+  const mm = m || { total: NaN, modelTotal: NaN, group: {} };
+  renderBar(); renderOverview(); renderChain(p, v, m); renderAnswer(p, v, mm); renderMoney(p, v, m);
+  renderReality(); renderSideNow(p, v, mm);
+  renderLevers(p, v); renderMap(p, v); renderLimits(p, v); renderSugar(p, v); renderUnc(p, v, mm); renderInputs(p); renderRepro(p, v, m);
   history.replaceState(null, "", toHash());
   $("foot").textContent = `Model runs from ${D.generated}${D.fast ? " (fast grid)" : ""}. Uncertainty and calibration results from ${D.analyses_generated || "?"}. Public data only.`;
 }
@@ -1140,7 +1200,9 @@ function render() {
 // links into the inputs table, tooltips, buttons
 document.addEventListener("click", (e) => {
   const a = e.target.closest("a[data-in]");
-  if (a) { e.preventDefault(); openInput(a.dataset.in); }
+  if (a) { e.preventDefault(); openInput(a.dataset.in); return; }
+  const st = e.target.closest('a[href^="#step-"]');
+  if (st) { e.preventDefault(); $("chainCard").open = true; const t = $(st.getAttribute("href").slice(1)); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" }); }
 });
 const tip = $("tip");
 document.addEventListener("mousemove", (e) => {
