@@ -20,6 +20,12 @@ def build(data: Path, out: Path) -> int:
     pd = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(pd)
     d["parameters"] = pd.parameters(pd.params.load())      # inputs table: base.yaml as it is now (no grid rerun)
+    a_path = ROOT / "results/analyses.json"                # analyses as they are now (tornado, Monte Carlo, checks)
+    if a_path.exists():
+        a = json.loads(a_path.read_text())
+        d["analyses_generated"], d["reality_checks"] = a.get("generated"), pd.clean(pd.reality_checks(a))
+        for prod, x in d["products"].items():
+            x["analyses"] = pd.clean(pd.analyses_extract(prod, a))
     for prod, x in d["products"].items():                # display names: edited without rerunning the grid
         x.pop("short", None)
         x.update(pd.pr_info(prod))
