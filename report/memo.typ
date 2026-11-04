@@ -58,7 +58,7 @@
 #text(size: 13pt, weight: "bold")[Precision-fermented dairy, egg and serum proteins: what they cost, and where evidence would help]
 #v(-0.3em)
 #text(size: 8.5pt, fill: rgb("#52514e"))[Memo · v4.1, seven proteins (#R.generated) · Pablo Antonio Moreno Casares · techno-economic model `pf-tea`,
-Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs · prepared with an AI assistant; not yet reviewed by human experts]
+Humbird (2021) method, checked against NREL, Intelligen and Voutilainen designs · prepared with an AI assistant; not yet reviewed by human experts · the views expressed are the author's own and do not represent the views of the European Commission]
 
 *How the price works.* Figures are minimum selling prices: costs per kg of protein including a capital charge that repays
 the plant over #P.finance.ccf_life_y.value years at #fx(100 * P.finance.ccf_rate.value, d: 1)% (#fx(100 * CRF, d: 1)% of the investment a year), not market prices.

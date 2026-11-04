@@ -42,6 +42,8 @@
 
 #v(0.6em)
 #note[
+  *Views.* The views expressed are purely those of the author and may not in any circumstances be regarded as stating an official position of the European Commission.
+
   *Status.* No human expert has reviewed this analysis yet. The author built the model, the evidence
   base and this text with an AI assistant (Claude, Anthropic). Independent AI reviewers then audited
   each version, and each reviewer had to back every finding with a computation, a quote or a line of
