@@ -37,7 +37,7 @@
   #v(0.6em)
   Pablo Antonio Moreno Casares
   #v(0.1em)
-  #text(size: 9pt, fill: rgb("#52514e"))[Version 4.1 (seven proteins; v2.1 audited and AI pre-reviewed) for human review · numbers generated #R.generated · repository `pf-tea`]
+  #text(size: 9pt, fill: rgb("#52514e"))[Version 4.1 (seven proteins; v2.1 audited and AI pre-reviewed) for human review · numbers generated #R.generated · repository `precision-fermentation-tea`]
 ]
 
 #v(0.6em)

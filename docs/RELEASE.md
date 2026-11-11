@@ -38,6 +38,20 @@ repository private.
    the minimum starting fill) have been checked least and move the headline numbers most.
 4. **Venue.** engrXiv, as planned (Humbird's report is there too).
 
+## Hiding the commit emails (done 2026-11-11)
+
+Pablo chose to rewrite this repository in place, then rename it `precision-fermentation-tea`.
+- `git filter-repo --mailmap` mapped both of his Gmail addresses to his GitHub noreply address
+  (`20182937+PabloAMC@users.noreply.github.com`) in all 16 branches; all were force-pushed with
+  leases on their old commits. A fresh clone holds no Gmail address in any commit, message or file.
+- GitHub keeps each pull request's original commits (`refs/pull/1-12/head`). These still carry the
+  old addresses and cannot be removed by a push. Before or right after going public, ask GitHub
+  Support to remove them (support.github.com, "Removing sensitive data": list the 12 PR refs and
+  ask them to purge cached views and unreachable commits).
+- Other clones made before 2026-11-11 hold the old history: re-clone them rather than pull.
+- For future commits: GitHub Settings, Emails, "Keep my email addresses private" and "Block command
+  line pushes that expose my email"; set `git config user.email` to the noreply address.
+
 ## Steps once approved
 
 Claude can do steps 1–2 on request. Steps 3–5 need Pablo's accounts.
@@ -45,7 +59,7 @@ Claude can do steps 1–2 on request. Steps 3–5 need Pablo's accounts.
 1. Redo the fresh-clone install and the history scan on `main`, then tag `v0.4.1` (the version in
    `CITATION.cff`).
 2. Make the repository public:
-   `gh repo edit PabloAMC/pf-tea --visibility public --accept-visibility-change-consequences`.
+   `gh repo edit PabloAMC/precision-fermentation-tea --visibility public --accept-visibility-change-consequences`.
 3. Optional: archive the tag on Zenodo for a DOI (GitHub integration).
 4. Submit `report/pf_tea_report.pdf` (or the short `report/preprint.pdf`) to engrXiv with:
    - the title;
