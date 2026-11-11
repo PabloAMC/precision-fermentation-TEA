@@ -197,4 +197,4 @@ Or all of it at once: `scripts/build_all.sh` (a few hours; `--fast` for a quick 
 ## Licence
 
 Code: MIT (`LICENSE`). Data, text and figures: CC BY 4.0 (`LICENSE-DATA.md`). Cite as in
-`CITATION.cff`. (Proposed licences; the author confirms them at public release.)
+`CITATION.cff`.

@@ -17,5 +17,4 @@ Exceptions and third-party material:
 - `references/papers/` (not distributed) and the Humbird (2021) SI workbook, which is CC BY and
   credited in `references/papers/NOTICE.md`.
 
-Status: licence choice proposed by the assistant on 2026-09-27 and to be confirmed by the author
-before any public release.
+Status: confirmed by the author on 2026-11-11 for the public release.
