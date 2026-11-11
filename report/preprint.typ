@@ -27,7 +27,7 @@
   #v(0.5em)
   Pablo Antonio Moreno Casares
   #v(0.1em)
-  #text(size: 9pt, fill: rgb("#52514e"))[Preprint draft · numbers generated #R.generated · code and data: repository `pf-tea` · full report: `report/pf_tea_report.pdf`]
+  #text(size: 9pt, fill: rgb("#52514e"))[Preprint draft · numbers generated #R.generated · code and data: repository `precision-fermentation-tea` · full report: `report/pf_tea_report.pdf`]
 ]
 
 #v(0.4em)

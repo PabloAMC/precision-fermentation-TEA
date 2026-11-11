@@ -1309,7 +1309,7 @@ function init() {
     render();
   });
   drawMethod();
-  $("gen").textContent = `Model results generated ${D.generated}. The page holds ${G.values.length.toLocaleString("en-US")} simple-model runs${DG ? " and " + DG.values.length.toLocaleString("en-US") + " detailed-model runs" : ""} (repository pf-tea).`;
+  $("gen").textContent = `Model results generated ${D.generated}. The page holds ${G.values.length.toLocaleString("en-US")} simple-model runs${DG ? " and " + DG.values.length.toLocaleString("en-US") + " detailed-model runs" : ""} (repository precision-fermentation-tea).`;
   drawRef();
   render();
 }
