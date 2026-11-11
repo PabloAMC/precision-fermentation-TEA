@@ -102,8 +102,8 @@ fermenter:
     source: "sizes spanning published food-PF designs: 100 m3 (Intelligen lactoferrin, 6 staggered vessels, lactoferrin.yaml), 136 m3 (Intelligen ovalbumin), 150 m3 (Liberation Labs, C), 80-120 m3 culture volume (GFI Europe, C), up to the 200 m3 cap; 50 m3 is a design choice (D) for plants below ~250 t/yr"}
   h_to_d: {value: 2.0, grade: B, source: "Humbird Equip Table10 STRFERM 200,000: 196.5 m3, D 5 m"}
   fill_max: {value: 0.8, grade: B, source: "Humbird Fig1.3!C8; NREL 2011 80%"}
-  min_initial_fill: {value: 0.30, low: 0.30, high: 0.50, grade: B,
-    source: "lowest start fill in a published design: Intelligen OVA starts the growth phase at 41,523 L in a 136 m3 vessel = 30.5% (p.6); NREL 2011 starts at 50% (p.37, high); Impossible US 9,938,327: 40% of the maximum working volume (= 32% of vessel). No design text states a physical minimum (impeller submergence). A batch that must start below this fill is infeasible"}
+  min_initial_fill: {value: 0.30, low: 0.14, high: 0.50, grade: B,
+    source: "lowest start fill in a published design: Intelligen OVA starts the growth phase at 41,523 L in a 136 m3 vessel = 30.5% (p.6); NREL 2011 starts at 50% (p.37, high); Impossible US 9,938,327: 40% of the maximum working volume (= 32% of vessel). No design text states a physical minimum (impeller submergence). Low = the equipment floor: vendors rate microbial pilot fermenters down to 60 L of 435 L total (Thermo HyPerforma S.U.F. 300 L, 13.8%; floor tied to probe submergence and stirring) and 11.6-16% of total (Infors Techfors 75-750 L): engineering.yaml min_working_volume_*, grade C, and their use at 100-400 m3 is a judgment. A batch that must start below this fill is infeasible"}
   pv_max_W_m3: {value: 5000, low: 2500, high: 5000, unit: W/m3, grade: B,
     source: "Humbird 2021 p.5 'an agitation rate up to ~5,000 W/m3' design limit in high-density fermentation (B); low = NREL 300 m3 T. reesei maximum 600 kW on 240 m3 of liquid = 2,500 W/m3 (B, derived)"}
   us_max_m_s: {value: 0.10, low: 0.05, high: 0.23, unit: m/s, grade: D,

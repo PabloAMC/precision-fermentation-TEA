@@ -1,8 +1,13 @@
 # Release (Phase G)
 
-Status (2026-10-30): v4.1 is on `main` and the release files are ready; nothing is public (the
-repository is private). Making the repository public and posting the preprint both need Pablo's
-explicit go-ahead.
+Status (2026-11-11): Pablo has decided to make the work public. Licences are confirmed (below).
+The page, report, memo and preprint state that the views are the author's own and not the
+European Commission's. Pablo wants the commit author emails hidden in the public history, which
+decides how step 2 is done (see "Hiding the commit emails"). Posting the preprint still needs his
+go-ahead.
+
+Before that (2026-10-30): v4.1 was on `main` and the release files were ready, with the
+repository private.
 
 ## Checked
 
@@ -24,7 +29,7 @@ explicit go-ahead.
 
 ## Decisions for Pablo
 
-1. **Licences.** Proposed: MIT for code and CC BY 4.0 for data, text and figures
+1. **Licences.** Confirmed 2026-11-11: MIT for code and CC BY 4.0 for data, text and figures
    (`LICENSE`, `LICENSE-DATA.md`).
 2. **Authorship and AI disclosure.** Proposed: sole author, with the report's existing statement
    that the model and text were built with an AI assistant under the author's direction.

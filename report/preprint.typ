@@ -32,6 +32,8 @@
 
 #v(0.4em)
 #note[
+  *Views.* The views expressed are purely those of the author and may not in any circumstances be regarded as stating an official position of the European Commission.
+
   *Status.* No human expert has reviewed this work yet. The author built the model and this text with
   an AI assistant (Claude, Anthropic), and independent AI reviewers audited it over 17 rounds
   (`docs/AUDIT.md`). The model computes every number here; the full report gives the methods in detail.

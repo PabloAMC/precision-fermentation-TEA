@@ -356,7 +356,7 @@ def write(products, sized, axes, sugar_jobs, grid, case_out, a, fast, t0):
         p_base = sized[(prod, 1)]
         info = pr_info(prod)
         out["products"][prod] = dict(
-            name=info["name"], short=info["short"], what=info["what"], host=v(p_base, "strain.host"), spec=v(p_base, "plant.spec"),
+            **info, host=v(p_base, "strain.host"), spec=v(p_base, "plant.spec"),
             axes=ax, vessel_choices=vols, schema=s,
             grid=[compact(r, s) for r in recs],                 # index = ((k * nT) + i) * nt + j
             sugar=sug, cases={c: rec for (pp, c), rec in case_out.items() if pp == prod},
@@ -372,20 +372,22 @@ def write(products, sized, axes, sugar_jobs, grid, case_out, a, fast, t0):
     print(f"wrote {OUT} ({OUT.stat().st_size / 1e6:.1f} MB) in {time.time() - t0:.0f} s")
 
 
-DISPLAY = {   # plain names and one line on what each protein is (README's table)
-    "blg": ("β-lactoglobulin", "BLG", "the main whey protein"),
-    "alac": ("α-lactalbumin", "α-lac", "the second whey protein, used in infant formula"),
-    "ova": ("ovalbumin", "OVA", "the main egg-white protein"),
-    "ovd": ("ovomucoid", "OVD", "an egg-white protein sold as a heat-stable ingredient"),
-    "cas": ("β-casein", "β-casein", "one of the two main proteins of cheese curd"),
-    "lf": ("lactoferrin", "LF", "a scarce, high-value milk protein"),
-    "alb": ("serum albumin", "albumin", "a protein in the growth media of cultivated meat"),
+DISPLAY = {   # full name, everyday name, one line on what it is (README's table), the animal version it competes with
+    "blg": ("β-lactoglobulin", "whey protein", "the main whey protein", "whey protein from cows' milk"),
+    "ova": ("ovalbumin", "egg-white protein", "the main egg-white protein", "dried egg white from hens' eggs"),
+    "ovd": ("ovomucoid", "heat-stable egg-white protein", "an egg-white protein sold as a heat-stable ingredient",
+            "dried egg white from hens' eggs"),
+    "cas": ("β-casein", "cheese protein", "one of the two main proteins of cheese curd", "casein from cows' milk"),
+    "lf": ("lactoferrin", "rare milk protein", "a scarce, high-value milk protein", "lactoferrin from cows' milk"),
+    "alb": ("serum albumin", "blood protein", "a protein in the growth media of cultivated meat", "albumin from cows' blood"),
+    "alac": ("α-lactalbumin", "infant-formula whey protein", "the second whey protein, used in infant formula",
+             "α-lactalbumin from cows' milk"),
 }
 
 
 def pr_info(prod: str) -> dict:
-    name, short, what = DISPLAY.get(prod, (prod, prod, ""))
-    return dict(name=name, short=short, what=what)
+    name, plain, what, animal = DISPLAY.get(prod, (prod, prod, "", "the animal version"))
+    return dict(name=name, plain=plain, what=what, animal=animal)
 
 
 def clean(x):

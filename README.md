@@ -108,7 +108,7 @@ The scenario `data/pf/scenarios/detailed.yaml` switches them on together. A four
 | Full report (preprint draft) | `report/pf_tea_report.pdf` (source `report/pf_tea_report.typ`) |
 | Workbook with every parameter and result | `report/pf_tea_SI.xlsx` |
 | Interactive explorer (no install) | `docs/explorer.html` |
-| Model panel: the price step by step, with checks (no install; draft redesign) | `docs/panel.html` (design: `docs/PANEL_DESIGN.md`) |
+| Model panel: can fermentation match the animal price? Each protein, step by step, with checks (no install) | `docs/panel.html` (design: `docs/PANEL_DESIGN.md`) |
 | Figures | `docs/figures/*.png` |
 | Checks against published models | `docs/VALIDATION.md` |
 | Audit log and AI reviews | `docs/AUDIT.md`, `docs/REVIEW.md`, `docs/ai-review/` |
@@ -197,4 +197,4 @@ Or all of it at once: `scripts/build_all.sh` (a few hours; `--fast` for a quick 
 ## Licence
 
 Code: MIT (`LICENSE`). Data, text and figures: CC BY 4.0 (`LICENSE-DATA.md`). Cite as in
-`CITATION.cff`. (Proposed licences; the author confirms them at public release.)
+`CITATION.cff`.
