@@ -55,7 +55,7 @@ common = """| Form field | Value (all rows) |
 | Product class | Precision fermentation (secreted food proteins) |
 | Author, Year | Moreno Casares, 2026 |
 | Publication title | What precision-fermented food proteins cost: an open model (preprint; `report/preprint.pdf`) |
-| Citation | Moreno Casares PA (2026). pf-tea, version {version}. https://github.com/PabloAMC/precision-fermentation-tea |
+| Citation | Moreno Casares PA (2026). precision-fermentation-tea, version {version}. https://github.com/PabloAMC/precision-fermentation-tea |
 | DOI / URL | **needs the public release** (repository URL, or the Zenodo/engrXiv DOI) |
 | Microbe strain | generic producing strain (no named strain; host physiology from published strains) |
 | Fermentation modality | aerobic fed-batch (growth phase, then production phase) |

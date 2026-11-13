@@ -1,13 +1,15 @@
 cff-version: 1.2.0
-title: "pf-tea: an open techno-economic model for precision-fermented food proteins"
+title: "precision-fermentation-tea: an open techno-economic model for precision-fermented food proteins"
 message: "If you use this model or its data, please cite it as below."
 type: software
 authors:
   - family-names: "Moreno Casares"
     given-names: "Pablo Antonio"
-version: "0.4.1"
-date-released: "2026-09-27"
-license: MIT
+version: "0.5.0"
+date-released: "2026-11-13"
+license:
+  - MIT
+  - CC-BY-4.0
 repository-code: "https://github.com/PabloAMC/precision-fermentation-tea"
 keywords:
   - precision fermentation
@@ -26,5 +28,7 @@ abstract: >-
   following Humbird's (2021) method: element- and electron-balanced stoichiometry, an
   oxygen-transfer-limited fed-batch fermenter, a downstream train and a capital estimate
   anchored to the market price of baker's yeast. Every parameter carries a source and an
-  evidence grade. Prepared with an AI assistant and audited by independent AI reviewers;
-  not yet peer-reviewed.
+  evidence grade. Code under MIT; data, text and figures under CC BY 4.0. Prepared with an
+  AI assistant and audited by independent AI reviewers; not yet reviewed by a human expert.
+  The views expressed are purely those of the author and may not in any circumstances be
+  regarded as stating an official position of the European Commission.

@@ -1,4 +1,4 @@
-// The cost of precision-fermented dairy, egg and serum proteins: techno-economic analysis, v4.1 (seven proteins).
+// The cost of precision-fermented dairy, egg and serum proteins: techno-economic analysis, v5.0 (seven proteins).
 // Compile from the repo root:  typst compile --root . report/pf_tea_report.typ
 // Every number is read at compile time from results/analyses.json (scripts/run_analyses.py)
 // or from the data files. Nothing numeric is typed into this document except fixed definitions
@@ -11,7 +11,7 @@
 #set page(paper: "a4", margin: (x: 2.3cm, y: 2.4cm), numbering: "1",
   header: context { if counter(page).get().first() > 1 [
     #set text(size: 8pt, fill: rgb("#898781"))
-    Precision-fermented dairy, egg and serum proteins: techno-economic analysis #h(1fr) v4.1 (seven proteins), #R.generated
+    Precision-fermented dairy, egg and serum proteins: techno-economic analysis #h(1fr) v5.0 (seven proteins), #R.generated
   ] })
 #set text(font: ("Libertinus Serif", "New Computer Modern"), size: 10.5pt, lang: "en")
 #set par(justify: true, leading: 0.62em, spacing: 1.1em)
@@ -37,7 +37,7 @@
   #v(0.6em)
   Pablo Antonio Moreno Casares
   #v(0.1em)
-  #text(size: 9pt, fill: rgb("#52514e"))[Version 4.1 (seven proteins; v2.1 audited and AI pre-reviewed) for human review · numbers generated #R.generated · repository `precision-fermentation-tea`]
+  #text(size: 9pt, fill: rgb("#52514e"))[Version 5.0 (seven proteins; v2.1 audited and AI pre-reviewed) for human review · numbers generated #R.generated · repository `precision-fermentation-tea`]
 ]
 
 #v(0.6em)

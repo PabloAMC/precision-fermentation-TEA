@@ -52,11 +52,21 @@ Pablo chose to rewrite this repository in place, then rename it `precision-ferme
 - For future commits: GitHub Settings, Emails, "Keep my email addresses private" and "Block command
   line pushes that expose my email"; set `git config user.email` to the noreply address.
 
+## Version 0.5.0 and the Zenodo DOI (2026-11-13)
+
+Tagged `v0.5.0` (CITATION.cff, pyproject.toml; report and memo labelled v5.0). Since 0.4.1 (2026-09-27): methanol
+growth from the measured yield, the sourced minimum-fill range, new evidence and checks, the model panel, the
+disclaimers, and a full rerun of the analyses. Zenodo archives a GitHub *release* (not a bare tag), and only for
+repositories switched on in Zenodo before the release is published. So: (1) Pablo signs in at zenodo.org with
+GitHub and switches on `PabloAMC/precision-fermentation-tea` (Account, GitHub); (2) he publishes a GitHub release
+from the tag `v0.5.0`; (3) Zenodo mints the DOI, which then goes into CITATION.cff, the README and the GFI entries.
+Zenodo reads its metadata (title, author, version, licences, abstract) from CITATION.cff.
+
 ## Steps once approved
 
 Claude can do steps 1–2 on request. Steps 3–5 need Pablo's accounts.
 
-1. Redo the fresh-clone install and the history scan on `main`, then tag `v0.4.1` (the version in
+1. Redo the fresh-clone install and the history scan on `main`, then tag `v0.5.0` (the version in
    `CITATION.cff`).
 2. Make the repository public:
    `gh repo edit PabloAMC/precision-fermentation-tea --visibility public --accept-visibility-change-consequences`.
