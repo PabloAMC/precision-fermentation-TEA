@@ -42,7 +42,9 @@ Kinetics (per C-mol biomass per hour; thermo and product modules):
     glucose. The reactions are linear in their extents, so the rates are the f-weighted sum of the
     all-glucose and all-methanol rates (element and electron balances hold for any f). On methanol:
     the growth stoichiometry is Heijnen's for a C1 source, with the dissipation solved from K. phaffii's
-    measured yield on methanol where the host gives one (Host.yx_meoh; thermo step 9); maintenance is the measured m_s on
+    measured yield on methanol where the host gives one (Host.yx_meoh; thermo step 9); the same switch exists for
+    glucose (Host.yx_glc), used for E. coli, whose Heijnen yield is 15-25% above the measured 0.40-0.46 g/g
+    (docs/VALIDATION.md); maintenance is the measured m_s on
     methanol (Host.m_s_prod_meoh, g methanol/g DCW/h), which includes the energy alcohol oxidase
     wastes (CH3OH + O2 -> HCHO + H2O2 conserves none), so it is set from data, not from the Gibbs
     energy; the product reaction runs at the same fraction of its energetic ceiling as on glucose:
@@ -294,12 +296,18 @@ class Host:
     growth_yield_loss: float = 0.0   # large-tank loss L of the growth yield (module docstring, Options)
     yx_meoh: float | None = None     # measured biomass yield on methanol [g/g] at yx_meoh_mu (thermo step 9)
     yx_meoh_mu: float = 0.1          # 1/h, the growth rate of that measurement
+    yx_glc: float | None = None      # measured biomass yield on glucose [g/g] at yx_glc_mu (thermo step 9); None = Heijnen
+    yx_glc_mu: float = 0.1           # 1/h, the growth rate of that measurement
 
     @property
     def growth(self) -> th.GrowthModel:
+        if self.yx_glc is not None:      # a host whose Heijnen yield misses the measurement (E. coli: +20%)
+            return _growth_model(self.bio, self.T_C, GLC, _measured_dissipation(self.bio, self.T_C, GLC, self.yx_glc, self.yx_glc_mu))
         return _growth_model(self.bio, self.T_C)
 
     def growth_on(self, cs: str) -> th.GrowthModel:
+        if cs == GLC:
+            return self.growth
         if cs == MEOH and self.yx_meoh is not None:
             return _growth_model(self.bio, self.T_C, cs, _measured_dissipation(self.bio, self.T_C, cs, self.yx_meoh, self.yx_meoh_mu))
         return _growth_model(self.bio, self.T_C, cs)

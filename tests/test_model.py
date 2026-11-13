@@ -744,3 +744,63 @@ def test_x_prod_at_x_max_names_its_reason():
     p = params.override(sc.scenario_params("industry", "blg"), {"strain.X_prod_g_L": 150.0})
     with pytest.raises(ValueError, match="growth phase did not reach X_prod"):
         plant.evaluate(p)
+
+
+def test_ecoli_host_uses_the_measured_glucose_yield_and_nothing_else_moves():
+    """E. coli's thermodynamic (Heijnen) yield is ~20% above the measured 0.40 g/g at 0.1/h (Marisch 2013),
+    so hosts.ecoli sets yx_glucose_g_g as an input. The model must reproduce it at that growth rate, stay
+    inside the measured chemostat range (0.40-0.46, Valgepea 2010) at the overflow-limited rates, and leave
+    every other host untouched."""
+    q = sc.base_params("cas")
+    g = plant._host(params.override(q, {"strain.host": "ecoli"})).growth
+    y = lambda mu: mu / (-g.q("Glucose (s)", mu) * 180.16 / g.bio.mw)
+    assert y(0.1) == pytest.approx(0.40, abs=1e-3)
+    assert 0.40 <= y(0.23) <= 0.46 and 0.40 <= y(0.27) <= 0.46
+    assert plant.evaluate(sc.base_params("blg")).msp_ccf == pytest.approx(21.1744, abs=1e-3)   # yeast unchanged
+    assert plant.evaluate(q).msp_ccf == pytest.approx(22.05, abs=5e-3)
+
+
+def _ecoli_casein(**extra):
+    return params.override(sc.base_params("cas"), {"strain.host": "ecoli", "plant.product_location": "intracellular",
+                                                   "strain.titer_g_L": 3.0, "strain.X_prod_g_L": 60.0,
+                                                   "strain.X_max_g_L": 150.0, **extra})
+
+
+def test_intracellular_route_recoveries_multiply_and_the_ledger_closes():
+    r = plant.evaluate(_ecoli_casein())
+    d = r.design
+    assert list(d["recovery_steps"])[:5] == ["cell harvest", "cell wash (microfiltration)", "acid-heat extraction",
+                                             "debris removal", "endotoxin precipitation and polishing"]
+    assert math.prod(d["recovery_steps"].values()) == pytest.approx(d["recovery"], rel=1e-12)
+    A = d["target_per_batch_kg"] * d["n_batches"]
+    assert sum(t["amount"] * t["price"] for t in r.ledger) / A == pytest.approx(r.msp_ccf, rel=1e-12)
+    assert r.ok and not r.flags
+
+
+def test_intracellular_route_costs_what_its_inputs_say():
+    """Each guessed recovery is a direct lever: a lower extraction recovery raises the price in proportion to
+    the product lost (the plant is sized to the sold protein), and the extraction train is in the capital."""
+    base = plant.evaluate(_ecoli_casein())
+    worse = plant.evaluate(_ecoli_casein(**{"dsp.ecoli_extract_recovery": 0.60}))
+    assert "ISBL: acid-heat extraction train" in base.capex and base.capex["ISBL: acid-heat extraction train"] > 0
+    assert worse.msp_ccf > base.msp_ccf * 1.10                       # 0.85 -> 0.60 costs >10% more
+    steam_on, steam_off = base.ledger, plant.evaluate(_ecoli_casein(**{"dsp.acid_heat_recovery": 0.99})).ledger
+    assert sum(t["amount"] for t in steam_on if "steam" in t["item"]) > sum(t["amount"] for t in steam_off if "steam" in t["item"])
+
+
+def test_intracellular_route_leaves_the_secreted_routes_untouched_and_needs_the_acid_spec():
+    assert plant.evaluate(sc.base_params("cas")).msp_ccf == pytest.approx(22.05, abs=5e-3)
+    assert plant.evaluate(sc.base_params("blg")).msp_ccf == pytest.approx(21.1744, abs=1e-3)
+    with pytest.raises(ValueError, match="built for plant.spec = acid"):
+        plant.evaluate(params.override(sc.base_params("blg"), {"plant.product_location": "intracellular"}))
+
+
+def test_intracellular_product_cannot_exceed_the_demonstrated_share_of_the_cells():
+    """3 g/L in 60 g/L of cells is 5% of the dry weight (fine); 20 g/L would be a third, above the 21% demonstrated
+    (Marisch 2013), and must be flagged even though the secretion-rate ceiling is not reached."""
+    ok = plant.evaluate(_ecoli_casein())
+    assert ok.ok and not any("cell dry weight" in f for f in ok.flags)
+    big = plant.evaluate(_ecoli_casein(**{"strain.titer_g_L": 20.0}))
+    assert any("of cell dry weight, above the highest demonstrated" in f for f in big.flags) and not sc.is_feasible(big)
+    sec = plant.evaluate(params.override(sc.base_params("cas"), {"strain.titer_g_L": 30.0}))   # secreted: the check is off
+    assert not any("cell dry weight" in f for f in sec.flags)

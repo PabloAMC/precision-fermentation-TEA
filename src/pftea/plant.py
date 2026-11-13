@@ -40,6 +40,22 @@ Blocks (data in data/pf/base.yaml; equations in each block's comments):
       adding water = solids (1/s_in - 1/s_curd). Decanters are costed on the disk-stack centrifuge
       curve (analogy: no decanter quote on file) for the feed V_perm + n_w x wash; the heater on the
       HTST sterilizer curve; holding and dissolving tanks for their residence times.
+   d''. plant.product_location = intracellular (with the 'acid' spec; E. coli casein, the route of Formo's GRN 1312):
+      the product is inside the cells, so the cells are kept and the front end changes; steps d' onward
+      are unchanged. Steps and recoveries (every R is an input, dsp.ecoli_*; most are guesses, grade E):
+        cell harvest (centrifuges as in a, two stages)             R_h
+        cell wash by microfiltration, w paste volumes of buffer    R_w   V_w = w V_paste,  V_paste = V_cells/(1 - e)
+        acid-heat extraction: cells resuspended to X_e g/L,         R_e   V_e = M_cells / X_e,  H3PO4 = a_e V_e,
+          acid to pH ~2, held at T_e:  steam = V_e rho cp (T_e - T_ferm)(1 - h_rec)/dH_vap
+        debris removal (centrifuge on V_e)                          R_d
+        endotoxin precipitation at pH 10.5 (NaOH = n_l V_e) and
+          polishing microfiltration of V_e                          R_l
+      The clarified extract (V_e, product P R_h R_w R_e R_d R_l) enters the ultrafiltration step of d', then
+      precipitation at pH 4: the acid for that step from pH 10.5 adds a_x V_ret of H3PO4 (dsp.ecoli_precip_extra_h3po4).
+      The step recoveries multiply to R_total (Result.design['recovery_steps']). Capital: an extraction train
+      (heater on the HTST curve, hold tank, debris centrifuge on the disk-stack curve, endotoxin tank), the
+      polishing area on the MF skid. No homogeniser: GRN 1312 extracts with acid and heat (Fermify's GRN 1228
+      route, a liquid inclusion-body product, is not modelled).
    e. Spray dryer: water evaporated = solids (1 - s_in)/s_in; recovery R_dry.
    f. Cleaning in place (all specs): CIP solution per kg product (Intelligen), counted as water,
       wastewater and chemicals (the chemicals only in the design-report convention: Humbird's 4%
@@ -127,7 +143,8 @@ def _host(p) -> pf.Host:
                    T_C=v(p, f"{h}.temperature_C"), maint_factor=v(p, f"{h}.maint_factor"),
                    m_s_prod=_opt(p, f"{h}.m_s_prod_g_g_h"), m_s_prod_meoh=_opt(p, f"{h}.m_s_prod_methanol_g_g_h"),
                    growth_yield_loss=_opt(p, "fermenter.growth_yield_loss", 0.0),
-                   yx_meoh=_opt(p, f"{h}.yx_methanol_g_g"), yx_meoh_mu=_opt(p, f"{h}.yx_methanol_mu_per_h", 0.1))
+                   yx_meoh=_opt(p, f"{h}.yx_methanol_g_g"), yx_meoh_mu=_opt(p, f"{h}.yx_methanol_mu_per_h", 0.1),
+                   yx_glc=_opt(p, f"{h}.yx_glucose_g_g"), yx_glc_mu=_opt(p, f"{h}.yx_glucose_mu_per_h", 0.1))
 
 
 def _vessel(p, volume=None) -> pf.STR:
@@ -245,6 +262,13 @@ def evaluate(p, keep_series=False) -> Result:
     qmax = _opt(p, "strain.q_p_max_mg_g_h")
     if qmax and np.isfinite(b.q_p_peak) and b.q_p_peak * 1000 > qmax * 1.001:
         flags.append(f"specific productivity {b.q_p_peak * 1000:.1f} > {qmax:g} mg/g/h")
+    if _opt(p, "plant.product_location", "secreted") == "intracellular":
+        # an intracellular product is held by the cells: it cannot be a larger share of their dry weight than the
+        # highest share demonstrated (strain.product_frac_cells_max). The secretion-rate ceiling alone does not catch
+        # this, since q_p_max is a rate and the share is a rate times the time the cells have.
+        fmax, frac = _opt(p, "strain.product_frac_cells_max"), v(p, "strain.titer_g_L") / max(b.X_end, 1e-9)
+        if fmax and frac > fmax * 1.001:
+            flags.append(f"intracellular product {frac:.0%} of cell dry weight, above the highest demonstrated {fmax:.0%}")
 
     # ---------------------------------------------------------------- 2. downstream per batch
     spec = v(p, "plant.spec")
@@ -257,6 +281,10 @@ def evaluate(p, keep_series=False) -> Result:
         # sweep inputs (scenarios.tornado) treat this as infeasible; the message keeps the reason.
         raise ValueError("batch makes no product: " + ("; ".join(flags) or "no reason recorded"))
     crude = spec == "crude"
+    intra = _opt(p, "plant.product_location", "secreted") == "intracellular"
+    if intra and spec != "acid":
+        raise ValueError("plant.product_location = intracellular is built for plant.spec = acid")
+    ext_h3po4_kg = ext_naoh_kg = ext_steam_kg = V_ext = ext_ww_m3 = 0.0           # intracellular front end only
     n_st = int(v(p, "dsp.centrifuge_stages"))
     resin_cyc = buffer_m3 = nacl_kg = naoh_kg = etoh_kg = 0.0     # cation exchange ('cex' spec only)
     load_cv = cex_cycle_h = resin_cyc_h = 0.0                     # resin_cyc_h: resin-cycle x hours (installed resin)
@@ -278,8 +306,24 @@ def evaluate(p, keep_series=False) -> Result:
         V_wash = (n_st - 1) * (V1 - Vp)
         # b. microfiltration polish
         R_mf = v(p, "dsp.mf_recovery")
-        # c'. cation-exchange capture ('cex' spec)
         P_uf, V_uf = P_in * R_cell * R_mf, V_clar          # kg and m3 into UF
+        if intra:
+            # the product is inside the cells: keep them, wash, extract with acid and heat, clarify (module docstring d'')
+            R_cell = v(p, "dsp.ecoli_harvest_recovery")
+            R_mf = v(p, "dsp.ecoli_wash_recovery")                    # cell wash by microfiltration
+            V_paste = V_wc / (1 - e)
+            V_wash = v(p, "dsp.ecoli_wash_volumes") * V_paste
+            V_ext = b.cells_kg / v(p, "dsp.ecoli_extract_slurry_g_L")         # kg DCW / (kg/m3) = m3 of slurry
+            R_ext, R_deb, R_lps = (v(p, "dsp.ecoli_extract_recovery"), v(p, "dsp.ecoli_debris_recovery"),
+                                   v(p, "dsp.ecoli_lps_recovery"))
+            ext_h3po4_kg = v(p, "dsp.ecoli_extract_h3po4_kg_per_m3") * V_ext
+            ext_naoh_kg = v(p, "dsp.ecoli_lps_naoh_kg_per_m3") * V_ext
+            dT_ext = v(p, "dsp.ecoli_extract_temperature_C") - v(p, f"hosts.{v(p, 'strain.host')}.temperature_C")
+            ext_steam_kg = V_ext * 1000 * 4.1868 * dT_ext / 2410 * (1 - v(p, "dsp.acid_heat_recovery"))
+            ext_ww_m3 = V_wash + V_ext                                # wash buffer; the debris slurry's liquid
+            V_clar = V_wash + V_ext                                   # volume through the MF skid (wash + polish)
+            P_uf, V_uf = P_in * R_cell * R_mf * R_ext * R_deb * R_lps, V_ext
+        # c'. cation-exchange capture ('cex' spec)
         if spec == "cex":
             load_cv = v(p, "dsp.cex_dbc_g_L") / (P_uf / V_clar)   # column volumes of MF permeate per load
             cex_cycle_h = (v(p, "dsp.cex_cv_per_cycle") + load_cv) / v(p, "dsp.cex_flow_cv_per_h")
@@ -353,6 +397,11 @@ def evaluate(p, keep_series=False) -> Result:
         wash_m3 = v(p, "dsp.acid_wash_L_per_kg") * target / purity / 1000
         naoh_kg += v(p, "dsp.acid_naoh_kg_per_kg") * target / purity
         dissolve_m3 = target / purity / 1000 * (1 / v(p, f"dsp.dryer_feed_solids_{key}") - 1 / v(p, "dsp.acid_curd_solids"))
+        if intra:                                          # acid for the extraction, NaOH for the endotoxin step, and the extra
+            acid_kg += ext_h3po4_kg + v(p, "dsp.ecoli_precip_extra_h3po4_kg_per_m3") * V_ret    # acid from pH 10.5 to pH 4
+            naoh_kg += ext_naoh_kg
+            acid_steam_kg += ext_steam_kg
+            whey_m3 += ext_ww_m3
     if crude:
         purity, water_evap = target / (target + b.cells_kg), 0.0
         powder = target
@@ -369,6 +418,9 @@ def evaluate(p, keep_series=False) -> Result:
         powder = target / purity / (1 - v(p, "dsp.powder_moisture"))
     R_total = target / P_in
     rec = {"cell removal": R_cell, "microfiltration": R_mf}     # step recoveries; their product is R_total
+    if intra:
+        rec = {"cell harvest": R_cell, "cell wash (microfiltration)": R_mf, "acid-heat extraction": R_ext,
+               "debris removal": R_deb, "endotoxin precipitation and polishing": R_lps}
     if spec == "cex":
         rec["cation-exchange capture"] = v(p, "dsp.cex_recovery")
         if int(_opt(p, "dsp.polish_columns", 0)):
@@ -430,7 +482,7 @@ def evaluate(p, keep_series=False) -> Result:
     cip_m3 = cip_kg / 1000
     dilution_m3 = W * (dil - 1)
     proc_water_m3_batch = (b.feed_water_kg / 1000 + b.W0 + dilution_m3 + V_wash + df_water + wash_m3 + cip_m3
-                           + buffer_m3 + dissolve_m3)
+                           + buffer_m3 + dissolve_m3 + V_ext)
     water_m3_h = n_batches * proc_water_m3_batch / H
 
     # ---------------------------------------------------------------- 6. capital (2018$)
@@ -491,6 +543,14 @@ def evaluate(p, keep_series=False) -> Result:
         isbl["precipitation heater + decanters"] = (eq.sterilizer(h_size) * n_h + eq.centrifuge(dc) * n_dc
                                                     + tanks(max(perm_m3_h * v(p, "dsp.acid_hold_h"), 1.0))
                                                     + tanks(max(sol_m3_h * v(p, "dsp.acid_dissolve_h"), 1.0)))
+    if intra:                                              # extraction train: heater, hold tank, debris centrifuge, endotoxin tank
+        ext_m3_h = n_batches * V_ext / H
+        n_eh, eh_size = eq.units(ext_m3_h * 1000, eq.MAX["sterilizer_L_h"])
+        n_ec, ec = eq.units(ext_m3_h * 1000 / 3.785 / 60, eq.MAX["centrifuge_gpm"])
+        tk = lambda V: eq.tank(min(V, 100)) * math.ceil(V / 100)   # noqa: E731
+        isbl["acid-heat extraction train"] = (eq.sterilizer(eh_size) * n_eh + eq.centrifuge(ec) * n_ec
+                                              + tk(max(ext_m3_h * v(p, "dsp.ecoli_extract_hold_h"), 1.0))
+                                              + tk(max(ext_m3_h * v(p, "dsp.ecoli_lps_hold_h"), 1.0)))
     n_ac, ac = eq.units(air_acmh, eq.MAX["compressor_acmh"])
     osbl["air compressors"] = eq.compressor(ac) * n_ac
     n_ch, chs = eq.units(heat_peak_kW, eq.MAX["chiller_kW"])
@@ -566,7 +626,7 @@ def evaluate(p, keep_series=False) -> Result:
             "chillers": n_batches * b.heat_kWh * c.rt_refrig, "seed train": n_batches * seed_kWh}
     if not crude:
         elec["centrifuges and decanters"] = n_batches * v(p, "dsp.centrifuge_kWh_m3") * (
-            V1 * n_st + (V_ret + v(p, "dsp.acid_wash_stages") * wash_m3 if spec == "acid" else 0.0))
+            V1 * n_st + V_ext + (V_ret + v(p, "dsp.acid_wash_stages") * wash_m3 if spec == "acid" else 0.0))
         elec["membrane pumps"] = n_batches * v(p, "dsp.membrane_kWh_m3_permeate") * (permeate + V_clar)
         elec["spray-dryer fans"] = n_batches * v(p, "dsp.dryer_fan_kWh_kg_water") * water_evap
     elec["buildings (light, HVAC)"] = total_area * v(p, f"{U}.building_W_m2") / 1000 * H

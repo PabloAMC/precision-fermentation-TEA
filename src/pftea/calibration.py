@@ -149,6 +149,12 @@ def physiology_record(p: dict | None = None) -> list[dict]:
     oxy, cooney = ev["oxycaloric_equivalent"], ev["heat_per_o2_shuler_kargi_cooney"]
     fb, gly, meoh, qo2 = (ev["kphaffii_yxs_glucose_fedbatch_shemesh2024"], ev["kphaffii_yxs_glycerol_chemostat_tomasgamisans2018"],
                           ev["kphaffii_yxs_methanol_chemostat_tomasgamisans2018"], ev["kphaffii_qo2_methanol_vs_glycerol_tomasgamisans2018"])
+    ec = plant._host(params.override(p, {"strain.host": "ecoli"}))      # E. coli (check 8): yield at 0.1/h is an input
+    gec = ec.growth
+
+    def y_ec(mu):
+        return mu * gec.bio.mw / (-gec.q("Glucose (s)", mu) * th.get("Glucose (s)").mw)
+    mar, val = ev["ecoli_fedbatch_growth_rate_and_yield_marisch2013"], ev["ecoli_yxs_chemostat_valgepea2010"]
     rows = [
         dict(key="yxs_glucose", name="Cell yield on glucose, upper limit", unit="g cells / g glucose", ours=gm["Glucose (s)"].max_yield,
              band=[min(ev[k]["value"] for k in yk), max(ev[k]["value"] for k in yk)], sources=list(yk),
@@ -168,6 +174,12 @@ def physiology_record(p: dict | None = None) -> list[dict]:
         dict(key="yxs_glycerol", name="Cell yield on glycerol (chemostat)", unit="g cells / g glycerol", ours=y_at("Glycerol", MU),
              band=[gly["low"], gly["high"]], sources=["kphaffii_yxs_glycerol_chemostat_tomasgamisans2018"],
              note="No case uses glycerol. The miss shows the Heijnen correlation does not carry over to every feed."),
+        dict(key="yxs_ecoli_fedbatch", name="E. coli cell yield on glucose, fed-batch at 0.1/h", unit="g cells / g glucose",
+             ours=y_ec(0.1), value=mar["value"], sources=["ecoli_fedbatch_growth_rate_and_yield_marisch2013"], by_construction=True,
+             note="A model input (Heijnen's correlation gave 0.478, 20% above). The chemostat row below is the test."),
+        dict(key="yxs_ecoli_chemostat", name="E. coli cell yield on glucose, chemostat at 0.24/h", unit="g cells / g glucose",
+             ours=y_ec(0.24), band=[val["low"], val["high"]], sources=["ecoli_yxs_chemostat_valgepea2010"],
+             note="Not fitted: below acetate overflow (0.27/h), where the model, which makes no acetate, applies. 37 C."),
         dict(key="qo2_glycerol", name="O₂ uptake on glycerol at 0.1/h", unit="mmol O2 / g cells / h", ours=qo2_at("Glycerol", MU),
              value=qo2["high"], stated=qo2["high_sd"], sources=["kphaffii_qo2_methanol_vs_glycerol_tomasgamisans2018"],
              note="No case uses glycerol. The model's O2 use is about twice the measured."),

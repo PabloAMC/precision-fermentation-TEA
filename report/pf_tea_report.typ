@@ -1844,6 +1844,24 @@ The specification fixes the route, and the route can change what is sold more th
   base little, but the recovery does not: at the ends of their ranges
   #CAS.levers.pairs().map(((k, v)) => lab(k.split("=").at(0)) + " " + k.split("=").at(1) + ": " + usd(v)).join("; ").
   No PF casein recovery is published; it is the input to measure first.
+- *β-casein from* E. coli. Every public PF-casein dossier is for E. coli (Formo's GRN 1312, Fermify's GRN 1228),
+  which keeps the protein inside the cell. We cost Formo's route: harvest and wash the cells, extract with acid
+  and heat (about pH 2, 80 °C), remove the debris, precipitate endotoxin at pH 10.5, then the dairy
+  precipitation at pH 4. The dossiers were read in full: they give the steps, but no titer, scale, step yield or
+  chemical dose. So the twelve purification inputs and the cell density are guesses (grade E, wide ranges), and the
+  price is conditional on them; only the host's growth (biomass formula, maintenance, yield) is sourced
+  (VALIDATION check 8). At the best public titer, 3 g/L (a patent example, 42 L), with 8 h of induction
+  (a lab peak, Marisch 2013) and 60 g/L of cells (a guess), the price is #usd0(CAS.ecoli.base.msp_ccf)/kg
+  (#usd0(CAS.ecoli.base_light.msp_ccf) with design-report accounting), against #usd(CAS.ecoli.yeast_base_msp)/kg
+  for the yeast design at 30 g/L and #usd(inc.casein.band.at(0), d: 0)–#usd(inc.casein.band.at(1), d: 0) for dairy casein. The
+  plant needs #thou(CAS.ecoli.base.design.N_prod_int) fermenters of #fx(CAS.ecoli.base.design.volume_m3, d: 0) m#super[3] for 10 kt/yr.
+  Titer decides it: #CAS.ecoli.titer_sweep.pairs().map(((k, v)) => k + " g/L: " + (if v == none { "not feasible" } else { usd0(v) })).join("; ").
+  The route has a physical limit the yeast routes do not: the protein cannot be more than about 21% of the cells'
+  dry weight (the highest share demonstrated), so at 60 g/L of cells nothing above about 13 g/L is possible, and at
+  that cell density no titer reaches the top of casein's price band. Of the guessed inputs, the extraction recovery moves the
+  price most: #usd0(CAS.ecoli.sensitivity.find(r => r.path == "dsp.ecoli_extract_recovery").msp_low)/kg at 60% and
+  #usd0(CAS.ecoli.sensitivity.find(r => r.path == "dsp.ecoli_extract_recovery").msp_high)/kg at 95%. The cell density
+  and the precipitation recovery follow. Read the result as what the public record can bound, not as a measured cost.
 - *Lactoferrin.* Cation exchange (#pct(lfb.design.purity_dry) lactoferrin) against UF/DF alone
   (Intelligen's case a, purity by assumption): #money(lfb.msp_ccf) against
   #money(LF.cases.at("lf_ufdf_only/humbird").msp_ccf)/kg. Resin life is the largest downstream lever:

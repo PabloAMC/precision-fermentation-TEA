@@ -116,6 +116,8 @@ def _gap(r):
     ("qo2_methanol", -0.066),    # not fitted: -21% with Heijnen, -7% with the measured yield
     ("yxs_glycerol", -0.26),     # Heijnen on glycerol: far low (no case uses glycerol)
     ("qo2_glycerol", 1.03),      # and O2 uptake twice the measured
+    ("yxs_ecoli_fedbatch", 0.0),   # an input since 2026-11-13 (Heijnen gave +20%): VALIDATION check 8
+    ("yxs_ecoli_chemostat", 0.0),  # not fitted: 0.433 inside Valgepea's 0.40-0.44 at 0.24/h
 ])
 def test_physiology_record(physiology, key, gap):
     assert _gap(physiology[key]) == pytest.approx(gap, abs=0.05)

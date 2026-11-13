@@ -44,7 +44,7 @@ LIGHT = {"capital.basis": "nrel"}          # the design-report ('light', NREL-st
 ASEPTIC = {"capital.fermenter_quote": "acce_aseptic"}   # Humbird's aseptic cell-culture STR quotes (structural high)
 PIONEER = {"capital.pioneer_factor": params.load()["capital"]["pioneer_factor"]["pioneer"]}   # RAND pioneer-plant capital (sensitivity)
 HARD_LIMITS = ("OUR", "heat", "reachable", "volume", "initial fill", "solubility", "energetic ceiling",
-               "specific productivity", "did not reach")   # flags that make a design physically infeasible
+               "specific productivity", "did not reach", "of cell dry weight")   # flags that make a design physically infeasible
 
 
 def is_feasible(r: plant.Result, extra: tuple = ()) -> bool:

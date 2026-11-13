@@ -6,3 +6,20 @@ cas_ufdf_edenbrew:                    # Eden Brew (FSANZ A1342): centrifuge, MF,
   plant.spec: concentrate
   dsp.concentrate_target_frac_dry: 0.058   # beta-casein 5.5% of the powder at 5.4% moisture (A1342 Table 3; casein.yaml
                                            # casein_beta_eden_brew_spec): 0.055 / 0.946, derived. 22% protein, 68% yeast carbohydrate
+
+cas_ecoli:                            # beta-casein from E. coli, intracellular, recovered by acid-heat extraction (Formo GRN 1312's route)
+  # Added 2026-11-13. The best PUBLIC casein titer (3 g/L) in the only host with public PF-casein dossiers. Everything the dossiers do not
+  # state (step yields, doses, cell density) is a grade-E guess in base.yaml with a wide range: read the result as conditional on them.
+  strain.host: ecoli
+  plant.product_location: intracellular
+  plant.spec: acid
+  strain.titer_g_L: {value: 3.0, low: 0.0569, high: 3.0, unit: g/L, grade: B,
+    source: "Standing Ovation US 2024/0251812 A1 Ex. 3: 3 g/L beta-casein, E. coli BL21(DE3), 42 L, intracellular and insoluble, quantified visually on SDS-PAGE (casein.yaml casein_titer_state_of_the_art). The best public figure of any casein host; no company discloses a production titer"}
+  strain.t_prod_h: {value: 8, low: 4, high: 24, unit: h, grade: D,
+    source: "an induction phase lasts hours, not the yeast design's 72 h. The only sourced value is a lab peak: 'The highest specific product (SOD) contents in BL21 and HMS174 were detected at eight hours post-induction' (Marisch 2013, hosts.yaml ecoli_product_fraction_marisch2013), a T7 system, not Formo's arabinose-inducible promoter. It sets the batch cycle, so it is a large lever"}
+  strain.X_prod_g_L: {value: 60, low: 30, high: 100, unit: g DCW/L, grade: E,
+    source: "guess (Claude, 2026-11-13): cell density at induction. Lab fed-batches reach 110-128 g/L (Riesenberg 1991, Korz 1995, abstracts); no industrial value at 10 m3 or more was found (hosts.yaml ecoli_cell_density_and_otr_at_scale_gap)"}
+  strain.X_max_g_L: {value: 128, low: 100, high: 148, unit: g DCW/L, grade: D,
+    source: "128 g/L on glucose in a lab fed-batch (Korz 1995 J Biotechnol 39:59, abstract: 'Cell concentrations of 128 and 148 g per l dry cell weight'; 148 on glycerol). Lab scale: the plant is limited by oxygen transfer first"}
+  strain.q_p_max_mg_g_h: {value: 170, low: 75, high: 170, unit: mg product/g DCW/h, grade: A,
+    source: "Peebo and Neubauer 2018 Table 1: an intracellular T7 product at 170 mg/g/h at mu 0.37/h (kinetic.yaml ecoli_intracellular_qpmax_ifn_peebo2018); a feasibility ceiling, far above what 3 g/L needs"}

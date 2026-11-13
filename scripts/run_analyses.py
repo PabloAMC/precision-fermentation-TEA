@@ -629,7 +629,59 @@ def s_casein(res):
     out["levers"] = {f"{k}={x}": plant.evaluate(params.override(p, {k: x})).msp_ccf
                      for k in ("dsp.acid_h3po4_kg_per_m3", "dsp.acid_precip_recovery", "dsp.acid_heat_recovery",
                                "dsp.acid_wash_L_per_kg") for x in params.bounds(p, k)}
+    out["ecoli"] = _casein_ecoli()
     res["casein"] = out
+
+
+ECOLI_GUESSES = ("strain.titer_g_L", "strain.t_prod_h", "strain.X_prod_g_L", "hosts.ecoli.yx_glucose_g_g",
+                 "hosts.ecoli.maint_factor", "hosts.ecoli.temperature_C", "dsp.ecoli_harvest_recovery", "dsp.ecoli_wash_volumes",
+                 "dsp.ecoli_wash_recovery", "dsp.ecoli_extract_slurry_g_L", "dsp.ecoli_extract_temperature_C",
+                 "dsp.ecoli_extract_hold_h", "dsp.ecoli_extract_h3po4_kg_per_m3", "dsp.ecoli_extract_recovery",
+                 "dsp.ecoli_debris_recovery", "dsp.ecoli_lps_naoh_kg_per_m3", "dsp.ecoli_lps_hold_h", "dsp.ecoli_lps_recovery",
+                 "dsp.ecoli_precip_extra_h3po4_kg_per_m3", "dsp.acid_precip_recovery")
+
+
+def _casein_ecoli():
+    """beta-casein from E. coli (casein.yaml cas_ecoli): the best public titer (3 g/L) on the intracellular acid-heat
+    route of Formo's GRN 1312. Most of the route's inputs are guesses (grade E), so this reports how far each moves the
+    price across its stated range (one at a time, the others at base), the titer sweep, and the titer that reaches the top
+    of casein's price band. Read the base price as conditional on those guesses."""
+    p = sc.scenario_params("casein", "cas", variant="cas_ecoli")
+    base = plant.evaluate(p)
+    out = {"base": summary(base), "base_light": summary(plant.evaluate(params.override(p, sc.LIGHT)))}
+
+    def msp(q):
+        try:
+            r = plant.evaluate(q)
+            return r.msp_ccf if sc.is_feasible(r) else None
+        except ValueError:
+            return None
+    rows = []
+    for k in ECOLI_GUESSES:
+        bd = params.bounds(p, k)
+        if bd is None:                                     # no stated range (e.g. the host temperature): not swept
+            continue
+        lo, hi = bd
+        a, b = msp(params.override(p, {k: lo})), msp(params.override(p, {k: hi}))
+        rows.append(dict(path=k, grade=str(params.grade(p, k)), low=lo, high=hi, msp_low=a, msp_high=b,
+                         swing=abs((b or base.msp_ccf) - (a or base.msp_ccf))))
+    out["sensitivity"] = sorted(rows, key=lambda r: -r["swing"])
+    out["titer_sweep"] = {str(T): msp(params.override(p, {"strain.titer_g_L": T})) for T in (1, 2, 3, 5, 10, 20, 30)}
+    out["yeast_base_msp"] = plant.evaluate(sc.base_params("cas")).msp_ccf
+    top = next((d["band"][1] for d in bm.incumbents().values() if "cas" in d["compare_to"]), None)
+    lo_T, hi_T, need = 3.0, 60.0, None
+    if top:
+        for _ in range(30):
+            mid = (lo_T + hi_T) / 2
+            m = msp(params.override(p, {"strain.titer_g_L": mid}))
+            if m is None or m > top:
+                lo_T = mid
+            else:
+                hi_T = mid
+        m_hi = msp(params.override(p, {"strain.titer_g_L": hi_T}))
+        need = hi_T if (m_hi is not None and m_hi <= top) else None     # None: no titer up to 60 g/L gets there
+    out["price_to_beat_top"], out["titer_needed_for_top"] = top, need
+    return out
 
 
 def s_albumin(res):

@@ -123,6 +123,21 @@ Phase F (external review) has not started. Open items:
   - New: `src/pftea/chain.py`, `scripts/panel_data.py` (3,250 runs, ~30 min on 4 cores), `scripts/build_panel.py`,
     `docs/panel.html`, `tests/test_panel.py`. The old explorer stays until Pablo chooses.
 
+- **2026-11-13, E. coli route for β-casein (Pablo: "add the E. coli route for casein"; "what is best long term?" -> build it
+  with labelled guesses, then replace them with data; Claude built it):**
+  - Why: every public PF-casein dossier is for E. coli (Formo GRN 1312, Fermify GRN 1228); the model was yeast-only. Pablo supplied
+    both dossiers; read in full, they give the process steps and no titer, scale, step yield or dose.
+  - Host `hosts.ecoli` (base.yaml; evidence `hosts.yaml` ecoli_*, every quote checked): formula, overflow-limited growth, P/O,
+    maintenance (Tijhuis 0.0326 vs Orth 0.031 g/g/h: agrees). Heijnen's yield was +20% high, so the measured yield is an input
+    (`Host.yx_glc`), recorded first as VALIDATION check 8; no existing result moved.
+  - `plant.product_location: intracellular` (with `spec: acid`): harvest, wash, acid-heat extraction, debris removal, endotoxin
+    precipitation, then the existing dairy pH-4 route. Twelve `dsp.ecoli_*` inputs are grade-E guesses with ranges; one
+    (extraction temperature) is sourced. A new hard limit: product share of cell dry weight <= 21% (Marisch 2013).
+  - Result (scenario `cas_ecoli`: 3 g/L, 8 h induction, 60 g/L cells): $139/kg against $22 for yeast at 30 g/L; no titer reaches
+    casein's price band at that cell density. The extraction recovery, the cell density and the precipitation recovery move it most.
+  - Still missing, in order of value: real step yields (ask a process engineer at Formo, Fermify or Standing Ovation), industrial
+    cell density and oxygen transfer at scale, a measured E. coli production-phase maintenance, a like-for-like TEA to check against.
+
 - **2026-10-25, optional physics, plain-language evidence labels and a short preprint (Pablo: "implement them, and
   add the option to keep it simple or more complex"; "grade is internal slang"; "focus on the cleanups"; Claude built
   it, for Pablo's review):**

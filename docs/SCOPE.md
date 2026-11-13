@@ -115,7 +115,11 @@ cost-in-use are outside the model and are stated as such.
 
 - **Hosts:** *K. phaffii* is the base (Remilk GRN 1056, EVERY, Intelligen's design).
   *T. reesei* is a variant (Perfect Day GRN 863, Onego Bio, VTT's Aro 2023); its viscous
-  broth changes the O₂ physics.
+  broth changes the O₂ physics. *E. coli* is a variant for β-casein only (added 2026-11-13: Formo GRN 1312,
+  Fermify GRN 1228, Standing Ovation): the protein stays inside the cell and is recovered by acid-heat
+  extraction (`plant.product_location: intracellular`, scenario `cas_ecoli`). Its growth is sourced; its
+  purification yields and cell density are guesses, because the public dossiers state none, so its price is
+  conditional on them (report Q8; VALIDATION check 8).
 - **Mode:** aerobic fed-batch on glucose. Continuous operation only if data allow.
 - **Plant:** greenfield, single-product, nth-of-a-kind. Base is 10 kt/yr of protein, swept
   from 1 to 100 kt/yr. A first-of-a-kind case is shown separately, never mixed in: capital x

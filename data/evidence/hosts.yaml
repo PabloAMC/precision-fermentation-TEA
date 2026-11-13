@@ -1910,3 +1910,20 @@
     "the production cost (316 US$/kg) was higher than what is commonly assumed in the literature for fungal
     enzymes, owing especially to the facility-de[pendent cost]". A low-value enzyme with no acid or heat
     extraction. The paper's exact cost split has not been checked line by line.
+
+- key: ecoli_yxs_chemostat_valgepea2010
+  value: 0.42
+  low: 0.40
+  high: 0.44
+  unit: g DCW per g glucose at mu = 0.24/h (chemostat 0.44, accelerostat 0.40 +/- 0.01); 0.41-0.46 at 0.30-0.51/h
+  grade: A
+  host: ecoli
+  source: "Valgepea K, et al. BMC Syst Biol 4:166 (2010), Table 1 (MG1655, glucose-limited, 37 C)"
+  doi_or_url: 10.1186/1752-0509-4-166
+  locator: "Table 1, row YXS (biomass yield)"
+  quote: "YXSa | 0.44 | 0.40 ± 0.01 | 0.46 | 0.41 ± 0.01 | 0.44 | 0.42 ± 0.00 | 0.43 | 0.41 ± 0.01"
+  read: html
+  note: >-
+    Column pairs are chemostat | accelerostat at mu = 0.24, 0.30, 0.40 and 0.51/h. Below the overflow onset
+    (0.27/h) there is no acetate, so the model, which makes none, is compared there: band 0.40-0.44 at 0.24/h.
+    The paper's own conclusion: the two methods are "fully quantitatively comparable".

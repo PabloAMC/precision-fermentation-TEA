@@ -240,6 +240,35 @@ now appears in the panel next to the other model-to-model checks: ours is 64% (m
 exchange) below their cost of production with their design inputs. It has no tolerance of its own; the
 panel borrows the Intelligen ovalbumin anchor's +/-30% and says so.
 
+## Check 8: E. coli physiology, and what the E. coli casein route does not yet have (added 2026-11-13)
+
+**What it is.** The same physiology check as check 6, for the new host `hosts.ecoli` (the host of every public
+PF-casein dossier). Recorded before the change, as the protocol requires. Evidence: `data/evidence/hosts.yaml`
+(`ecoli_*`), every quote checked against the open-access full text.
+
+| Prediction (E. coli K-12 and B strains, 37 C) | Model (thermodynamic default) | Measured | Result |
+|---|---|---|---|
+| Maintenance, glucose (g/g/h) | 0.0326 (Tijhuis) | 0.031 (Orth 2011, Pirt intercept 0.17 mmol/gDW/h) | **pass**, +5% |
+| Cell yield, fed-batch at 0.1/h (g/g) | 0.478 | 0.40 (Marisch 2013, BL21 and RV308; 0.34 HMS174) | **miss, +20%** |
+| Cell yield, chemostat 0.24-0.51/h (g/g) | 0.52-0.53 | 0.40-0.46 (Valgepea 2010, Table 1) | **miss, +15 to +30%** |
+
+**Diagnosis.** The maintenance agrees; the growth-energy correlation (Heijnen) is too generous for E. coli on
+glucose, as it was for K. phaffii on methanol. **Fixed the same day**, the same way: the measured yield is an
+input (`hosts.ecoli.yx_glucose_g_g` = 0.40 at 0.1/h; `Host.yx_glc`), which makes the yield row an input, not a
+test. After it the model gives 0.43-0.44 at the overflow-limited growth rates 0.23-0.27/h, inside the measured
+chemostat range 0.40-0.46 (a prediction, not fitted). Pinned in `tests/test_model.py`. No existing result moves:
+the switch is on only for this host.
+
+**What the route does not have (and says so).** The E. coli casein route (`plant.product_location =
+intracellular`, scenario `cas_ecoli`, report section on casein) has the right steps (Formo's GRN 1312: harvest,
+wash, acid-heat extraction at ~pH 2, debris removal, endotoxin precipitation at pH 10.5, then the dairy pH-4
+precipitation) but **no yield, dose or scale for any of them**: GRN 1312 and GRN 1228 were read in full on
+2026-11-13 and state none. Those inputs (`dsp.ecoli_*`, twelve of them) and the cell density are guesses (grade E)
+with wide ranges, and the route's price is conditional on them: see the sensitivity in the report. There is
+no check against a real E. coli food-protein plant. The nearest published TEA (Ferreira 2018: an intracellular
+E. coli enzyme, 316 US$/kg at 100 m3) is a different product and not a like-for-like comparison, so it is
+context, not a pass.
+
 ## Next checks that need new evidence
 
 Status after the research pass of 2026-11-03 (notes in references/leads/, unverified unless stated):
