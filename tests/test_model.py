@@ -735,3 +735,12 @@ def test_batch_balances_close(prod):
     assert sum(sp["glucose_kg"].values()) == pytest.approx(f["glucose_kg"], rel=0.02)
     assert sum(sp["o2_kg"].values()) == pytest.approx(f["o2_kg"], rel=0.02)
     assert abs(b["carbon"]["gap"]) < 0.005
+
+
+def test_x_prod_at_x_max_names_its_reason():
+    """X_prod at the top of its range (= X_max): growth never reaches it, so the batch makes no
+    product. The error must say why, so a sweep that treats it as infeasible can be checked."""
+    from pftea import scenarios as sc
+    p = params.override(sc.scenario_params("industry", "blg"), {"strain.X_prod_g_L": 150.0})
+    with pytest.raises(ValueError, match="growth phase did not reach X_prod"):
+        plant.evaluate(p)

@@ -252,7 +252,10 @@ def evaluate(p, keep_series=False) -> Result:
     X = b.X_end                                            # kg/m3 cells
     P_in = b.product_kg
     if not (np.isfinite(P_in) and P_in > 0):
-        raise ValueError("batch makes no product")
+        # e.g. X_prod at or near X_max: growth slows toward X_max (and is O2/heat-throttled), never
+        # reaches X_prod within the time cap, and the batch never enters production. Callers that
+        # sweep inputs (scenarios.tornado) treat this as infeasible; the message keeps the reason.
+        raise ValueError("batch makes no product: " + ("; ".join(flags) or "no reason recorded"))
     crude = spec == "crude"
     n_st = int(v(p, "dsp.centrifuge_stages"))
     resin_cyc = buffer_m3 = nacl_kg = naoh_kg = etoh_kg = 0.0     # cation exchange ('cex' spec only)

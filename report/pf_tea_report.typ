@@ -125,6 +125,10 @@ Small plants use smaller fermenters.
 *What they cost.* With the capital charge of #pct(CRF, d: 1) of the investment a year, the minimum
 selling price per kg of target protein is *#plist(p => R.base.at(p).msp_ccf)*. With design-report capital
 (NREL-style) it is #plist(p => R.base_light.at(p).msp_ccf).
+These are accounting conventions, not measurements, and they matter: for BLG, the design-report
+accounting gives #usd(R.base_light.blg.msp_ccf)/kg, Humbird's #usd(blg.msp_ccf) and aseptic cell-culture
+vessels #usd(R.base_aseptic.blg.msp_ccf). That spread is wider than the effect of raising the titer from
+30 to 42 g/L (#usd(blg.msp_ccf) to #usd(S("industry/blg").msp_ccf)).
 The industry benchmark is the average titer in private companies' cost models, 42 g/L (GFI 2025, a survey
 average over unnamed proteins, with no fermentation time given). At that titer the price is
 #plist(p => S("industry/" + p).msp_ccf, ps: COMMODITY). To reach 42 g/L in our 72 h production phase,
