@@ -122,3 +122,23 @@ def test_panel_data_compact_round_trip(blg, blg_rec):
     chain_row = dict(zip(s["chain"], row[6]))
     assert chain_row["tci"] == pytest.approx(blg[1].tci, rel=1e-5)
     assert pd.compact(dict(ok=False, flags=["x"], msp=None, error=True), s)[4] is None
+
+
+def test_alt_route_card_data_match_the_analysis_and_only_casein_has_one():
+    """The panel's E. coli card repeats results/analyses.json: split sums to the price, no number is invented, and no
+    other product gets a second route."""
+    import importlib.util
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("panel_data", root / "scripts/panel_data.py")
+    pd = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(pd)
+    a = json.loads((root / "results/analyses.json").read_text())
+    r = pd.alt_route("cas", a)
+    e = a["casein"]["ecoli"]
+    assert r["msp"] == e["base"]["msp_ccf"] and r["yeast_msp"] == e["yeast_base_msp"]
+    assert sum(r["split"].values()) == pytest.approx(r["msp"], rel=1e-12)
+    assert [x["msp"] for x in r["sweep"]] == list(e["titer_sweep"].values())
+    assert all(t["label"] and t["label"] != t["path"].split(".")[-1] for t in r["sensitivity"])   # every input has a plain label
+    assert all(pd.alt_route(x, a) is None for x in ("blg", "ova", "lf", "alb"))

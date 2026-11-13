@@ -92,6 +92,23 @@ LABELS = {
     "dsp.acid_curd_solids": "casein curd solids",
     "dsp.acid_naoh_kg_per_kg": "NaOH to caseinate (kg/kg)",
     "dsp.acid_target_frac_dry": "casein share of the powder",
+    "hosts.ecoli.yx_glucose_g_g": "E. coli biomass yield on glucose (g/g)",
+    "hosts.ecoli.maint_factor": "E. coli growth-phase maintenance (x Tijhuis)",
+    "hosts.ecoli.mu_max_per_h": "E. coli maximum growth rate (1/h)",
+    "dsp.ecoli_harvest_recovery": "cell harvest recovery (E. coli)",
+    "dsp.ecoli_wash_volumes": "cell wash volumes (E. coli)",
+    "dsp.ecoli_wash_recovery": "cell wash recovery (E. coli)",
+    "dsp.ecoli_extract_slurry_g_L": "cells in the extraction tank (g/L)",
+    "dsp.ecoli_extract_temperature_C": "extraction temperature (C)",
+    "dsp.ecoli_extract_hold_h": "extraction hold time (h)",
+    "dsp.ecoli_extract_h3po4_kg_per_m3": "acid for extraction (kg H3PO4/m3)",
+    "dsp.ecoli_extract_recovery": "casein released by acid and heat",
+    "dsp.ecoli_debris_recovery": "recovery when removing cell debris",
+    "dsp.ecoli_lps_naoh_kg_per_m3": "NaOH for endotoxin removal (kg/m3)",
+    "dsp.ecoli_lps_hold_h": "endotoxin removal hold time (h)",
+    "dsp.ecoli_lps_recovery": "recovery in endotoxin removal",
+    "dsp.ecoli_precip_extra_h3po4_kg_per_m3": "extra acid for casein precipitation (kg H3PO4/m3)",
+    "strain.product_frac_cells_max": "highest demonstrated protein share of cell dry weight",
 }
 
 

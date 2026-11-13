@@ -178,8 +178,8 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; 
 <div class="wrap">
 <header class="intro">
   <h1>Can microbes make milk and egg proteins as cheaply as cows and hens?</h1>
-  <p class="lead">Precision fermentation puts the gene for one animal protein into a yeast or a fungus. The microbes grow on sugar
-    in large steel tanks and release the protein. The protein is then purified and dried to a powder. This model estimates what
+  <p class="lead">Precision fermentation puts the gene for one animal protein into a microbe, usually a yeast or a fungus. The microbes grow on sugar
+    in large steel tanks and release the protein. One extra route, a bacterium that keeps the protein inside, is shown for casein. The protein is then purified and dried to a powder. This model estimates what
     that costs for seven proteins. It compares each cost with the price of the same protein from animals.</p>
   <p class="disc">These are estimates from an open model built on public data. No human expert has reviewed it yet.
     They are not any company's real costs, and not investment or business advice. The views expressed are the author's own
@@ -225,6 +225,11 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; 
   <h2>Where the money goes</h2>
   <p class="lead">Every cost is an amount per kg of protein times a unit price.</p>
   <div id="moneyBody"></div>
+</section>
+
+<section class="card" id="routeCard" hidden>
+  <h2>Could a bacterium make it instead?</h2>
+  <div id="routeBody"></div>
 </section>
 
 <section class="card" id="uncCard">
@@ -1123,6 +1128,50 @@ function renderSugar(p, v) {
 }
 
 // ------------------------------------------------------------------ section 7: uncertainty
+function renderRoute(p) {
+  const el = $("routeBody"), r = p.alt_route;
+  $("routeCard").hidden = !r;
+  if (!r) { el.innerHTML = ""; return; }
+  const top = p.price_to_beat ? p.price_to_beat.band[1] : null, lo = p.price_to_beat ? p.price_to_beat.band[0] : null;
+  const times = (x) => sig(x, 2) + " times";
+  let h = `<p class="lead">Everything above assumes a yeast that releases ${esc(p.name)} into the broth. A bacterium, <i>E. coli</i>, grows quickly
+    on sugar. But it keeps the protein inside its cells. The plant must then collect the cells, break them open with acid
+    and heat, and remove the bacterial endotoxin that can make people ill. Only then does the usual casein precipitation start.
+    Each added step loses some protein, and the plant must grow bigger to make up for it.</p>`;
+  h += `<div class="tiles">
+    <div class="tile"><b>${usd(r.msp)}</b><span>per kg, <i>E. coli</i>, ${sig(r.titer, 2)} g/L in the broth</span></div>
+    <div class="tile"><b>${usd(r.yeast_msp)}</b><span>per kg, yeast (the case above)</span></div>
+    <div class="tile"><b>${top ? usd(top) : "–"}</b><span>per kg, top of the animal price range${lo ? ` (${usd(lo)} at the bottom)` : ""}</span></div></div>`;
+  h += `<p>At ${sig(r.titer, 2)} g/L the <i>E. coli</i> plant needs ${sig(r.n_fermenters, 3)} fermenters of ${sig(r.volume_m3, 3)} m³ and keeps
+    ${pct(r.recovery, 0)} of the protein through purification. It costs about ${times(r.msp / r.yeast_msp)} the yeast price,
+    and about ${times(r.msp / top)} the top of the animal range.</p>`;
+  const nG = r.n_guess;
+  h += `<div class="warnbox" style="color:var(--ink);border-color:var(--warn)"><b>Read this price as conditional.</b>
+    ${nG} inputs of this route are guesses (grade E): twelve purification inputs and the cell density. The FDA notice for Formo's casein (GRN 1312),
+    which this route follows, lists the steps but gives no yields, doses or cell densities. The growth physics of <i>E. coli</i> is sourced and checked against measurements
+    (<a href="#realityCard">see the checks</a>). The purification is not. No human expert has reviewed this route.</div>`;
+  h += `<h3>Protein per litre</h3><p class="muted">Same plant and same guesses, only the protein per litre of broth changes. A dash means the design breaks a physical limit.
+    ${r.sweep.some(x => x.msp === null) ? `From ${sig(r.sweep.find(x => x.msp === null).titer, 2)} g/L the protein would exceed the largest share of cell dry weight ever shown (21%), so the plant is not priced.` : ""}</p>`;
+  h += `<div class="scroll"><table><thead><tr><th>Protein per litre (g/L)</th>${r.sweep.map(x => `<th class="n">${sig(x.titer, 2)}</th>`).join("")}</tr></thead>
+    <tbody><tr><td>Cost ($ per kg)</td>${r.sweep.map(x => `<td class="n">${x.msp === null ? "–" : usd(x.msp, 3)}</td>`).join("")}</tr></tbody></table></div>`;
+  h += r.needed_for_top === null
+    ? `<p>No protein per litre reaches the top of the animal price range (${top ? usd(top) : "–"}) within that limit.</p>`
+    : `<p>About ${sig(r.needed_for_top, 2)} g/L would reach the top of the animal price range (${top ? usd(top) : "–"}).</p>`;
+  const rows = r.sensitivity.map(t => `<tr><td>${esc(plainLabel(t.label))}</td><td>${esc(t.kind)}</td>
+    <td class="n">${sig(t.low, 3)} to ${sig(t.high, 3)}</td><td class="n">${t.msp_low === null ? "–" : usd(t.msp_low)}</td>
+    <td class="n">${t.msp_high === null ? "–" : usd(t.msp_high)}</td></tr>`);
+  h += `<h3>Which inputs move the price most</h3><p class="muted">Each input moves across its range alone, the others at base. The base price is ${usd(r.msp)}.
+    A dash means that end of the range breaks a physical limit.</p>
+    <div class="scroll"><table><thead><tr><th>Input</th><th>Kind of evidence</th><th class="n">Range</th><th class="n">Cost at low end</th><th class="n">Cost at high end</th></tr></thead>
+    <tbody>${rows.slice(0, 6).join("")}</tbody></table></div>
+    <details style="margin-top:6px"><summary class="muted" style="cursor:pointer">All ${rows.length} inputs</summary>
+    <div class="scroll"><table><tbody>${rows.slice(6).join("")}</tbody></table></div></details>`;
+  h += `<p class="faint" style="font-size:12px">This route is one model run plus sweeps, not a full grid, so it is not on the map above.
+    From results/analyses.json, generated ${esc(r.generated || "?")}. Inputs and sources: scenario <code>cas_ecoli</code> in
+    <code>data/pf/scenarios/casein.yaml</code>; the purification steps and this route's checks are in <code>docs/SCOPE.md</code> and <code>docs/VALIDATION.md</code> (check 8).</p>`;
+  el.innerHTML = h;
+}
+
 function renderUnc(p, v, m) {
   const el = $("uncBody"), a = p.analyses || {};
   const intro = `<p class="lead">Two things are uncertain: how good the microbes will get, and the inputs the model assumes.
@@ -1281,7 +1330,7 @@ function render() {
   const p = P(), v = currentView(), m = v.error ? null : priced(p, v);
   if (S.kase === "custom" && !isCustom()) S.kase = "base";
   const mm = m || { total: NaN, modelTotal: NaN, group: {} };
-  renderBar(); renderOverview(); renderChain(p, v, m); renderAnswer(p, v, mm); renderMoney(p, v, m);
+  renderBar(); renderOverview(); renderChain(p, v, m); renderAnswer(p, v, mm); renderMoney(p, v, m); renderRoute(p);
   renderReality(); renderSideNow(p, v, mm);
   renderLevers(p, v); renderMap(p, v); renderLimits(p, v); renderSugar(p, v); renderUnc(p, v, mm); renderInputs(p); renderRepro(p, v, m);
   history.replaceState(null, "", toHash());

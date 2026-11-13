@@ -166,6 +166,30 @@ def analyses_extract(product: str, a: dict) -> dict:
     return out
 
 
+def alt_route(product: str, a: dict) -> dict | None:
+    """A second production route for the product, shown as its own card (casein: E. coli, protein made inside the cell).
+    Taken from results/analyses.json (run_analyses.py --only casein). Not on the grid or the map: one base run, a
+    titer sweep and a one-at-a-time sweep of the inputs, with the guessed inputs marked."""
+    e = (a.get("casein") or {}).get("ecoli") if product == "cas" else None
+    if not e or not e.get("base"):
+        return None
+    pk = e["base"]["per_kg"]
+    plant = sum(pk[k] for k in ("capital charge", "maintenance", "insurance"))
+    sugar = pk["glucose"]
+    sens = [dict(path=t["path"], label=labels.label(t["path"]), grade=t["grade"], kind=labels.evidence(t["grade"]),
+                 low=t["low"], high=t["high"], msp_low=t["msp_low"], msp_high=t["msp_high"])
+            for t in e["sensitivity"] if t["path"] != "strain.titer_g_L"]
+    d = e["base"]["design"]
+    return dict(
+        name="E. coli, protein made inside the cell", host="ecoli", titer=d["titer"], t_prod=None,
+        msp=e["base"]["msp_ccf"], msp_nrel=e["base_light"]["msp_ccf"], yeast_msp=e["yeast_base_msp"],
+        split=dict(plant=plant, sugar=sugar, rest=e["base"]["msp_ccf"] - plant - sugar),
+        n_fermenters=d["N_prod_int"], volume_m3=d["volume_m3"], recovery=d["recovery"], cell_density=d["X_end"],
+        sweep=[dict(titer=float(k), msp=x) for k, x in e["titer_sweep"].items()],
+        needed_for_top=e.get("titer_needed_for_top"), sensitivity=sens,
+        n_guess=sum(1 for t in sens if t["grade"] == "E"), generated=a.get("generated"))
+
+
 def reality_checks(a: dict) -> list[dict]:
     """The calibration anchors and the real-plant check (docs/VALIDATION.md), for the panel's 'Checks against
     reality' box. kind: 'reality' (a market price or a real plant) or 'consistency' (another model; agreement is

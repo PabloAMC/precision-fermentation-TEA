@@ -26,6 +26,7 @@ def build(data: Path, out: Path) -> int:
         d["analyses_generated"], d["reality_checks"] = a.get("generated"), pd.clean(pd.reality_checks(a))
         for prod, x in d["products"].items():
             x["analyses"] = pd.clean(pd.analyses_extract(prod, a))
+            x["alt_route"] = pd.clean(pd.alt_route(prod, a))
     for prod, x in d["products"].items():                # display names: edited without rerunning the grid
         x.pop("short", None)
         x.update(pd.pr_info(prod))
