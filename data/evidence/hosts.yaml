@@ -1768,3 +1768,145 @@
     the run. 5 L scale, AOX1/KEX2, methanol and mixed induction: the run length at production
     scale for a glucose food-protein process is not public (grade D where used,
     base.yaml fermenter.continuous_run_h).
+
+# ---------------------------------------------------------------------------------------
+# E. coli (added 2026-11-13 for the intracellular-casein route). Read from the open-access
+# full texts on Europe PMC (read: html). The conversions in notes are marked "derived".
+# Not found, so NOT here: a measured m_s in g/g/h from open full text, a production-phase
+# (non-growing) maintenance, industrial cell density or oxygen transfer at 10 m3 or more, and
+# S and P in the biomass. An earlier claim of "OTR 50-60 mmol/L/h at 100 m3" (UCL thesis) was
+# checked against the thesis text and is NOT in it: do not use it.
+# ---------------------------------------------------------------------------------------
+
+- key: ecoli_biomass_formula_marisch2013
+  value: {C: 1, H: 1.77, O: 0.49, N: 0.24}
+  unit: per C-mol of dry biomass
+  grade: B
+  host: ecoli
+  source: "Marisch K, Bayer K, Scharl T, et al. A comparative analysis of industrial Escherichia coli K-12 and B strains in high-glucose batch cultivations on process-, transcriptome- and proteome level. Microb Cell Fact 12:58 (2013)"
+  doi_or_url: 10.1186/1475-2859-12-58
+  locator: "carbon balance section"
+  quote: "The elemental composition of E. coli biomass (CH1.77O0.49 N0.24) was derived from literature and applied for all three hosts"
+  read: html
+  note: >-
+    A literature value used by the authors for BL21, HMS174 and RV308, not their measurement.
+    Ferreira 2018 (TEA below) uses CH1.8O0.5N0.2 (Milo and Phillips), close to it. Sulfur and
+    phosphorus are not given.
+
+- key: ecoli_overflow_onset_valgepea2010
+  value: 0.27
+  low: 0.25
+  high: 0.29
+  unit: 1/h, specific growth rate at which acetate starts to accumulate (glucose-limited chemostat, 37 C)
+  grade: A
+  host: ecoli
+  source: "Valgepea K, Adamberg K, Nahku R, et al. Systems biology approach reveals that overflow metabolism of acetate in Escherichia coli is triggered by carbon catabolite repression of acetyl-CoA synthetase. BMC Syst Biol 4:166 (2010)"
+  doi_or_url: 10.1186/1752-0509-4-166
+  locator: "Results"
+  quote: "acetic acid started to accumulate (i.e. overflow metabolism switch) at μ = 0.27 ± 0.02 h-1"
+  read: html
+  note: >-
+    MG1655 chemostats. The same paper: "washout of culture at μ = 0.54 ± 0.03 h-1". Industrial
+    fed-batch holds the growth rate below the overflow onset (Marisch 2013: 0.1/h). Value of mu_max
+    for the model: not set from this (it is a limit under glucose limitation, not a batch rate).
+
+- key: ecoli_fedbatch_growth_rate_and_yield_marisch2013
+  value: 0.40
+  low: 0.34
+  high: 0.40
+  unit: g DCW per g glucose, fed-batch at a constant growth rate of 0.1/h
+  grade: A
+  host: ecoli
+  source: "Marisch K, et al. Microb Cell Fact 12:58 (2013)"
+  doi_or_url: 10.1186/1475-2859-12-58
+  locator: "Results, fed-batch cultivations"
+  quote: "YX/S was calculated with 0.40 g cell dry mass (CDM) per g glucose for BL21 and RV308, and 0.34 g CDM per g glucose for HMS174"
+  read: html
+  note: >-
+    Fed-batch with "an exponential substrate feed ... to maintain a constant growth rate of 0.1 h-1"
+    (lab scale). BL21 and RV308 0.40, HMS174 0.34. The model derives the yield from thermodynamics
+    plus maintenance, so this is a cross-check on the result, not an input.
+
+- key: ecoli_maintenance_orth2011
+  value: 3.15
+  unit: mmol ATP per g DCW per h (non-growth-associated maintenance, NGAM, iJO1366)
+  grade: B
+  host: ecoli
+  source: "Orth JD, Conrad TM, Na J, et al. A comprehensive genome-scale reconstruction of Escherichia coli metabolism, 2011. Mol Syst Biol 7:535 (2011)"
+  doi_or_url: 10.1038/msb.2011.65
+  locator: "Methods, ATP maintenance"
+  quote: "The NGAM of 3.15 mmol ATP gDW−1 h−1 was identified by FBA as the maximum amount of ATP produced at a glucose uptake rate of 0.17 mmol gDW−1 h−1, the intercept of the experimental data."
+  read: html
+  note: >-
+    The glucose-uptake intercept of the experimental data (0.17 mmol/gDW/h) is the Pirt maintenance
+    for glucose. DERIVED: 0.17 mmol/g/h x 180.16 g/mol = 0.031 g glucose/g DCW/h. The earlier model
+    (Feist 2007, iAF1260) fitted an NGAM of 8.39 mmol ATP/gDW/h with GAM 59.81 mmol ATP/gDW (Mol Syst
+    Biol 3:121, 10.1038/msb4100155; same read), 2.7 times higher, so the literature range is wide. The
+    model's own Tijhuis maintenance is the base; this entry is the cross-check.
+
+- key: ecoli_po_ratio_orth2011
+  value: 1.375
+  low: 1.375
+  high: 1.75
+  unit: mol ATP per mol O (P/O ratio, aerobic)
+  grade: B
+  host: ecoli
+  source: "Orth JD, et al. Mol Syst Biol 7:535 (2011), Methods; Feist AM, et al. Mol Syst Biol 3:121 (2007), Results"
+  doi_or_url: 10.1038/msb.2011.65
+  locator: "Methods (Orth); Results (Feist)"
+  quote: "constrain the model to a realistic P/O ratio of 1.375 (Noguchi et al, 2004)"
+  read: html
+  note: >-
+    Feist 2007: "The maximum value that the P/O ratio can achieve under aerobic conditions is 1.75".
+    K. phaffii's base is 1.48 (hosts.kphaffii.po_ratio). Taymaz-Nikerel 2010 (Biotechnol Bioeng,
+    10.1002/bit.22802; abstract only) fitted 1.49 +/- 0.26 in MG1655 chemostats.
+
+- key: ecoli_product_fraction_marisch2013
+  value: 0.213
+  unit: g recombinant protein per g DCW (total SOD, BL21, T7 promoter, 8 h post-induction)
+  grade: A
+  host: ecoli
+  source: "Marisch K, et al. Microb Cell Fact 12:58 (2013)"
+  doi_or_url: 10.1186/1475-2859-12-58
+  locator: "Results, product formation"
+  quote: "The highest specific product (SOD) contents in BL21 and HMS174 were detected at eight hours post-induction (213 ± 3 and 201 ± 3 mg/g, respectively)"
+  read: html
+  note: >-
+    Ceiling for how much of the cell can be the product: a titer of T g/L at X g DCW/L needs a
+    product fraction T/X. Only about 80 mg/g was soluble ("A maximum of approximately 80 mg/g
+    soluble SOD was obtained in all three strains"); the rest is inclusion bodies. Casein's best
+    public titer is 3 g/L (casein_titer_state_of_the_art): at 60 g DCW/L that is 5%, at 100 g/L 3%
+    (DERIVED; the cell densities are assumptions, not sourced).
+
+- key: ecoli_cell_density_and_otr_at_scale_gap
+  value: null
+  unit: qualitative (not found)
+  grade: E
+  host: ecoli
+  source: "searched 2026-11-13: Europe PMC and the web; no peer-reviewed cell density or oxygen-transfer rate at 10 m3 or more for E. coli was found. Lab fed-batches reach 110 g/L (Riesenberg 1991, J Biotechnol 20:17) and 128 g/L (Korz 1995, J Biotechnol 39:59), abstracts only."
+  doi_or_url: null
+  locator: null
+  quote: null
+  read: not found
+  note: >-
+    These two numbers set how much of the fermenter's volume is cells, so the model's whole E. coli
+    cost is sensitive to them. They are guesses (grade E) in base.yaml until a source is found,
+    with a wide range, and the casein_ecoli scenario reports their effect.
+
+- key: ecoli_intracellular_tea_ferreira2018
+  value: 316
+  unit: US$ per kg of enzyme (baseline, intracellular beta-glucosidase, E. coli BL21(DE3), 100 m3)
+  grade: B
+  host: ecoli
+  source: "Ferreira RdG, Azzoni AR, Freitas S. Techno-economic analysis of the industrial production of a low-cost enzyme using E. coli: the case of recombinant beta-glucosidase. Biotechnol Biofuels 11:81 (2018)"
+  doi_or_url: 10.1186/s13068-018-1077-0
+  locator: "Results (baseline), Table 1"
+  quote: "316 US$/kg"
+  read: html
+  note: >-
+    The nearest published TEA of an intracellular E. coli protein at scale, for COMPARISON (a validation
+    check, not an input): 100 m3 fermenter, mu = 0.23/h (verified in the paper's table), 26 C, fed-batch
+    yield 0.40 g/g, high-pressure homogeniser, disc-stack centrifuges, microfiltration, UF/DF. Their words:
+    "the production cost (316 US$/kg) was higher than what is commonly assumed in the literature for fungal
+    enzymes, owing especially to the facility-de[pendent cost]". A low-value enzyme with no acid or heat
+    extraction. The paper's exact cost split has not been checked line by line.
