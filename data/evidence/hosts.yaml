@@ -1887,7 +1887,7 @@
   doi_or_url: null
   locator: null
   quote: null
-  read: not found
+  read: abstract
   note: >-
     These two numbers set how much of the fermenter's volume is cells, so the model's whole E. coli
     cost is sensitive to them. They are guesses (grade E) in base.yaml until a source is found,
